@@ -5,6 +5,7 @@ import { DistrictDetailsCard, DistrictDetailsData } from '@/components/DistrictD
 import { PopulationChangeCard } from '@/components/PopulationChangeCard'
 import { GenderChart } from '@/components/GenderChart'
 import { PartyWinsChart } from '@/components/PartyWinsChart'
+import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ChevronRight, Building2 } from 'lucide-react'
@@ -95,6 +96,14 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
         <h2 className="text-xl font-semibold mb-4">Gender Distribution</h2>
         <GenderChart voters={data.voters} />
       </section>
+
+      {/* Most Winning Parties */}
+      {data.electionHistory && data.electionHistory.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Most Winning Parties since ADMK formed</h2>
+          <MostWinningPartiesCard historicData={data.electionHistory} />
+        </section>
+      )}
 
       {/* Year-wise Party Performance */}
       {data.electionHistory && data.electionHistory.length > 0 && (
