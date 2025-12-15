@@ -3,6 +3,7 @@ import config from '@payload-config'
 import { Metadata } from 'next'
 import { Map, MapPinned, Locate, UsersRound } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
+import { DashboardClient } from './DashboardClient'
 
 export const metadata: Metadata = {
   title: 'Dashboard | Tamil Nadu Election Data',
@@ -10,37 +11,60 @@ export const metadata: Metadata = {
     'Comprehensive Tamil Nadu election data, assembly constituency analysis, and electoral insights',
 }
 
-async function getDashboardStats() {
+async function getDashboardData() {
   const payload = await getPayload({ config })
 
-  const [assemblies, districts, booths, electionHistory] = await Promise.all([
-    payload.count({ collection: 'assemblies' }),
-    payload.count({ collection: 'districts' }),
-    payload.count({ collection: 'booths' }),
-    payload.find({
-      collection: 'assemblies',
-      limit: 1000,
-    }),
-  ])
+  const [assembliesCount, districtsCount, boothsCount, assembliesData, districtsData] =
+    await Promise.all([
+      payload.count({ collection: 'assemblies' }),
+      payload.count({ collection: 'districts' }),
+      payload.count({ collection: 'booths' }),
+      payload.find({
+        collection: 'assemblies',
+        limit: 1000,
+      }),
+      payload.find({
+        collection: 'districts',
+        limit: 100,
+      }),
+    ])
 
   // Calculate total voters from assemblies
   let totalVoters = 0
-  electionHistory.docs.forEach((assembly: any) => {
+  assembliesData.docs.forEach((assembly: any) => {
     if (assembly.voters?.total) {
       totalVoters += Number(assembly.voters.total)
     }
   })
 
+  // Transform assemblies for search components
+  const assemblies = assembliesData.docs.map((a: any) => ({
+    assemblyId: a.assemblyId,
+    districtId: a.districtName, // Using districtName as ID since we derive districts
+    districtName: a.districtName,
+    name: a.name,
+  }))
+
+  // Transform districts
+  const districts = districtsData.docs.map((d: any) => ({
+    districtId: d.districtId,
+    districtName: d.districtName,
+  }))
+
   return {
-    totalDistricts: districts.totalDocs,
-    totalAssemblies: assemblies.totalDocs,
-    totalBooths: booths.totalDocs,
-    totalVoters,
+    stats: {
+      totalDistricts: districtsCount.totalDocs,
+      totalAssemblies: assembliesCount.totalDocs,
+      totalBooths: boothsCount.totalDocs,
+      totalVoters,
+    },
+    assemblies,
+    districts,
   }
 }
 
 export default async function DashboardPage() {
-  const stats = await getDashboardStats()
+  const { stats, assemblies, districts } = await getDashboardData()
 
   return (
     <div className="container py-8">
@@ -49,6 +73,7 @@ export default async function DashboardPage() {
         <p className="text-muted-foreground">Tamil Nadu Election Data Overview</p>
       </div>
 
+      {/* Statistics Section */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Statistics</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -78,6 +103,9 @@ export default async function DashboardPage() {
           />
         </div>
       </section>
+
+      {/* Search Sections - Client Component */}
+      <DashboardClient assemblies={assemblies} districts={districts} />
     </div>
   )
 }
