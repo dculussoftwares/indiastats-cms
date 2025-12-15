@@ -84,6 +84,50 @@ async function getDistrictData(districtId: string) {
     }
   })
 
+  // Get election history for all assemblies in this district
+  const assemblyIds = assembliesResult.docs.map((a: any) => a.assemblyId)
+  const historyResult = await payload.find({
+    collection: 'election-history',
+    where: {
+      assemblyId: {
+        in: assemblyIds,
+      },
+    },
+    limit: 5000,
+    sort: '-electionYear',
+  })
+
+  // Group history by year and assembly
+  const historyByYearAndAssembly = new Map<string, any>()
+  historyResult.docs.forEach((record: any) => {
+    const key = `${record.electionYear}-${record.assemblyId}`
+    if (!historyByYearAndAssembly.has(key)) {
+      historyByYearAndAssembly.set(key, {
+        year: record.electionYear,
+        assemblyId: record.assemblyId,
+        totalVoters: record.totalVoters || 0,
+        noOfVotesPolled: record.votesPolled || 0,
+        candidates: [],
+      })
+    }
+    const entry = historyByYearAndAssembly.get(key)
+    entry.candidates.push({
+      name: record.candidateName,
+      party: record.candidateParty || 'IND',
+      votes: record.candidateVotes,
+    })
+  })
+
+  // Convert to array and sort candidates by votes to calculate rank
+  const electionHistory = Array.from(historyByYearAndAssembly.values()).map((entry) => {
+    // Sort by votes descending and assign rank
+    entry.candidates.sort((a: any, b: any) => b.votes - a.votes)
+    entry.candidates.forEach((candidate: any, index: number) => {
+      candidate.rank = index + 1
+    })
+    return entry
+  })
+
   return {
     districtId: district.districtId,
     districtName: district.districtName,
@@ -101,6 +145,7 @@ async function getDistrictData(districtId: string) {
       total: lastTotal,
     },
     assemblies,
+    electionHistory,
   }
 }
 

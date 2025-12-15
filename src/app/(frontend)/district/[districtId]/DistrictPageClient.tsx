@@ -3,6 +3,8 @@ import * as React from 'react'
 import Link from 'next/link'
 import { DistrictDetailsCard, DistrictDetailsData } from '@/components/DistrictDetailsCard'
 import { PopulationChangeCard } from '@/components/PopulationChangeCard'
+import { GenderChart } from '@/components/GenderChart'
+import { PartyWinsChart } from '@/components/PartyWinsChart'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ChevronRight, Building2 } from 'lucide-react'
@@ -11,6 +13,19 @@ interface Assembly {
   assemblyId: string
   name: string
   noOfBooths: number
+}
+
+interface ElectionData {
+  year: number
+  assemblyId: string
+  totalVoters: number
+  noOfVotesPolled: number
+  candidates: {
+    name: string
+    party: string
+    votes: number
+    rank: number
+  }[]
 }
 
 interface DistrictData {
@@ -30,6 +45,7 @@ interface DistrictData {
     total: number
   }
   assemblies: Assembly[]
+  electionHistory: ElectionData[]
 }
 
 interface DistrictPageClientProps {
@@ -73,6 +89,20 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
         <h2 className="text-xl font-semibold mb-4">Population Changes since 2019</h2>
         <PopulationChangeCard voters={data.voters} lastElectionVoters={data.lastElectionVoters} />
       </section>
+
+      {/* Gender Chart */}
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Gender Distribution</h2>
+        <GenderChart voters={data.voters} />
+      </section>
+
+      {/* Year-wise Party Performance */}
+      {data.electionHistory && data.electionHistory.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Year-wise Party Performance</h2>
+          <PartyWinsChart historicData={data.electionHistory} />
+        </section>
+      )}
 
       {/* Assemblies List */}
       <section className="mb-8">
