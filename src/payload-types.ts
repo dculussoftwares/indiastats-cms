@@ -72,6 +72,10 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    assemblies: Assembly;
+    districts: District;
+    booths: Booth;
+    'election-history': ElectionHistory;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -94,6 +98,10 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    assemblies: AssembliesSelect<false> | AssembliesSelect<true>;
+    districts: DistrictsSelect<false> | DistrictsSelect<true>;
+    booths: BoothsSelect<false> | BoothsSelect<true>;
+    'election-history': ElectionHistorySelect<false> | ElectionHistorySelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -781,6 +789,132 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "assemblies".
+ */
+export interface Assembly {
+  id: number;
+  /**
+   * Unique assembly identifier (e.g., ac001)
+   */
+  assemblyId: string;
+  /**
+   * Assembly name (bilingual)
+   */
+  name: string;
+  /**
+   * District name (bilingual)
+   */
+  districtName: string;
+  noOfBooths: number;
+  /**
+   * Current elected MLA data
+   */
+  electedMla?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Current voter statistics (male, female, trans, total, isReservedAc)
+   */
+  voters?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * 2019 voter data
+   */
+  lastElectionVoters?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "districts".
+ */
+export interface District {
+  id: number;
+  /**
+   * Unique district identifier (e.g., dt1)
+   */
+  districtId: string;
+  /**
+   * District name (bilingual)
+   */
+  districtName: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "booths".
+ */
+export interface Booth {
+  id: number;
+  /**
+   * Booth identifier
+   */
+  boothId: string;
+  /**
+   * Reference to assembly
+   */
+  assemblyId: string;
+  /**
+   * Reference to district
+   */
+  districtId?: string | null;
+  wardAddress?: string | null;
+  /**
+   * Link to voter list PDF
+   */
+  pdfLink?: string | null;
+  streetName?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "election-history".
+ */
+export interface ElectionHistory {
+  id: number;
+  /**
+   * Reference to assembly
+   */
+  assemblyId: string;
+  assemblyName?: string | null;
+  assemblyNo?: number | null;
+  /**
+   * Election year (e.g., 1972, 2021)
+   */
+  electionYear: number;
+  totalVoters?: number | null;
+  votesPolled?: number | null;
+  candidateName: string;
+  candidateParty?: string | null;
+  candidateVotes: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -988,6 +1122,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'assemblies';
+        value: number | Assembly;
+      } | null)
+    | ({
+        relationTo: 'districts';
+        value: number | District;
+      } | null)
+    | ({
+        relationTo: 'booths';
+        value: number | Booth;
+      } | null)
+    | ({
+        relationTo: 'election-history';
+        value: number | ElectionHistory;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1353,6 +1503,62 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "assemblies_select".
+ */
+export interface AssembliesSelect<T extends boolean = true> {
+  assemblyId?: T;
+  name?: T;
+  districtName?: T;
+  noOfBooths?: T;
+  electedMla?: T;
+  voters?: T;
+  lastElectionVoters?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "districts_select".
+ */
+export interface DistrictsSelect<T extends boolean = true> {
+  districtId?: T;
+  districtName?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "booths_select".
+ */
+export interface BoothsSelect<T extends boolean = true> {
+  boothId?: T;
+  assemblyId?: T;
+  districtId?: T;
+  wardAddress?: T;
+  pdfLink?: T;
+  streetName?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "election-history_select".
+ */
+export interface ElectionHistorySelect<T extends boolean = true> {
+  assemblyId?: T;
+  assemblyName?: T;
+  assemblyNo?: T;
+  electionYear?: T;
+  totalVoters?: T;
+  votesPolled?: T;
+  candidateName?: T;
+  candidateParty?: T;
+  candidateVotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
