@@ -52,19 +52,25 @@ export function PartyWinsChart({ historicData }: PartyWinsChartProps) {
   const uniqueYears = [...new Set(historicData.map((h) => h.year))].sort((a, b) => a - b)
 
   // Calculate wins per year for each top party
-  const yearlyData = uniqueYears.map((year) => {
-    const yearWins: Record<string, string | number> = { year: year.toString() }
+  const yearlyData = uniqueYears
+    .map((year) => {
+      const yearWins: Record<string, string | number> = { year: year.toString() }
 
-    topParties.forEach((party) => {
-      // Count how many assemblies this party won in this year
-      const winsInYear = historicData.filter(
-        (h) => h.year === year && h.candidates.find((c) => c.rank === 1)?.party === party,
-      ).length
-      yearWins[party] = winsInYear
+      topParties.forEach((party) => {
+        // Count how many assemblies this party won in this year
+        const winsInYear = historicData.filter(
+          (h) => h.year === year && h.candidates.find((c) => c.rank === 1)?.party === party,
+        ).length
+        yearWins[party] = winsInYear
+      })
+
+      return yearWins
     })
-
-    return yearWins
-  })
+    .filter((yearData) => {
+      // Skip years where both top parties have 0 wins
+      const hasData = topParties.some((party) => (yearData[party] as number) > 0)
+      return hasData
+    })
 
   const colors = ['hsl(220, 70%, 50%)', 'hsl(0, 70%, 50%)'] // Blue for 1st, Red for 2nd
 
