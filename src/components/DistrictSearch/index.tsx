@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,6 +28,7 @@ interface DistrictSearchProps {
 const LOCAL_STORAGE_DISTRICT_KEY = 'district-search:districtId'
 
 export const DistrictSearch: React.FC<DistrictSearchProps> = ({ districts, onSearch }) => {
+  const router = useRouter()
   const hasHydratedRef = useRef(false)
   const [selectedDistrict, setSelectedDistrict] = useState<District | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState('')
@@ -74,8 +76,13 @@ export const DistrictSearch: React.FC<DistrictSearchProps> = ({ districts, onSea
   }
 
   const handleSearchClick = () => {
-    if (selectedDistrict && onSearch) {
-      onSearch(selectedDistrict)
+    if (selectedDistrict) {
+      // Call onSearch callback if provided
+      if (onSearch) {
+        onSearch(selectedDistrict)
+      }
+      // Navigate to district page
+      router.push(`/district/${selectedDistrict.districtId}`)
     }
   }
 
