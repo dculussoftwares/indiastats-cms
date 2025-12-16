@@ -1,20 +1,14 @@
 'use client'
 import * as React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PopulationChangeCard } from '@/components/PopulationChangeCard'
-import {
-  ArrowLeft,
-  Building2,
-  User,
-  UserCircle2,
-  Users,
-  UsersRound,
-  Locate,
-  Trophy,
-} from 'lucide-react'
+import { GenderChart } from '@/components/GenderChart'
+import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
+import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate, Trophy } from 'lucide-react'
 
 interface Candidate {
   name: string
@@ -170,6 +164,71 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
         </section>
       )}
 
+      {/* Most Winning Parties since ADMK formed */}
+      {data.electionHistory.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Most Winning Parties since ADMK formed</h2>
+          <MostWinningPartiesCard
+            historicData={data.electionHistory.map((e) => ({
+              year: e.year,
+              assemblyId: data.assemblyId,
+              totalVoters: e.totalVoters,
+              noOfVotesPolled: e.votesPolled,
+              candidates: e.candidates.map((c, idx) => ({
+                ...c,
+                rank: idx + 1,
+              })),
+            }))}
+          />
+        </section>
+      )}
+
+      {/* Winning Histories since ADMK formed - Last 3 Winners */}
+      {data.electionHistory.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Winning Histories since ADMK formed</h2>
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {data.electionHistory.slice(0, 3).map((election) => (
+              <Card key={election.year} className="overflow-hidden">
+                <div className="bg-primary px-4 py-2">
+                  <p className="text-primary-foreground font-semibold">{election.year}</p>
+                </div>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center space-y-3">
+                    {/* Party Logo */}
+                    <Image
+                      src={`/images/${election.winnerParty}.png`}
+                      alt={`${election.winnerParty} logo`}
+                      width={60}
+                      height={45}
+                      className="object-contain"
+                    />
+
+                    {/* Party Name Badge */}
+                    <Badge variant="outline" className="text-sm">
+                      {election.winnerParty}
+                    </Badge>
+
+                    {/* Winner Name */}
+                    <p className="font-semibold text-center text-sm text-muted-foreground">
+                      {election.winner}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Gender chart */}
+      {data.voters && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Gender chart</h2>
+          <GenderChart voters={data.voters} />
+        </section>
+      )}
+
       {/* Population Changes */}
       {data.voters && data.lastElectionVoters && (
         <section className="mb-8">
@@ -178,7 +237,7 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
         </section>
       )}
 
-      {/* Election History */}
+      {/* Election History - Winning Histories section */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Election History</h2>
