@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { PopulationChangeCard } from '@/components/PopulationChangeCard'
 import { GenderChart } from '@/components/GenderChart'
 import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
+import { VotesSharesChart } from '@/components/VotesSharesChart'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate, Trophy } from 'lucide-react'
 
 interface Candidate {
@@ -251,6 +252,14 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Population Changes since 2019</h2>
           <PopulationChangeCard voters={data.voters} lastElectionVoters={data.lastElectionVoters} />
+        </section>
+      )}
+
+      {/* Votes shares */}
+      {data.electionHistory.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Votes shares</h2>
+          <VotesSharesChart electionHistory={data.electionHistory} />
         </section>
       )}
 
