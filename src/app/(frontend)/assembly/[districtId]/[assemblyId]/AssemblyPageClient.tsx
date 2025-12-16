@@ -187,36 +187,40 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Winning Histories since ADMK formed</h2>
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {data.electionHistory.slice(0, 3).map((election) => (
-              <Card key={election.year} className="overflow-hidden">
-                <div className="bg-primary px-4 py-2">
-                  <p className="text-primary-foreground font-semibold">{election.year}</p>
-                </div>
-                <CardContent className="pt-6">
-                  <div className="flex flex-col items-center space-y-3">
-                    {/* Party Logo */}
-                    <Image
-                      src={`/images/${election.winnerParty}.png`}
-                      alt={`${election.winnerParty} logo`}
-                      width={60}
-                      height={45}
-                      className="object-contain"
-                    />
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {data.electionHistory
+              .filter((e) => e.year >= 1977)
+              .map((election) => (
+                <Card key={election.year}>
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center space-y-2">
+                      {/* Year as header-like text */}
+                      <p className="text-sm font-medium text-muted-foreground mb-2">
+                        {election.year}
+                      </p>
 
-                    {/* Party Name Badge */}
-                    <Badge variant="outline" className="text-sm">
-                      {election.winnerParty}
-                    </Badge>
+                      {/* Party Logo */}
+                      <Image
+                        src={`/images/${election.winnerParty}.png`}
+                        alt={`${election.winnerParty} logo`}
+                        width={50}
+                        height={38}
+                        className="object-contain"
+                      />
 
-                    {/* Winner Name */}
-                    <p className="font-semibold text-center text-sm text-muted-foreground">
-                      {election.winner}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      {/* Party Name Badge */}
+                      <Badge variant="outline" className="text-xs">
+                        {election.winnerParty}
+                      </Badge>
+
+                      {/* Winner Name */}
+                      <p className="font-medium text-center text-xs text-muted-foreground px-2">
+                        {election.winner}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
         </section>
       )}
