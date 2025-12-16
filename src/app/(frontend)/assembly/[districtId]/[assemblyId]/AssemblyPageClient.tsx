@@ -64,6 +64,8 @@ function formatNumber(num: number): string {
 }
 
 export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
+  const [showAllWinningHistories, setShowAllWinningHistories] = React.useState(false)
+
   return (
     <div className="container py-8">
       {/* Back Button */}
@@ -183,45 +185,56 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
         </section>
       )}
 
-      {/* Winning Histories since ADMK formed - Last 3 Winners */}
+      {/* Winning Histories since ADMK formed */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Winning Histories since ADMK formed</h2>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {data.electionHistory
-              .filter((e) => e.year >= 1977)
-              .map((election) => (
-                <Card key={election.year}>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center space-y-2">
-                      {/* Year as header-like text */}
-                      <p className="text-sm font-medium text-muted-foreground mb-2">
-                        {election.year}
-                      </p>
+            {(showAllWinningHistories
+              ? data.electionHistory
+              : data.electionHistory.filter((e) => e.year >= 1977).slice(0, 3)
+            ).map((election) => (
+              <Card key={election.year}>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center space-y-2">
+                    {/* Year as header-like text */}
+                    <p className="text-sm font-medium text-muted-foreground mb-2">
+                      {election.year}
+                    </p>
 
-                      {/* Party Logo */}
-                      <Image
-                        src={`/images/${election.winnerParty}.png`}
-                        alt={`${election.winnerParty} logo`}
-                        width={50}
-                        height={38}
-                        className="object-contain"
-                      />
+                    {/* Party Logo */}
+                    <Image
+                      src={`/images/${election.winnerParty}.png`}
+                      alt={`${election.winnerParty} logo`}
+                      width={50}
+                      height={38}
+                      className="object-contain"
+                    />
 
-                      {/* Party Name Badge */}
-                      <Badge variant="outline" className="text-xs">
-                        {election.winnerParty}
-                      </Badge>
+                    {/* Party Name Badge */}
+                    <Badge variant="outline" className="text-xs">
+                      {election.winnerParty}
+                    </Badge>
 
-                      {/* Winner Name */}
-                      <p className="font-medium text-center text-xs text-muted-foreground px-2">
-                        {election.winner}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    {/* Winner Name */}
+                    <p className="font-medium text-center text-xs text-muted-foreground px-2">
+                      {election.winner}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
+
+          {/* View all button */}
+          {!showAllWinningHistories &&
+            data.electionHistory.filter((e) => e.year >= 1977).length > 3 && (
+              <div className="mt-4 flex justify-center">
+                <Button variant="outline" onClick={() => setShowAllWinningHistories(true)}>
+                  View all
+                </Button>
+              </div>
+            )}
         </section>
       )}
 
