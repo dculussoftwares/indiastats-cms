@@ -78,7 +78,11 @@ export function DashboardClient({ assemblies, districts }: DashboardClientProps)
       {/* Assembly Search Section */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Assembly Search</h2>
-        <AssemblySearch assemblies={assemblies} onSearch={handleAssemblySearch} />
+        <AssemblySearch
+          assemblies={assemblies}
+          districts={districts}
+          onSearch={handleAssemblySearch}
+        />
       </section>
     </>
   )

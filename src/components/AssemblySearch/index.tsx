@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,31 +22,39 @@ export interface Assembly {
 
 interface AssemblySearchProps {
   assemblies: Assembly[]
+  districts?: District[] // Optional: pass districts directly from server
   onSearch?: (district: District, assembly: Assembly) => void
 }
 
 const LOCAL_STORAGE_DISTRICT_KEY = 'assembly-search:districtId'
 const LOCAL_STORAGE_ASSEMBLY_KEY = 'assembly-search:assemblyId'
 
-export const AssemblySearch: React.FC<AssemblySearchProps> = ({ assemblies, onSearch }) => {
+export const AssemblySearch: React.FC<AssemblySearchProps> = ({
+  assemblies,
+  districts,
+  onSearch,
+}) => {
+  const router = useRouter()
   const hasHydratedRef = useRef(false)
 
-  // Derive districts from assemblies
-  const allDistricts: District[] = useMemo(
-    () =>
-      Array.from(
-        new Map(
-          assemblies.map((assembly) => [
-            assembly.districtId,
-            {
-              districtId: assembly.districtId,
-              districtName: assembly.districtName,
-            },
-          ]),
-        ).values(),
-      ),
-    [assemblies],
-  )
+  // Use passed districts or derive from assemblies as fallback
+  const allDistricts: District[] = useMemo(() => {
+    if (districts && districts.length > 0) {
+      return districts
+    }
+    // Fallback: derive districts from assemblies
+    return Array.from(
+      new Map(
+        assemblies.map((assembly) => [
+          assembly.districtId || assembly.districtName,
+          {
+            districtId: assembly.districtId || assembly.districtName,
+            districtName: assembly.districtName,
+          },
+        ]),
+      ).values(),
+    )
+  }, [assemblies, districts])
 
   const [selectedDistrict, setSelectedDistrict] = useState<District | undefined>(undefined)
   const [selectedAssembly, setSelectedAssembly] = useState<Assembly | undefined>(undefined)
@@ -67,8 +76,11 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({ assemblies, onSe
   // Filter assemblies in selected district
   const filteredAssemblies = useMemo(() => {
     if (!selectedDistrict) return []
+    // Match by districtName since assemblies may not have districtId
     const districtAssemblies = assemblies.filter(
-      (a) => a.districtId === selectedDistrict.districtId,
+      (a) =>
+        a.districtName === selectedDistrict.districtName ||
+        (a.districtId && a.districtId === selectedDistrict.districtId),
     )
     if (!assemblyQuery) return districtAssemblies
     return districtAssemblies.filter((a) =>
@@ -171,6 +183,20 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({ assemblies, onSe
     setSelectedDistrict(district)
     setDistrictQuery(district.districtName)
     setIsDistrictOpen(false)
+
+    // Auto-select first assembly for this district
+    const districtAssemblies = assemblies.filter(
+      (a) =>
+        a.districtName === district.districtName ||
+        (a.districtId && a.districtId === district.districtId),
+    )
+    if (districtAssemblies.length > 0) {
+      setSelectedAssembly(districtAssemblies[0])
+      setAssemblyQuery(districtAssemblies[0].name)
+    } else {
+      setSelectedAssembly(undefined)
+      setAssemblyQuery('')
+    }
   }
 
   const handleAssemblySelect = (assembly: Assembly) => {
@@ -180,11 +206,13 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({ assemblies, onSe
   }
 
   const handleDirectAssemblySelect = (assembly: Assembly) => {
-    const matchingDistrict = allDistricts.find((d) => d.districtId === assembly.districtId)
-    if (matchingDistrict) {
-      setSelectedDistrict(matchingDistrict)
-      setDistrictQuery(matchingDistrict.districtName)
+    // Create district from assembly data
+    const district: District = {
+      districtId: assembly.districtId,
+      districtName: assembly.districtName,
     }
+    setSelectedDistrict(district)
+    setDistrictQuery(assembly.districtName)
     setSelectedAssembly(assembly)
     setAssemblyQuery(assembly.name)
     setDirectAssemblyQuery(assembly.name)
@@ -192,8 +220,11 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({ assemblies, onSe
   }
 
   const handleSearchClick = () => {
-    if (selectedDistrict && selectedAssembly && onSearch) {
-      onSearch(selectedDistrict, selectedAssembly)
+    if (selectedDistrict && selectedAssembly) {
+      router.push(`/assembly/${selectedDistrict.districtId}/${selectedAssembly.assemblyId}`)
+      if (onSearch) {
+        onSearch(selectedDistrict, selectedAssembly)
+      }
     }
   }
 
@@ -216,7 +247,10 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({ assemblies, onSe
                 setDistrictQuery(e.target.value)
                 setIsDistrictOpen(true)
               }}
-              onFocus={() => setIsDistrictOpen(true)}
+              onFocus={() => {
+                setDistrictQuery('')
+                setIsDistrictOpen(true)
+              }}
               className="pl-9"
             />
             {isDistrictOpen && filteredDistricts.length > 0 && (
@@ -250,7 +284,10 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({ assemblies, onSe
                 setAssemblyQuery(e.target.value)
                 setIsAssemblyOpen(true)
               }}
-              onFocus={() => setIsAssemblyOpen(true)}
+              onFocus={() => {
+                setAssemblyQuery('')
+                setIsAssemblyOpen(true)
+              }}
               disabled={!selectedDistrict}
               className="pl-9"
             />

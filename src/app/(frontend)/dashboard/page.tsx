@@ -40,7 +40,7 @@ async function getDashboardData() {
   // Transform assemblies for search components (include voters for district details)
   const assemblies = assembliesData.docs.map((a: any) => ({
     assemblyId: a.assemblyId,
-    districtId: a.districtName, // Using districtName as ID since we derive districts
+    districtId: a.districtId, // Use actual districtId for navigation
     districtName: a.districtName,
     name: a.name,
     voters: a.voters
