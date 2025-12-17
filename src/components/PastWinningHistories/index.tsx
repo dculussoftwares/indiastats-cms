@@ -297,6 +297,13 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
                 .filter((e) => e.year === expandedYear)
                 .map((election) => {
                   const partyColor = getPartyColor(election.winnerParty)
+                  // Fallback: calculate votesPolled from candidate votes if missing
+                  const calculatedVotesPolled = election.candidates.reduce(
+                    (sum, c) => sum + c.votes,
+                    0,
+                  )
+                  const effectiveVotesPolled =
+                    election.votesPolled > 0 ? election.votesPolled : calculatedVotesPolled
 
                   return (
                     <div key={election.year} className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -307,7 +314,7 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
                         </p>
                         <div className="text-center">
                           <p className="text-sm text-muted-foreground">
-                            {formatNumber(election.votesPolled)} votes polled
+                            {formatNumber(effectiveVotesPolled)} votes polled
                           </p>
                           {election.totalVoters > 0 && (
                             <p className="text-xs text-muted-foreground">
