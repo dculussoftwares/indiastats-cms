@@ -29,9 +29,9 @@ interface VotesSharesChartProps {
 
 // Color palette for parties
 const PARTY_COLORS: Record<string, string> = {
-  DMK: '#d32f2f',
-  ADMK: '#1976d2',
-  AIADMK: '#1976d2',
+  DMK: '#b71c1c', // Deep Red
+  ADMK: '#388e3c', // Green
+  AIADMK: '#388e3c', // Green
   INC: '#00bcd4',
   BJP: '#ff9800',
   PMK: '#fbc02d',
