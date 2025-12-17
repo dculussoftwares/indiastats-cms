@@ -64,17 +64,57 @@ const getPartyColor = (party: string, index: number): string => {
   return colors[index % colors.length]
 }
 
+// Format number for display
+const formatNumber = (value: number) => {
+  if (value >= 100000) return (value / 100000).toFixed(1) + 'L'
+  if (value >= 1000) return (value / 1000).toFixed(1) + 'K'
+  return value.toString()
+}
+
+// Custom tooltip that filters out parties with 0 votes
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload) return null
+
+  // Filter out entries with 0 votes
+  const filteredPayload = payload.filter((entry: any) => {
+    const value = entry.value
+    return value != null && value > 0
+  })
+
+  if (filteredPayload.length === 0) return null
+
+  return (
+    <div className="bg-background border rounded-lg shadow-lg p-3">
+      <p className="font-semibold mb-2">Year: {label}</p>
+      <div className="space-y-1">
+        {filteredPayload.map((entry: any, index: number) => (
+          <div key={index} className="flex items-center gap-2 text-sm">
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
+            <span className="font-medium">{entry.name}:</span>
+            <span>{formatNumber(entry.value)} votes</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function VotesSharesChart({ electionHistory }: VotesSharesChartProps) {
   if (!electionHistory || electionHistory.length === 0) return null
 
-  // Get all unique parties
-  const allParties = new Set<string>()
+  // Get all unique parties and their total votes
+  const partyTotalVotes = new Map<string, number>()
   electionHistory.forEach((election) => {
     election.candidates.forEach((candidate) => {
-      allParties.add(candidate.party)
+      const current = partyTotalVotes.get(candidate.party) || 0
+      partyTotalVotes.set(candidate.party, current + candidate.votes)
     })
   })
-  const partyList = Array.from(allParties)
+
+  // Filter out parties with 0 total votes
+  const partyList = Array.from(partyTotalVotes.entries())
+    .filter(([_, totalVotes]) => totalVotes > 0)
+    .map(([party, _]) => party)
 
   // Prepare chart data
   const chartData = electionHistory
@@ -90,13 +130,6 @@ export function VotesSharesChart({ electionHistory }: VotesSharesChartProps) {
     })
     .sort((a, b) => parseInt(a.year as string) - parseInt(b.year as string))
 
-  // Format number for tooltip
-  const formatNumber = (value: number) => {
-    if (value >= 100000) return (value / 100000).toFixed(1) + 'L'
-    if (value >= 1000) return (value / 1000).toFixed(1) + 'K'
-    return value.toString()
-  }
-
   return (
     <Card>
       <CardContent className="pt-6">
@@ -111,10 +144,7 @@ export function VotesSharesChart({ electionHistory }: VotesSharesChartProps) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="year" />
             <YAxis tickFormatter={formatNumber} />
-            <Tooltip
-              formatter={(value: number, name: string) => [formatNumber(value) + ' votes', name]}
-              labelFormatter={(label) => `Year: ${label}`}
-            />
+            <Tooltip content={<CustomTooltip />} />
             <Legend wrapperStyle={{ paddingTop: '20px' }} />
             {partyList.map((party, index) => (
               <Bar
