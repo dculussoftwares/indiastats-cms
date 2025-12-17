@@ -9,7 +9,8 @@ import { PopulationChangeCard } from '@/components/PopulationChangeCard'
 import { GenderChart } from '@/components/GenderChart'
 import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { VotesSharesChart } from '@/components/VotesSharesChart'
-import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate, Trophy } from 'lucide-react'
+import { PastWinningHistories } from '@/components/PastWinningHistories'
+import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
 
 interface Candidate {
   name: string
@@ -266,90 +267,8 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
       {/* Past Winning histories */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Past Winning histories</h2>
-          <div className="space-y-6">
-            {data.electionHistory.map((election) => (
-              <Card key={election.year}>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Year and Votes Polled */}
-                    <div className="flex flex-col items-center space-y-2 md:border-r md:pr-6">
-                      <p className="text-2xl font-bold">{election.year}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatNumber(election.votesPolled)}
-                      </p>
-                      <p className="text-xs text-muted-foreground italic">votes polled</p>
-                    </div>
-
-                    {/* Winner */}
-                    <div className="flex flex-col items-center space-y-3 md:border-r md:pr-6">
-                      <Badge className="bg-green-600">Winner</Badge>
-                      <Image
-                        src={`/images/${election.winnerParty}.png`}
-                        alt={`${election.winnerParty} logo`}
-                        width={50}
-                        height={38}
-                        className="object-contain"
-                      />
-                      <Badge variant="outline" className="text-xs">
-                        {election.winnerParty}
-                      </Badge>
-                      <p className="font-medium text-center text-sm">{election.winner}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatNumber(election.winnerVotes)} votes
-                      </p>
-                      {election.totalVoters > 0 && (
-                        <Badge variant="secondary" className="text-xs">
-                          Total: {formatNumber(election.totalVoters)}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Runners (2nd & 3rd) */}
-                    <div className="flex flex-col space-y-4">
-                      {election.candidates.slice(1, 3).map((candidate, idx) => {
-                        const voteDiff = election.winnerVotes - candidate.votes
-                        const voteDiffPercent = (
-                          (voteDiff / (election.winnerVotes + candidate.votes)) *
-                          100
-                        ).toFixed(2)
-
-                        return (
-                          <div key={idx} className="flex flex-col items-center space-y-2">
-                            <Badge variant="secondary">{idx === 0 ? '2nd' : '3rd'}</Badge>
-                            <Image
-                              src={`/images/${candidate.party}.png`}
-                              alt={`${candidate.party} logo`}
-                              width={40}
-                              height={30}
-                              className="object-contain"
-                            />
-                            <Badge variant="outline" className="text-xs">
-                              {candidate.party}
-                            </Badge>
-                            <p className="text-xs text-center text-muted-foreground">
-                              {candidate.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatNumber(candidate.votes)} votes
-                            </p>
-                            <div className="flex gap-2">
-                              <Badge variant="destructive" className="text-xs">
-                                -{voteDiffPercent}%
-                              </Badge>
-                              <Badge variant="outline" className="text-xs text-red-600">
-                                -{formatNumber(voteDiff)}
-                              </Badge>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <h2 className="text-xl font-semibold mb-4">Past Winning Histories</h2>
+          <PastWinningHistories electionHistory={data.electionHistory} />
         </section>
       )}
     </div>
