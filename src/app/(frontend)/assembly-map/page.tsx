@@ -14,11 +14,14 @@ export const metadata: Metadata = {
 export default function AssemblyMapPage() {
   return (
     <div className="container mx-auto py-6">
+      {/* BBC Style Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Tamil Nadu Assembly Map</h1>
-        <p className="text-muted-foreground">
-          Interactive map showing all 234 assembly constituencies
-        </p>
+        <div className="border-l-4 border-red-600 pl-4 py-2">
+          <h1 className="text-2xl font-bold">Tamil Nadu Assembly Map</h1>
+          <p className="text-sm text-muted-foreground">
+            Interactive map showing all 234 assembly constituencies
+          </p>
+        </div>
       </div>
       <AssemblyMap map={TamilNaduGeoJson} />
     </div>

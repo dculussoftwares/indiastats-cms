@@ -3,13 +3,11 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Search, MapPin } from 'lucide-react'
+import { Search, MapPin, ExternalLink, X } from 'lucide-react'
 import './leaflet-style-import'
 import L from 'leaflet'
-import chroma from 'chroma-js'
 
 // Dynamic imports for react-leaflet (SSR disabled)
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
@@ -26,14 +24,82 @@ export type AssemblyMapProps = {
   map: any
 }
 
-// Generate distinct colors for each PC
+// Generate distinct colors for districts - BBC-inspired muted palette
+const getDistrictColors = (): Record<string, string> => {
+  // Muted, professional color palette
+  const colors = [
+    '#94a3b8',
+    '#a1a1aa',
+    '#a8a29e',
+    '#9ca3af',
+    '#a3a3a3',
+    '#b8b4a9',
+    '#a6b0aa',
+    '#9da5a4',
+    '#a09d98',
+    '#b0a99f',
+    '#98a4a6',
+    '#a5a09a',
+    '#9fa8a0',
+    '#a3a3a3',
+    '#9e9e9e',
+    '#a09a94',
+    '#9aa09c',
+    '#a4a49f',
+    '#a09fa4',
+    '#9a9e9f',
+  ]
+  return { _colors: colors } as unknown as Record<string, string>
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getPcNameColorMap = (features: any[]) => {
   const pcNames = Array.from(new Set(features.map((f) => f.properties?.pc_name)))
-  const colorScale = chroma.scale('Set3').colors(pcNames.length)
+  const colors = [
+    '#cbd5e1',
+    '#d4d4d8',
+    '#d6d3d1',
+    '#d1d5db',
+    '#d4d4d4',
+    '#e2e0db',
+    '#cfd8d4',
+    '#d1d5d4',
+    '#d4d1cc',
+    '#dbd8d3',
+    '#c7d0d2',
+    '#d6d2cc',
+    '#d1d7d3',
+    '#d4d4d4',
+    '#cfcfcf',
+    '#d4cfca',
+    '#c9d1ce',
+    '#d5d5d1',
+    '#d1d1d5',
+    '#cbcfcf',
+    '#ccd4d5',
+    '#d3ceca',
+    '#cdd3cf',
+    '#d2d2d2',
+    '#d0d0d0',
+    '#d1cdc9',
+    '#c8d0cd',
+    '#d4d4d0',
+    '#d0d0d4',
+    '#cacece',
+    '#cbd3d4',
+    '#d2cdc9',
+    '#ccd2ce',
+    '#d1d1d1',
+    '#cfcfcf',
+    '#d0ccc8',
+    '#c7cfcc',
+    '#d3d3cf',
+    '#cfcfd3',
+    '#c9cdcd',
+  ]
   const pcNameColorMap: Record<string, string> = {}
   pcNames.forEach((name, idx) => {
-    pcNameColorMap[name as string] = colorScale[idx]
+    pcNameColorMap[name as string] = colors[idx % colors.length]
   })
   return pcNameColorMap
 }
@@ -122,6 +188,8 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   const [showDropdown, setShowDropdown] = useState(false)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = useRef<any>(null)
+  // Track selected assembly in ref for use in event handlers
+  const selectedAssemblyRef = useRef<string | null>(null)
 
   const pcNameColorMap = useMemo(() => getPcNameColorMap(map.features || []), [map])
 
@@ -134,10 +202,10 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   }, [map])
 
   const filteredOptions = useMemo(() => {
-    if (!searchQuery) return assemblyOptions.slice(0, 10)
+    if (!searchQuery) return assemblyOptions.slice(0, 8)
     return assemblyOptions
       .filter((name) => name.toLowerCase().includes(searchQuery.toLowerCase()))
-      .slice(0, 10)
+      .slice(0, 8)
   }, [searchQuery, assemblyOptions])
 
   // Handle feature interactions
@@ -148,27 +216,51 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       mouseover: (event: any) => {
         event.target.bringToFront()
         event.target.setStyle({
-          color: 'black',
-          weight: 3,
+          color: '#dc2626', // BBC red on hover
+          weight: 2,
+          fillOpacity: 0.8,
         })
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mouseout: (event: any) => {
-        event.target.bringToBack()
-        const pcName = feature?.properties?.pc_name
-        event.target.setStyle({
-          color: '#9370DB',
-          fillColor: pcNameColorMap[pcName] || 'lightblue',
-          fillOpacity: 0.7,
-          opacity: 1,
-          weight: 1,
-        })
+        const acName = feature?.properties?.ac_name
+        // Keep red style if this is the selected assembly
+        if (selectedAssemblyRef.current === acName) {
+          event.target.setStyle({
+            color: '#dc2626',
+            fillColor: '#fecaca',
+            fillOpacity: 0.9,
+            weight: 2,
+          })
+        } else {
+          event.target.bringToBack()
+          const pcName = feature?.properties?.pc_name
+          event.target.setStyle({
+            color: '#6b7280',
+            fillColor: pcNameColorMap[pcName] || '#e5e7eb',
+            fillOpacity: 0.6,
+            opacity: 1,
+            weight: 1,
+          })
+        }
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       click: (e: any) => {
         const { lat, lng } = e.latlng
+        const acName = feature?.properties?.ac_name
+        // Update both state and ref
+        selectedAssemblyRef.current = acName || null
+        setSelectedAssembly(acName || null)
+        setSearchQuery(acName || '')
         setPopupContent(feature.properties || 'No data available')
         setPopupPosition([lat, lng])
+        // Keep the red style on click
+        e.target.setStyle({
+          color: '#dc2626',
+          fillColor: '#fecaca',
+          fillOpacity: 0.9,
+          weight: 2,
+        })
       },
     })
   }
@@ -222,68 +314,69 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     const isSelected = selectedAssembly === feature?.properties?.ac_name
 
     return {
-      color: isSelected ? '#FF4500' : '#9370DB',
-      fillColor: isSelected ? '#FFA07A' : pcNameColorMap[pcName] || 'lightblue',
-      fillOpacity: isSelected ? 0.9 : 0.7,
+      color: isSelected ? '#dc2626' : '#6b7280',
+      fillColor: isSelected ? '#fecaca' : pcNameColorMap[pcName] || '#e5e7eb',
+      fillOpacity: isSelected ? 0.9 : 0.6,
       opacity: 1,
-      weight: isSelected ? 3 : 1,
+      weight: isSelected ? 2 : 1,
     }
+  }
+
+  const clearSelection = () => {
+    setSelectedAssembly(null)
+    setSearchQuery('')
+    setPopupPosition(null)
+    setPopupContent(null)
   }
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="relative">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search constituency..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value)
-                setShowDropdown(true)
-              }}
-              onFocus={() => setShowDropdown(true)}
-              className="w-full pl-10 pr-4 py-2 border rounded-md bg-background"
-            />
+      {/* Search - BBC Style */}
+      <Card>
+        <CardContent className="py-3">
+          <div className="flex gap-3 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search constituency..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setShowDropdown(true)
+                }}
+                onFocus={() => setShowDropdown(true)}
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded bg-white dark:bg-gray-900 dark:border-gray-700 focus:outline-none focus:border-red-600"
+              />
+              {showDropdown && filteredOptions.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-56 overflow-y-auto">
+                  {filteredOptions.map((name) => (
+                    <button
+                      key={name}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2"
+                      onClick={() => handleAssemblySearch(name)}
+                    >
+                      <MapPin className="h-3 w-3 text-gray-400" />
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {selectedAssembly && (
+              <Button variant="ghost" size="sm" onClick={clearSelection} className="px-2">
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
-          {selectedAssembly && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSelectedAssembly(null)
-                setSearchQuery('')
-                setPopupPosition(null)
-                setPopupContent(null)
-              }}
-            >
-              Clear
-            </Button>
-          )}
-        </div>
-        {showDropdown && filteredOptions.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
-            {filteredOptions.map((name) => (
-              <button
-                key={name}
-                className="w-full px-4 py-2 text-left hover:bg-accent flex items-center gap-2"
-                onClick={() => handleAssemblySearch(name)}
-              >
-                <MapPin className="h-4 w-4" />
-                {name}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Map Container */}
+      {/* Map Container - Clean styling */}
       <div className="relative">
-        <div className="h-[600px] w-full rounded-lg overflow-hidden border">
+        <div className="h-[550px] w-full rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
           <MapContainer
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: '100%', width: '100%', background: '#f8fafc' }}
             center={[11.1271, 78.6569]}
             zoom={7}
             scrollWheelZoom={true}
@@ -312,7 +405,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                       icon={
                         new DivIcon({
                           className: 'polygon-label',
-                          html: `<div style="background:${pcNameColorMap[feature.properties.pc_name] || 'rgba(255,255,255,0.7)'};padding:2px 6px;border-radius:4px;font-size:14px;font-weight:bold;color:#222;min-width:60px;text-align:center;">${feature.properties.ac_name}</div>`,
+                          html: `<div style="background:white;padding:2px 6px;border-radius:2px;font-size:11px;font-weight:600;color:#374151;border:1px solid #e5e7eb;white-space:nowrap;">${feature.properties.ac_name}</div>`,
                         })
                       }
                       interactive={false}
@@ -322,50 +415,51 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                 return null
               })}
 
-            {/* Popup */}
+            {/* Popup - BBC Style */}
             {popupPosition && popupContent && (
               <Popup position={popupPosition}>
-                <div className="flex flex-col gap-2 p-1">
-                  <p className="font-semibold">{popupContent.ac_name}</p>
-                  <p className="text-sm text-muted-foreground">PC: {popupContent.pc_name}</p>
-                  <Badge
-                    className="cursor-pointer"
+                <div className="p-1 min-w-[160px]">
+                  <p className="font-bold text-sm text-gray-900 dark:text-white mb-1">
+                    {popupContent.ac_name}
+                  </p>
+                  <p className="text-xs text-gray-500 mb-3">PC: {popupContent.pc_name}</p>
+                  <button
+                    className="w-full flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
                     onClick={() =>
                       router.push(
                         `/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
                       )
                     }
                   >
-                    View Assembly →
-                  </Badge>
+                    View Assembly
+                    <ExternalLink className="h-3 w-3" />
+                  </button>
                 </div>
               </Popup>
             )}
           </MapContainer>
         </div>
 
-        {/* Legend */}
-        <div className="absolute bottom-4 right-4 z-[1000]">
-          <Card className="max-h-[150px] overflow-y-auto bg-background/95 backdrop-blur">
-            <CardHeader className="py-2 px-3">
-              <CardTitle className="text-xs">Parliamentary Constituencies</CardTitle>
-            </CardHeader>
-            <CardContent className="py-2 px-3">
-              <div className="flex flex-col gap-1">
-                {Object.entries(pcNameColorMap).map(([pcName, color]) => (
-                  <div key={pcName} className="flex items-center gap-2">
-                    <div
-                      className="w-4 h-4 rounded-full border"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="text-xs whitespace-nowrap">{pcName}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Legend - Minimal BBC Style */}
+        <div className="absolute bottom-3 right-3 z-[1000]">
+          <div className="bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700 rounded shadow-sm px-3 py-2 max-w-[150px]">
+            <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Legend</p>
+            <div className="flex items-center gap-2 text-xs">
+              <div className="w-3 h-3 rounded-sm bg-red-200 border border-red-600" />
+              <span className="text-gray-600 dark:text-gray-400">Selected</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs mt-1">
+              <div className="w-3 h-3 rounded-sm bg-gray-200 border border-gray-400" />
+              <span className="text-gray-600 dark:text-gray-400">Constituency</span>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Info text */}
+      <p className="text-xs text-muted-foreground text-center">
+        Click on any constituency to view details • Scroll to zoom • Drag to pan
+      </p>
     </div>
   )
 }
