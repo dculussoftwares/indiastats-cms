@@ -84,18 +84,19 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (filteredPayload.length === 0) return null
 
   return (
-    <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-4">
-      <p className="font-bold text-lg mb-3 text-slate-900 dark:text-white">Year: {label}</p>
-      <div className="space-y-2">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3 min-w-[140px]">
+      <p className="font-bold text-sm text-red-600 mb-2 pb-1 border-b border-gray-100 dark:border-gray-800">
+        {label}
+      </p>
+      <div className="space-y-1.5">
         {filteredPayload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-3 text-sm">
-            <div
-              className="w-4 h-4 rounded-md shadow-sm"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="font-semibold text-slate-700 dark:text-slate-200">{entry.name}:</span>
-            <span className="text-slate-600 dark:text-slate-400">
-              {formatNumber(entry.value)} votes
+          <div key={index} className="flex items-center justify-between gap-4 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+              <span className="font-medium text-gray-700 dark:text-gray-300">{entry.name}</span>
+            </div>
+            <span className="font-bold text-gray-900 dark:text-gray-100">
+              {formatNumber(entry.value)}
             </span>
           </div>
         ))}
@@ -137,20 +138,47 @@ export function VotesSharesChart({ electionHistory }: VotesSharesChartProps) {
 
   return (
     <Card>
-      <CardContent className="pt-6">
-        <div className="space-y-2 mb-4">
-          <p className="text-sm font-medium">Votes by all parties for each year</p>
-          <p className="text-xs text-muted-foreground italic">
-            Highest at the bottom, lowest at the top
+      <CardContent className="pt-6 pb-4">
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground">
+            Stacked vote shares by party for each election year
           </p>
         </div>
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="year" />
-            <YAxis tickFormatter={formatNumber} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+        <ResponsiveContainer width="100%" height={380}>
+          <BarChart
+            data={chartData}
+            margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+            barCategoryGap="20%"
+          >
+            <CartesianGrid
+              strokeDasharray="0"
+              vertical={false}
+              stroke="#e5e7eb"
+              strokeOpacity={0.5}
+            />
+            <XAxis
+              dataKey="year"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: '#6b7280' }}
+              dy={8}
+            />
+            <YAxis
+              tickFormatter={formatNumber}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 11, fill: '#9ca3af' }}
+              width={45}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0, 0, 0, 0.04)' }} />
+            <Legend
+              wrapperStyle={{ paddingTop: '16px' }}
+              iconType="circle"
+              iconSize={8}
+              formatter={(value) => (
+                <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">{value}</span>
+              )}
+            />
             {partyList.map((party, index) => (
               <Bar
                 key={party}
@@ -158,6 +186,7 @@ export function VotesSharesChart({ electionHistory }: VotesSharesChartProps) {
                 stackId="a"
                 fill={getPartyColor(party, index)}
                 name={party}
+                radius={index === partyList.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
               />
             ))}
           </BarChart>
