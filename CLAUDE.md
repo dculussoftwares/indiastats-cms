@@ -151,3 +151,73 @@ All collections are accessible via PayloadCMS REST API:
 3. **Reserved Constituencies**: The `isReservedAc` flag in voters JSON indicates SC/ST reserved constituencies.
 
 4. **Elected MLAs**: The `electedMla` JSON array in assemblies contains historical MLA data with party information.
+
+---
+
+## Design Principles - BBC News Style
+
+The frontend follows a **BBC News-inspired design language** emphasizing clarity, minimalism, and professionalism.
+
+### Color Palette
+
+| Token          | Value                 | Usage                                 |
+| -------------- | --------------------- | ------------------------------------- |
+| Primary/Accent | `#BB1919` / `red-600` | Borders, badges, important indicators |
+| Background     | `white`               | Page/card backgrounds                 |
+| Foreground     | `hsl(0, 0%, 10%)`     | Primary text                          |
+| Muted          | `gray-500`            | Secondary icons, muted text           |
+
+### Typography
+
+- **Headlines**: `text-2xl` to `text-3xl`, `font-bold`
+- **Section Headers**: `text-lg font-bold` with red left border
+- **Labels**: `uppercase tracking-wide text-xs`
+
+### Section Headers
+
+All section headers use a red left border:
+
+```tsx
+<h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">Section Title</h2>
+```
+
+### Cards
+
+- Minimal borders (`border border-border`)
+- Small radius (`rounded` = 0.25rem global)
+- No heavy shadows
+- White backgrounds
+
+### Buttons
+
+| Variant   | Hover Style                              |
+| --------- | ---------------------------------------- |
+| `ghost`   | `bg-gray-100`                            |
+| `outline` | Red border + text + light red background |
+
+### Icons
+
+- General: `text-gray-500`
+- Accent contexts: `text-red-600` with `bg-red-50` container
+
+### Charts (Recharts)
+
+- Rounded bar tops: `radius={[4, 4, 0, 0]}`
+- Horizontal-only grid: `vertical={false}`
+- No axis lines: `axisLine={false} tickLine={false}`
+- Circular legends: `iconType="circle"`
+- Tooltip: White background, red header
+
+### Header
+
+- Sticky: `sticky top-0 z-50`
+- Red top border: `border-t-4 border-red-600`
+- White background with shadow
+
+### Don'ts
+
+❌ Heavy shadows or gradients on cards
+❌ Colorful icon backgrounds (use gray)
+❌ Overuse vertical left-border lines
+❌ Large border-radius (keep minimal)
+❌ Neumorphic or glassmorphism effects
