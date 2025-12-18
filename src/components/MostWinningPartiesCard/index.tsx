@@ -137,13 +137,17 @@ export function MostWinningPartiesCard({ historicData }: MostWinningPartiesCardP
           </div>
 
           {/* VS Badge */}
-          <div className="flex-shrink-0">
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-full w-14 h-14 flex items-center justify-center">
-              <span className="text-lg font-bold text-gray-500">VS</span>
+          <div className="flex-shrink-0 flex flex-col items-center">
+            <div className="relative">
+              <div className="bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-700 dark:to-gray-800 rounded-full w-16 h-16 flex items-center justify-center shadow-lg">
+                <span className="text-xl font-black text-white tracking-wide">VS</span>
+              </div>
+              {winDifference > 0 && (
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+                  +{winDifference}
+                </div>
+              )}
             </div>
-            {winDifference > 0 && (
-              <p className="text-xs text-center text-muted-foreground mt-1">+{winDifference}</p>
-            )}
           </div>
 
           {/* Party 2 (Runner-up) */}
