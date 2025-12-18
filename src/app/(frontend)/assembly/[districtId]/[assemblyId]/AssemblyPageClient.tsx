@@ -9,6 +9,7 @@ import { GenderChart } from '@/components/GenderChart'
 import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { VotesSharesChart } from '@/components/VotesSharesChart'
 import { PastWinningHistories } from '@/components/PastWinningHistories'
+import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
 
 interface Candidate {
@@ -96,6 +97,11 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
           </div>
           <p className="text-muted-foreground text-sm">{data.districtName}</p>
         </div>
+      </div>
+
+      {/* View on Map Card */}
+      <div className="mb-8">
+        <ViewOnMapCard assemblyId={data.assemblyId} assemblyName={data.name} />
       </div>
 
       {/* Assembly Overview */}
