@@ -31,34 +31,6 @@ export type AssemblyMapProps = {
   map: any
 }
 
-// Generate distinct colors for districts - BBC-inspired muted palette
-const getDistrictColors = (): Record<string, string> => {
-  // Muted, professional color palette
-  const colors = [
-    '#94a3b8',
-    '#a1a1aa',
-    '#a8a29e',
-    '#9ca3af',
-    '#a3a3a3',
-    '#b8b4a9',
-    '#a6b0aa',
-    '#9da5a4',
-    '#a09d98',
-    '#b0a99f',
-    '#98a4a6',
-    '#a5a09a',
-    '#9fa8a0',
-    '#a3a3a3',
-    '#9e9e9e',
-    '#a09a94',
-    '#9aa09c',
-    '#a4a49f',
-    '#a09fa4',
-    '#9a9e9f',
-  ]
-  return { _colors: colors } as unknown as Record<string, string>
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getPcNameColorMap = (features: any[]) => {
   const pcNames = Array.from(new Set(features.map((f) => f.properties?.pc_name)))
@@ -429,7 +401,6 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     const acParam = searchParams.get('ac')
     if (acParam && map.features) {
       const acNum = String(Number(acParam))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const feature = map.features.find(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (f: any) => f.properties && String(Number(f.properties.ac)) === acNum,
@@ -487,7 +458,6 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const districtFeatures = map.features?.filter((f: any) => f.properties?.pc_name === district)
       if (districtFeatures && districtFeatures.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const allCoords: [number, number][] = []
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         districtFeatures.forEach((f: any) => {
