@@ -34,37 +34,37 @@ const PopulationChangeItem: React.FC<PopulationChangeItemProps> = ({
 
   return (
     <Card>
-      <CardContent className="pt-4">
+      <CardContent className="pt-4 pb-3">
         {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium">{title}</h3>
-          <div className="h-5 w-5 text-muted-foreground">{icon}</div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-5 w-5 text-gray-500">{icon}</div>
+          <h3 className="text-xs font-bold uppercase tracking-wide">{title}</h3>
         </div>
 
-        {/* Difference */}
-        <div className="flex items-center justify-between mb-4">
+        {/* Difference Display */}
+        <div className="flex items-center justify-between mb-3">
           <span className="text-2xl font-bold">
             {isPositive ? '+' : ''}
             {formatNumber(difference)}
           </span>
           <Badge
             variant={isPositive ? 'default' : 'destructive'}
-            className={isPositive ? 'bg-green-600' : ''}
+            className={`${isPositive ? 'bg-red-600 border-0' : ''} px-2 py-0.5 text-xs`}
           >
             {isPositive ? '+' : ''}
             {percentChange}%
           </Badge>
         </div>
-        <p className="text-xs text-muted-foreground mb-4">
-          {difference.toLocaleString()} {title.toLowerCase()}
+        <p className="text-xs text-muted-foreground mb-3">
+          {difference.toLocaleString()} {title.toLowerCase()} voters
         </p>
 
         {/* 2025 vs 2019 comparison */}
-        <div className="flex items-stretch gap-4">
+        <div className="flex items-stretch gap-4 pt-3 border-t">
           {/* 2025 */}
           <div className="flex-1">
-            <p className="text-xs font-medium text-muted-foreground mb-1">2025</p>
-            <p className="text-xl font-bold">{formatNumber(currentCount)}</p>
+            <p className="text-xs font-bold text-red-600 mb-1">2025</p>
+            <p className="text-lg font-bold">{formatNumber(currentCount)}</p>
             <p className="text-xs text-muted-foreground">{currentCount.toLocaleString()}</p>
           </div>
 
@@ -73,8 +73,8 @@ const PopulationChangeItem: React.FC<PopulationChangeItemProps> = ({
 
           {/* 2019 */}
           <div className="flex-1">
-            <p className="text-xs font-medium text-muted-foreground mb-1">2019</p>
-            <p className="text-xl font-bold">{formatNumber(previousCount)}</p>
+            <p className="text-xs font-bold text-muted-foreground mb-1">2019</p>
+            <p className="text-lg font-bold text-muted-foreground">{formatNumber(previousCount)}</p>
             <p className="text-xs text-muted-foreground">{previousCount.toLocaleString()}</p>
           </div>
         </div>
@@ -103,7 +103,7 @@ export const PopulationChangeCard: React.FC<PopulationChangeCardProps> = ({
   lastElectionVoters,
 }) => {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <PopulationChangeItem
         title="Male"
         currentCount={voters.male}

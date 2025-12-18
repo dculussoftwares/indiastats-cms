@@ -3,7 +3,6 @@ import * as React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PopulationChangeCard } from '@/components/PopulationChangeCard'
 import { GenderChart } from '@/components/GenderChart'
@@ -80,87 +79,103 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
         </Link>
       </div>
 
-      {/* Assembly Title */}
+      {/* BBC Style Hero Section */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-3xl font-bold tracking-tight">{data.name}</h1>
-          {data.voters?.isReservedAc ? (
-            <Badge variant="default" className="bg-green-600">
-              Reserved
-            </Badge>
-          ) : (
-            <Badge variant="secondary">General</Badge>
-          )}
+        <div className="border-l-4 border-red-600 pl-4 py-2">
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-3xl font-bold text-foreground">{data.name}</h1>
+            {data.voters?.isReservedAc ? (
+              <span className="text-xs font-bold uppercase tracking-wide px-2 py-0.5 bg-red-600 text-white">
+                Reserved
+              </span>
+            ) : (
+              <span className="text-xs font-bold uppercase tracking-wide px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                General
+              </span>
+            )}
+          </div>
+          <p className="text-muted-foreground text-sm">{data.districtName}</p>
         </div>
-        <p className="text-muted-foreground">{data.districtName}</p>
       </div>
 
       {/* Assembly Overview */}
       {data.voters && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Assembly Overview</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Assembly Overview
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-center gap-3">
+                  <Locate className="h-5 w-5 text-gray-500" />
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Booths</p>
-                    <p className="text-2xl font-bold">{data.noOfBooths}</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Booths
+                    </p>
+                    <p className="text-xl font-bold">{data.noOfBooths}</p>
                   </div>
-                  <Locate className="h-6 w-6 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-center gap-3">
+                  <User className="h-5 w-5 text-gray-500" />
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Male Voters</p>
-                    <p className="text-2xl font-bold">{formatNumber(data.voters.male)}</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Male Voters
+                    </p>
+                    <p className="text-xl font-bold">{formatNumber(data.voters.male)}</p>
                     <p className="text-xs text-muted-foreground">
                       {data.voters.male.toLocaleString()}
                     </p>
                   </div>
-                  <User className="h-6 w-6 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-center gap-3">
+                  <UserCircle2 className="h-5 w-5 text-gray-500" />
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Female Voters</p>
-                    <p className="text-2xl font-bold">{formatNumber(data.voters.female)}</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Female Voters
+                    </p>
+                    <p className="text-xl font-bold">{formatNumber(data.voters.female)}</p>
                     <p className="text-xs text-muted-foreground">
                       {data.voters.female.toLocaleString()}
                     </p>
                   </div>
-                  <UserCircle2 className="h-6 w-6 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-center gap-3">
+                  <Users className="h-5 w-5 text-gray-500" />
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Transgender</p>
-                    <p className="text-2xl font-bold">{data.voters.trans}</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Transgender
+                    </p>
+                    <p className="text-xl font-bold">{data.voters.trans}</p>
                   </div>
-                  <Users className="h-6 w-6 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-center gap-3">
+                  <UsersRound className="h-5 w-5 text-gray-500" />
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Voters</p>
-                    <p className="text-2xl font-bold">{formatNumber(data.voters.total)}</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Total Voters
+                    </p>
+                    <p className="text-xl font-bold">{formatNumber(data.voters.total)}</p>
                     <p className="text-xs text-muted-foreground">
                       {data.voters.total.toLocaleString()}
                     </p>
                   </div>
-                  <UsersRound className="h-6 w-6 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
@@ -171,7 +186,9 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
       {/* Most Winning Parties since ADMK formed */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Most Winning Parties since ADMK formed</h2>
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Most Winning Parties since ADMK formed
+          </h2>
           <MostWinningPartiesCard
             historicData={data.electionHistory.map((e) => ({
               year: e.year,
@@ -190,36 +207,36 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
       {/* Winning Histories since ADMK formed */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Winning Histories since ADMK formed</h2>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Winning Histories since ADMK formed
+          </h2>
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {(showAllWinningHistories
               ? data.electionHistory
               : data.electionHistory.filter((e) => e.year >= 1977).slice(0, 3)
             ).map((election) => (
               <Card key={election.year}>
-                <CardContent className="pt-6">
+                <CardContent className="pt-4 pb-4">
                   <div className="flex flex-col items-center space-y-2">
-                    {/* Year as header-like text */}
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
+                    {/* Year */}
+                    <span className="text-xs font-bold uppercase tracking-wide text-red-600">
                       {election.year}
-                    </p>
+                    </span>
 
                     {/* Party Logo */}
                     <Image
                       src={`/images/${election.winnerParty}.png`}
                       alt={`${election.winnerParty} logo`}
-                      width={50}
-                      height={38}
+                      width={45}
+                      height={35}
                       className="object-contain"
                     />
 
-                    {/* Party Name Badge */}
-                    <Badge variant="outline" className="text-xs">
-                      {election.winnerParty}
-                    </Badge>
+                    {/* Party Name */}
+                    <span className="text-sm font-bold">{election.winnerParty}</span>
 
                     {/* Winner Name */}
-                    <p className="font-medium text-center text-xs text-muted-foreground px-2">
+                    <p className="text-xs text-center text-muted-foreground px-2 line-clamp-2">
                       {election.winner}
                     </p>
                   </div>
@@ -232,7 +249,11 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
           {!showAllWinningHistories &&
             data.electionHistory.filter((e) => e.year >= 1977).length > 3 && (
               <div className="mt-4 flex justify-center">
-                <Button variant="outline" onClick={() => setShowAllWinningHistories(true)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAllWinningHistories(true)}
+                  className="text-sm font-medium"
+                >
                   View all
                 </Button>
               </div>
@@ -243,7 +264,9 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
       {/* Gender chart */}
       {data.voters && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Gender chart</h2>
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Gender Distribution
+          </h2>
           <GenderChart voters={data.voters} />
         </section>
       )}
@@ -251,7 +274,9 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
       {/* Population Changes */}
       {data.voters && data.lastElectionVoters && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Population Changes since 2019</h2>
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Population Changes since 2019
+          </h2>
           <PopulationChangeCard voters={data.voters} lastElectionVoters={data.lastElectionVoters} />
         </section>
       )}
@@ -259,7 +284,9 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
       {/* Votes shares */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Votes shares</h2>
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Vote Shares by Party
+          </h2>
           <VotesSharesChart electionHistory={data.electionHistory} />
         </section>
       )}
@@ -267,7 +294,9 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
       {/* Past Winning histories */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Past Winning Histories</h2>
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Past Winning Histories
+          </h2>
           <PastWinningHistories electionHistory={data.electionHistory} />
         </section>
       )}

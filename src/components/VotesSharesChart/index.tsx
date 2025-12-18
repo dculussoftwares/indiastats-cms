@@ -84,14 +84,19 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (filteredPayload.length === 0) return null
 
   return (
-    <div className="bg-background border rounded-lg shadow-lg p-3">
-      <p className="font-semibold mb-2">Year: {label}</p>
-      <div className="space-y-1">
+    <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-4">
+      <p className="font-bold text-lg mb-3 text-slate-900 dark:text-white">Year: {label}</p>
+      <div className="space-y-2">
         {filteredPayload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
-            <span className="font-medium">{entry.name}:</span>
-            <span>{formatNumber(entry.value)} votes</span>
+          <div key={index} className="flex items-center gap-3 text-sm">
+            <div
+              className="w-4 h-4 rounded-md shadow-sm"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="font-semibold text-slate-700 dark:text-slate-200">{entry.name}:</span>
+            <span className="text-slate-600 dark:text-slate-400">
+              {formatNumber(entry.value)} votes
+            </span>
           </div>
         ))}
       </div>

@@ -40,14 +40,16 @@ interface DetailItemProps {
 
 const DetailItem: React.FC<DetailItemProps> = ({ title, value, icon }) => (
   <Card>
-    <CardContent className="pt-4">
-      <div className="flex items-center justify-between">
+    <CardContent className="pt-4 pb-3">
+      <div className="flex items-center gap-3">
+        <div className="h-5 w-5 text-gray-500">{icon}</div>
         <div>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <p className="text-2xl font-bold">{formatNumber(value)}</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            {title}
+          </p>
+          <p className="text-xl font-bold">{formatNumber(value)}</p>
           <p className="text-xs text-muted-foreground">{value.toLocaleString()}</p>
         </div>
-        <div className="h-8 w-8 text-muted-foreground">{icon}</div>
       </div>
     </CardContent>
   </Card>

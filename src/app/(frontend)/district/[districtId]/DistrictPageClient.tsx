@@ -73,34 +73,44 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
         </Link>
       </div>
 
-      {/* District Title */}
+      {/* BBC Style District Title */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">{data.districtName}</h1>
-        <p className="text-muted-foreground">District Details and Assembly Constituencies</p>
+        <div className="border-l-4 border-red-600 pl-4 py-2">
+          <h1 className="text-3xl font-bold text-foreground">{data.districtName}</h1>
+          <p className="text-muted-foreground text-sm">
+            District Details and Assembly Constituencies
+          </p>
+        </div>
       </div>
 
       {/* District Details Card */}
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">District Overview</h2>
+        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">District Overview</h2>
         <DistrictDetailsCard data={districtDetailsData} />
       </section>
 
       {/* Population Changes */}
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Population Changes since 2019</h2>
+        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+          Population Changes since 2019
+        </h2>
         <PopulationChangeCard voters={data.voters} lastElectionVoters={data.lastElectionVoters} />
       </section>
 
       {/* Gender Chart */}
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Gender Distribution</h2>
+        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+          Gender Distribution
+        </h2>
         <GenderChart voters={data.voters} />
       </section>
 
       {/* Most Winning Parties */}
       {data.electionHistory && data.electionHistory.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Most Winning Parties since ADMK formed</h2>
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Most Winning Parties since ADMK formed
+          </h2>
           <MostWinningPartiesCard historicData={data.electionHistory} />
         </section>
       )}
@@ -108,30 +118,34 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
       {/* Year-wise Party Performance */}
       {data.electionHistory && data.electionHistory.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Year-wise Party Performance</h2>
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Year-wise Party Performance
+          </h2>
           <PartyWinsChart historicData={data.electionHistory} />
         </section>
       )}
 
       {/* Assemblies List */}
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
           Assemblies in this District ({data.assemblies.length})
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {data.assemblies.map((assembly) => (
-            <Card key={assembly.assemblyId} className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
+            <Card key={assembly.assemblyId}>
+              <CardContent className="pt-4 pb-4">
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold">{assembly.name}</h3>
-                    <p className="text-sm text-muted-foreground">{assembly.noOfBooths} booths</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                      {assembly.noOfBooths} booths
+                    </p>
                   </div>
-                  <Building2 className="h-5 w-5 text-muted-foreground" />
+                  <Building2 className="h-5 w-5 text-gray-500" />
                 </div>
-                <div className="mt-4">
+                <div className="mt-3">
                   <Link href={`/assembly/${data.districtId}/${assembly.assemblyId}`}>
-                    <Button variant="outline" size="sm" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full text-sm">
                       View Assembly
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
