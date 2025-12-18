@@ -117,3 +117,14 @@ html[data-theme='dark'],
 html[data-theme='light'] {
   opacity: initial;
 }
+
+/* Leaflet DivIcon label fix - prevent clipping */
+.leaflet-marker-icon.leaflet-div-icon,
+.leaflet-marker-icon.assembly-label-icon {
+  background: none !important;
+  border: none !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+}

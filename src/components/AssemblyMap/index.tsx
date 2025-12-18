@@ -404,8 +404,10 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                       position={centroid}
                       icon={
                         new DivIcon({
-                          className: 'polygon-label',
-                          html: `<div style="background:white;padding:2px 6px;border-radius:2px;font-size:11px;font-weight:600;color:#374151;border:1px solid #e5e7eb;white-space:nowrap;">${feature.properties.ac_name}</div>`,
+                          className: 'assembly-label-icon',
+                          iconSize: undefined,
+                          iconAnchor: undefined,
+                          html: `<span style="position:relative;display:inline-block;"><span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:white;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:600;color:#374151;border:1px solid #d1d5db;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.12);">${feature.properties.ac_name}</span></span>`,
                         })
                       }
                       interactive={false}
@@ -419,7 +421,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
             {popupPosition && popupContent && (
               <Popup position={popupPosition}>
                 <div className="p-1 min-w-[160px]">
-                  <p className="font-bold text-sm text-gray-900 dark:text-white mb-1">
+                  <p className="font-bold text-sm mb-1" style={{ color: '#111827' }}>
                     {popupContent.ac_name}
                   </p>
                   <p className="text-xs text-gray-500 mb-3">PC: {popupContent.pc_name}</p>
