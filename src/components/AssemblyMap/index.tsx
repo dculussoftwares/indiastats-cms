@@ -12,7 +12,6 @@ import './leaflet-style-import'
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
   ssr: false,
 })
-const GeoJSON = dynamic(() => import('react-leaflet').then((mod) => mod.GeoJSON), { ssr: false })
 const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), { ssr: false })
 const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false })
 
@@ -184,6 +183,51 @@ const MapZoomListener = ({ setZoomLevel }: { setZoomLevel: (z: number) => void }
   return null
 }
 
+// Native GeoJSON component that uses Leaflet directly for proper event binding
+const NativeGeoJSON = ({
+  data,
+  style,
+  onEachFeature,
+  refreshKey,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  style: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onEachFeature: any
+  refreshKey?: string
+}) => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const map = require('react-leaflet').useMap()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const geoJsonLayerRef = useRef<any>(null)
+
+  useEffect(() => {
+    if (!map || !L) return
+
+    // Remove existing layer
+    if (geoJsonLayerRef.current) {
+      map.removeLayer(geoJsonLayerRef.current)
+    }
+
+    // Create new GeoJSON layer with native Leaflet
+    geoJsonLayerRef.current = L.geoJSON(data, {
+      style,
+      onEachFeature,
+    }).addTo(map)
+
+    return () => {
+      if (geoJsonLayerRef.current && map) {
+        map.removeLayer(geoJsonLayerRef.current)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, refreshKey]) // Only re-render on refreshKey change, not style/onEachFeature
+
+  return null
+}
+
 export function AssemblyMap({ map }: AssemblyMapProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -316,21 +360,27 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         e.originalEvent?.stopPropagation()
         e.originalEvent?.preventDefault()
         console.log('=== ASSEMBLY CLICK HANDLER ===')
-        console.log('Event:', e)
-        console.log('Feature:', feature?.properties?.ac_name)
 
         const { lat, lng } = e.latlng
         const acName = feature?.properties?.ac_name
+        const pcName = feature?.properties?.pc_name
 
-        // Clear district selection using ref-based callback (avoids stale closure issues)
-        clearDistrictSelectionRef.current()
+        // Check if clicking within the currently selected district
+        const isWithinSelectedDistrict =
+          selectedDistrictRef.current && pcName === selectedDistrictRef.current
 
-        // Update both state and ref
+        // Only clear district selection if clicking OUTSIDE the selected district
+        if (!isWithinSelectedDistrict) {
+          clearDistrictSelectionRef.current()
+        }
+
+        // Update both state and ref for assembly selection
         selectedAssemblyRef.current = acName || null
         setSelectedAssembly(acName || null)
         setSearchQuery(acName || '')
         setPopupContent(feature.properties || 'No data available')
         setPopupPosition([lat, lng])
+
         // Keep the red style on click
         e.target.setStyle({
           color: '#dc2626',
@@ -342,8 +392,15 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     })
   }
 
-  // Handle search selection
+  // Handle search selection - clears district selection (dropdown = select only that assembly)
   const handleAssemblySearch = (value: string) => {
+    // Clear district selection when selecting from assembly dropdown
+    selectedDistrictRef.current = null
+    setSelectedDistrict(null)
+    setDistrictSearchQuery('')
+
+    // Update assembly selection
+    selectedAssemblyRef.current = value || null
     setSelectedAssembly(value)
     setSearchQuery(value)
     setShowDropdown(false)
@@ -603,11 +660,11 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
             ref={mapRef}
           >
             <MapZoomListener setZoomLevel={setZoomLevel} />
-            <GeoJSON
-              key={`geojson-${selectedAssembly || 'none'}-${selectedDistrict || 'all'}`}
+            <NativeGeoJSON
               data={map as GeoJSON.GeoJsonObject}
               onEachFeature={onEachFeature}
               style={styleFeature}
+              refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}`}
             />
 
             {/* Assembly name labels at high zoom */}
