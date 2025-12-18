@@ -202,8 +202,8 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
         </CardHeader>
         <CardContent>
           {/* Horizontal scrollable timeline */}
-          <div className="overflow-x-auto pb-4">
-            <div className="flex gap-2 min-w-max">
+          <div className="overflow-x-auto overflow-y-visible py-4 px-2 -mx-2">
+            <div className="flex gap-4 min-w-max px-2">
               {sortedHistory.map((election) => {
                 const partyColor = getPartyColor(election.winnerParty)
                 const isExpanded = expandedYear === election.year
@@ -227,36 +227,59 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
                   <div
                     key={election.year}
                     className={cn(
-                      'flex flex-col items-center cursor-pointer transition-all duration-200',
-                      'hover:scale-105 group',
-                      isExpanded && 'scale-105',
+                      'flex flex-col items-center cursor-pointer transition-all duration-300',
+                      'hover:scale-105 group relative',
+                      isExpanded && 'scale-110 z-10',
                     )}
                     onClick={() => toggleExpanded(election.year)}
                   >
+                    {/* Selection highlight background */}
+                    {isExpanded && (
+                      <div
+                        className="absolute inset-0 -m-2 rounded-xl opacity-20 animate-pulse"
+                        style={{ backgroundColor: partyColor }}
+                      />
+                    )}
+
                     {/* Year pill with party color */}
                     <div
-                      className="px-4 py-2 rounded-full text-white font-bold text-sm shadow-lg transition-all"
-                      style={{ backgroundColor: partyColor }}
+                      className={cn(
+                        'px-4 py-2 rounded-full text-white font-bold text-sm shadow-lg transition-all',
+                        isExpanded && 'ring-4 ring-offset-2 ring-offset-background shadow-xl',
+                      )}
+                      style={{
+                        backgroundColor: partyColor,
+                        boxShadow: isExpanded
+                          ? `0 0 20px ${partyColor}80, 0 4px 12px rgba(0,0,0,0.3)`
+                          : undefined,
+                      }}
                     >
                       {election.year}
                     </div>
 
                     {/* Connecting line */}
                     <div
-                      className="w-1 h-4 transition-all"
+                      className={cn('w-1 transition-all', isExpanded ? 'h-6' : 'h-4')}
                       style={{ backgroundColor: partyColor }}
                     />
 
                     {/* Party logo */}
                     <div
-                      className="w-12 h-12 rounded-lg bg-card border-2 shadow-md flex items-center justify-center overflow-hidden transition-all group-hover:shadow-lg"
-                      style={{ borderColor: partyColor }}
+                      className={cn(
+                        'rounded-lg bg-card border-2 shadow-md flex items-center justify-center overflow-hidden transition-all',
+                        'group-hover:shadow-lg',
+                        isExpanded ? 'w-16 h-16 border-4 shadow-xl' : 'w-12 h-12',
+                      )}
+                      style={{
+                        borderColor: partyColor,
+                        boxShadow: isExpanded ? `0 0 16px ${partyColor}60` : undefined,
+                      }}
                     >
                       <Image
                         src={`/images/${election.winnerParty}.png`}
                         alt={election.winnerParty}
-                        width={36}
-                        height={36}
+                        width={isExpanded ? 48 : 36}
+                        height={isExpanded ? 48 : 36}
                         className="object-contain"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none'
@@ -268,20 +291,29 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
                     {/* Margin indicator */}
                     <Badge
                       variant="secondary"
-                      className="mt-2 text-xs"
+                      className={cn(
+                        'mt-2 text-xs transition-all',
+                        isExpanded && 'text-sm font-bold',
+                      )}
                       style={{
-                        backgroundColor: `${partyColor}20`,
-                        color: partyColor,
+                        backgroundColor: isExpanded ? partyColor : `${partyColor}20`,
+                        color: isExpanded ? 'white' : partyColor,
                         borderColor: partyColor,
                       }}
                     >
                       +{marginPercent}%
                     </Badge>
 
-                    {/* Expand indicator */}
-                    <div className="mt-1 text-muted-foreground">
+                    {/* Expand indicator - always visible when selected */}
+                    <div
+                      className={cn(
+                        'mt-1 transition-all',
+                        isExpanded ? 'text-foreground' : 'text-muted-foreground',
+                      )}
+                      style={{ color: isExpanded ? partyColor : undefined }}
+                    >
                       {isExpanded ? (
-                        <ChevronUp className="h-4 w-4" />
+                        <ChevronUp className="h-5 w-5" />
                       ) : (
                         <ChevronDown className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                       )}
