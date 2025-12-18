@@ -349,7 +349,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                 className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded bg-white dark:bg-gray-900 dark:border-gray-700 focus:outline-none focus:border-red-600"
               />
               {showDropdown && filteredOptions.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-56 overflow-y-auto">
+                <div className="absolute z-[1100] w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-56 overflow-y-auto">
                   {filteredOptions.map((name) => (
                     <button
                       key={name}
