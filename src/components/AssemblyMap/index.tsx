@@ -5,9 +5,8 @@ import dynamic from 'next/dynamic'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Search, MapPin, ExternalLink, X } from 'lucide-react'
+import { Search, MapPin, ExternalLink, X, Layers, Maximize2, Minimize2 } from 'lucide-react'
 import './leaflet-style-import'
-import L from 'leaflet'
 
 // Dynamic imports for react-leaflet (SSR disabled)
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
@@ -17,7 +16,16 @@ const GeoJSON = dynamic(() => import('react-leaflet').then((mod) => mod.GeoJSON)
 const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), { ssr: false })
 const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false })
 
-const DivIcon = L.DivIcon
+// Import Leaflet only on client-side to avoid SSR "window is not defined" error
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let L: any = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let DivIcon: any = null
+if (typeof window !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  L = require('leaflet')
+  DivIcon = L.DivIcon
+}
 
 export type AssemblyMapProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -186,12 +194,39 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   const [selectedAssembly, setSelectedAssembly] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
+  // New state for visual enhancements
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null)
+  const [districtSearchQuery, setDistrictSearchQuery] = useState('')
+  const [showDistrictDropdown, setShowDistrictDropdown] = useState(false)
+  const [showDistrictBoundaries, setShowDistrictBoundaries] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = useRef<any>(null)
-  // Track selected assembly in ref for use in event handlers
+  // Track selected states in refs for use in event handlers
   const selectedAssemblyRef = useRef<string | null>(null)
+  const selectedDistrictRef = useRef<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Ref-based callback to clear district selection (for use in event handlers with stale closures)
+  const clearDistrictSelectionRef = useRef<() => void>(() => {})
+  clearDistrictSelectionRef.current = () => {
+    console.log('Inside clearDistrictSelectionRef callback - calling setters')
+    setSelectedDistrict(null)
+    setDistrictSearchQuery('')
+    selectedDistrictRef.current = null
+    console.log('Setters called successfully')
+  }
 
   const pcNameColorMap = useMemo(() => getPcNameColorMap(map.features || []), [map])
+
+  // Get unique district (PC) names
+  const districtOptions = useMemo(() => {
+    if (!map.features) return []
+    return Array.from(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      new Set(map.features.map((f: any) => f.properties?.pc_name).filter(Boolean)),
+    ).sort() as string[]
+  }, [map])
 
   const assemblyOptions = useMemo(() => {
     if (!map.features) return []
@@ -208,9 +243,18 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       .slice(0, 8)
   }, [searchQuery, assemblyOptions])
 
+  // Filtered district options for searchable dropdown
+  const filteredDistrictOptions = useMemo(() => {
+    if (!districtSearchQuery) return districtOptions
+    return districtOptions.filter((name) =>
+      name.toLowerCase().includes(districtSearchQuery.toLowerCase()),
+    )
+  }, [districtSearchQuery, districtOptions])
+
   // Handle feature interactions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onEachFeature = (feature: any, layer: any) => {
+    console.log('[DEBUG] onEachFeature called for:', feature?.properties?.ac_name)
     layer.on({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mouseover: (event: any) => {
@@ -224,6 +268,8 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mouseout: (event: any) => {
         const acName = feature?.properties?.ac_name
+        const pcName = feature?.properties?.pc_name
+
         // Keep red style if this is the selected assembly
         if (selectedAssemblyRef.current === acName) {
           event.target.setStyle({
@@ -232,9 +278,30 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
             fillOpacity: 0.9,
             weight: 2,
           })
-        } else {
+        }
+        // Keep highlighted style if this assembly is in the selected district
+        else if (selectedDistrictRef.current && pcName === selectedDistrictRef.current) {
+          event.target.setStyle({
+            color: '#dc2626',
+            fillColor: '#fecaca',
+            fillOpacity: 0.7,
+            weight: 1.5,
+          })
+        }
+        // Dim non-selected districts when a district is selected
+        else if (selectedDistrictRef.current && pcName !== selectedDistrictRef.current) {
           event.target.bringToBack()
-          const pcName = feature?.properties?.pc_name
+          event.target.setStyle({
+            color: '#d1d5db',
+            fillColor: '#f3f4f6',
+            fillOpacity: 0.3,
+            opacity: 1,
+            weight: 0.5,
+          })
+        }
+        // Default style
+        else {
+          event.target.bringToBack()
           event.target.setStyle({
             color: '#6b7280',
             fillColor: pcNameColorMap[pcName] || '#e5e7eb',
@@ -246,8 +313,18 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       click: (e: any) => {
+        e.originalEvent?.stopPropagation()
+        e.originalEvent?.preventDefault()
+        console.log('=== ASSEMBLY CLICK HANDLER ===')
+        console.log('Event:', e)
+        console.log('Feature:', feature?.properties?.ac_name)
+
         const { lat, lng } = e.latlng
         const acName = feature?.properties?.ac_name
+
+        // Clear district selection using ref-based callback (avoids stale closure issues)
+        clearDistrictSelectionRef.current()
+
         // Update both state and ref
         selectedAssemblyRef.current = acName || null
         setSelectedAssembly(acName || null)
@@ -312,14 +389,80 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   const styleFeature = (feature: any) => {
     const pcName = feature?.properties?.pc_name
     const isSelected = selectedAssembly === feature?.properties?.ac_name
+    const isInSelectedDistrict = !selectedDistrict || pcName === selectedDistrict
+    const dimmed = selectedDistrict && !isInSelectedDistrict
+
+    // Show red for selected district assemblies OR selected assembly
+    const isHighlighted = isSelected || (selectedDistrict && !dimmed)
 
     return {
-      color: isSelected ? '#dc2626' : '#6b7280',
-      fillColor: isSelected ? '#fecaca' : pcNameColorMap[pcName] || '#e5e7eb',
-      fillOpacity: isSelected ? 0.9 : 0.6,
+      color: isHighlighted ? '#dc2626' : dimmed ? '#d1d5db' : '#6b7280',
+      fillColor: isSelected
+        ? '#fecaca'
+        : isHighlighted
+          ? '#fee2e2'
+          : dimmed
+            ? '#f3f4f6'
+            : pcNameColorMap[pcName] || '#e5e7eb',
+      fillOpacity: isSelected ? 0.9 : isHighlighted ? 0.7 : dimmed ? 0.3 : 0.6,
       opacity: 1,
-      weight: isSelected ? 2 : 1,
+      weight: isSelected ? 2 : isHighlighted ? 1.5 : dimmed ? 0.5 : 1,
     }
+  }
+
+  // Handle district selection
+  const handleDistrictSelect = (district: string | null) => {
+    // Clear assembly selection when selecting a district (keep only last selection)
+    selectedAssemblyRef.current = null
+    setSelectedAssembly(null)
+    setSearchQuery('')
+    setPopupPosition(null)
+    setPopupContent(null)
+
+    // Update district selection
+    selectedDistrictRef.current = district
+    setSelectedDistrict(district)
+    setDistrictSearchQuery(district || '')
+    setShowDistrictDropdown(false)
+
+    if (district && mapRef.current) {
+      // Find all features in this district and fit bounds
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const districtFeatures = map.features?.filter((f: any) => f.properties?.pc_name === district)
+      if (districtFeatures && districtFeatures.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const allCoords: [number, number][] = []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        districtFeatures.forEach((f: any) => {
+          if (f.geometry?.coordinates) {
+            let coords = f.geometry.coordinates[0]
+            if (Array.isArray(coords[0][0])) coords = coords[0]
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            coords.forEach((c: any) => {
+              if (Array.isArray(c) && c.length >= 2) allCoords.push([c[1], c[0]])
+            })
+          }
+        })
+        if (allCoords.length > 0) {
+          const bounds = L.latLngBounds(allCoords)
+          mapRef.current.fitBounds(bounds, { padding: [20, 20] })
+        }
+      }
+    } else if (!district && mapRef.current) {
+      // Reset to default view
+      mapRef.current.setView([11.1271, 78.6569], 7)
+    }
+  }
+
+  // Toggle fullscreen
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen)
+    // Invalidate map size after transition
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize()
+      }
+    }, 300)
   }
 
   const clearSelection = () => {
@@ -330,12 +473,16 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Search - BBC Style */}
-      <Card>
+    <div
+      ref={containerRef}
+      className={`${isFullscreen ? 'fixed inset-0 z-[2000] bg-white dark:bg-gray-950 p-4' : 'space-y-4'}`}
+    >
+      {/* Search and District Filter - BBC Style */}
+      <Card className={isFullscreen ? 'mb-4' : ''}>
         <CardContent className="py-3">
-          <div className="flex gap-3 items-center">
-            <div className="relative flex-1">
+          <div className="flex gap-3 items-center flex-wrap">
+            {/* Constituency Search */}
+            <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
@@ -363,18 +510,91 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                 </div>
               )}
             </div>
-            {selectedAssembly && (
-              <Button variant="ghost" size="sm" onClick={clearSelection} className="px-2">
-                <X className="h-4 w-4" />
+
+            {/* District Dropdown - Searchable */}
+            <div className="relative min-w-[180px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Filter by district..."
+                value={districtSearchQuery}
+                onChange={(e) => {
+                  setDistrictSearchQuery(e.target.value)
+                  setShowDistrictDropdown(true)
+                }}
+                onFocus={() => setShowDistrictDropdown(true)}
+                className="w-full pl-10 pr-8 py-2 text-sm border border-gray-200 rounded bg-white dark:bg-gray-900 dark:border-gray-700 focus:outline-none focus:border-red-600"
+              />
+              {selectedDistrict && (
+                <button
+                  onClick={() => handleDistrictSelect(null)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                >
+                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                </button>
+              )}
+              {showDistrictDropdown && filteredDistrictOptions.length > 0 && (
+                <div className="absolute z-[1100] w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-56 overflow-y-auto">
+                  {!districtSearchQuery && (
+                    <button
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 text-red-600 font-medium"
+                      onClick={() => handleDistrictSelect(null)}
+                    >
+                      All Districts
+                    </button>
+                  )}
+                  {filteredDistrictOptions.map((district) => (
+                    <button
+                      key={district}
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 ${selectedDistrict === district ? 'bg-red-50 text-red-600' : ''}`}
+                      onClick={() => handleDistrictSelect(district)}
+                    >
+                      {district}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Control Buttons */}
+            <div className="flex gap-1">
+              <Button
+                variant={showDistrictBoundaries ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setShowDistrictBoundaries(!showDistrictBoundaries)}
+                className="px-2"
+                title="Toggle district boundaries"
+              >
+                <Layers className="h-4 w-4" />
               </Button>
-            )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleFullscreen}
+                className="px-2"
+                title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
+              </Button>
+              {selectedAssembly && (
+                <Button variant="ghost" size="sm" onClick={clearSelection} className="px-2">
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Map Container - Clean styling */}
       <div className="relative">
-        <div className="h-[550px] w-full rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div
+          className={`${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[550px]'} w-full rounded border border-gray-200 dark:border-gray-700 overflow-hidden`}
+        >
           <MapContainer
             style={{ height: '100%', width: '100%', background: '#f8fafc' }}
             center={[11.1271, 78.6569]}
@@ -384,6 +604,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
           >
             <MapZoomListener setZoomLevel={setZoomLevel} />
             <GeoJSON
+              key={`geojson-${selectedAssembly || 'none'}-${selectedDistrict || 'all'}`}
               data={map as GeoJSON.GeoJsonObject}
               onEachFeature={onEachFeature}
               style={styleFeature}
