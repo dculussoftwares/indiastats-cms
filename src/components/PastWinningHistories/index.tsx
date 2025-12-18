@@ -59,7 +59,7 @@ function formatNumber(num: number): string {
 function calculateStats(electionHistory: ElectionYear[]) {
   const sorted = [...electionHistory].sort((a, b) => a.year - b.year)
 
-  // Find longest streak
+  // Find longest streak (prefer most recent streak if counts are equal)
   let maxStreak = { party: '', count: 0, startYear: 0, endYear: 0 }
   let currentStreak = { party: '', count: 0, startYear: 0 }
 
@@ -67,13 +67,15 @@ function calculateStats(electionHistory: ElectionYear[]) {
     if (election.winnerParty === currentStreak.party) {
       currentStreak.count++
     } else {
-      if (currentStreak.count > maxStreak.count) {
+      // Use >= to prefer the most recent streak when counts are equal
+      if (currentStreak.count >= maxStreak.count && currentStreak.count > 0) {
         maxStreak = { ...currentStreak, endYear: sorted[idx - 1]?.year || currentStreak.startYear }
       }
       currentStreak = { party: election.winnerParty, count: 1, startYear: election.year }
     }
   })
-  if (currentStreak.count > maxStreak.count) {
+  // Use >= to prefer the most recent streak
+  if (currentStreak.count >= maxStreak.count && currentStreak.count > 0) {
     maxStreak = { ...currentStreak, endYear: sorted[sorted.length - 1].year }
   }
 
