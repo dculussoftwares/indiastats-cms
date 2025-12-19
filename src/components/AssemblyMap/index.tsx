@@ -956,24 +956,107 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
               >
                 <NativeGeoJSON
                   data={map as GeoJSON.GeoJsonObject}
-                  onEachFeature={() => {}}
+                  onEachFeature={(feature: GeoJSON.Feature, layer: L.Layer) => {
+                    ;(layer as L.Path).on({
+                      click: (e: L.LeafletMouseEvent) => {
+                        e.originalEvent?.stopPropagation()
+                        const acName = feature?.properties?.ac_name
+                        setSelectedAssembly(acName || null)
+                        setSearchQuery(acName || '')
+                        setPopupContent(feature.properties || null)
+                        setPopupPosition([e.latlng.lat, e.latlng.lng])
+                      },
+                    })
+                  }}
                   style={(feature: GeoJSON.Feature) => {
+                    const acName = feature?.properties?.ac_name
+                    const pcName = feature?.properties?.pc_name
                     const assemblyId = feature?.properties?.ac
                       ? `ac${String(feature.properties.ac).padStart(3, '0')}`
                       : null
+                    const isSelected = selectedAssembly === acName
+                    const isInSelectedDistrict = selectedDistrict && pcName === selectedDistrict
+                    const dimmed = selectedDistrict && pcName !== selectedDistrict
+
+                    // Has election data
                     if (selectedElectionYear && assemblyId && electionResults[assemblyId]) {
                       const result = electionResults[assemblyId]
+                      const partyColor = getPartyColor(result.party)
                       return {
-                        color: '#ffffff',
-                        fillColor: getPartyColor(result.party),
-                        fillOpacity: 0.8,
-                        weight: 1,
+                        color: isSelected
+                          ? '#000000'
+                          : isInSelectedDistrict
+                            ? '#dc2626'
+                            : '#ffffff',
+                        fillColor: dimmed ? '#e5e7eb' : partyColor,
+                        fillOpacity: isSelected ? 0.95 : dimmed ? 0.3 : 0.8,
+                        weight: isSelected ? 3 : isInSelectedDistrict ? 2 : 1,
                       }
                     }
-                    return { color: '#9ca3af', fillColor: '#e5e7eb', fillOpacity: 0.4, weight: 0.5 }
+                    // No election data
+                    return {
+                      color: isSelected ? '#000000' : '#9ca3af',
+                      fillColor: '#e5e7eb',
+                      fillOpacity: isSelected ? 0.6 : dimmed ? 0.2 : 0.4,
+                      weight: isSelected ? 3 : 0.5,
+                    }
                   }}
-                  refreshKey={`compare-left-${selectedElectionYear}-${Object.keys(electionResults).length}`}
+                  refreshKey={`compare-left-${selectedElectionYear}-${Object.keys(electionResults).length}-${selectedAssembly}-${selectedDistrict}`}
                 />
+                {/* Popup for left map */}
+                {popupPosition && popupContent && (
+                  <Popup position={popupPosition}>
+                    <div className="p-1 min-w-[180px]">
+                      <p className="font-bold text-sm mb-1" style={{ color: '#111827' }}>
+                        {popupContent.ac_name}
+                      </p>
+                      <p className="text-xs text-gray-500 mb-2">PC: {popupContent.pc_name}</p>
+                      {selectedElectionYear &&
+                        (() => {
+                          const assemblyId = popupContent.ac
+                            ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                            : null
+                          const result = assemblyId ? electionResults[assemblyId] : null
+                          if (result) {
+                            const partyColor = getPartyColor(result.party)
+                            return (
+                              <div className="mb-3 p-2 rounded border border-gray-200 bg-gray-50">
+                                <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">
+                                  🏆 {selectedElectionYear} Winner
+                                </p>
+                                <p className="text-xs font-bold text-gray-800 mb-1">
+                                  {result.candidateName}
+                                </p>
+                                <div className="flex items-center justify-between gap-2">
+                                  <span
+                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white"
+                                    style={{ backgroundColor: partyColor }}
+                                  >
+                                    {result.party}
+                                  </span>
+                                  <span className="text-[10px] text-gray-600 font-medium">
+                                    {result.votes?.toLocaleString()} votes
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          }
+                          return null
+                        })()}
+                      <button
+                        className="w-full flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
+                        onClick={() =>
+                          router.push(
+                            `/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
+                          )
+                        }
+                      >
+                        View Assembly
+                        <ExternalLink className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </Popup>
+                )}
               </MapContainer>
               {/* Left Legend */}
               <div className="absolute bottom-2 left-2 z-[1000] bg-white/95 border rounded shadow-sm px-2 py-1.5 max-w-[150px]">
@@ -1025,24 +1108,107 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
               >
                 <NativeGeoJSON
                   data={map as GeoJSON.GeoJsonObject}
-                  onEachFeature={() => {}}
+                  onEachFeature={(feature: GeoJSON.Feature, layer: L.Layer) => {
+                    ;(layer as L.Path).on({
+                      click: (e: L.LeafletMouseEvent) => {
+                        e.originalEvent?.stopPropagation()
+                        const acName = feature?.properties?.ac_name
+                        setSelectedAssembly(acName || null)
+                        setSearchQuery(acName || '')
+                        setPopupContent(feature.properties || null)
+                        setPopupPosition([e.latlng.lat, e.latlng.lng])
+                      },
+                    })
+                  }}
                   style={(feature: GeoJSON.Feature) => {
+                    const acName = feature?.properties?.ac_name
+                    const pcName = feature?.properties?.pc_name
                     const assemblyId = feature?.properties?.ac
                       ? `ac${String(feature.properties.ac).padStart(3, '0')}`
                       : null
+                    const isSelected = selectedAssembly === acName
+                    const isInSelectedDistrict = selectedDistrict && pcName === selectedDistrict
+                    const dimmed = selectedDistrict && pcName !== selectedDistrict
+
+                    // Has election data
                     if (compareYear && assemblyId && compareElectionResults[assemblyId]) {
                       const result = compareElectionResults[assemblyId]
+                      const partyColor = getPartyColor(result.party)
                       return {
-                        color: '#ffffff',
-                        fillColor: getPartyColor(result.party),
-                        fillOpacity: 0.8,
-                        weight: 1,
+                        color: isSelected
+                          ? '#000000'
+                          : isInSelectedDistrict
+                            ? '#dc2626'
+                            : '#ffffff',
+                        fillColor: dimmed ? '#e5e7eb' : partyColor,
+                        fillOpacity: isSelected ? 0.95 : dimmed ? 0.3 : 0.8,
+                        weight: isSelected ? 3 : isInSelectedDistrict ? 2 : 1,
                       }
                     }
-                    return { color: '#9ca3af', fillColor: '#e5e7eb', fillOpacity: 0.4, weight: 0.5 }
+                    // No election data
+                    return {
+                      color: isSelected ? '#000000' : '#9ca3af',
+                      fillColor: '#e5e7eb',
+                      fillOpacity: isSelected ? 0.6 : dimmed ? 0.2 : 0.4,
+                      weight: isSelected ? 3 : 0.5,
+                    }
                   }}
-                  refreshKey={`compare-right-${compareYear}-${Object.keys(compareElectionResults).length}`}
+                  refreshKey={`compare-right-${compareYear}-${Object.keys(compareElectionResults).length}-${selectedAssembly}-${selectedDistrict}`}
                 />
+                {/* Popup for right map */}
+                {popupPosition && popupContent && (
+                  <Popup position={popupPosition}>
+                    <div className="p-1 min-w-[180px]">
+                      <p className="font-bold text-sm mb-1" style={{ color: '#111827' }}>
+                        {popupContent.ac_name}
+                      </p>
+                      <p className="text-xs text-gray-500 mb-2">PC: {popupContent.pc_name}</p>
+                      {compareYear &&
+                        (() => {
+                          const assemblyId = popupContent.ac
+                            ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                            : null
+                          const result = assemblyId ? compareElectionResults[assemblyId] : null
+                          if (result) {
+                            const partyColor = getPartyColor(result.party)
+                            return (
+                              <div className="mb-3 p-2 rounded border border-blue-200 bg-blue-50">
+                                <p className="text-[10px] uppercase tracking-wide text-blue-500 font-semibold mb-1">
+                                  🏆 {compareYear} Winner
+                                </p>
+                                <p className="text-xs font-bold text-gray-800 mb-1">
+                                  {result.candidateName}
+                                </p>
+                                <div className="flex items-center justify-between gap-2">
+                                  <span
+                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white"
+                                    style={{ backgroundColor: partyColor }}
+                                  >
+                                    {result.party}
+                                  </span>
+                                  <span className="text-[10px] text-gray-600 font-medium">
+                                    {result.votes?.toLocaleString()} votes
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          }
+                          return null
+                        })()}
+                      <button
+                        className="w-full flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
+                        onClick={() =>
+                          router.push(
+                            `/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
+                          )
+                        }
+                      >
+                        View Assembly
+                        <ExternalLink className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </Popup>
+                )}
               </MapContainer>
               {/* Right Legend */}
               <div className="absolute bottom-2 left-2 z-[1000] bg-white/95 border rounded shadow-sm px-2 py-1.5 max-w-[150px]">
