@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Search, MapPin, ExternalLink, X, Layers, Maximize2, Minimize2 } from 'lucide-react'
 import { getPartyColor } from '@/lib/partyColors'
+import { MapStatsDashboard } from '@/components/MapStatsDashboard'
 import './leaflet-style-import'
 
 // Dynamic imports for react-leaflet (SSR disabled)
@@ -271,6 +272,15 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   >({})
   const [comparePartyCounts, setComparePartyCounts] = useState<Record<string, number>>({})
   const [isLoadingCompare, setIsLoadingCompare] = useState(false)
+  // Map stats state
+  const [mapStats, setMapStats] = useState<{
+    totalAssemblies: number
+    totalDistricts: number
+    reservedSeats: number
+    generalSeats: number
+    voters: { male: number; female: number; trans: number; total: number }
+  } | null>(null)
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = useRef<any>(null)
   // Compare mode map refs for sync
@@ -288,6 +298,24 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   const electionResultsRef = useRef<
     Record<string, { party: string; candidateName: string; votes: number }>
   >({})
+
+  // Fetch map stats on mount
+  useEffect(() => {
+    const fetchMapStats = async () => {
+      try {
+        const response = await fetch('/api/map-stats')
+        if (response.ok) {
+          const data = await response.json()
+          setMapStats(data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch map stats:', error)
+      } finally {
+        setIsLoadingStats(false)
+      }
+    }
+    fetchMapStats()
+  }, [])
 
   // Fetch election results when year changes
   useEffect(() => {
@@ -733,6 +761,9 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       ref={containerRef}
       className={`${isFullscreen ? 'fixed inset-0 z-[2000] bg-white dark:bg-gray-950 p-4' : 'space-y-4'}`}
     >
+      {/* Map Stats Dashboard - only show when not fullscreen */}
+      {!isFullscreen && <MapStatsDashboard stats={mapStats} isLoading={isLoadingStats} />}
+
       {/* Search and District Filter - BBC Style */}
       <Card className={isFullscreen ? 'mb-4' : ''}>
         <CardContent className="py-3">
