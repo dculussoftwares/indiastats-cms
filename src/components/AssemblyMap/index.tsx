@@ -937,8 +937,11 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
             {/* Left Map - Year 1 */}
             <div className="flex-1 relative rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
               {/* Year Label */}
-              <div className="absolute top-2 right-2 z-[1000] bg-red-600 text-white px-2 py-1 rounded text-xs font-bold shadow">
-                {selectedElectionYear}
+              <div className="absolute top-2 right-2 z-[1000] bg-red-600 text-white px-2 py-1 rounded text-xs font-bold shadow flex items-center gap-1.5">
+                <span>{selectedElectionYear}</span>
+                <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">
+                  {Object.keys(electionResults).length} seats
+                </span>
               </div>
               {isLoadingElection && (
                 <div className="absolute inset-0 z-[1500] bg-white/80 flex items-center justify-center">
@@ -1003,8 +1006,11 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
             {/* Right Map - Year 2 */}
             <div className="flex-1 relative rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
               {/* Year Label */}
-              <div className="absolute top-2 right-2 z-[1000] bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold shadow">
-                {compareYear}
+              <div className="absolute top-2 right-2 z-[1000] bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold shadow flex items-center gap-1.5">
+                <span>{compareYear}</span>
+                <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">
+                  {Object.keys(compareElectionResults).length} seats
+                </span>
               </div>
               {isLoadingCompare && (
                 <div className="absolute inset-0 z-[1500] bg-white/80 flex items-center justify-center">
