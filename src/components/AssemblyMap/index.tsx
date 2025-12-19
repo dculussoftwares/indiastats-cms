@@ -930,11 +930,46 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
             {/* Popup - BBC Style */}
             {popupPosition && popupContent && (
               <Popup position={popupPosition}>
-                <div className="p-1 min-w-[160px]">
+                <div className="p-1 min-w-[180px]">
                   <p className="font-bold text-sm mb-1" style={{ color: '#111827' }}>
                     {popupContent.ac_name}
                   </p>
-                  <p className="text-xs text-gray-500 mb-3">PC: {popupContent.pc_name}</p>
+                  <p className="text-xs text-gray-500 mb-2">PC: {popupContent.pc_name}</p>
+
+                  {/* Election Winner Info - shown when election overlay is active */}
+                  {selectedElectionYear &&
+                    (() => {
+                      const assemblyId = popupContent.ac
+                        ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                        : null
+                      const result = assemblyId ? electionResults[assemblyId] : null
+                      if (result) {
+                        const partyColor = getPartyColor(result.party)
+                        return (
+                          <div className="mb-3 p-2 rounded border border-gray-200 bg-gray-50">
+                            <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">
+                              🏆 {selectedElectionYear} Winner
+                            </p>
+                            <p className="text-xs font-bold text-gray-800 mb-1">
+                              {result.candidate}
+                            </p>
+                            <div className="flex items-center justify-between gap-2">
+                              <span
+                                className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white"
+                                style={{ backgroundColor: partyColor }}
+                              >
+                                {result.party}
+                              </span>
+                              <span className="text-[10px] text-gray-600 font-medium">
+                                {result.votes?.toLocaleString()} votes
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      }
+                      return null
+                    })()}
+
                   <button
                     className="w-full flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
                     onClick={() =>
