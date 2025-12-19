@@ -227,6 +227,14 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   >({})
   const [partyCounts, setPartyCounts] = useState<Record<string, number>>({})
   const [isLoadingElection, setIsLoadingElection] = useState(false)
+  // Compare mode state
+  const [compareMode, setCompareMode] = useState(false)
+  const [compareYear, setCompareYear] = useState<number | null>(null)
+  const [compareElectionResults, setCompareElectionResults] = useState<
+    Record<string, { party: string; candidateName: string; votes: number }>
+  >({})
+  const [comparePartyCounts, setComparePartyCounts] = useState<Record<string, number>>({})
+  const [isLoadingCompare, setIsLoadingCompare] = useState(false)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = useRef<any>(null)
   // Track selected states in refs for use in event handlers
@@ -269,6 +277,33 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
 
     fetchElectionResults()
   }, [selectedElectionYear])
+
+  // Fetch compare year election results when in compare mode
+  useEffect(() => {
+    if (!compareMode || !compareYear) {
+      setCompareElectionResults({})
+      setComparePartyCounts({})
+      return
+    }
+
+    const fetchCompareResults = async () => {
+      setIsLoadingCompare(true)
+      try {
+        const response = await fetch(`/api/election-results?year=${compareYear}`)
+        if (response.ok) {
+          const data = await response.json()
+          setCompareElectionResults(data.results || {})
+          setComparePartyCounts(data.partyCounts || {})
+        }
+      } catch (error) {
+        console.error('Failed to fetch compare election results:', error)
+      } finally {
+        setIsLoadingCompare(false)
+      }
+    }
+
+    fetchCompareResults()
+  }, [compareMode, compareYear])
 
   // Ref-based callback to clear district selection (for use in event handlers with stale closures)
   const clearDistrictSelectionRef = useRef<() => void>(() => {})
@@ -750,39 +785,127 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                 </span>
               </Button>
 
-              {/* Election Year Selector */}
-              <div className="relative">
-                <select
-                  value={selectedElectionYear || ''}
-                  onChange={(e) =>
-                    setSelectedElectionYear(e.target.value ? Number(e.target.value) : null)
-                  }
-                  className="h-9 px-3 text-xs border rounded bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:outline-none focus:border-red-600 cursor-pointer"
+              {/* View Mode Selector - Solo vs Compare */}
+              <div className="flex items-center gap-1 p-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <button
+                  onClick={() => {
+                    setCompareMode(false)
+                    setCompareYear(null)
+                  }}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                    !compareMode
+                      ? 'bg-white dark:bg-gray-900 text-red-600 shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
                 >
-                  <option value="">Election Year</option>
-                  <option value="2021">2021 Results</option>
-                  <option value="2016">2016 Results</option>
-                  <option value="2011">2011 Results</option>
-                  <option value="2006">2006 Results</option>
-                  <option value="2001">2001 Results</option>
-                  <option value="1996">1996 Results</option>
-                  <option value="1991">1991 Results</option>
-                  <option value="1989">1989 Results</option>
-                  <option value="1984">1984 Results</option>
-                  <option value="1980">1980 Results</option>
-                  <option value="1977">1977 Results</option>
-                  <option value="1971">1971 Results</option>
-                  <option value="1967">1967 Results</option>
-                  <option value="1962">1962 Results</option>
-                  <option value="1957">1957 Results</option>
-                  <option value="1952">1952 Results</option>
-                </select>
-                {isLoadingElection && (
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                    <div className="w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                  </div>
-                )}
+                  Solo View
+                </button>
+                <button
+                  onClick={() => setCompareMode(true)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                    compareMode
+                      ? 'bg-white dark:bg-gray-900 text-red-600 shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  Compare
+                </button>
               </div>
+
+              {/* Year Selectors based on mode */}
+              {!compareMode ? (
+                // Solo View - Single Year Selector
+                <div className="relative">
+                  <select
+                    value={selectedElectionYear || ''}
+                    onChange={(e) =>
+                      setSelectedElectionYear(e.target.value ? Number(e.target.value) : null)
+                    }
+                    className="h-9 px-3 text-xs border rounded bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:outline-none focus:border-red-600 cursor-pointer"
+                  >
+                    <option value="">Select Year</option>
+                    {[
+                      2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977, 1971, 1967,
+                      1962, 1957, 1952,
+                    ].map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  {isLoadingElection && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <div className="w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                // Compare View - Two Year Selectors with VS indicator
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <div className="absolute -top-2 left-2 px-1 text-[10px] font-bold text-red-600 bg-white dark:bg-gray-900">
+                      YEAR 1
+                    </div>
+                    <select
+                      value={selectedElectionYear || ''}
+                      onChange={(e) =>
+                        setSelectedElectionYear(e.target.value ? Number(e.target.value) : null)
+                      }
+                      className="h-9 px-3 pt-1 text-xs border-2 border-red-200 rounded bg-white dark:bg-gray-900 focus:outline-none focus:border-red-600 cursor-pointer"
+                    >
+                      <option value="">Select</option>
+                      {[
+                        2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977, 1971,
+                        1967, 1962, 1957, 1952,
+                      ]
+                        .filter((year) => year !== compareYear)
+                        .map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
+                    </select>
+                    {isLoadingElection && (
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                        <div className="w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    )}
+                  </div>
+
+                  <span className="text-xs font-bold text-gray-500 px-1">VS</span>
+
+                  <div className="relative">
+                    <div className="absolute -top-2 left-2 px-1 text-[10px] font-bold text-blue-600 bg-white dark:bg-gray-900">
+                      YEAR 2
+                    </div>
+                    <select
+                      value={compareYear || ''}
+                      onChange={(e) =>
+                        setCompareYear(e.target.value ? Number(e.target.value) : null)
+                      }
+                      className="h-9 px-3 pt-1 text-xs border-2 border-blue-200 rounded bg-white dark:bg-gray-900 focus:outline-none focus:border-blue-600 cursor-pointer"
+                    >
+                      <option value="">Select</option>
+                      {[
+                        2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977, 1971,
+                        1967, 1962, 1957, 1952,
+                      ]
+                        .filter((year) => year !== selectedElectionYear)
+                        .map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
+                    </select>
+                    {isLoadingCompare && (
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                        <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -806,243 +929,382 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         </CardContent>
       </Card>
 
-      {/* Map Container - Clean styling */}
+      {/* Map Container - Compare Mode or Single Map */}
       <div className="relative">
-        <div
-          className={`${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[550px]'} w-full rounded border border-gray-200 dark:border-gray-700 overflow-hidden`}
-        >
-          {/* Loading overlay while fetching election data */}
-          {isLoadingElection && (
-            <div className="absolute inset-0 z-[1500] bg-white/80 dark:bg-gray-900/80 flex flex-col items-center justify-center backdrop-blur-sm">
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative">
-                  <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 rounded-full" />
-                  <div className="absolute inset-0 w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Loading {selectedElectionYear} Election Results
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Fetching data for 234 assemblies...
-                  </p>
-                </div>
+        {compareMode && compareYear ? (
+          // COMPARE MODE: Two maps side by side
+          <div className={`flex gap-2 ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[550px]'}`}>
+            {/* Left Map - Year 1 */}
+            <div className="flex-1 relative rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
+              {/* Year Label */}
+              <div className="absolute top-2 right-2 z-[1000] bg-red-600 text-white px-2 py-1 rounded text-xs font-bold shadow">
+                {selectedElectionYear}
               </div>
-            </div>
-          )}
-          <MapContainer
-            style={{ height: '100%', width: '100%', background: '#f8fafc' }}
-            center={[11.1271, 78.6569]}
-            zoom={7}
-            scrollWheelZoom={true}
-            ref={mapRef}
-          >
-            <MapZoomListener setZoomLevel={setZoomLevel} />
-            <NativeGeoJSON
-              data={map as GeoJSON.GeoJsonObject}
-              onEachFeature={onEachFeature}
-              style={styleFeature}
-              refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}-${showDistrictBoundaries}-${selectedElectionYear || 'no-election'}-${Object.keys(electionResults).length}-${isLoadingElection}`}
-            />
-
-            {/* District Boundaries Layer - shows thick colored boundary lines when toggle is enabled */}
-            {showDistrictBoundaries && districtBoundariesGeoJson && (
-              <NativeGeoJSON
-                data={districtBoundariesGeoJson as GeoJSON.GeoJsonObject}
-                onEachFeature={() => {}} // No interactions for boundary layer
-                style={(feature: any) => {
-                  const pcName = feature?.properties?.pc_name
-                  // Use a distinct color scheme for district boundaries
-                  const districtColors = [
-                    '#ef4444',
-                    '#f97316',
-                    '#eab308',
-                    '#22c55e',
-                    '#14b8a6',
-                    '#06b6d4',
-                    '#3b82f6',
-                    '#6366f1',
-                    '#8b5cf6',
-                    '#a855f7',
-                    '#d946ef',
-                    '#ec4899',
-                    '#f43f5e',
-                    '#10b981',
-                    '#0ea5e9',
-                    '#6d28d9',
-                    '#be185d',
-                    '#dc2626',
-                    '#ea580c',
-                    '#ca8a04',
-                    '#16a34a',
-                    '#0d9488',
-                    '#0284c7',
-                    '#4f46e5',
-                    '#7c3aed',
-                    '#c026d3',
-                    '#db2777',
-                    '#e11d48',
-                    '#059669',
-                    '#0891b2',
-                    '#2563eb',
-                    '#7c3aed',
-                    '#9333ea',
-                    '#c026d3',
-                    '#db2777',
-                    '#dc2626',
-                    '#d97706',
-                    '#65a30d',
-                    '#0d9488',
-                    '#0284c7',
-                  ]
-                  const colorIndex = districtOptions.indexOf(pcName)
-                  const strokeColor =
-                    districtColors[colorIndex % districtColors.length] || '#dc2626'
-
-                  return {
-                    color: strokeColor,
-                    fillColor: 'transparent',
-                    fillOpacity: 0,
-                    opacity: 0.9,
-                    weight: 4,
-                  }
-                }}
-                refreshKey={`district-boundaries-${showDistrictBoundaries}`}
-                interactive={false}
-              />
-            )}
-
-            {/* Assembly name labels at high zoom */}
-            {map.features &&
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              map.features.map((feature: any, idx: number) => {
-                if (!feature.geometry || !feature.properties || !feature.properties.ac_name)
-                  return null
-                const centroid = getPolygonCentroid(feature.geometry.coordinates)
-                const width = getPolygonWidth(feature.geometry.coordinates)
-                if (zoomLevel >= 9 && width > 0.08) {
-                  return (
-                    <Marker
-                      key={idx}
-                      position={centroid}
-                      icon={
-                        new DivIcon({
-                          className: 'assembly-label-icon',
-                          iconSize: undefined,
-                          iconAnchor: undefined,
-                          html: `<span style="position:relative;display:inline-block;"><span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:white;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:600;color:#374151;border:1px solid #d1d5db;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.12);">${feature.properties.ac_name}</span></span>`,
-                        })
-                      }
-                      interactive={false}
-                    />
-                  )
-                }
-                return null
-              })}
-
-            {/* Popup - BBC Style */}
-            {popupPosition && popupContent && (
-              <Popup position={popupPosition}>
-                <div className="p-1 min-w-[180px]">
-                  <p className="font-bold text-sm mb-1" style={{ color: '#111827' }}>
-                    {popupContent.ac_name}
-                  </p>
-                  <p className="text-xs text-gray-500 mb-2">PC: {popupContent.pc_name}</p>
-
-                  {/* Election Winner Info - shown when election overlay is active */}
-                  {selectedElectionYear &&
-                    (() => {
-                      const assemblyId = popupContent.ac
-                        ? `ac${String(popupContent.ac).padStart(3, '0')}`
-                        : null
-                      const result = assemblyId ? electionResults[assemblyId] : null
-                      if (result) {
-                        const partyColor = getPartyColor(result.party)
-                        return (
-                          <div className="mb-3 p-2 rounded border border-gray-200 bg-gray-50">
-                            <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">
-                              🏆 {selectedElectionYear} Winner
-                            </p>
-                            <p className="text-xs font-bold text-gray-800 mb-1">
-                              {result.candidateName}
-                            </p>
-                            <div className="flex items-center justify-between gap-2">
-                              <span
-                                className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white"
-                                style={{ backgroundColor: partyColor }}
-                              >
-                                {result.party}
-                              </span>
-                              <span className="text-[10px] text-gray-600 font-medium">
-                                {result.votes?.toLocaleString()} votes
-                              </span>
-                            </div>
-                          </div>
-                        )
-                      }
-                      return null
-                    })()}
-
-                  <button
-                    className="w-full flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
-                    onClick={() =>
-                      router.push(
-                        `/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
-                      )
-                    }
-                  >
-                    View Assembly
-                    <ExternalLink className="h-3 w-3" />
-                  </button>
+              {isLoadingElection && (
+                <div className="absolute inset-0 z-[1500] bg-white/80 flex items-center justify-center">
+                  <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
                 </div>
-              </Popup>
-            )}
-          </MapContainer>
-        </div>
-
-        {/* Legend - Dynamic for election overlay */}
-        <div className="absolute bottom-3 right-3 z-[1000]">
-          <div className="bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700 rounded shadow-sm px-3 py-2 max-w-[200px]">
-            {selectedElectionYear && Object.keys(partyCounts).length > 0 ? (
-              <>
-                <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+              )}
+              <MapContainer
+                style={{ height: '100%', width: '100%', background: '#f8fafc' }}
+                center={[11.1271, 78.6569]}
+                zoom={7}
+                scrollWheelZoom={true}
+              >
+                <NativeGeoJSON
+                  data={map as GeoJSON.GeoJsonObject}
+                  onEachFeature={() => {}}
+                  style={(feature: GeoJSON.Feature) => {
+                    const assemblyId = feature?.properties?.ac
+                      ? `ac${String(feature.properties.ac).padStart(3, '0')}`
+                      : null
+                    if (selectedElectionYear && assemblyId && electionResults[assemblyId]) {
+                      const result = electionResults[assemblyId]
+                      return {
+                        color: '#ffffff',
+                        fillColor: getPartyColor(result.party),
+                        fillOpacity: 0.8,
+                        weight: 1,
+                      }
+                    }
+                    return { color: '#9ca3af', fillColor: '#e5e7eb', fillOpacity: 0.4, weight: 0.5 }
+                  }}
+                  refreshKey={`compare-left-${selectedElectionYear}-${Object.keys(electionResults).length}`}
+                />
+              </MapContainer>
+              {/* Left Legend */}
+              <div className="absolute bottom-2 left-2 z-[1000] bg-white/95 border rounded shadow-sm px-2 py-1.5 max-w-[150px]">
+                <p className="text-[10px] font-bold text-gray-700 mb-1">
                   {selectedElectionYear} Results
                 </p>
-                <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                <div className="space-y-0.5 max-h-[120px] overflow-y-auto">
                   {Object.entries(partyCounts)
                     .sort((a, b) => b[1] - a[1])
-                    .slice(0, 10)
+                    .slice(0, 6)
                     .map(([party, count]) => (
-                      <div key={party} className="flex items-center justify-between gap-2 text-xs">
-                        <div className="flex items-center gap-1.5">
+                      <div
+                        key={party}
+                        className="flex items-center justify-between gap-1 text-[9px]"
+                      >
+                        <div className="flex items-center gap-1">
                           <div
-                            className="w-3 h-3 rounded-sm border border-white/50"
+                            className="w-2 h-2 rounded-sm"
                             style={{ backgroundColor: getPartyColor(party) }}
                           />
-                          <span className="text-gray-700 dark:text-gray-300 font-medium">
-                            {party || 'IND'}
-                          </span>
+                          <span className="text-gray-700">{party || 'IND'}</span>
                         </div>
-                        <span className="text-gray-500 dark:text-gray-400">{count}</span>
+                        <span className="text-gray-500">{count}</span>
                       </div>
                     ))}
                 </div>
-              </>
-            ) : (
-              <>
-                <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Legend</p>
-                <div className="flex items-center gap-2 text-xs">
-                  <div className="w-3 h-3 rounded-sm bg-red-200 border border-red-600" />
-                  <span className="text-gray-600 dark:text-gray-400">Selected</span>
+              </div>
+            </div>
+
+            {/* Right Map - Year 2 */}
+            <div className="flex-1 relative rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
+              {/* Year Label */}
+              <div className="absolute top-2 right-2 z-[1000] bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold shadow">
+                {compareYear}
+              </div>
+              {isLoadingCompare && (
+                <div className="absolute inset-0 z-[1500] bg-white/80 flex items-center justify-center">
+                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
                 </div>
-                <div className="flex items-center gap-2 text-xs mt-1">
-                  <div className="w-3 h-3 rounded-sm bg-gray-200 border border-gray-400" />
-                  <span className="text-gray-600 dark:text-gray-400">Constituency</span>
+              )}
+              <MapContainer
+                style={{ height: '100%', width: '100%', background: '#f8fafc' }}
+                center={[11.1271, 78.6569]}
+                zoom={7}
+                scrollWheelZoom={true}
+              >
+                <NativeGeoJSON
+                  data={map as GeoJSON.GeoJsonObject}
+                  onEachFeature={() => {}}
+                  style={(feature: GeoJSON.Feature) => {
+                    const assemblyId = feature?.properties?.ac
+                      ? `ac${String(feature.properties.ac).padStart(3, '0')}`
+                      : null
+                    if (compareYear && assemblyId && compareElectionResults[assemblyId]) {
+                      const result = compareElectionResults[assemblyId]
+                      return {
+                        color: '#ffffff',
+                        fillColor: getPartyColor(result.party),
+                        fillOpacity: 0.8,
+                        weight: 1,
+                      }
+                    }
+                    return { color: '#9ca3af', fillColor: '#e5e7eb', fillOpacity: 0.4, weight: 0.5 }
+                  }}
+                  refreshKey={`compare-right-${compareYear}-${Object.keys(compareElectionResults).length}`}
+                />
+              </MapContainer>
+              {/* Right Legend */}
+              <div className="absolute bottom-2 left-2 z-[1000] bg-white/95 border rounded shadow-sm px-2 py-1.5 max-w-[150px]">
+                <p className="text-[10px] font-bold text-gray-700 mb-1">{compareYear} Results</p>
+                <div className="space-y-0.5 max-h-[120px] overflow-y-auto">
+                  {Object.entries(comparePartyCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 6)
+                    .map(([party, count]) => (
+                      <div
+                        key={party}
+                        className="flex items-center justify-between gap-1 text-[9px]"
+                      >
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="w-2 h-2 rounded-sm"
+                            style={{ backgroundColor: getPartyColor(party) }}
+                          />
+                          <span className="text-gray-700">{party || 'IND'}</span>
+                        </div>
+                        <span className="text-gray-500">{count}</span>
+                      </div>
+                    ))}
                 </div>
-              </>
-            )}
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          // SINGLE MAP MODE (Original)
+          <div
+            className={`${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[550px]'} w-full rounded border border-gray-200 dark:border-gray-700 overflow-hidden`}
+          >
+            {/* Loading overlay while fetching election data */}
+            {isLoadingElection && (
+              <div className="absolute inset-0 z-[1500] bg-white/80 dark:bg-gray-900/80 flex flex-col items-center justify-center backdrop-blur-sm">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative">
+                    <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 rounded-full" />
+                    <div className="absolute inset-0 w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Loading {selectedElectionYear} Election Results
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Fetching data for 234 assemblies...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            <MapContainer
+              style={{ height: '100%', width: '100%', background: '#f8fafc' }}
+              center={[11.1271, 78.6569]}
+              zoom={7}
+              scrollWheelZoom={true}
+              ref={mapRef}
+            >
+              <MapZoomListener setZoomLevel={setZoomLevel} />
+              <NativeGeoJSON
+                data={map as GeoJSON.GeoJsonObject}
+                onEachFeature={onEachFeature}
+                style={styleFeature}
+                refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}-${showDistrictBoundaries}-${selectedElectionYear || 'no-election'}-${Object.keys(electionResults).length}-${isLoadingElection}`}
+              />
+
+              {/* District Boundaries Layer - shows thick colored boundary lines when toggle is enabled */}
+              {showDistrictBoundaries && districtBoundariesGeoJson && (
+                <NativeGeoJSON
+                  data={districtBoundariesGeoJson as GeoJSON.GeoJsonObject}
+                  onEachFeature={() => {}} // No interactions for boundary layer
+                  style={(feature: any) => {
+                    const pcName = feature?.properties?.pc_name
+                    // Use a distinct color scheme for district boundaries
+                    const districtColors = [
+                      '#ef4444',
+                      '#f97316',
+                      '#eab308',
+                      '#22c55e',
+                      '#14b8a6',
+                      '#06b6d4',
+                      '#3b82f6',
+                      '#6366f1',
+                      '#a855f7',
+                      '#ec4899',
+                      '#be185d',
+                      '#dc2626',
+                      '#ea580c',
+                      '#ca8a04',
+                      '#16a34a',
+                      '#0d9488',
+                      '#0284c7',
+                      '#4f46e5',
+                      '#7c3aed',
+                      '#c026d3',
+                      '#db2777',
+                    ]
+                    const districtIndex =
+                      Object.keys(
+                        map.features?.reduce((acc: Record<string, boolean>, f: GeoJSON.Feature) => {
+                          const name = f.properties?.pc_name
+                          if (name) acc[name] = true
+                          return acc
+                        }, {}) || {},
+                      ).indexOf(pcName) % districtColors.length
+
+                    return {
+                      color: districtColors[districtIndex >= 0 ? districtIndex : 0],
+                      weight: 4,
+                      opacity: 0.9,
+                      fill: false,
+                    }
+                  }}
+                  refreshKey={`district-boundaries-${showDistrictBoundaries}`}
+                />
+              )}
+
+              {/* Assembly Labels - only shown at higher zoom levels */}
+              {map.features
+                ?.filter((feature: GeoJSON.Feature) => {
+                  if (selectedDistrict) {
+                    return feature.properties?.pc_name === selectedDistrict
+                  }
+                  return true
+                })
+                .map((feature: GeoJSON.Feature, index: number) => {
+                  // Only show labels at zoom level 9+
+                  if (zoomLevel >= 9) {
+                    const center = feature.geometry
+                      ? getPolygonCentroid((feature.geometry as any).coordinates)
+                      : null
+                    if (center) {
+                      return (
+                        <Marker
+                          key={`label-${index}`}
+                          position={center}
+                          icon={L.divIcon({
+                            className: 'assembly-label',
+                            html: `<div style="
+                            font-size: 8px;
+                            font-weight: 600;
+                            color: #1f2937;
+                            text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white;
+                            white-space: nowrap;
+                            text-align: center;
+                            pointer-events: none;
+                          ">${feature.properties?.ac_name || ''}</div>`,
+                            iconSize: [100, 20],
+                            iconAnchor: [50, 10],
+                          })}
+                        />
+                      )
+                    }
+                  }
+                  return null
+                })}
+
+              {/* Popup - BBC Style */}
+              {popupPosition && popupContent && (
+                <Popup position={popupPosition}>
+                  <div className="p-1 min-w-[180px]">
+                    <p className="font-bold text-sm mb-1" style={{ color: '#111827' }}>
+                      {popupContent.ac_name}
+                    </p>
+                    <p className="text-xs text-gray-500 mb-2">PC: {popupContent.pc_name}</p>
+
+                    {/* Election Winner Info - shown when election overlay is active */}
+                    {selectedElectionYear &&
+                      (() => {
+                        const assemblyId = popupContent.ac
+                          ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                          : null
+                        const result = assemblyId ? electionResults[assemblyId] : null
+                        if (result) {
+                          const partyColor = getPartyColor(result.party)
+                          return (
+                            <div className="mb-3 p-2 rounded border border-gray-200 bg-gray-50">
+                              <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">
+                                🏆 {selectedElectionYear} Winner
+                              </p>
+                              <p className="text-xs font-bold text-gray-800 mb-1">
+                                {result.candidateName}
+                              </p>
+                              <div className="flex items-center justify-between gap-2">
+                                <span
+                                  className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white"
+                                  style={{ backgroundColor: partyColor }}
+                                >
+                                  {result.party}
+                                </span>
+                                <span className="text-[10px] text-gray-600 font-medium">
+                                  {result.votes?.toLocaleString()} votes
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        }
+                        return null
+                      })()}
+
+                    <button
+                      className="w-full flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
+                      onClick={() =>
+                        router.push(
+                          `/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
+                        )
+                      }
+                    >
+                      View Assembly
+                      <ExternalLink className="h-3 w-3" />
+                    </button>
+                  </div>
+                </Popup>
+              )}
+            </MapContainer>
+          </div>
+        )}
+
+        {/* Legend - Only shown in single map mode (compare mode has inline legends) */}
+        {!compareMode && (
+          <div className="absolute bottom-3 right-3 z-[1000]">
+            <div className="bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700 rounded shadow-sm px-3 py-2 max-w-[200px]">
+              {selectedElectionYear && Object.keys(partyCounts).length > 0 ? (
+                <>
+                  <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    {selectedElectionYear} Results
+                  </p>
+                  <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                    {Object.entries(partyCounts)
+                      .sort((a, b) => b[1] - a[1])
+                      .slice(0, 10)
+                      .map(([party, count]) => (
+                        <div
+                          key={party}
+                          className="flex items-center justify-between gap-2 text-xs"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <div
+                              className="w-3 h-3 rounded-sm border border-white/50"
+                              style={{ backgroundColor: getPartyColor(party) }}
+                            />
+                            <span className="text-gray-700 dark:text-gray-300 font-medium">
+                              {party || 'IND'}
+                            </span>
+                          </div>
+                          <span className="text-gray-500 dark:text-gray-400">{count}</span>
+                        </div>
+                      ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                    Legend
+                  </p>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-3 h-3 rounded-sm bg-red-200 border border-red-600" />
+                    <span className="text-gray-600 dark:text-gray-400">Selected</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs mt-1">
+                    <div className="w-3 h-3 rounded-sm bg-gray-200 border border-gray-400" />
+                    <span className="text-gray-600 dark:text-gray-400">Constituency</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Info text */}
