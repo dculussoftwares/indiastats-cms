@@ -763,6 +763,19 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                   <option value="2021">2021 Results</option>
                   <option value="2016">2016 Results</option>
                   <option value="2011">2011 Results</option>
+                  <option value="2006">2006 Results</option>
+                  <option value="2001">2001 Results</option>
+                  <option value="1996">1996 Results</option>
+                  <option value="1991">1991 Results</option>
+                  <option value="1989">1989 Results</option>
+                  <option value="1984">1984 Results</option>
+                  <option value="1980">1980 Results</option>
+                  <option value="1977">1977 Results</option>
+                  <option value="1971">1971 Results</option>
+                  <option value="1967">1967 Results</option>
+                  <option value="1962">1962 Results</option>
+                  <option value="1957">1957 Results</option>
+                  <option value="1952">1952 Results</option>
                 </select>
                 {isLoadingElection && (
                   <div className="absolute right-2 top-1/2 -translate-y-1/2">

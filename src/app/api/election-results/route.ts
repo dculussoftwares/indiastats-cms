@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
 
         const year = parseInt(yearParam, 10)
 
-        // Validate year is one of the supported years
-        const supportedYears = [2011, 2016, 2021]
+        // Validate year is one of the supported election years
+        const supportedYears = [1952, 1957, 1962, 1967, 1971, 1977, 1980, 1984, 1989, 1991, 1996, 2001, 2006, 2011, 2016, 2021]
         if (!supportedYears.includes(year)) {
             return NextResponse.json(
                 { error: `Year must be one of: ${supportedYears.join(', ')}` },
