@@ -635,13 +635,16 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
             {/* Control Buttons */}
             <div className="flex gap-1">
               <Button
-                variant={showDistrictBoundaries ? 'default' : 'ghost'}
+                variant={showDistrictBoundaries ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setShowDistrictBoundaries(!showDistrictBoundaries)}
-                className="px-2"
+                className="px-3 gap-1.5"
                 title="Toggle district boundaries"
               >
                 <Layers className="h-4 w-4" />
+                <span className="text-xs">
+                  {showDistrictBoundaries ? 'Hide District' : 'Show District'}
+                </span>
               </Button>
               <Button
                 variant="ghost"
