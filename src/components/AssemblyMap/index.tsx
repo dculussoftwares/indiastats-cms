@@ -829,7 +829,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
               data={map as GeoJSON.GeoJsonObject}
               onEachFeature={onEachFeature}
               style={styleFeature}
-              refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}-${showDistrictBoundaries}-${selectedElectionYear || 'no-election'}-${Object.keys(electionResults).length}`}
+              refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}-${showDistrictBoundaries}-${selectedElectionYear || 'no-election'}-${Object.keys(electionResults).length}-${isLoadingElection}`}
             />
 
             {/* District Boundaries Layer - shows thick colored boundary lines when toggle is enabled */}
@@ -951,7 +951,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                               🏆 {selectedElectionYear} Winner
                             </p>
                             <p className="text-xs font-bold text-gray-800 mb-1">
-                              {result.candidate}
+                              {result.candidateName}
                             </p>
                             <div className="flex items-center justify-between gap-2">
                               <span
