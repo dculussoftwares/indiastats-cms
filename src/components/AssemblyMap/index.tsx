@@ -161,6 +161,7 @@ const NativeGeoJSON = ({
   style,
   onEachFeature,
   refreshKey,
+  interactive = true,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any
@@ -169,6 +170,7 @@ const NativeGeoJSON = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onEachFeature: any
   refreshKey?: string
+  interactive?: boolean
 }) => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const map = require('react-leaflet').useMap()
@@ -187,6 +189,7 @@ const NativeGeoJSON = ({
     geoJsonLayerRef.current = L.geoJSON(data, {
       style,
       onEachFeature,
+      interactive, // Pass interactive option to disable mouse events
     }).addTo(map)
 
     return () => {
@@ -234,6 +237,52 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   }
 
   const pcNameColorMap = useMemo(() => getPcNameColorMap(map.features || []), [map])
+
+  // Compute district boundaries GeoJSON by grouping assemblies by pc_name
+  const districtBoundariesGeoJson = useMemo(() => {
+    if (!map.features) return null
+
+    // Group features by pc_name (district)
+    const featuresByDistrict: Record<string, any[]> = {}
+    map.features.forEach((f: any) => {
+      const pcName = f.properties?.pc_name
+      if (pcName) {
+        if (!featuresByDistrict[pcName]) {
+          featuresByDistrict[pcName] = []
+        }
+        featuresByDistrict[pcName].push(f)
+      }
+    })
+
+    // Create a feature collection with just the outer boundaries
+    const districtFeatures = Object.entries(featuresByDistrict).map(([pcName, features]) => {
+      // Collect all coordinates from all features in this district
+      const allCoordinates = features
+        .map((f: any) => {
+          if (f.geometry.type === 'Polygon') {
+            return f.geometry.coordinates
+          } else if (f.geometry.type === 'MultiPolygon') {
+            return f.geometry.coordinates.flat()
+          }
+          return []
+        })
+        .flat()
+
+      return {
+        type: 'Feature',
+        properties: { pc_name: pcName },
+        geometry: {
+          type: 'MultiPolygon',
+          coordinates: allCoordinates.map((coords: any) => [coords]),
+        },
+      }
+    })
+
+    return {
+      type: 'FeatureCollection',
+      features: districtFeatures,
+    }
+  }, [map])
 
   // Get unique district (PC) names
   const districtOptions = useMemo(() => {
@@ -634,8 +683,75 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
               data={map as GeoJSON.GeoJsonObject}
               onEachFeature={onEachFeature}
               style={styleFeature}
-              refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}`}
+              refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}-${showDistrictBoundaries}`}
             />
+
+            {/* District Boundaries Layer - shows thick colored boundary lines when toggle is enabled */}
+            {showDistrictBoundaries && districtBoundariesGeoJson && (
+              <NativeGeoJSON
+                data={districtBoundariesGeoJson as GeoJSON.GeoJsonObject}
+                onEachFeature={() => {}} // No interactions for boundary layer
+                style={(feature: any) => {
+                  const pcName = feature?.properties?.pc_name
+                  // Use a distinct color scheme for district boundaries
+                  const districtColors = [
+                    '#ef4444',
+                    '#f97316',
+                    '#eab308',
+                    '#22c55e',
+                    '#14b8a6',
+                    '#06b6d4',
+                    '#3b82f6',
+                    '#6366f1',
+                    '#8b5cf6',
+                    '#a855f7',
+                    '#d946ef',
+                    '#ec4899',
+                    '#f43f5e',
+                    '#10b981',
+                    '#0ea5e9',
+                    '#6d28d9',
+                    '#be185d',
+                    '#dc2626',
+                    '#ea580c',
+                    '#ca8a04',
+                    '#16a34a',
+                    '#0d9488',
+                    '#0284c7',
+                    '#4f46e5',
+                    '#7c3aed',
+                    '#c026d3',
+                    '#db2777',
+                    '#e11d48',
+                    '#059669',
+                    '#0891b2',
+                    '#2563eb',
+                    '#7c3aed',
+                    '#9333ea',
+                    '#c026d3',
+                    '#db2777',
+                    '#dc2626',
+                    '#d97706',
+                    '#65a30d',
+                    '#0d9488',
+                    '#0284c7',
+                  ]
+                  const colorIndex = districtOptions.indexOf(pcName)
+                  const strokeColor =
+                    districtColors[colorIndex % districtColors.length] || '#dc2626'
+
+                  return {
+                    color: strokeColor,
+                    fillColor: 'transparent',
+                    fillOpacity: 0,
+                    opacity: 0.9,
+                    weight: 4,
+                  }
+                }}
+                refreshKey={`district-boundaries-${showDistrictBoundaries}`}
+                interactive={false}
+              />
+            )}
 
             {/* Assembly name labels at high zoom */}
             {map.features &&
