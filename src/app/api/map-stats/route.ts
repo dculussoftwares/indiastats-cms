@@ -45,6 +45,33 @@ export async function GET() {
             }
         })
 
+        // Calculate quick stats
+        let largestConstituency = { name: '', voters: 0, assemblyId: '' }
+        let smallestConstituency = { name: '', voters: Infinity, assemblyId: '' }
+        let highestFemaleRatio = { name: '', ratio: 0, assemblyId: '' }
+        let mostBooths = { name: '', booths: 0, assemblyId: '' }
+
+        assemblies.forEach((assembly: any) => {
+            const total = Number(assembly.voters?.total) || 0
+            const female = Number(assembly.voters?.female) || 0
+            const booths = Number(assembly.noOfBooths) || 0
+            const name = assembly.name || ''
+            const assemblyId = assembly.assemblyId || ''
+
+            if (total > largestConstituency.voters) {
+                largestConstituency = { name, voters: total, assemblyId }
+            }
+            if (total > 0 && total < smallestConstituency.voters) {
+                smallestConstituency = { name, voters: total, assemblyId }
+            }
+            if (total > 0 && (female / total) > highestFemaleRatio.ratio) {
+                highestFemaleRatio = { name, ratio: female / total, assemblyId }
+            }
+            if (booths > mostBooths.booths) {
+                mostBooths = { name, booths, assemblyId }
+            }
+        })
+
         return NextResponse.json({
             totalAssemblies: assemblies.length,
             totalDistricts: districts.size,
@@ -55,6 +82,15 @@ export async function GET() {
                 female: totalFemale,
                 trans: totalTrans,
                 total: totalVoters,
+            },
+            quickStats: {
+                largestConstituency,
+                smallestConstituency: smallestConstituency.voters === Infinity ? null : smallestConstituency,
+                highestFemaleRatio: {
+                    ...highestFemaleRatio,
+                    ratio: Math.round(highestFemaleRatio.ratio * 100),
+                },
+                mostBooths,
             },
         })
     } catch (error) {

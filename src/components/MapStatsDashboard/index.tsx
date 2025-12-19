@@ -4,6 +4,14 @@ import * as React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Building2, MapPin, Users, User, UserCircle2, Shield, ShieldCheck } from 'lucide-react'
 
+interface QuickStat {
+  name: string
+  assemblyId: string
+  voters?: number
+  ratio?: number
+  booths?: number
+}
+
 interface MapStats {
   totalAssemblies: number
   totalDistricts: number
@@ -14,6 +22,12 @@ interface MapStats {
     female: number
     trans: number
     total: number
+  }
+  quickStats?: {
+    largestConstituency: QuickStat
+    smallestConstituency: QuickStat | null
+    highestFemaleRatio: QuickStat
+    mostBooths: QuickStat
   }
 }
 
@@ -139,6 +153,87 @@ export function MapStatsDashboard({ stats, isLoading }: MapStatsDashboardProps) 
           )}
         </span>
       </div>
+
+      {/* Quick Stats - Interesting facts */}
+      {stats.quickStats && (
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+            Quick Facts
+          </h3>
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Largest Constituency */}
+            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
+              <CardContent className="pt-3 pb-3">
+                <p className="text-xs text-green-700 dark:text-green-400 font-medium">
+                  Largest Constituency
+                </p>
+                <p
+                  className="font-bold text-sm truncate"
+                  title={stats.quickStats.largestConstituency.name}
+                >
+                  {stats.quickStats.largestConstituency.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatNumber(stats.quickStats.largestConstituency.voters || 0)} voters
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Smallest Constituency */}
+            {stats.quickStats.smallestConstituency && (
+              <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200 dark:border-amber-800">
+                <CardContent className="pt-3 pb-3">
+                  <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                    Smallest Constituency
+                  </p>
+                  <p
+                    className="font-bold text-sm truncate"
+                    title={stats.quickStats.smallestConstituency.name}
+                  >
+                    {stats.quickStats.smallestConstituency.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatNumber(stats.quickStats.smallestConstituency.voters || 0)} voters
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Highest Female Voter Ratio */}
+            <Card className="bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20 border-pink-200 dark:border-pink-800">
+              <CardContent className="pt-3 pb-3">
+                <p className="text-xs text-pink-700 dark:text-pink-400 font-medium">
+                  Highest Female Ratio
+                </p>
+                <p
+                  className="font-bold text-sm truncate"
+                  title={stats.quickStats.highestFemaleRatio.name}
+                >
+                  {stats.quickStats.highestFemaleRatio.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {stats.quickStats.highestFemaleRatio.ratio}% female voters
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Most Booths */}
+            <Card className="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20 border-violet-200 dark:border-violet-800">
+              <CardContent className="pt-3 pb-3">
+                <p className="text-xs text-violet-700 dark:text-violet-400 font-medium">
+                  Most Polling Booths
+                </p>
+                <p className="font-bold text-sm truncate" title={stats.quickStats.mostBooths.name}>
+                  {stats.quickStats.mostBooths.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {stats.quickStats.mostBooths.booths} booths
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
