@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Search, MapPin, ExternalLink, X, Layers, Maximize2, Minimize2 } from 'lucide-react'
+import { getPartyColor } from '@/lib/partyColors'
 import './leaflet-style-import'
 
 // Dynamic imports for react-leaflet (SSR disabled)
@@ -219,12 +220,55 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   const [showDistrictDropdown, setShowDistrictDropdown] = useState(false)
   const [showDistrictBoundaries, setShowDistrictBoundaries] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  // Election overlay state
+  const [selectedElectionYear, setSelectedElectionYear] = useState<number | null>(null)
+  const [electionResults, setElectionResults] = useState<
+    Record<string, { party: string; candidateName: string; votes: number }>
+  >({})
+  const [partyCounts, setPartyCounts] = useState<Record<string, number>>({})
+  const [isLoadingElection, setIsLoadingElection] = useState(false)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = useRef<any>(null)
   // Track selected states in refs for use in event handlers
   const selectedAssemblyRef = useRef<string | null>(null)
   const selectedDistrictRef = useRef<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  // Track election year in ref for event handlers
+  const selectedElectionYearRef = useRef<number | null>(null)
+  const electionResultsRef = useRef<
+    Record<string, { party: string; candidateName: string; votes: number }>
+  >({})
+
+  // Fetch election results when year changes
+  useEffect(() => {
+    selectedElectionYearRef.current = selectedElectionYear
+
+    if (!selectedElectionYear) {
+      setElectionResults({})
+      setPartyCounts({})
+      electionResultsRef.current = {}
+      return
+    }
+
+    const fetchElectionResults = async () => {
+      setIsLoadingElection(true)
+      try {
+        const response = await fetch(`/api/election-results?year=${selectedElectionYear}`)
+        if (response.ok) {
+          const data = await response.json()
+          setElectionResults(data.results || {})
+          setPartyCounts(data.partyCounts || {})
+          electionResultsRef.current = data.results || {}
+        }
+      } catch (error) {
+        console.error('Failed to fetch election results:', error)
+      } finally {
+        setIsLoadingElection(false)
+      }
+    }
+
+    fetchElectionResults()
+  }, [selectedElectionYear])
 
   // Ref-based callback to clear district selection (for use in event handlers with stale closures)
   const clearDistrictSelectionRef = useRef<() => void>(() => {})
@@ -324,18 +368,49 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mouseover: (event: any) => {
         event.target.bringToFront()
-        event.target.setStyle({
-          color: '#dc2626', // BBC red on hover
-          weight: 2,
-          fillOpacity: 0.8,
-        })
+
+        // In election overlay mode, only highlight border, keep party fill color
+        if (selectedElectionYearRef.current) {
+          event.target.setStyle({
+            color: '#000000', // Black border on hover
+            weight: 3,
+          })
+        } else {
+          event.target.setStyle({
+            color: '#dc2626', // BBC red on hover
+            weight: 2,
+            fillOpacity: 0.8,
+          })
+        }
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mouseout: (event: any) => {
         const acName = feature?.properties?.ac_name
         const pcName = feature?.properties?.pc_name
+        const assemblyId = feature?.properties?.ac
+          ? `ac${String(feature.properties.ac).padStart(3, '0')}`
+          : null
 
-        // Keep red style if this is the selected assembly
+        // Election overlay mode - restore party color
+        if (
+          selectedElectionYearRef.current &&
+          assemblyId &&
+          electionResultsRef.current[assemblyId]
+        ) {
+          const isSelected = selectedAssemblyRef.current === acName
+          const result = electionResultsRef.current[assemblyId]
+          const partyColor = getPartyColor(result.party)
+
+          event.target.setStyle({
+            color: isSelected ? '#000000' : '#ffffff',
+            fillColor: partyColor,
+            fillOpacity: isSelected ? 0.95 : 0.8,
+            weight: isSelected ? 3 : 1,
+          })
+          return
+        }
+
+        // Keep red style if this is the selected assembly (non-election mode)
         if (selectedAssemblyRef.current === acName) {
           event.target.setStyle({
             color: '#dc2626',
@@ -465,11 +540,39 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const styleFeature = (feature: any) => {
     const pcName = feature?.properties?.pc_name
+    const assemblyId = feature?.properties?.ac
+      ? `ac${String(feature.properties.ac).padStart(3, '0')}`
+      : null
     const isSelected = selectedAssembly === feature?.properties?.ac_name
     const isInSelectedDistrict = !selectedDistrict || pcName === selectedDistrict
     const dimmed = selectedDistrict && !isInSelectedDistrict
 
-    // Show red for selected district assemblies OR selected assembly
+    // Election overlay mode - use party colors
+    if (selectedElectionYear && assemblyId && electionResults[assemblyId]) {
+      const result = electionResults[assemblyId]
+      const partyColor = getPartyColor(result.party)
+
+      return {
+        color: isSelected ? '#000000' : '#ffffff',
+        fillColor: partyColor,
+        fillOpacity: isSelected ? 0.95 : 0.8,
+        opacity: 1,
+        weight: isSelected ? 3 : 1,
+      }
+    }
+
+    // No election data for this assembly in selected year
+    if (selectedElectionYear && assemblyId) {
+      return {
+        color: '#9ca3af',
+        fillColor: '#e5e7eb',
+        fillOpacity: 0.4,
+        opacity: 1,
+        weight: 0.5,
+      }
+    }
+
+    // Default mode (no election overlay) - existing behavior
     const isHighlighted = isSelected || (selectedDistrict && !dimmed)
 
     return {
@@ -633,7 +736,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
             </div>
 
             {/* Control Buttons */}
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
               <Button
                 variant={showDistrictBoundaries ? 'default' : 'outline'}
                 size="sm"
@@ -646,6 +749,27 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                   {showDistrictBoundaries ? 'Hide District' : 'Show District'}
                 </span>
               </Button>
+
+              {/* Election Year Selector */}
+              <div className="relative">
+                <select
+                  value={selectedElectionYear || ''}
+                  onChange={(e) =>
+                    setSelectedElectionYear(e.target.value ? Number(e.target.value) : null)
+                  }
+                  className="h-9 px-3 text-xs border rounded bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:outline-none focus:border-red-600 cursor-pointer"
+                >
+                  <option value="">Election Year</option>
+                  <option value="2021">2021 Results</option>
+                  <option value="2016">2016 Results</option>
+                  <option value="2011">2011 Results</option>
+                </select>
+                {isLoadingElection && (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <div className="w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -674,6 +798,25 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         <div
           className={`${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[550px]'} w-full rounded border border-gray-200 dark:border-gray-700 overflow-hidden`}
         >
+          {/* Loading overlay while fetching election data */}
+          {isLoadingElection && (
+            <div className="absolute inset-0 z-[1500] bg-white/80 dark:bg-gray-900/80 flex flex-col items-center justify-center backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative">
+                  <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 rounded-full" />
+                  <div className="absolute inset-0 w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Loading {selectedElectionYear} Election Results
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Fetching data for 234 assemblies...
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           <MapContainer
             style={{ height: '100%', width: '100%', background: '#f8fafc' }}
             center={[11.1271, 78.6569]}
@@ -686,7 +829,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
               data={map as GeoJSON.GeoJsonObject}
               onEachFeature={onEachFeature}
               style={styleFeature}
-              refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}-${showDistrictBoundaries}`}
+              refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}-${showDistrictBoundaries}-${selectedElectionYear || 'no-election'}-${Object.keys(electionResults).length}`}
             />
 
             {/* District Boundaries Layer - shows thick colored boundary lines when toggle is enabled */}
@@ -809,18 +952,47 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
           </MapContainer>
         </div>
 
-        {/* Legend - Minimal BBC Style */}
+        {/* Legend - Dynamic for election overlay */}
         <div className="absolute bottom-3 right-3 z-[1000]">
-          <div className="bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700 rounded shadow-sm px-3 py-2 max-w-[150px]">
-            <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Legend</p>
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded-sm bg-red-200 border border-red-600" />
-              <span className="text-gray-600 dark:text-gray-400">Selected</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs mt-1">
-              <div className="w-3 h-3 rounded-sm bg-gray-200 border border-gray-400" />
-              <span className="text-gray-600 dark:text-gray-400">Constituency</span>
-            </div>
+          <div className="bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700 rounded shadow-sm px-3 py-2 max-w-[200px]">
+            {selectedElectionYear && Object.keys(partyCounts).length > 0 ? (
+              <>
+                <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                  {selectedElectionYear} Results
+                </p>
+                <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                  {Object.entries(partyCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10)
+                    .map(([party, count]) => (
+                      <div key={party} className="flex items-center justify-between gap-2 text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <div
+                            className="w-3 h-3 rounded-sm border border-white/50"
+                            style={{ backgroundColor: getPartyColor(party) }}
+                          />
+                          <span className="text-gray-700 dark:text-gray-300 font-medium">
+                            {party || 'IND'}
+                          </span>
+                        </div>
+                        <span className="text-gray-500 dark:text-gray-400">{count}</span>
+                      </div>
+                    ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Legend</p>
+                <div className="flex items-center gap-2 text-xs">
+                  <div className="w-3 h-3 rounded-sm bg-red-200 border border-red-600" />
+                  <span className="text-gray-600 dark:text-gray-400">Selected</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs mt-1">
+                  <div className="w-3 h-3 rounded-sm bg-gray-200 border border-gray-400" />
+                  <span className="text-gray-600 dark:text-gray-400">Constituency</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
