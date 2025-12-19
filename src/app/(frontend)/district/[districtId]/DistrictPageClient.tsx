@@ -8,7 +8,7 @@ import { PartyWinsChart } from '@/components/PartyWinsChart'
 import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ChevronRight, Building2 } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Building2, MapPin } from 'lucide-react'
 
 interface Assembly {
   assemblyId: string
@@ -82,6 +82,32 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
           </p>
         </div>
       </div>
+
+      {/* View on Map Card */}
+      <section className="mb-8">
+        <Card>
+          <CardContent className="pt-5 pb-5">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-red-50 dark:bg-red-950/30 p-2.5 rounded-lg">
+                  <MapPin className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">View on Map</p>
+                  <p className="text-xs text-muted-foreground">
+                    See {data.districtName} assemblies on the interactive map
+                  </p>
+                </div>
+              </div>
+              <Link href="/assembly-map">
+                <Button variant="outline" size="sm" className="text-sm">
+                  Open Map
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
       {/* District Details Card */}
       <section className="mb-8">
