@@ -823,7 +823,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                     }
                     className="h-9 px-3 text-xs border rounded bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:outline-none focus:border-red-600 cursor-pointer"
                   >
-                    <option value="">Select Year</option>
+                    <option value="">Election Year</option>
                     {[
                       2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977, 1971, 1967,
                       1962, 1957, 1952,
