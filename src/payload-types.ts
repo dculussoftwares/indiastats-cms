@@ -76,6 +76,7 @@ export interface Config {
     districts: District;
     booths: Booth;
     'election-history': ElectionHistory;
+    alliances: Alliance;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -102,6 +103,7 @@ export interface Config {
     districts: DistrictsSelect<false> | DistrictsSelect<true>;
     booths: BoothsSelect<false> | BoothsSelect<true>;
     'election-history': ElectionHistorySelect<false> | ElectionHistorySelect<true>;
+    alliances: AlliancesSelect<false> | AlliancesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -915,6 +917,30 @@ export interface ElectionHistory {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "alliances".
+ */
+export interface Alliance {
+  id: number;
+  /**
+   * Election year (e.g., 2021, 2016)
+   */
+  electionYear: number;
+  /**
+   * Name of the alliance (e.g., Secular Progressive Alliance)
+   */
+  allianceName: string;
+  /**
+   * List of parties in this alliance
+   */
+  parties: {
+    partyName: string;
+    id?: string | null;
+  }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1138,6 +1164,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'election-history';
         value: number | ElectionHistory;
+      } | null)
+    | ({
+        relationTo: 'alliances';
+        value: number | Alliance;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1557,6 +1587,22 @@ export interface ElectionHistorySelect<T extends boolean = true> {
   candidateName?: T;
   candidateParty?: T;
   candidateVotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "alliances_select".
+ */
+export interface AlliancesSelect<T extends boolean = true> {
+  electionYear?: T;
+  allianceName?: T;
+  parties?:
+    | T
+    | {
+        partyName?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
