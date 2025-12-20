@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Search, MapPin, ExternalLink, X, Layers, Maximize2, Minimize2 } from 'lucide-react'
 import { getPartyColor } from '@/lib/partyColors'
 import { MapStatsDashboard } from '@/components/MapStatsDashboard'
+import { ElectionInsightsPanel } from '@/components/ElectionInsightsPanel'
 import './leaflet-style-import'
 
 // Dynamic imports for react-leaflet (SSR disabled)
@@ -1694,6 +1695,13 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
           </div>
         )}
       </div>
+
+      {/* Election Insights Panel - shown in compare mode */}
+      <ElectionInsightsPanel
+        year1={selectedElectionYear || 0}
+        year2={compareYear || 0}
+        isVisible={compareMode && !!selectedElectionYear && !!compareYear}
+      />
 
       {/* Info text */}
       <p className="text-xs text-muted-foreground text-center">
