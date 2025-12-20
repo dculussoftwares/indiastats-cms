@@ -68,11 +68,72 @@ export async function GET(request: NextRequest) {
             partyCounts[party] = (partyCounts[party] || 0) + 1
         })
 
+        // Get top 2 parties by seat count
+        const sortedParties = Object.entries(partyCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 2)
+            .map(([party]) => party)
+
+        // Group candidates by assembly to calculate margins
+        const candidatesByAssembly: Record<string, Array<{
+            candidateName: string
+            party: string
+            votes: number
+            assemblyName: string
+        }>> = {}
+
+        electionRecords.docs.forEach((record: any) => {
+            const assemblyId = record.assemblyId
+            if (!candidatesByAssembly[assemblyId]) {
+                candidatesByAssembly[assemblyId] = []
+            }
+            candidatesByAssembly[assemblyId].push({
+                candidateName: record.candidateName || 'Unknown',
+                party: record.candidateParty || 'IND',
+                votes: record.candidateVotes || 0,
+                assemblyName: record.assemblyName || assemblyId,
+            })
+        })
+
+        // Calculate closest races between top 2 parties
+        const closestRaces: Array<{
+            assemblyId: string
+            assemblyName: string
+            winner: { name: string; party: string; votes: number }
+            runnerUp: { name: string; party: string; votes: number }
+            margin: number
+        }> = []
+
+        Object.entries(candidatesByAssembly).forEach(([assemblyId, candidates]) => {
+            // Sort by votes descending
+            const sorted = [...candidates].sort((a, b) => b.votes - a.votes)
+            if (sorted.length >= 2) {
+                const winner = sorted[0]
+                const runnerUp = sorted[1]
+                // Only include if winner or runner-up is one of top 2 parties
+                if (sortedParties.includes(winner.party) || sortedParties.includes(runnerUp.party)) {
+                    closestRaces.push({
+                        assemblyId,
+                        assemblyName: winner.assemblyName,
+                        winner: { name: winner.candidateName, party: winner.party, votes: winner.votes },
+                        runnerUp: { name: runnerUp.candidateName, party: runnerUp.party, votes: runnerUp.votes },
+                        margin: winner.votes - runnerUp.votes,
+                    })
+                }
+            }
+        })
+
+        // Sort by margin (closest first) and take top 40
+        closestRaces.sort((a, b) => a.margin - b.margin)
+        const topClosestRaces = closestRaces.slice(0, 40)
+
         return NextResponse.json({
             year,
             totalAssemblies: Object.keys(resultsByAssembly).length,
             results: resultsByAssembly,
             partyCounts,
+            topTwoParties: sortedParties,
+            closestRaces: topClosestRaces,
         })
     } catch (error) {
         console.error('Error fetching election results:', error)

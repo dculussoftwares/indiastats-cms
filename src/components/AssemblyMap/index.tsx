@@ -9,6 +9,7 @@ import { Search, MapPin, ExternalLink, X, Layers, Maximize2, Minimize2 } from 'l
 import { getPartyColor } from '@/lib/partyColors'
 import { MapStatsDashboard } from '@/components/MapStatsDashboard'
 import { ElectionInsightsPanel } from '@/components/ElectionInsightsPanel'
+import { ClosestRacesPanel } from '@/components/ClosestRacesPanel'
 import './leaflet-style-import'
 
 // Dynamic imports for react-leaflet (SSR disabled)
@@ -264,6 +265,16 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     Record<string, { party: string; candidateName: string; votes: number }>
   >({})
   const [partyCounts, setPartyCounts] = useState<Record<string, number>>({})
+  const [closestRaces, setClosestRaces] = useState<
+    Array<{
+      assemblyId: string
+      assemblyName: string
+      winner: { name: string; party: string; votes: number }
+      runnerUp: { name: string; party: string; votes: number }
+      margin: number
+    }>
+  >([])
+  const [topTwoParties, setTopTwoParties] = useState<string[]>([])
   const [isLoadingElection, setIsLoadingElection] = useState(false)
   // Compare mode state
   const [compareMode, setCompareMode] = useState(false)
@@ -337,6 +348,8 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
           const data = await response.json()
           setElectionResults(data.results || {})
           setPartyCounts(data.partyCounts || {})
+          setClosestRaces(data.closestRaces || [])
+          setTopTwoParties(data.topTwoParties || [])
           electionResultsRef.current = data.results || {}
         }
       } catch (error) {
@@ -1701,6 +1714,14 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         year1={selectedElectionYear || 0}
         year2={compareYear || 0}
         isVisible={compareMode && !!selectedElectionYear && !!compareYear}
+      />
+
+      {/* Closest Races Panel - shown in solo view mode only */}
+      <ClosestRacesPanel
+        closestRaces={closestRaces}
+        topTwoParties={topTwoParties}
+        year={selectedElectionYear || 0}
+        isVisible={!compareMode && !!selectedElectionYear && closestRaces.length > 0}
       />
 
       {/* Info text */}
