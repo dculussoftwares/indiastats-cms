@@ -127,6 +127,50 @@ export async function GET(request: NextRequest) {
         closestRaces.sort((a, b) => a.margin - b.margin)
         const topClosestRaces = closestRaces.slice(0, 40)
 
+        // Fetch alliance data for this year
+        const allianceRecords = await payload.find({
+            collection: 'alliances',
+            where: {
+                electionYear: { equals: year },
+            },
+            limit: 100,
+        })
+
+        // Build party-to-alliance mapping
+        const partyToAlliance: Record<string, string> = {}
+        allianceRecords.docs.forEach((alliance: any) => {
+            const allianceName = alliance.allianceName
+            if (alliance.parties && Array.isArray(alliance.parties)) {
+                alliance.parties.forEach((p: { partyName: string }) => {
+                    partyToAlliance[p.partyName] = allianceName
+                })
+            }
+        })
+
+        // Calculate alliance-wise seat counts
+        const allianceCounts: Record<string, { seats: number; parties: string[] }> = {}
+        Object.values(resultsByAssembly).forEach((result) => {
+            const party = result.party || 'IND'
+            const alliance = partyToAlliance[party] || 'Others'
+
+            if (!allianceCounts[alliance]) {
+                allianceCounts[alliance] = { seats: 0, parties: [] }
+            }
+            allianceCounts[alliance].seats++
+            if (!allianceCounts[alliance].parties.includes(party)) {
+                allianceCounts[alliance].parties.push(party)
+            }
+        })
+
+        // Convert to sorted array
+        const allianceSeats = Object.entries(allianceCounts)
+            .map(([name, data]) => ({
+                allianceName: name,
+                seats: data.seats,
+                parties: data.parties,
+            }))
+            .sort((a, b) => b.seats - a.seats)
+
         return NextResponse.json({
             year,
             totalAssemblies: Object.keys(resultsByAssembly).length,
@@ -134,6 +178,7 @@ export async function GET(request: NextRequest) {
             partyCounts,
             topTwoParties: sortedParties,
             closestRaces: topClosestRaces,
+            allianceSeats,
         })
     } catch (error) {
         console.error('Error fetching election results:', error)

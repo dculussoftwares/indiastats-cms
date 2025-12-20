@@ -10,6 +10,7 @@ import { getPartyColor } from '@/lib/partyColors'
 import { MapStatsDashboard } from '@/components/MapStatsDashboard'
 import { ElectionInsightsPanel } from '@/components/ElectionInsightsPanel'
 import { ClosestRacesPanel } from '@/components/ClosestRacesPanel'
+import { AllianceSummary } from '@/components/AllianceSummary'
 import './leaflet-style-import'
 
 // Dynamic imports for react-leaflet (SSR disabled)
@@ -275,6 +276,13 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     }>
   >([])
   const [topTwoParties, setTopTwoParties] = useState<string[]>([])
+  const [allianceSeats, setAllianceSeats] = useState<
+    Array<{
+      allianceName: string
+      seats: number
+      parties: string[]
+    }>
+  >([])
   const [isLoadingElection, setIsLoadingElection] = useState(false)
   // Compare mode state
   const [compareMode, setCompareMode] = useState(false)
@@ -350,6 +358,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
           setPartyCounts(data.partyCounts || {})
           setClosestRaces(data.closestRaces || [])
           setTopTwoParties(data.topTwoParties || [])
+          setAllianceSeats(data.allianceSeats || [])
           electionResultsRef.current = data.results || {}
         }
       } catch (error) {
@@ -1722,6 +1731,14 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         topTwoParties={topTwoParties}
         year={selectedElectionYear || 0}
         isVisible={!compareMode && !!selectedElectionYear && closestRaces.length > 0}
+      />
+
+      {/* Alliance Summary - shown in solo view mode only */}
+      <AllianceSummary
+        allianceSeats={allianceSeats}
+        year={selectedElectionYear || 0}
+        totalSeats={Object.keys(electionResults).length}
+        isVisible={!compareMode && !!selectedElectionYear && allianceSeats.length > 0}
       />
 
       {/* Info text */}
