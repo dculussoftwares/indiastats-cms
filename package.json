@@ -37,6 +37,7 @@
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-tooltip": "1.2.8",
     "@supabase/supabase-js": "2.87.1",
     "chroma-js": "3.2.0",
     "class-variance-authority": "^0.7.0",
@@ -85,7 +86,8 @@
     "tsx": "4.21.0",
     "typescript": "5.7.3",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "3.2.3"
+    "vitest": "3.2.3",
+    "xlsx": "0.18.5"
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0",

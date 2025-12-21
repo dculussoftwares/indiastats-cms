@@ -10,6 +10,7 @@ import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { VotesSharesChart } from '@/components/VotesSharesChart'
 import { PastWinningHistories } from '@/components/PastWinningHistories'
 import { ViewOnMapCard } from '@/components/ViewOnMapCard'
+import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
 
 interface Candidate {
@@ -276,6 +277,14 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
           <GenderChart voters={data.voters} />
         </section>
       )}
+
+      {/* Caste Demographics */}
+      <section className="mb-8">
+        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+          Caste Demographics
+        </h2>
+        <CasteDemographicsCard assemblyId={data.assemblyId} />
+      </section>
 
       {/* Population Changes */}
       {data.voters && data.lastElectionVoters && (

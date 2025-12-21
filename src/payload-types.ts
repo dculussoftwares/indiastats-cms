@@ -77,6 +77,7 @@ export interface Config {
     booths: Booth;
     'election-history': ElectionHistory;
     alliances: Alliance;
+    'caste-census': CasteCensus;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -104,6 +105,7 @@ export interface Config {
     booths: BoothsSelect<false> | BoothsSelect<true>;
     'election-history': ElectionHistorySelect<false> | ElectionHistorySelect<true>;
     alliances: AlliancesSelect<false> | AlliancesSelect<true>;
+    'caste-census': CasteCensusSelect<false> | CasteCensusSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -945,6 +947,39 @@ export interface Alliance {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "caste-census".
+ */
+export interface CasteCensus {
+  id: number;
+  /**
+   * Assembly ID (e.g., ac001)
+   */
+  assemblyId: string;
+  /**
+   * Assembly name for reference
+   */
+  assemblyName: string;
+  /**
+   * Highest population caste/community
+   */
+  rank1Caste?: string | null;
+  /**
+   * Percentage of rank 1 caste
+   */
+  rank1Percentage?: number | null;
+  rank2Caste?: string | null;
+  rank2Percentage?: number | null;
+  rank3Caste?: string | null;
+  rank3Percentage?: number | null;
+  rank4Caste?: string | null;
+  rank4Percentage?: number | null;
+  rank5Caste?: string | null;
+  rank5Percentage?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1172,6 +1207,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'alliances';
         value: number | Alliance;
+      } | null)
+    | ({
+        relationTo: 'caste-census';
+        value: number | CasteCensus;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1608,6 +1647,26 @@ export interface AlliancesSelect<T extends boolean = true> {
         id?: T;
       };
   color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "caste-census_select".
+ */
+export interface CasteCensusSelect<T extends boolean = true> {
+  assemblyId?: T;
+  assemblyName?: T;
+  rank1Caste?: T;
+  rank1Percentage?: T;
+  rank2Caste?: T;
+  rank2Percentage?: T;
+  rank3Caste?: T;
+  rank3Percentage?: T;
+  rank4Caste?: T;
+  rank4Percentage?: T;
+  rank5Caste?: T;
+  rank5Percentage?: T;
   updatedAt?: T;
   createdAt?: T;
 }

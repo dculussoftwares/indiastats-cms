@@ -14,6 +14,7 @@ import { Districts } from './collections/Districts'
 import { Booths } from './collections/Booths'
 import { ElectionHistory } from './collections/ElectionHistory'
 import { Alliances } from './collections/Alliances'
+import { CasteCensus } from './collections/CasteCensus'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -67,7 +68,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users, Assemblies, Districts, Booths, ElectionHistory, Alliances],
+  collections: [Pages, Posts, Media, Categories, Users, Assemblies, Districts, Booths, ElectionHistory, Alliances, CasteCensus],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins,

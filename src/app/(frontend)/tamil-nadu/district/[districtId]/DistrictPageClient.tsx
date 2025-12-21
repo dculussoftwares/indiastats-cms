@@ -8,6 +8,7 @@ import { PartyWinsChart } from '@/components/PartyWinsChart'
 import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { CasteComparisonTable } from '@/components/CasteComparisonTable'
 import { ArrowLeft, ChevronRight, Building2, MapPin } from 'lucide-react'
 
 interface Assembly {
@@ -129,6 +130,14 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
           Gender Distribution
         </h2>
         <GenderChart voters={data.voters} />
+      </section>
+
+      {/* Caste Demographics by Assembly */}
+      <section className="mb-8">
+        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+          Caste Demographics by Assembly
+        </h2>
+        <CasteComparisonTable districtName={data.districtName} />
       </section>
 
       {/* Most Winning Parties */}
