@@ -1,14 +1,18 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
+        const searchParams = request.nextUrl.searchParams
+        const stateCode = searchParams.get('stateCode') || 'TN' // Default to TN
+
         const payload = await getPayload({ config })
 
-        // Get all assemblies for aggregation
+        // Get all assemblies for this state
         const assembliesResult = await payload.find({
             collection: 'assemblies',
+            where: { stateCode: { equals: stateCode } },
             limit: 300,
         })
 

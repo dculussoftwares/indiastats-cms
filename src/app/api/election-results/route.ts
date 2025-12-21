@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams
         const yearParam = searchParams.get('year')
+        const stateCode = searchParams.get('stateCode') || 'TN' // Default to TN
 
         if (!yearParam) {
             return NextResponse.json(
@@ -34,11 +35,12 @@ export async function GET(request: NextRequest) {
 
         const payload = await getPayload({ config })
 
-        // Fetch all election records for the specified year
+        // Fetch all election records for the specified year and state
         const electionRecords = await payload.find({
             collection: 'election-history',
             where: {
                 electionYear: { equals: year },
+                stateCode: { equals: stateCode },
             },
             limit: 10000, // Ensure we get all records
         })

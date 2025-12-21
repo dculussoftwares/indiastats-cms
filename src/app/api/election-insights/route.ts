@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams
         const year1Param = searchParams.get('year1')
         const year2Param = searchParams.get('year2')
+        const stateCode = searchParams.get('stateCode') || 'TN' // Default to TN
 
         if (!year1Param || !year2Param) {
             return NextResponse.json(
@@ -28,16 +29,16 @@ export async function GET(request: NextRequest) {
 
         const payload = await getPayload({ config })
 
-        // Fetch election records for both years
+        // Fetch election records for both years filtered by stateCode
         const [records1, records2] = await Promise.all([
             payload.find({
                 collection: 'election-history',
-                where: { electionYear: { equals: year1 } },
+                where: { electionYear: { equals: year1 }, stateCode: { equals: stateCode } },
                 limit: 10000,
             }),
             payload.find({
                 collection: 'election-history',
-                where: { electionYear: { equals: year2 } },
+                where: { electionYear: { equals: year2 }, stateCode: { equals: stateCode } },
                 limit: 10000,
             }),
         ])

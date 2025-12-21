@@ -6,14 +6,21 @@ export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams
         const yearParam = searchParams.get('year')
+        const stateCode = searchParams.get('stateCode') || 'TN' // Default to TN
 
         const payload = await getPayload({ config })
 
+        // Build where clause with stateCode filter
+        const whereClause: Record<string, { equals: string | number }> = {
+            stateCode: { equals: stateCode }
+        }
+        if (yearParam) {
+            whereClause.electionYear = { equals: parseInt(yearParam, 10) }
+        }
+
         const allianceRecords = await payload.find({
             collection: 'alliances',
-            where: yearParam
-                ? { electionYear: { equals: parseInt(yearParam, 10) } }
-                : undefined,
+            where: whereClause,
             limit: 1000,
         })
 

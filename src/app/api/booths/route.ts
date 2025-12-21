@@ -7,11 +7,14 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams
         const assemblyId = searchParams.get('assemblyId')
         const districtId = searchParams.get('districtId')
+        const stateCode = searchParams.get('stateCode') || 'TN' // Default to TN
 
         const payload = await getPayload({ config })
 
-        // Build where clause based on parameters
-        const whereClause: Record<string, { equals: string }> = {}
+        // Build where clause based on parameters (always include stateCode)
+        const whereClause: Record<string, { equals: string }> = {
+            stateCode: { equals: stateCode }
+        }
         if (assemblyId) {
             whereClause.assemblyId = { equals: assemblyId }
         }

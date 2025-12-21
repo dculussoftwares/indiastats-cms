@@ -7,6 +7,7 @@ export async function GET(request: Request) {
     const assemblyId = searchParams.get('assemblyId')
     const districtName = searchParams.get('districtName')
     const all = searchParams.get('all')
+    const stateCode = searchParams.get('stateCode') || 'TN' // Default to TN
 
     const payload = await getPayload({ config })
 
@@ -15,6 +16,7 @@ export async function GET(request: Request) {
         if (all === 'true') {
             const casteData = await payload.find({
                 collection: 'caste-census',
+                where: { stateCode: { equals: stateCode } },
                 limit: 500,
                 sort: 'assemblyName',
             })
@@ -29,7 +31,7 @@ export async function GET(request: Request) {
             // Get caste data for a single assembly
             const casteData = await payload.find({
                 collection: 'caste-census',
-                where: { assemblyId: { equals: assemblyId } },
+                where: { assemblyId: { equals: assemblyId }, stateCode: { equals: stateCode } },
                 limit: 1,
             })
 
@@ -44,7 +46,7 @@ export async function GET(request: Request) {
             // Get assemblies in this district first
             const assemblies = await payload.find({
                 collection: 'assemblies',
-                where: { districtName: { contains: districtName } },
+                where: { districtName: { contains: districtName }, stateCode: { equals: stateCode } },
                 limit: 100,
             })
 
