@@ -2,13 +2,14 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ArrowLeft, Search, Users, TrendingUp, MapPin, Filter } from 'lucide-react'
 
 interface CasteData {
+  id: string
   assemblyId: string
   assemblyName: string
   rank1Caste: string | null
@@ -358,9 +359,9 @@ export function CasteDemographicsClient() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredData.map((assembly) => (
+                  {filteredData.map((assembly, index) => (
                     <tr
-                      key={assembly.assemblyId}
+                      key={assembly.id || `${assembly.assemblyId}-${index}`}
                       className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                     >
                       <td className="py-2 px-2 font-medium text-xs">
