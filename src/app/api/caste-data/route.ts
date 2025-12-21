@@ -6,10 +6,25 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const assemblyId = searchParams.get('assemblyId')
     const districtName = searchParams.get('districtName')
+    const all = searchParams.get('all')
 
     const payload = await getPayload({ config })
 
     try {
+        // Fetch all caste data
+        if (all === 'true') {
+            const casteData = await payload.find({
+                collection: 'caste-census',
+                limit: 500,
+                sort: 'assemblyName',
+            })
+
+            return NextResponse.json({
+                assemblies: casteData.docs,
+                total: casteData.totalDocs,
+            })
+        }
+
         if (assemblyId) {
             // Get caste data for a single assembly
             const casteData = await payload.find({
@@ -48,7 +63,7 @@ export async function GET(request: Request) {
             })
         }
 
-        return NextResponse.json({ error: 'Either assemblyId or districtName required' }, { status: 400 })
+        return NextResponse.json({ error: 'Either assemblyId, districtName, or all=true required' }, { status: 400 })
     } catch (error) {
         console.error('Error fetching caste data:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
