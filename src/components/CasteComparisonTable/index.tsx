@@ -138,8 +138,12 @@ export function CasteComparisonTable({ districtName }: CasteComparisonTableProps
                   <th className="text-left py-2 px-2 font-semibold text-blue-600">1st</th>
                   <th className="text-left py-2 px-2 font-semibold text-emerald-600">2nd</th>
                   <th className="text-left py-2 px-2 font-semibold text-amber-600">3rd</th>
-                  <th className="text-left py-2 px-2 font-semibold text-red-500">4th</th>
-                  <th className="text-left py-2 px-2 font-semibold text-violet-600">5th</th>
+                  <th className="hidden md:table-cell text-left py-2 px-2 font-semibold text-red-500">
+                    4th
+                  </th>
+                  <th className="hidden md:table-cell text-left py-2 px-2 font-semibold text-violet-600">
+                    5th
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -160,10 +164,10 @@ export function CasteComparisonTable({ districtName }: CasteComparisonTableProps
                     <td className="py-2 px-2">
                       {renderCasteCell(assembly.rank3Caste, assembly.rank3Percentage, 2)}
                     </td>
-                    <td className="py-2 px-2">
+                    <td className="hidden md:table-cell py-2 px-2">
                       {renderCasteCell(assembly.rank4Caste, assembly.rank4Percentage, 3)}
                     </td>
-                    <td className="py-2 px-2">
+                    <td className="hidden md:table-cell py-2 px-2">
                       {renderCasteCell(assembly.rank5Caste, assembly.rank5Percentage, 4)}
                     </td>
                   </tr>
