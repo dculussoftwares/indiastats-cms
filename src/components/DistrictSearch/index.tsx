@@ -82,7 +82,7 @@ export const DistrictSearch: React.FC<DistrictSearchProps> = ({ districts, onSea
         onSearch(selectedDistrict)
       }
       // Navigate to district page
-      router.push(`/district/${selectedDistrict.districtId}`)
+      router.push(`/tamil-nadu/district/${selectedDistrict.districtId}`)
     }
   }
 

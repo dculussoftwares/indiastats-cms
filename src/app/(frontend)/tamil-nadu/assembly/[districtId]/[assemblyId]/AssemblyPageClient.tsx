@@ -72,7 +72,7 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
     <div className="container py-8">
       {/* Back Button */}
       <div className="mb-4">
-        <Link href={`/district/${data.districtId}`}>
+        <Link href={`/tamil-nadu/district/${data.districtId}`}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to {data.districtName}
