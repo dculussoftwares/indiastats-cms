@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
 
         // Sort by margin (closest first) and take top 40
         closestRaces.sort((a, b) => a.margin - b.margin)
-        const topClosestRaces = closestRaces.slice(0, 40)
+        const topClosestRaces = closestRaces.slice(0, 200)
 
         // Fetch alliance data for this year
         const allianceRecords = await payload.find({

@@ -1833,6 +1833,8 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         topTwoParties={topTwoParties}
         year={selectedElectionYear || 0}
         isVisible={!compareMode && !!selectedElectionYear && closestRaces.length > 0}
+        partyToAlliance={partyToAlliance}
+        allianceSeats={allianceSeats}
       />
 
       {/* Alliance Summary - shown in solo view mode only */}
