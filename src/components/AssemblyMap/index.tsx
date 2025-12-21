@@ -36,6 +36,45 @@ export type AssemblyMapProps = {
   map: any
 }
 
+// Alliance colors for map visualization
+const allianceColors: Record<string, string> = {
+  'Secular Progressive Alliance (SPA)': '#dc2626', // Red (DMK-led)
+  'National Democratic Alliance (NDA)': '#059669', // Green
+  'AIADMK Alliance': '#059669', // Green
+  'AIADMK (Solo)': '#059669', // Green
+  'DMK Alliance': '#dc2626', // Red
+  'DMK Alliance (National Front)': '#dc2626', // Red
+  'DMK (Solo)': '#dc2626', // Red
+  'Democratic Progressive Alliance (DPA)': '#dc2626', // Red (DMK-led)
+  'Democratic People Alliance': '#059669', // Green (AIADMK-led)
+  'Secular Democratic Progressive Alliance': '#059669', // Green (AIADMK-led 2001)
+  "People's Welfare Front (Third Front)": '#8b5cf6', // Purple
+  'PMK (Solo)': '#eab308', // Yellow
+  'INC (Solo)': '#2563eb', // Blue
+  'INC(I)-CPI Alliance': '#2563eb', // Blue
+  'AIADMK(J) Faction': '#059669', // Green
+  'AIADMK(JA) Faction': '#10b981', // Light Green
+  'Janata Party (Solo)': '#f97316', // Orange
+  Others: '#6b7280', // Gray
+}
+
+function getAllianceColor(allianceName: string): string {
+  return allianceColors[allianceName] || '#6b7280'
+}
+
+// Get color based on view mode (party or alliance)
+function getDisplayColor(
+  party: string,
+  viewMode: 'party' | 'alliance',
+  partyToAlliance: Record<string, string>,
+): string {
+  if (viewMode === 'alliance') {
+    const alliance = partyToAlliance[party] || 'Others'
+    return getAllianceColor(alliance)
+  }
+  return getPartyColor(party)
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getPcNameColorMap = (features: any[]) => {
   const pcNames = Array.from(new Set(features.map((f) => f.properties?.pc_name)))
@@ -283,6 +322,8 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       parties: string[]
     }>
   >([])
+  const [partyToAlliance, setPartyToAlliance] = useState<Record<string, string>>({})
+  const [viewMode, setViewMode] = useState<'party' | 'alliance'>('party')
   const [isLoadingElection, setIsLoadingElection] = useState(false)
   // Compare mode state
   const [compareMode, setCompareMode] = useState(false)
@@ -318,6 +359,13 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   const electionResultsRef = useRef<
     Record<string, { party: string; candidateName: string; votes: number }>
   >({})
+  const viewModeRef = useRef<'party' | 'alliance'>('party')
+  const partyToAllianceRef = useRef<Record<string, string>>({})
+
+  // Sync viewMode to ref for use in event handlers
+  useEffect(() => {
+    viewModeRef.current = viewMode
+  }, [viewMode])
 
   // Fetch map stats on mount
   useEffect(() => {
@@ -359,7 +407,9 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
           setClosestRaces(data.closestRaces || [])
           setTopTwoParties(data.topTwoParties || [])
           setAllianceSeats(data.allianceSeats || [])
+          setPartyToAlliance(data.partyToAlliance || {})
           electionResultsRef.current = data.results || {}
+          partyToAllianceRef.current = data.partyToAlliance || {}
         }
       } catch (error) {
         console.error('Failed to fetch election results:', error)
@@ -519,7 +569,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
           ? `ac${String(feature.properties.ac).padStart(3, '0')}`
           : null
 
-        // Election overlay mode - restore party color
+        // Election overlay mode - restore party/alliance color
         if (
           selectedElectionYearRef.current &&
           assemblyId &&
@@ -527,11 +577,15 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         ) {
           const isSelected = selectedAssemblyRef.current === acName
           const result = electionResultsRef.current[assemblyId]
-          const partyColor = getPartyColor(result.party)
+          const displayColor = getDisplayColor(
+            result.party,
+            viewModeRef.current,
+            partyToAllianceRef.current,
+          )
 
           event.target.setStyle({
             color: isSelected ? '#000000' : '#ffffff',
-            fillColor: partyColor,
+            fillColor: displayColor,
             fillOpacity: isSelected ? 0.95 : 0.8,
             weight: isSelected ? 3 : 1,
           })
@@ -675,14 +729,14 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     const isInSelectedDistrict = !selectedDistrict || pcName === selectedDistrict
     const dimmed = selectedDistrict && !isInSelectedDistrict
 
-    // Election overlay mode - use party colors
+    // Election overlay mode - use party/alliance colors
     if (selectedElectionYear && assemblyId && electionResults[assemblyId]) {
       const result = electionResults[assemblyId]
-      const partyColor = getPartyColor(result.party)
+      const displayColor = getDisplayColor(result.party, viewMode, partyToAlliance)
 
       return {
         color: isSelected ? '#000000' : '#ffffff',
-        fillColor: partyColor,
+        fillColor: displayColor,
         fillOpacity: isSelected ? 0.95 : 0.8,
         opacity: 1,
         weight: isSelected ? 3 : 1,
@@ -910,31 +964,59 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
 
               {/* Year Selectors based on mode */}
               {!compareMode ? (
-                // Solo View - Single Year Selector
-                <div className="relative">
-                  <select
-                    value={selectedElectionYear || ''}
-                    onChange={(e) =>
-                      setSelectedElectionYear(e.target.value ? Number(e.target.value) : null)
-                    }
-                    className="h-9 px-3 text-xs border rounded bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:outline-none focus:border-red-600 cursor-pointer"
-                  >
-                    <option value="">Election Year</option>
-                    {[
-                      2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977, 1971, 1967,
-                      1962, 1957, 1952,
-                    ].map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                  {isLoadingElection && (
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                      <div className="w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                // Solo View - Single Year Selector + View Mode Toggle
+                <>
+                  <div className="relative">
+                    <select
+                      value={selectedElectionYear || ''}
+                      onChange={(e) =>
+                        setSelectedElectionYear(e.target.value ? Number(e.target.value) : null)
+                      }
+                      className="h-9 px-3 text-xs border rounded bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:outline-none focus:border-red-600 cursor-pointer"
+                    >
+                      <option value="">Election Year</option>
+                      {[
+                        2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977, 1971,
+                        1967, 1962, 1957, 1952,
+                      ].map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                    {isLoadingElection && (
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                        <div className="w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Party/Alliance View Toggle - only show when election year is selected */}
+                  {selectedElectionYear && allianceSeats.length > 0 && (
+                    <div className="flex items-center gap-0.5 p-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                      <button
+                        onClick={() => setViewMode('party')}
+                        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                          viewMode === 'party'
+                            ? 'bg-white dark:bg-gray-900 text-primary shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        Party
+                      </button>
+                      <button
+                        onClick={() => setViewMode('alliance')}
+                        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                          viewMode === 'alliance'
+                            ? 'bg-white dark:bg-gray-900 text-primary shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        Alliance
+                      </button>
                     </div>
                   )}
-                </div>
+                </>
               ) : (
                 // Compare View - Two Year Selectors with VS indicator
                 <div className="flex items-center gap-2">
@@ -1511,7 +1593,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                 data={map as GeoJSON.GeoJsonObject}
                 onEachFeature={onEachFeature}
                 style={styleFeature}
-                refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}-${showDistrictBoundaries}-${selectedElectionYear || 'no-election'}-${Object.keys(electionResults).length}-${isLoadingElection}`}
+                refreshKey={`${selectedAssembly || 'none'}-${selectedDistrict || 'all'}-${showDistrictBoundaries}-${selectedElectionYear || 'no-election'}-${Object.keys(electionResults).length}-${isLoadingElection}-${viewMode}`}
               />
 
               {/* District Boundaries Layer - shows thick colored boundary lines when toggle is enabled */}
@@ -1673,29 +1755,56 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
               {selectedElectionYear && Object.keys(partyCounts).length > 0 ? (
                 <>
                   <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
-                    {selectedElectionYear} Results
+                    {selectedElectionYear} {viewMode === 'alliance' ? 'Alliances' : 'Results'}
                   </p>
                   <div className="space-y-1 max-h-[200px] overflow-y-auto">
-                    {Object.entries(partyCounts)
-                      .sort((a, b) => b[1] - a[1])
-                      .slice(0, 10)
-                      .map(([party, count]) => (
-                        <div
-                          key={party}
-                          className="flex items-center justify-between gap-2 text-xs"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <div
-                              className="w-3 h-3 rounded-sm border border-white/50"
-                              style={{ backgroundColor: getPartyColor(party) }}
-                            />
-                            <span className="text-gray-700 dark:text-gray-300 font-medium">
-                              {party || 'IND'}
+                    {viewMode === 'alliance' && allianceSeats.length > 0
+                      ? // Alliance view legend
+                        allianceSeats.slice(0, 8).map((alliance) => (
+                          <div
+                            key={alliance.allianceName}
+                            className="flex items-center justify-between gap-2 text-xs"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <div
+                                className="w-3 h-3 rounded-sm border border-white/50"
+                                style={{ backgroundColor: getAllianceColor(alliance.allianceName) }}
+                              />
+                              <span
+                                className="text-gray-700 dark:text-gray-300 font-medium truncate max-w-[120px]"
+                                title={alliance.allianceName}
+                              >
+                                {alliance.allianceName.length > 18
+                                  ? alliance.allianceName.slice(0, 18) + '...'
+                                  : alliance.allianceName}
+                              </span>
+                            </div>
+                            <span className="text-gray-500 dark:text-gray-400">
+                              {alliance.seats}
                             </span>
                           </div>
-                          <span className="text-gray-500 dark:text-gray-400">{count}</span>
-                        </div>
-                      ))}
+                        ))
+                      : // Party view legend
+                        Object.entries(partyCounts)
+                          .sort((a, b) => b[1] - a[1])
+                          .slice(0, 10)
+                          .map(([party, count]) => (
+                            <div
+                              key={party}
+                              className="flex items-center justify-between gap-2 text-xs"
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <div
+                                  className="w-3 h-3 rounded-sm border border-white/50"
+                                  style={{ backgroundColor: getPartyColor(party) }}
+                                />
+                                <span className="text-gray-700 dark:text-gray-300 font-medium">
+                                  {party || 'IND'}
+                                </span>
+                              </div>
+                              <span className="text-gray-500 dark:text-gray-400">{count}</span>
+                            </div>
+                          ))}
                   </div>
                 </>
               ) : (

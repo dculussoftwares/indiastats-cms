@@ -179,6 +179,7 @@ export async function GET(request: NextRequest) {
             topTwoParties: sortedParties,
             closestRaces: topClosestRaces,
             allianceSeats,
+            partyToAlliance,
         })
     } catch (error) {
         console.error('Error fetching election results:', error)

@@ -5,39 +5,35 @@ const allianceData = {
     "2021": [
         {
             "alliance_name": "Secular Progressive Alliance (SPA)",
-            "parties": ["DMK", "INC", "CPI", "CPI(M)", "VCK", "MDMK", "IUML", "KMDK"]
+            "parties": ["DMK", "INC", "VCK", "CPI(M)", "CPI", "IUML", "MDMK", "KMDK", "MMK", "TVK(V)"]
         },
         {
             "alliance_name": "National Democratic Alliance (NDA)",
-            "parties": ["AIADMK", "BJP", "PMK"]
+            "parties": ["AIADMK", "BJP", "PMK", "TMC(M)"]
         }
     ],
     "2016": [
+        {
+            "alliance_name": "DMK Alliance",
+            "parties": ["DMK", "INC", "IUML", "PT", "MMK"]
+        },
         {
             "alliance_name": "AIADMK (Solo)",
             "parties": ["AIADMK"]
         },
         {
-            "alliance_name": "DMK Alliance",
-            "parties": ["DMK", "INC"]
-        },
-        {
-            "alliance_name": "People's Welfare Front (Third Front)",
-            "parties": ["DMDK", "CPI", "CPI(M)", "MDMK", "VCK", "TMC"]
-        },
-        {
-            "alliance_name": "PMK (Solo)",
-            "parties": ["PMK"]
+            "alliance_name": "People's Welfare Front (PWF)",
+            "parties": ["DMDK", "MDMK", "VCK", "CPI", "CPI(M)", "TMC(M)"]
         }
     ],
     "2011": [
         {
             "alliance_name": "AIADMK Alliance",
-            "parties": ["AIADMK", "DMDK", "CPI", "CPI(M)"]
+            "parties": ["AIADMK", "DMDK", "CPI(M)", "CPI", "MMK", "PT", "AIFB", "MNMK", "SMK"]
         },
         {
-            "alliance_name": "DMK Alliance",
-            "parties": ["DMK", "INC", "VCK", "IUML", "Puthiya Tamilagam"]
+            "alliance_name": "Democratic Progressive Alliance (DPA)",
+            "parties": ["DMK", "INC", "PMK", "VCK", "KNMK", "IUML"]
         }
     ],
     "2006": [
@@ -46,51 +42,51 @@ const allianceData = {
             "parties": ["DMK", "INC", "PMK", "CPI", "CPI(M)", "IUML"]
         },
         {
-            "alliance_name": "Democratic People Alliance",
-            "parties": ["AIADMK", "MDMK", "VCK"]
+            "alliance_name": "AIADMK Alliance",
+            "parties": ["AIADMK", "MDMK", "VCK", "AINL", "JD(S)"]
         }
     ],
     "2001": [
         {
             "alliance_name": "Secular Democratic Progressive Alliance",
-            "parties": ["AIADMK", "INC", "TMC(M)", "PMK", "CPI", "CPI(M)"]
+            "parties": ["AIADMK", "TMC(M)", "INC", "PMK", "CPI", "CPI(M)", "AIFB", "IUML"]
         },
         {
-            "alliance_name": "DMK Alliance",
-            "parties": ["DMK", "BJP"]
+            "alliance_name": "NDA / DMK Alliance",
+            "parties": ["DMK", "BJP", "MADMK", "PNK", "MGRK", "PT"]
         }
     ],
     "1996": [
         {
-            "alliance_name": "DMK Alliance",
-            "parties": ["DMK", "TMC(M)", "CPI"]
+            "alliance_name": "DMK-TMC Alliance",
+            "parties": ["DMK", "TMC(M)", "CPI", "INL"]
         },
         {
-            "alliance_name": "AIADMK Alliance",
+            "alliance_name": "AIADMK-INC Alliance",
             "parties": ["AIADMK", "INC"]
         }
     ],
     "1991": [
         {
-            "alliance_name": "AIADMK Alliance",
-            "parties": ["AIADMK", "INC"]
+            "alliance_name": "AIADMK-INC Alliance",
+            "parties": ["AIADMK", "INC", "ICS(SCS)"]
         },
         {
-            "alliance_name": "DMK Alliance (National Front)",
-            "parties": ["DMK", "CPI", "CPI(M)", "JD"]
+            "alliance_name": "National Front (NF)",
+            "parties": ["DMK", "CPI(M)", "CPI", "JD", "TMK"]
         }
     ],
     "1989": [
         {
             "alliance_name": "DMK Alliance (National Front)",
-            "parties": ["DMK", "CPI", "CPI(M)", "JD"]
+            "parties": ["DMK", "CPI(M)", "JD"]
         },
         {
-            "alliance_name": "AIADMK(J) Faction",
-            "parties": ["AIADMK(J)"]
+            "alliance_name": "AIADMK (Jayalalithaa) Faction",
+            "parties": ["AIADMK(J)", "CPI"]
         },
         {
-            "alliance_name": "AIADMK(JA) Faction",
+            "alliance_name": "AIADMK (Janaki) Faction",
             "parties": ["AIADMK(JA)"]
         },
         {
@@ -100,28 +96,28 @@ const allianceData = {
     ],
     "1984": [
         {
-            "alliance_name": "AIADMK Alliance",
-            "parties": ["AIADMK", "INC"]
+            "alliance_name": "AIADMK-INC Alliance",
+            "parties": ["AIADMK", "INC", "GKC"]
         },
         {
-            "alliance_name": "DMK (Solo)",
-            "parties": ["DMK"]
+            "alliance_name": "DMK Alliance",
+            "parties": ["DMK", "CPI", "CPI(M)", "Janata Party"]
         }
     ],
     "1980": [
         {
             "alliance_name": "AIADMK Alliance",
-            "parties": ["AIADMK", "AIFB", "CPI", "CPI(M)", "GKNC"]
+            "parties": ["AIADMK", "CPI", "CPI(M)", "GKNC", "AIFB"]
         },
         {
-            "alliance_name": "DMK Alliance",
-            "parties": ["DMK", "INC(I)"]
+            "alliance_name": "DMK-INC(I) Alliance",
+            "parties": ["DMK", "INC(I)", "IUML"]
         }
     ],
     "1977": [
         {
-            "alliance_name": "AIADMK Alliance",
-            "parties": ["AIADMK", "CPI(M)"]
+            "alliance_name": "AIADMK-led Front",
+            "parties": ["AIADMK", "CPI(M)", "IUML", "AIFB"]
         },
         {
             "alliance_name": "INC(I)-CPI Alliance",
