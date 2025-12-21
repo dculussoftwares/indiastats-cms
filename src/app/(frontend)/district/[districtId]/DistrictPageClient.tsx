@@ -99,7 +99,7 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
                   </p>
                 </div>
               </div>
-              <Link href="/assembly-map">
+              <Link href="/tamil-nadu/assembly-map">
                 <Button variant="outline" size="sm" className="text-sm">
                   Open Map
                 </Button>
@@ -170,7 +170,7 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
                   <Building2 className="h-5 w-5 text-gray-500" />
                 </div>
                 <div className="mt-3">
-                  <Link href={`/assembly/${data.districtId}/${assembly.assemblyId}`}>
+                  <Link href={`/tamil-nadu/assembly/${data.districtId}/${assembly.assemblyId}`}>
                     <Button variant="outline" size="sm" className="w-full text-sm">
                       View Assembly
                       <ChevronRight className="ml-2 h-4 w-4" />

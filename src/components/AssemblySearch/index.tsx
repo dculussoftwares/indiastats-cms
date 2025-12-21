@@ -221,7 +221,9 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
 
   const handleSearchClick = () => {
     if (selectedDistrict && selectedAssembly) {
-      router.push(`/assembly/${selectedDistrict.districtId}/${selectedAssembly.assemblyId}`)
+      router.push(
+        `/tamil-nadu/assembly/${selectedDistrict.districtId}/${selectedAssembly.assemblyId}`,
+      )
       if (onSearch) {
         onSearch(selectedDistrict, selectedAssembly)
       }

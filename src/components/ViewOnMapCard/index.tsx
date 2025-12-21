@@ -29,7 +29,7 @@ export function ViewOnMapCard({ assemblyId, assemblyName }: ViewOnMapCardProps) 
               </p>
             </div>
           </div>
-          <Link href={`/assembly-map?ac=${numericId}`}>
+          <Link href={`/tamil-nadu/assembly-map?ac=${numericId}`}>
             <Button variant="outline" size="sm" className="text-sm">
               Open Map
             </Button>

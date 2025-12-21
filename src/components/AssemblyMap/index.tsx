@@ -1293,7 +1293,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                         className="w-full flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
                         onClick={() =>
                           router.push(
-                            `/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
+                            `/tamil-nadu/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
                           )
                         }
                       >
@@ -1507,7 +1507,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                         className="w-full flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
                         onClick={() =>
                           router.push(
-                            `/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
+                            `/tamil-nadu/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
                           )
                         }
                       >
@@ -1734,7 +1734,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                       className="w-full flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
                       onClick={() =>
                         router.push(
-                          `/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
+                          `/tamil-nadu/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
                         )
                       }
                     >
