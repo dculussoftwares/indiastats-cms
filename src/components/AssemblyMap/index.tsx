@@ -352,6 +352,17 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     viewModeRef.current = viewMode
   }, [viewMode])
 
+  // Auto-swap years in compare mode: ensure Year 1 (left) is older, Year 2 (right) is newer
+  useEffect(() => {
+    if (compareMode && selectedElectionYear && compareYear && selectedElectionYear > compareYear) {
+      // Swap the years
+      const olderYear = compareYear
+      const newerYear = selectedElectionYear
+      setSelectedElectionYear(olderYear)
+      setCompareYear(newerYear)
+    }
+  }, [compareMode, selectedElectionYear, compareYear])
+
   // Fetch map stats on mount
   useEffect(() => {
     const fetchMapStats = async () => {
@@ -1015,7 +1026,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                 <div className="flex items-center gap-2">
                   <div className="relative">
                     <div className="absolute -top-2 left-2 px-1 text-[10px] font-bold text-red-600 bg-white dark:bg-gray-900">
-                      YEAR 1
+                      FROM
                     </div>
                     <select
                       value={selectedElectionYear || ''}
@@ -1047,7 +1058,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
 
                   <div className="relative">
                     <div className="absolute -top-2 left-2 px-1 text-[10px] font-bold text-blue-600 bg-white dark:bg-gray-900">
-                      YEAR 2
+                      TO
                     </div>
                     <select
                       value={compareYear || ''}
