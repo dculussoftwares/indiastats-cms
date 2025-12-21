@@ -9,7 +9,7 @@ import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CasteComparisonTable } from '@/components/CasteComparisonTable'
-import { ArrowLeft, ChevronRight, Building2, MapPin } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Building2, MapPin, Locate } from 'lucide-react'
 
 interface Assembly {
   assemblyId: string
@@ -61,6 +61,9 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
     noOfAssemblies: data.noOfAssemblies,
     voters: data.voters,
   }
+
+  // Calculate total booths across all assemblies
+  const totalBooths = data.assemblies.reduce((sum, a) => sum + (a.noOfBooths || 0), 0)
 
   return (
     <div className="container py-8">
@@ -114,7 +117,44 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
       <section className="mb-8">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">District Overview</h2>
         <DistrictDetailsCard data={districtDetailsData} />
+
+        {/* Total Booths Summary */}
+        <Card className="mt-4">
+          <CardContent className="pt-5 pb-5">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-green-50 dark:bg-green-950/30 p-2.5 rounded-lg">
+                  <Locate className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{totalBooths.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Total Polling Booths across {data.assemblies.length} assemblies
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Avg per assembly</p>
+                <p className="text-lg font-semibold">
+                  {data.assemblies.length > 0
+                    ? Math.round(totalBooths / data.assemblies.length)
+                    : 0}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </section>
+
+      {/* Most Winning Parties */}
+      {data.electionHistory && data.electionHistory.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Most Winning Parties since ADMK formed
+          </h2>
+          <MostWinningPartiesCard historicData={data.electionHistory} />
+        </section>
+      )}
 
       {/* Population Changes */}
       <section className="mb-8">
@@ -139,16 +179,6 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
         </h2>
         <CasteComparisonTable districtName={data.districtName} />
       </section>
-
-      {/* Most Winning Parties */}
-      {data.electionHistory && data.electionHistory.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Most Winning Parties since ADMK formed
-          </h2>
-          <MostWinningPartiesCard historicData={data.electionHistory} />
-        </section>
-      )}
 
       {/* Year-wise Party Performance */}
       {data.electionHistory && data.electionHistory.length > 0 && (
@@ -178,11 +208,26 @@ export function DistrictPageClient({ data }: DistrictPageClientProps) {
                   </div>
                   <Building2 className="h-5 w-5 text-gray-500" />
                 </div>
-                <div className="mt-3">
-                  <Link href={`/tamil-nadu/assembly/${data.districtId}/${assembly.assemblyId}`}>
+                <div className="mt-3 flex gap-2">
+                  <Link
+                    href={`/tamil-nadu/assembly/${data.districtId}/${assembly.assemblyId}`}
+                    className="flex-1"
+                  >
                     <Button variant="outline" size="sm" className="w-full text-sm">
                       View Assembly
-                      <ChevronRight className="ml-2 h-4 w-4" />
+                      <ChevronRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link
+                    href={`/tamil-nadu/assembly/${data.districtId}/${assembly.assemblyId}/booths`}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-sm text-green-600 hover:text-green-700"
+                    >
+                      <Locate className="h-4 w-4 mr-1" />
+                      Booths
                     </Button>
                   </Link>
                 </div>

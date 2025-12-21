@@ -112,19 +112,22 @@ export function AssemblyPageClient({ data }: AssemblyPageClientProps) {
             Assembly Overview
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <Card>
-              <CardContent className="pt-4 pb-3">
-                <div className="flex items-center gap-3">
-                  <Locate className="h-5 w-5 text-gray-500" />
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Booths
-                    </p>
-                    <p className="text-xl font-bold">{data.noOfBooths}</p>
+            <Link href={`/tamil-nadu/assembly/${data.districtId}/${data.assemblyId}/booths`}>
+              <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+                <CardContent className="pt-4 pb-3">
+                  <div className="flex items-center gap-3">
+                    <Locate className="h-5 w-5 text-red-600" />
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Booths
+                      </p>
+                      <p className="text-xl font-bold">{data.noOfBooths}</p>
+                      <p className="text-xs text-red-600 font-medium">View all →</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
             <Card>
               <CardContent className="pt-4 pb-3">
                 <div className="flex items-center gap-3">
