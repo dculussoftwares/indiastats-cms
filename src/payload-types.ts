@@ -72,6 +72,7 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    states: State;
     assemblies: Assembly;
     districts: District;
     booths: Booth;
@@ -100,6 +101,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    states: StatesSelect<false> | StatesSelect<true>;
     assemblies: AssembliesSelect<false> | AssembliesSelect<true>;
     districts: DistrictsSelect<false> | DistrictsSelect<true>;
     booths: BoothsSelect<false> | BoothsSelect<true>;
@@ -793,10 +795,95 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "states".
+ */
+export interface State {
+  id: number;
+  /**
+   * State code (e.g., TN, KA, AP)
+   */
+  stateCode: string;
+  /**
+   * URL slug (e.g., tamil-nadu, karnataka)
+   */
+  slug: string;
+  /**
+   * Full state name (e.g., Tamil Nadu)
+   */
+  name: string;
+  /**
+   * Major political parties in this state
+   */
+  majorParties?:
+    | {
+        partyCode: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Political blocs/alliances configuration
+   */
+  blocs?:
+    | {
+        blocName: string;
+        parties?:
+          | {
+              partyCode: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Path to leader image
+         */
+        leaderImage?: string | null;
+        /**
+         * Hex color code for bloc
+         */
+        color?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Party-to-color mapping (JSON object)
+   */
+  partyColors?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Party-to-leader-image mapping (JSON object)
+   */
+  leaderImages?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Path to state GeoJSON file
+   */
+  mapGeoJson?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "assemblies".
  */
 export interface Assembly {
   id: number;
+  /**
+   * State code (e.g., TN, KA, AP)
+   */
+  stateCode: string;
   /**
    * Unique assembly identifier (e.g., ac001)
    */
@@ -856,6 +943,10 @@ export interface Assembly {
 export interface District {
   id: number;
   /**
+   * State code (e.g., TN, KA, AP)
+   */
+  stateCode: string;
+  /**
    * Unique district identifier (e.g., dt1)
    */
   districtId: string;
@@ -872,6 +963,10 @@ export interface District {
  */
 export interface Booth {
   id: number;
+  /**
+   * State code (e.g., TN, KA, AP)
+   */
+  stateCode: string;
   /**
    * Booth identifier
    */
@@ -900,6 +995,10 @@ export interface Booth {
 export interface ElectionHistory {
   id: number;
   /**
+   * State code (e.g., TN, KA, AP)
+   */
+  stateCode: string;
+  /**
    * Reference to assembly
    */
   assemblyId: string;
@@ -923,6 +1022,10 @@ export interface ElectionHistory {
  */
 export interface Alliance {
   id: number;
+  /**
+   * State code (e.g., TN, KA, AP)
+   */
+  stateCode: string;
   /**
    * Election year (e.g., 2021, 2016)
    */
@@ -951,6 +1054,10 @@ export interface Alliance {
  */
 export interface CasteCensus {
   id: number;
+  /**
+   * State code (e.g., TN, KA, AP)
+   */
+  stateCode: string;
   /**
    * Assembly ID (e.g., ac001)
    */
@@ -1187,6 +1294,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'states';
+        value: number | State;
       } | null)
     | ({
         relationTo: 'assemblies';
@@ -1579,9 +1690,44 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "states_select".
+ */
+export interface StatesSelect<T extends boolean = true> {
+  stateCode?: T;
+  slug?: T;
+  name?: T;
+  majorParties?:
+    | T
+    | {
+        partyCode?: T;
+        id?: T;
+      };
+  blocs?:
+    | T
+    | {
+        blocName?: T;
+        parties?:
+          | T
+          | {
+              partyCode?: T;
+              id?: T;
+            };
+        leaderImage?: T;
+        color?: T;
+        id?: T;
+      };
+  partyColors?: T;
+  leaderImages?: T;
+  mapGeoJson?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "assemblies_select".
  */
 export interface AssembliesSelect<T extends boolean = true> {
+  stateCode?: T;
   assemblyId?: T;
   name?: T;
   districtName?: T;
@@ -1597,6 +1743,7 @@ export interface AssembliesSelect<T extends boolean = true> {
  * via the `definition` "districts_select".
  */
 export interface DistrictsSelect<T extends boolean = true> {
+  stateCode?: T;
   districtId?: T;
   districtName?: T;
   updatedAt?: T;
@@ -1607,6 +1754,7 @@ export interface DistrictsSelect<T extends boolean = true> {
  * via the `definition` "booths_select".
  */
 export interface BoothsSelect<T extends boolean = true> {
+  stateCode?: T;
   boothId?: T;
   assemblyId?: T;
   districtId?: T;
@@ -1621,6 +1769,7 @@ export interface BoothsSelect<T extends boolean = true> {
  * via the `definition` "election-history_select".
  */
 export interface ElectionHistorySelect<T extends boolean = true> {
+  stateCode?: T;
   assemblyId?: T;
   assemblyName?: T;
   assemblyNo?: T;
@@ -1638,6 +1787,7 @@ export interface ElectionHistorySelect<T extends boolean = true> {
  * via the `definition` "alliances_select".
  */
 export interface AlliancesSelect<T extends boolean = true> {
+  stateCode?: T;
   electionYear?: T;
   allianceName?: T;
   parties?:
@@ -1655,6 +1805,7 @@ export interface AlliancesSelect<T extends boolean = true> {
  * via the `definition` "caste-census_select".
  */
 export interface CasteCensusSelect<T extends boolean = true> {
+  stateCode?: T;
   assemblyId?: T;
   assemblyName?: T;
   rank1Caste?: T;

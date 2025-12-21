@@ -12,6 +12,16 @@ export const ElectionHistory: CollectionConfig = {
     },
     fields: [
         {
+            name: 'stateCode',
+            type: 'text',
+            required: true,
+            index: true,
+            defaultValue: 'TN',
+            admin: {
+                description: 'State code (e.g., TN, KA, AP)',
+            },
+        },
+        {
             name: 'assemblyId',
             type: 'text',
             required: true,
