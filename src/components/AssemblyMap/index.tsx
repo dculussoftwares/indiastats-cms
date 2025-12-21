@@ -11,6 +11,7 @@ import { MapStatsDashboard } from '@/components/MapStatsDashboard'
 import { ElectionInsightsPanel } from '@/components/ElectionInsightsPanel'
 import { ClosestRacesPanel } from '@/components/ClosestRacesPanel'
 import { AllianceSummary } from '@/components/AllianceSummary'
+import { CasteInsightsPanel } from '@/components/CasteInsightsPanel'
 import './leaflet-style-import'
 
 // Dynamic imports for react-leaflet (SSR disabled)
@@ -351,7 +352,21 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   const [allianceColorsMap, setAllianceColorsMap] = useState<Record<string, string>>({})
   const [viewMode, setViewMode] = useState<'party' | 'alliance' | 'caste'>('party')
   const [casteDataMap, setCasteDataMap] = useState<
-    Record<string, { caste: string | null; percentage: number }>
+    Record<
+      string,
+      {
+        caste: string | null
+        percentage: number
+        rank2Caste?: string | null
+        rank2Percentage?: number
+        rank3Caste?: string | null
+        rank3Percentage?: number
+        rank4Caste?: string | null
+        rank4Percentage?: number
+        rank5Caste?: string | null
+        rank5Percentage?: number
+      }
+    >
   >({})
   const [isLoadingElection, setIsLoadingElection] = useState(false)
   // Compare mode state
@@ -439,12 +454,46 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         const response = await fetch('/api/caste-data?all=true')
         if (response.ok) {
           const data = await response.json()
-          const casteMap: Record<string, { caste: string | null; percentage: number }> = {}
+          const casteMap: Record<
+            string,
+            {
+              caste: string | null
+              percentage: number
+              rank2Caste?: string | null
+              rank2Percentage?: number
+              rank3Caste?: string | null
+              rank3Percentage?: number
+              rank4Caste?: string | null
+              rank4Percentage?: number
+              rank5Caste?: string | null
+              rank5Percentage?: number
+            }
+          > = {}
           data.assemblies?.forEach(
-            (a: { assemblyId: string; rank1Caste: string | null; rank1Percentage: number }) => {
+            (a: {
+              assemblyId: string
+              rank1Caste: string | null
+              rank1Percentage: number
+              rank2Caste: string | null
+              rank2Percentage: number
+              rank3Caste: string | null
+              rank3Percentage: number
+              rank4Caste: string | null
+              rank4Percentage: number
+              rank5Caste: string | null
+              rank5Percentage: number
+            }) => {
               casteMap[a.assemblyId] = {
                 caste: a.rank1Caste,
                 percentage: a.rank1Percentage || 0,
+                rank2Caste: a.rank2Caste,
+                rank2Percentage: a.rank2Percentage || 0,
+                rank3Caste: a.rank3Caste,
+                rank3Percentage: a.rank3Percentage || 0,
+                rank4Caste: a.rank4Caste,
+                rank4Percentage: a.rank4Percentage || 0,
+                rank5Caste: a.rank5Caste,
+                rank5Percentage: a.rank5Percentage || 0,
               }
             },
           )
@@ -1824,6 +1873,56 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                         return null
                       })()}
 
+                    {/* Caste Breakdown - shown in caste view mode */}
+                    {viewMode === 'caste' &&
+                      (() => {
+                        const assemblyId = popupContent.ac
+                          ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                          : null
+                        const casteInfo = assemblyId ? casteDataMap[assemblyId] : null
+                        if (casteInfo) {
+                          const castes = [
+                            { name: casteInfo.caste, pct: casteInfo.percentage },
+                            { name: casteInfo.rank2Caste, pct: casteInfo.rank2Percentage },
+                            { name: casteInfo.rank3Caste, pct: casteInfo.rank3Percentage },
+                            { name: casteInfo.rank4Caste, pct: casteInfo.rank4Percentage },
+                            { name: casteInfo.rank5Caste, pct: casteInfo.rank5Percentage },
+                          ].filter((c) => c.name && c.pct)
+
+                          return (
+                            <div className="mb-3 p-2 rounded border border-gray-200 bg-gray-50">
+                              <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-2">
+                                👥 Caste Demographics
+                              </p>
+                              <div className="space-y-1.5">
+                                {castes.map((c, idx) => (
+                                  <div key={idx} className="text-xs">
+                                    <div className="flex justify-between mb-0.5">
+                                      <span className="text-gray-700 font-medium truncate max-w-[120px]">
+                                        {c.name}
+                                      </span>
+                                      <span className="text-gray-500 font-semibold">
+                                        {c.pct?.toFixed(1)}%
+                                      </span>
+                                    </div>
+                                    <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                      <div
+                                        className="h-full rounded-full"
+                                        style={{
+                                          width: `${Math.min(c.pct || 0, 100)}%`,
+                                          backgroundColor: getCasteColor(c.name || ''),
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )
+                        }
+                        return null
+                      })()}
+
                     <button
                       className="w-full flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
                       onClick={() =>
@@ -1983,6 +2082,12 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         year={selectedElectionYear || 0}
         totalSeats={Object.keys(electionResults).length}
         isVisible={!compareMode && !!selectedElectionYear && allianceSeats.length > 0}
+      />
+
+      {/* Caste Insights Panel - shown in caste view mode only */}
+      <CasteInsightsPanel
+        isVisible={!compareMode && viewMode === 'caste' && Object.keys(casteDataMap).length > 0}
+        casteDataMap={casteDataMap}
       />
 
       {/* Info text */}
