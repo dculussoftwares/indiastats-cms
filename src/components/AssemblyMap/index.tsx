@@ -42,14 +42,56 @@ export type AssemblyMapProps = {
 function getAllianceColor(allianceName: string, allianceColorsMap: Record<string, string>): string {
   return allianceColorsMap[allianceName] || '#6b7280'
 }
+// Caste color palette (avoiding orange and green) - all castes from database
+const CASTE_COLORS: Record<string, string> = {
+  // Major castes with distinct colors
+  Vanniars: '#3b82f6', // blue-500
+  Muslims: '#8b5cf6', // violet-500
+  Paraiyar: '#06b6d4', // cyan-500
+  'Adhi dravidar': '#ec4899', // pink-500
+  'Nadar (Non Christian)': '#f43f5e', // rose-500
+  'Nadar (Christian)': '#f472b6', // pink-400
+  Nadar: '#ef4444', // red-500
+  'Vellala Gounders': '#6366f1', // indigo-500
+  Vellalar: '#818cf8', // indigo-400
+  Mudaliyar: '#a855f7', // purple-500
+  Mukulathor: '#0ea5e9', // sky-500 (Thevar group)
+  Meenavar: '#7c3aed', // violet-600
+  Udayar: '#2563eb', // blue-600
+  'Nayar/Malayali': '#0891b2', // cyan-600
+  Chettiar: '#9333ea', // purple-600
+  // Additional castes with vibrant colors
+  Arunthathiyar: '#e11d48', // rose-600
+  'Devendra kula vellalar': '#1d4ed8', // blue-700
+  Mutharaiyar: '#7e22ce', // purple-700
+  Naidu: '#0369a1', // sky-700
+  Okaligar: '#be185d', // pink-700
+  Padugar: '#4338ca', // indigo-700
+  Pallar: '#0f766e', // teal-700
+  Pillaimar: '#6d28d9', // violet-700
+  'Scheduled tribes': '#854d0e', // yellow-800 (brownish)
+  Sourashtra: '#9f1239', // rose-800
+  Ambalam: '#1e40af', // blue-800
+  // Fallback
+  _default: '#64748b', // slate-500 for unknown
+}
 
-// Get color based on view mode (party or alliance)
+function getCasteColor(casteName: string | null): string {
+  if (!casteName) return CASTE_COLORS['_default']
+  return CASTE_COLORS[casteName] || CASTE_COLORS['_default']
+}
+
+// Get color based on view mode (party, alliance, or caste)
 function getDisplayColor(
   party: string,
-  viewMode: 'party' | 'alliance',
+  viewMode: 'party' | 'alliance' | 'caste',
   partyToAlliance: Record<string, string>,
   allianceColorsMap: Record<string, string>,
+  casteData?: { caste: string | null; percentage: number } | null,
 ): string {
+  if (viewMode === 'caste' && casteData?.caste) {
+    return getCasteColor(casteData.caste)
+  }
   if (viewMode === 'alliance') {
     const alliance = partyToAlliance[party] || 'Others'
     return getAllianceColor(alliance, allianceColorsMap)
@@ -307,7 +349,10 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   >([])
   const [partyToAlliance, setPartyToAlliance] = useState<Record<string, string>>({})
   const [allianceColorsMap, setAllianceColorsMap] = useState<Record<string, string>>({})
-  const [viewMode, setViewMode] = useState<'party' | 'alliance'>('party')
+  const [viewMode, setViewMode] = useState<'party' | 'alliance' | 'caste'>('party')
+  const [casteDataMap, setCasteDataMap] = useState<
+    Record<string, { caste: string | null; percentage: number }>
+  >({})
   const [isLoadingElection, setIsLoadingElection] = useState(false)
   // Compare mode state
   const [compareMode, setCompareMode] = useState(false)
@@ -343,14 +388,20 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   const electionResultsRef = useRef<
     Record<string, { party: string; candidateName: string; votes: number }>
   >({})
-  const viewModeRef = useRef<'party' | 'alliance'>('party')
+  const viewModeRef = useRef<'party' | 'alliance' | 'caste'>('party')
   const partyToAllianceRef = useRef<Record<string, string>>({})
   const allianceColorsRef = useRef<Record<string, string>>({})
+  const casteDataMapRef = useRef<Record<string, { caste: string | null; percentage: number }>>({})
 
   // Sync viewMode to ref for use in event handlers
   useEffect(() => {
     viewModeRef.current = viewMode
   }, [viewMode])
+
+  // Sync casteDataMap to ref for use in event handlers
+  useEffect(() => {
+    casteDataMapRef.current = casteDataMap
+  }, [casteDataMap])
 
   // Auto-swap years in compare mode: ensure Year 1 (left) is older, Year 2 (right) is newer
   useEffect(() => {
@@ -379,6 +430,31 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       }
     }
     fetchMapStats()
+  }, [])
+
+  // Fetch caste data on mount
+  useEffect(() => {
+    const fetchCasteData = async () => {
+      try {
+        const response = await fetch('/api/caste-data?all=true')
+        if (response.ok) {
+          const data = await response.json()
+          const casteMap: Record<string, { caste: string | null; percentage: number }> = {}
+          data.assemblies?.forEach(
+            (a: { assemblyId: string; rank1Caste: string | null; rank1Percentage: number }) => {
+              casteMap[a.assemblyId] = {
+                caste: a.rank1Caste,
+                percentage: a.rank1Percentage || 0,
+              }
+            },
+          )
+          setCasteDataMap(casteMap)
+        }
+      } catch (error) {
+        console.error('Failed to fetch caste data:', error)
+      }
+    }
+    fetchCasteData()
   }, [])
 
   // Fetch election results when year changes
@@ -567,7 +643,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
           ? `ac${String(feature.properties.ac).padStart(3, '0')}`
           : null
 
-        // Election overlay mode - restore party/alliance color
+        // Election overlay mode - restore party/alliance/caste color
         if (
           selectedElectionYearRef.current &&
           assemblyId &&
@@ -575,11 +651,13 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
         ) {
           const isSelected = selectedAssemblyRef.current === acName
           const result = electionResultsRef.current[assemblyId]
+          const casteInfo = casteDataMapRef.current[assemblyId] || null
           const displayColor = getDisplayColor(
             result.party,
             viewModeRef.current,
             partyToAllianceRef.current,
             allianceColorsRef.current,
+            casteInfo,
           )
 
           event.target.setStyle({
@@ -728,14 +806,16 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     const isInSelectedDistrict = !selectedDistrict || pcName === selectedDistrict
     const dimmed = selectedDistrict && !isInSelectedDistrict
 
-    // Election overlay mode - use party/alliance colors
+    // Election overlay mode - use party/alliance/caste colors
     if (selectedElectionYear && assemblyId && electionResults[assemblyId]) {
       const result = electionResults[assemblyId]
+      const casteInfo = assemblyId ? casteDataMap[assemblyId] : null
       const displayColor = getDisplayColor(
         result.party,
         viewMode,
         partyToAlliance,
         allianceColorsMap,
+        casteInfo,
       )
 
       return {
@@ -995,12 +1075,12 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                     )}
                   </div>
 
-                  {/* Party/Alliance View Toggle - only show when election year is selected */}
+                  {/* Party/Alliance/Caste View Toggle - only show when election year is selected */}
                   {selectedElectionYear && allianceSeats.length > 0 && (
                     <div className="flex items-center gap-0.5 p-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
                       <button
                         onClick={() => setViewMode('party')}
-                        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                        className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
                           viewMode === 'party'
                             ? 'bg-white dark:bg-gray-900 text-primary shadow-sm'
                             : 'text-gray-500 hover:text-gray-700'
@@ -1010,13 +1090,23 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                       </button>
                       <button
                         onClick={() => setViewMode('alliance')}
-                        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                        className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
                           viewMode === 'alliance'
                             ? 'bg-white dark:bg-gray-900 text-primary shadow-sm'
                             : 'text-gray-500 hover:text-gray-700'
                         }`}
                       >
                         Alliance
+                      </button>
+                      <button
+                        onClick={() => setViewMode('caste')}
+                        className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
+                          viewMode === 'caste'
+                            ? 'bg-white dark:bg-gray-900 text-primary shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        Caste
                       </button>
                     </div>
                   )}
@@ -1759,56 +1849,95 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
               {selectedElectionYear && Object.keys(partyCounts).length > 0 ? (
                 <>
                   <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
-                    {selectedElectionYear} {viewMode === 'alliance' ? 'Alliances' : 'Results'}
+                    {selectedElectionYear}{' '}
+                    {viewMode === 'alliance'
+                      ? 'Alliances'
+                      : viewMode === 'caste'
+                        ? 'Dominant Castes'
+                        : 'Results'}
                   </p>
                   <div className="space-y-1 max-h-[200px] overflow-y-auto">
-                    {viewMode === 'alliance' && allianceSeats.length > 0
-                      ? // Alliance view legend
-                        allianceSeats.slice(0, 8).map((alliance) => (
-                          <div
-                            key={alliance.allianceName}
-                            className="flex items-center justify-between gap-2 text-xs"
-                          >
-                            <div className="flex items-center gap-1.5">
+                    {viewMode === 'caste'
+                      ? // Caste view legend - show dominant castes
+                        (() => {
+                          // Calculate caste counts from casteDataMap
+                          const casteCounts: Record<string, number> = {}
+                          Object.values(casteDataMap).forEach((data) => {
+                            if (data.caste) {
+                              casteCounts[data.caste] = (casteCounts[data.caste] || 0) + 1
+                            }
+                          })
+                          return Object.entries(casteCounts)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 10)
+                            .map(([caste, count]) => (
                               <div
-                                className="w-3 h-3 rounded-sm border border-white/50"
-                                style={{ backgroundColor: alliance.color || '#6b7280' }}
-                              />
-                              <span
-                                className="text-gray-700 dark:text-gray-300 font-medium truncate max-w-[120px]"
-                                title={alliance.allianceName}
+                                key={caste}
+                                className="flex items-center justify-between gap-2 text-xs"
                               >
-                                {alliance.allianceName.length > 18
-                                  ? alliance.allianceName.slice(0, 18) + '...'
-                                  : alliance.allianceName}
-                              </span>
-                            </div>
-                            <span className="text-gray-500 dark:text-gray-400">
-                              {alliance.seats}
-                            </span>
-                          </div>
-                        ))
-                      : // Party view legend
-                        Object.entries(partyCounts)
-                          .sort((a, b) => b[1] - a[1])
-                          .slice(0, 10)
-                          .map(([party, count]) => (
+                                <div className="flex items-center gap-1.5">
+                                  <div
+                                    className="w-3 h-3 rounded-sm border border-white/50"
+                                    style={{ backgroundColor: getCasteColor(caste) }}
+                                  />
+                                  <span
+                                    className="text-gray-700 dark:text-gray-300 font-medium truncate max-w-[110px]"
+                                    title={caste}
+                                  >
+                                    {caste.length > 14 ? caste.slice(0, 14) + '...' : caste}
+                                  </span>
+                                </div>
+                                <span className="text-gray-500 dark:text-gray-400">{count}</span>
+                              </div>
+                            ))
+                        })()
+                      : viewMode === 'alliance' && allianceSeats.length > 0
+                        ? // Alliance view legend
+                          allianceSeats.slice(0, 8).map((alliance) => (
                             <div
-                              key={party}
+                              key={alliance.allianceName}
                               className="flex items-center justify-between gap-2 text-xs"
                             >
                               <div className="flex items-center gap-1.5">
                                 <div
                                   className="w-3 h-3 rounded-sm border border-white/50"
-                                  style={{ backgroundColor: getPartyColor(party) }}
+                                  style={{ backgroundColor: alliance.color || '#6b7280' }}
                                 />
-                                <span className="text-gray-700 dark:text-gray-300 font-medium">
-                                  {party || 'IND'}
+                                <span
+                                  className="text-gray-700 dark:text-gray-300 font-medium truncate max-w-[120px]"
+                                  title={alliance.allianceName}
+                                >
+                                  {alliance.allianceName.length > 18
+                                    ? alliance.allianceName.slice(0, 18) + '...'
+                                    : alliance.allianceName}
                                 </span>
                               </div>
-                              <span className="text-gray-500 dark:text-gray-400">{count}</span>
+                              <span className="text-gray-500 dark:text-gray-400">
+                                {alliance.seats}
+                              </span>
                             </div>
-                          ))}
+                          ))
+                        : // Party view legend
+                          Object.entries(partyCounts)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 10)
+                            .map(([party, count]) => (
+                              <div
+                                key={party}
+                                className="flex items-center justify-between gap-2 text-xs"
+                              >
+                                <div className="flex items-center gap-1.5">
+                                  <div
+                                    className="w-3 h-3 rounded-sm border border-white/50"
+                                    style={{ backgroundColor: getPartyColor(party) }}
+                                  />
+                                  <span className="text-gray-700 dark:text-gray-300 font-medium">
+                                    {party || 'IND'}
+                                  </span>
+                                </div>
+                                <span className="text-gray-500 dark:text-gray-400">{count}</span>
+                              </div>
+                            ))}
                   </div>
                 </>
               ) : (
