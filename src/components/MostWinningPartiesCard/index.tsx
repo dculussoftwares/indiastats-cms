@@ -3,6 +3,12 @@ import * as React from 'react'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Trophy, Users } from 'lucide-react'
+import {
+  getLeaderImage as getLeaderImageFromConfig,
+  getPartyColor,
+  getBlocs,
+  getStateByCode,
+} from '@/config/states'
 
 interface Candidate {
   name: string
@@ -40,23 +46,32 @@ interface AllianceData {
 
 interface MostWinningPartiesCardProps {
   historicData: ElectionData[]
+  stateCode?: string // Optional, defaults to 'TN'
 }
 
-// Function to get leader image
-const getLeaderImage = (name: string, isAlliance?: boolean): string | null => {
-  if (isAlliance) {
-    // Check for AIADMK bloc first (more specific match)
-    if (name.includes('AIADMK') || name.includes('NDA')) return '/images/EPS.jpg'
-    // Then check for DMK bloc
-    if (name.includes('DMK') || name.includes('SPA') || name.includes('DPA'))
-      return '/images/Stalin.png'
+// Function to get leader image using state config
+const getLeaderImage = (stateCode: string, name: string, isAlliance?: boolean): string | null => {
+  const config = getStateByCode(stateCode)
+  if (!config) return null
+
+  if (isAlliance && config.blocs) {
+    // Find matching bloc for alliance
+    for (const bloc of config.blocs) {
+      if (name === bloc.name || bloc.parties.some((p) => p === name.replace(' Bloc', ''))) {
+        return bloc.leaderImage || null
+      }
+    }
+    // Fallback: Check for specific alliance patterns
+    if (name.includes('AIADMK') || name.includes('NDA')) {
+      return config.leaderImages['AIADMK'] || config.leaderImages['ADMK'] || null
+    }
+    if (name.includes('DMK') || name.includes('SPA') || name.includes('DPA')) {
+      return config.leaderImages['DMK'] || null
+    }
     return null
   }
-  if (name === 'ADMK' || name === 'AIADMK') return '/images/EPS.jpg'
-  if (name === 'DMK') return '/images/Stalin.png'
-  if (name === 'INC' || name === 'CONG') return '/images/karkae.jpg'
-  if (name === 'BJP') return '/images/modi.png'
-  return null
+  // For individual parties, use config
+  return getLeaderImageFromConfig(stateCode, name)
 }
 
 // Determine bloc type based on parties/alliance name
@@ -102,7 +117,10 @@ const getBlocType = (
   return 'other'
 }
 
-export function MostWinningPartiesCard({ historicData }: MostWinningPartiesCardProps) {
+export function MostWinningPartiesCard({
+  historicData,
+  stateCode = 'TN',
+}: MostWinningPartiesCardProps) {
   const [viewMode, setViewMode] = React.useState<'party' | 'alliance'>('party')
   const [allianceData, setAllianceData] = React.useState<Record<number, AllianceData[]>>({})
   const [isLoading, setIsLoading] = React.useState(false)
@@ -258,8 +276,8 @@ export function MostWinningPartiesCard({ historicData }: MostWinningPartiesCardP
 
   // Party View
   const renderPartyView = () => {
-    const leader1 = getLeaderImage(topParties[0].party)
-    const leader2 = getLeaderImage(topParties[1].party)
+    const leader1 = getLeaderImage(stateCode, topParties[0].party)
+    const leader2 = getLeaderImage(stateCode, topParties[1].party)
     const winDifference = topParties[0].wins - topParties[1].wins
 
     return (
@@ -388,8 +406,8 @@ export function MostWinningPartiesCard({ historicData }: MostWinningPartiesCardP
       )
     }
 
-    const leader1 = getLeaderImage(allianceBlocs[0].allianceName, true)
-    const leader2 = getLeaderImage(allianceBlocs[1].allianceName, true)
+    const leader1 = getLeaderImage(stateCode, allianceBlocs[0].allianceName, true)
+    const leader2 = getLeaderImage(stateCode, allianceBlocs[1].allianceName, true)
     const winDifference = allianceBlocs[0].wins - allianceBlocs[1].wins
 
     const winnerColor = allianceBlocs[0].color

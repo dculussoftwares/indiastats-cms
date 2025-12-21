@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
+import { getPartyColor } from '@/config/states'
 import {
   BarChart,
   Bar,
@@ -27,9 +28,10 @@ interface ElectionData {
 
 interface PartyWinsChartProps {
   historicData: ElectionData[]
+  stateCode?: string
 }
 
-export function PartyWinsChart({ historicData }: PartyWinsChartProps) {
+export function PartyWinsChart({ historicData, stateCode = 'TN' }: PartyWinsChartProps) {
   if (!historicData || historicData.length === 0) return null
 
   // Find the top 2 parties across all years
@@ -72,7 +74,8 @@ export function PartyWinsChart({ historicData }: PartyWinsChartProps) {
       return hasData
     })
 
-  const colors = ['hsl(220, 70%, 50%)', 'hsl(0, 70%, 50%)'] // Blue for 1st, Red for 2nd
+  // Get party colors from state config
+  const getColor = (party: string) => getPartyColor(stateCode, party)
 
   return (
     <Card>
@@ -100,8 +103,8 @@ export function PartyWinsChart({ historicData }: PartyWinsChartProps) {
               }}
             />
             <Legend wrapperStyle={{ paddingTop: '20px' }} />
-            {topParties.map((party, idx) => (
-              <Bar key={party} dataKey={party} fill={colors[idx]} name={party} />
+            {topParties.map((party) => (
+              <Bar key={party} dataKey={party} fill={getColor(party)} name={party} />
             ))}
           </BarChart>
         </ResponsiveContainer>
