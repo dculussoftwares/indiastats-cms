@@ -8,6 +8,7 @@ interface AllianceSeat {
   allianceName: string
   seats: number
   parties: string[]
+  color?: string // Color from database
 }
 
 interface AllianceSummaryProps {
@@ -15,32 +16,6 @@ interface AllianceSummaryProps {
   year: number
   totalSeats: number
   isVisible: boolean
-}
-
-// Alliance colors - bright, distinguishable colors
-const allianceColors: Record<string, string> = {
-  'Secular Progressive Alliance (SPA)': '#dc2626', // Red (DMK-led)
-  'National Democratic Alliance (NDA)': '#059669', // Green (AIADMK-led 2021)
-  'AIADMK Alliance': '#059669', // Green
-  'AIADMK (Solo)': '#059669', // Green
-  'DMK Alliance': '#dc2626', // Red
-  'DMK Alliance (National Front)': '#dc2626', // Red
-  'DMK (Solo)': '#dc2626', // Red
-  'Democratic Progressive Alliance (DPA)': '#dc2626', // Red (DMK-led)
-  'Democratic People Alliance': '#059669', // Green (AIADMK-led)
-  'Secular Democratic Progressive Alliance': '#059669', // Green (AIADMK-led 2001)
-  "People's Welfare Front (Third Front)": '#8b5cf6', // Purple
-  'PMK (Solo)': '#eab308', // Yellow
-  'INC (Solo)': '#2563eb', // Blue
-  'INC(I)-CPI Alliance': '#2563eb', // Blue
-  'AIADMK(J) Faction': '#059669', // Green
-  'AIADMK(JA) Faction': '#10b981', // Light Green
-  'Janata Party (Solo)': '#f97316', // Orange
-  Others: '#6b7280', // Gray
-}
-
-function getAllianceColor(name: string): string {
-  return allianceColors[name] || '#6b7280'
 }
 
 export function AllianceSummary({
@@ -67,7 +42,7 @@ export function AllianceSummary({
         {/* Top 2 Alliances - Big Display */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           {topTwo.map((alliance, index) => {
-            const color = getAllianceColor(alliance.allianceName)
+            const color = alliance.color || '#6b7280'
             const percentage = Math.round((alliance.seats / totalSeats) * 100)
 
             return (
@@ -118,7 +93,7 @@ export function AllianceSummary({
         {rest.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {rest.map((alliance) => {
-              const color = getAllianceColor(alliance.allianceName)
+              const color = alliance.color || '#6b7280'
               return (
                 <div
                   key={alliance.allianceName}

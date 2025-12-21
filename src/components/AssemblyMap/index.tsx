@@ -36,30 +36,11 @@ export type AssemblyMapProps = {
   map: any
 }
 
-// Alliance colors for map visualization
-const allianceColors: Record<string, string> = {
-  'Secular Progressive Alliance (SPA)': '#dc2626', // Red (DMK-led)
-  'National Democratic Alliance (NDA)': '#059669', // Green
-  'AIADMK Alliance': '#059669', // Green
-  'AIADMK (Solo)': '#059669', // Green
-  'DMK Alliance': '#dc2626', // Red
-  'DMK Alliance (National Front)': '#dc2626', // Red
-  'DMK (Solo)': '#dc2626', // Red
-  'Democratic Progressive Alliance (DPA)': '#dc2626', // Red (DMK-led)
-  'Democratic People Alliance': '#059669', // Green (AIADMK-led)
-  'Secular Democratic Progressive Alliance': '#059669', // Green (AIADMK-led 2001)
-  "People's Welfare Front (Third Front)": '#8b5cf6', // Purple
-  'PMK (Solo)': '#eab308', // Yellow
-  'INC (Solo)': '#2563eb', // Blue
-  'INC(I)-CPI Alliance': '#2563eb', // Blue
-  'AIADMK(J) Faction': '#059669', // Green
-  'AIADMK(JA) Faction': '#10b981', // Light Green
-  'Janata Party (Solo)': '#f97316', // Orange
-  Others: '#6b7280', // Gray
-}
+// Alliance colors now come from database via API
 
-function getAllianceColor(allianceName: string): string {
-  return allianceColors[allianceName] || '#6b7280'
+// Get color from allianceColors map (passed from API)
+function getAllianceColor(allianceName: string, allianceColorsMap: Record<string, string>): string {
+  return allianceColorsMap[allianceName] || '#6b7280'
 }
 
 // Get color based on view mode (party or alliance)
@@ -67,10 +48,11 @@ function getDisplayColor(
   party: string,
   viewMode: 'party' | 'alliance',
   partyToAlliance: Record<string, string>,
+  allianceColorsMap: Record<string, string>,
 ): string {
   if (viewMode === 'alliance') {
     const alliance = partyToAlliance[party] || 'Others'
-    return getAllianceColor(alliance)
+    return getAllianceColor(alliance, allianceColorsMap)
   }
   return getPartyColor(party)
 }
@@ -320,9 +302,11 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       allianceName: string
       seats: number
       parties: string[]
+      color?: string
     }>
   >([])
   const [partyToAlliance, setPartyToAlliance] = useState<Record<string, string>>({})
+  const [allianceColorsMap, setAllianceColorsMap] = useState<Record<string, string>>({})
   const [viewMode, setViewMode] = useState<'party' | 'alliance'>('party')
   const [isLoadingElection, setIsLoadingElection] = useState(false)
   // Compare mode state
@@ -361,6 +345,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
   >({})
   const viewModeRef = useRef<'party' | 'alliance'>('party')
   const partyToAllianceRef = useRef<Record<string, string>>({})
+  const allianceColorsRef = useRef<Record<string, string>>({})
 
   // Sync viewMode to ref for use in event handlers
   useEffect(() => {
@@ -408,8 +393,10 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
           setTopTwoParties(data.topTwoParties || [])
           setAllianceSeats(data.allianceSeats || [])
           setPartyToAlliance(data.partyToAlliance || {})
+          setAllianceColorsMap(data.allianceColors || {})
           electionResultsRef.current = data.results || {}
           partyToAllianceRef.current = data.partyToAlliance || {}
+          allianceColorsRef.current = data.allianceColors || {}
         }
       } catch (error) {
         console.error('Failed to fetch election results:', error)
@@ -581,6 +568,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
             result.party,
             viewModeRef.current,
             partyToAllianceRef.current,
+            allianceColorsRef.current,
           )
 
           event.target.setStyle({
@@ -732,7 +720,12 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     // Election overlay mode - use party/alliance colors
     if (selectedElectionYear && assemblyId && electionResults[assemblyId]) {
       const result = electionResults[assemblyId]
-      const displayColor = getDisplayColor(result.party, viewMode, partyToAlliance)
+      const displayColor = getDisplayColor(
+        result.party,
+        viewMode,
+        partyToAlliance,
+        allianceColorsMap,
+      )
 
       return {
         color: isSelected ? '#000000' : '#ffffff',
@@ -1768,7 +1761,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
                             <div className="flex items-center gap-1.5">
                               <div
                                 className="w-3 h-3 rounded-sm border border-white/50"
-                                style={{ backgroundColor: getAllianceColor(alliance.allianceName) }}
+                                style={{ backgroundColor: alliance.color || '#6b7280' }}
                               />
                               <span
                                 className="text-gray-700 dark:text-gray-300 font-medium truncate max-w-[120px]"

@@ -136,10 +136,13 @@ export async function GET(request: NextRequest) {
             limit: 100,
         })
 
-        // Build party-to-alliance mapping
+        // Build party-to-alliance mapping and alliance colors
         const partyToAlliance: Record<string, string> = {}
+        const allianceColors: Record<string, string> = {}
         allianceRecords.docs.forEach((alliance: any) => {
             const allianceName = alliance.allianceName
+            const color = alliance.color || '#6b7280'
+            allianceColors[allianceName] = color
             if (alliance.parties && Array.isArray(alliance.parties)) {
                 alliance.parties.forEach((p: { partyName: string }) => {
                     partyToAlliance[p.partyName] = allianceName
@@ -148,13 +151,17 @@ export async function GET(request: NextRequest) {
         })
 
         // Calculate alliance-wise seat counts
-        const allianceCounts: Record<string, { seats: number; parties: string[] }> = {}
+        const allianceCounts: Record<string, { seats: number; parties: string[]; color: string }> = {}
         Object.values(resultsByAssembly).forEach((result) => {
             const party = result.party || 'IND'
             const alliance = partyToAlliance[party] || 'Others'
 
             if (!allianceCounts[alliance]) {
-                allianceCounts[alliance] = { seats: 0, parties: [] }
+                allianceCounts[alliance] = {
+                    seats: 0,
+                    parties: [],
+                    color: allianceColors[alliance] || '#6b7280'
+                }
             }
             allianceCounts[alliance].seats++
             if (!allianceCounts[alliance].parties.includes(party)) {
@@ -168,6 +175,7 @@ export async function GET(request: NextRequest) {
                 allianceName: name,
                 seats: data.seats,
                 parties: data.parties,
+                color: data.color,
             }))
             .sort((a, b) => b.seats - a.seats)
 
@@ -180,6 +188,7 @@ export async function GET(request: NextRequest) {
             closestRaces: topClosestRaces,
             allianceSeats,
             partyToAlliance,
+            allianceColors,
         })
     } catch (error) {
         console.error('Error fetching election results:', error)

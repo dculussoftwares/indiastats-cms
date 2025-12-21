@@ -43,5 +43,20 @@ export const Alliances: CollectionConfig = {
                 },
             ],
         },
+        {
+            name: 'color',
+            type: 'text',
+            required: true,
+            admin: {
+                description: 'Hex color code for the alliance (e.g., #dc2626)',
+            },
+            validate: (val: string | undefined | null) => {
+                if (!val) return 'Color is required'
+                if (!/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                    return 'Must be a valid hex color (e.g., #dc2626)'
+                }
+                return true
+            },
+        },
     ],
 }

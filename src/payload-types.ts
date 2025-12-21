@@ -936,6 +936,10 @@ export interface Alliance {
     partyName: string;
     id?: string | null;
   }[];
+  /**
+   * Hex color code for the alliance (e.g., #dc2626)
+   */
+  color: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -1603,6 +1607,7 @@ export interface AlliancesSelect<T extends boolean = true> {
         partyName?: T;
         id?: T;
       };
+  color?: T;
   updatedAt?: T;
   createdAt?: T;
 }
