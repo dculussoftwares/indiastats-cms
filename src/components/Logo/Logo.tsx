@@ -32,12 +32,14 @@ export const Logo = (props: Props) => {
         <rect x="14" y="0" width="5" height="18" rx="0.5" fill={barColor} />
       </svg>
 
-      {/* Text */}
+      {/* Text - pull up to align with bars (remove descender space) */}
       <span
         className="font-bold text-lg whitespace-nowrap"
         style={{
           color: textColor,
           lineHeight: '1',
+          display: 'block',
+          transform: 'translateY(3px)',
         }}
       >
         IndiaStats
