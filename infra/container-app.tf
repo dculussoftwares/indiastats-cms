@@ -52,14 +52,14 @@ resource "azurerm_container_app" "main" {
   }
 
   template {
-    min_replicas = 0 # Scale to zero when no traffic
-    max_replicas = 2 # Low cost scaling
+    min_replicas = 1 # Always 1 replica running
+    max_replicas = 1 # Fixed single replica
 
     container {
       name   = "indiastats-cms"
       image  = var.container_image # Pull from GHCR (public, no auth needed)
-      cpu    = 0.5                 # Minimum for production
-      memory = "1Gi"
+      cpu    = 0.25                # Absolute minimum
+      memory = "0.5Gi"             # Absolute minimum
 
       env {
         name        = "DATABASE_URI"
