@@ -4,6 +4,26 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { DistrictPageClient } from './DistrictPageClient'
 
+// Revalidate every 24 hours (ISR)
+export const revalidate = 86400
+
+// Pre-generate all district pages at build time
+export async function generateStaticParams() {
+  const payload = await getPayload({ config })
+
+  const districts = await payload.find({
+    collection: 'districts',
+    limit: 100,
+    select: { districtId: true },
+  })
+
+  // Generate params for all districts in Tamil Nadu
+  return districts.docs.map((district: any) => ({
+    stateSlug: 'tamil-nadu',
+    districtId: district.districtId,
+  }))
+}
+
 interface PageProps {
   params: Promise<{ districtId: string; stateSlug: string }>
 }

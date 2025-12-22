@@ -4,6 +4,27 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { AssemblyPageClient } from './AssemblyPageClient'
 
+// Revalidate every 24 hours (ISR)
+export const revalidate = 86400
+
+// Pre-generate all assembly pages at build time
+export async function generateStaticParams() {
+  const payload = await getPayload({ config })
+
+  const assemblies = await payload.find({
+    collection: 'assemblies',
+    limit: 300,
+    select: { assemblyId: true, districtId: true },
+  })
+
+  // Generate params for all assemblies in Tamil Nadu
+  return assemblies.docs.map((assembly: any) => ({
+    stateSlug: 'tamil-nadu',
+    districtId: assembly.districtId || 'dt1', // Fallback if missing
+    assemblyId: assembly.assemblyId,
+  }))
+}
+
 interface PageProps {
   params: Promise<{ districtId: string; assemblyId: string; stateSlug: string }>
 }
