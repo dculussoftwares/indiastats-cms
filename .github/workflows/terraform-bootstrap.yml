@@ -1,0 +1,74 @@
+name: "Terraform Bootstrap"
+
+# This workflow creates the storage account for Terraform state
+# Run this ONCE before the main deploy workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      storage_account_name:
+        description: 'Storage account name (must be globally unique, 3-24 lowercase letters/numbers)'
+        required: true
+        default: 'stindiastatstfstate'
+      resource_group_name:
+        description: 'Resource group name for storage'
+        required: true
+        default: 'rg-indiastats-tfstate'
+      location:
+        description: 'Azure region'
+        required: true
+        default: 'centralindia'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  bootstrap:
+    name: Create Terraform Backend Storage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create Resource Group
+        run: |
+          az group create \
+            --name ${{ inputs.resource_group_name }} \
+            --location ${{ inputs.location }} \
+            --tags Environment=Terraform Project=IndiaStats ManagedBy=GitHubActions
+
+      - name: Create Storage Account
+        run: |
+          az storage account create \
+            --name ${{ inputs.storage_account_name }} \
+            --resource-group ${{ inputs.resource_group_name }} \
+            --location ${{ inputs.location }} \
+            --sku Standard_LRS \
+            --kind StorageV2 \
+            --min-tls-version TLS1_2 \
+            --allow-blob-public-access false \
+            --tags Environment=Terraform Project=IndiaStats
+
+      - name: Create Blob Container
+        run: |
+          az storage container create \
+            --name tfstate \
+            --account-name ${{ inputs.storage_account_name }} \
+            --auth-mode login
+
+      - name: Output Backend Config
+        run: |
+          echo "✅ Bootstrap Complete!"
+          echo ""
+          echo "Add these to your terraform init command or backend config:"
+          echo ""
+          echo "  storage_account_name = \"${{ inputs.storage_account_name }}\""
+          echo "  container_name       = \"tfstate\""
+          echo "  key                  = \"indiastats.tfstate\""
+          echo "  resource_group_name  = \"${{ inputs.resource_group_name }}\""
