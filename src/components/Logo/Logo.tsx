@@ -10,32 +10,35 @@ interface Props {
 export const Logo = (props: Props) => {
   const { className } = props
 
-  // Always use dark mode colors since header is always dark
+  // BBC Red for bars, dark text for light header background
   const barColor = '#be1f1f' // BBC Red from your CSS
-  const textColor = '#ffffff' // White for dark header
-  const orgColor = '#9ca3af' // Light gray for .org
+  const textColor = '#1a1a1a' // Dark text for white header
+  const orgColor = '#6b7280' // Gray for .org
 
   return (
-    <div className={clsx('flex items-center gap-2', className)}>
-      {/* Bar Chart Icon */}
+    <div className={clsx('flex items-end gap-[2px]', className)}>
+      {/* Bar Chart Icon - 18px height to match capital letter height */}
       <svg
-        width="28"
-        height="24"
-        viewBox="0 0 28 24"
+        width="20"
+        height="18"
+        viewBox="0 0 20 18"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="flex-shrink-0"
       >
-        {/* Three ascending bars */}
-        <rect x="0" y="14" width="6" height="10" rx="1" fill={barColor} />
-        <rect x="9" y="8" width="6" height="16" rx="1" fill={barColor} />
-        <rect x="18" y="2" width="6" height="22" rx="1" fill={barColor} />
+        {/* Three ascending bars - tallest bar = 18px (full height), matches capital I */}
+        <rect x="0" y="11" width="5" height="7" rx="0.5" fill={barColor} />
+        <rect x="7" y="5" width="5" height="13" rx="0.5" fill={barColor} />
+        <rect x="14" y="0" width="5" height="18" rx="0.5" fill={barColor} />
       </svg>
 
       {/* Text */}
       <span
-        className="font-bold text-lg tracking-tight whitespace-nowrap"
-        style={{ color: textColor }}
+        className="font-bold text-lg whitespace-nowrap"
+        style={{
+          color: textColor,
+          lineHeight: '1',
+        }}
       >
         IndiaStats
         <span className="font-normal" style={{ color: orgColor }}>
