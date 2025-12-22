@@ -66,6 +66,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            DATABASE_URI=${{ secrets.DATABASE_URL }}
+            PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
+            NEXT_PUBLIC_SERVER_URL=https://indiastats-cms.azurecontainerapps.io
 
   terraform:
     name: Terraform Apply
