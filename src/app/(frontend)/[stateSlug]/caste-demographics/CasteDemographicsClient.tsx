@@ -34,9 +34,13 @@ const RANK_COLORS = [
 
 interface CasteDemographicsClientProps {
   stateSlug: string
+  prefetchedData?: CasteData[]
 }
 
-export function CasteDemographicsClient({ stateSlug }: CasteDemographicsClientProps) {
+export function CasteDemographicsClient({
+  stateSlug,
+  prefetchedData,
+}: CasteDemographicsClientProps) {
   const [allData, setAllData] = React.useState<CasteData[]>([])
   const [filteredData, setFilteredData] = React.useState<CasteData[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
@@ -51,51 +55,64 @@ export function CasteDemographicsClient({ stateSlug }: CasteDemographicsClientPr
     uniqueCastes: number
   } | null>(null)
 
+  // Helper function to calculate statistics from data
+  const calculateStats = React.useCallback((assemblies: CasteData[]) => {
+    const casteCount: Record<string, { count: number; totalPercentage: number }> = {}
+    assemblies.forEach((a: CasteData) => {
+      const castes = [
+        { caste: a.rank1Caste, pct: a.rank1Percentage },
+        { caste: a.rank2Caste, pct: a.rank2Percentage },
+        { caste: a.rank3Caste, pct: a.rank3Percentage },
+        { caste: a.rank4Caste, pct: a.rank4Percentage },
+        { caste: a.rank5Caste, pct: a.rank5Percentage },
+      ]
+      castes.forEach(({ caste, pct }) => {
+        if (caste && pct) {
+          if (!casteCount[caste]) {
+            casteCount[caste] = { count: 0, totalPercentage: 0 }
+          }
+          casteCount[caste].count++
+          casteCount[caste].totalPercentage += pct
+        }
+      })
+    })
+
+    const topCastes = Object.entries(casteCount)
+      .map(([caste, data]) => ({
+        caste,
+        count: data.count,
+        avgPercentage: Math.round(data.totalPercentage / data.count),
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+
+    return {
+      totalAssemblies: assemblies.length,
+      topCastes,
+      uniqueCastes: Object.keys(casteCount).length,
+    }
+  }, [])
+
   React.useEffect(() => {
+    // If prefetched data is provided, use it instead of making an API call
+    if (prefetchedData && prefetchedData.length > 0) {
+      setAllData(prefetchedData)
+      setFilteredData(prefetchedData)
+      setStats(calculateStats(prefetchedData))
+      setIsLoading(false)
+      return
+    }
+
     const fetchData = async () => {
       setIsLoading(true)
       try {
         const response = await fetch('/api/caste-data?all=true')
         if (response.ok) {
           const result = await response.json()
-          setAllData(result.assemblies || [])
-          setFilteredData(result.assemblies || [])
-
-          // Calculate statistics
-          const casteCount: Record<string, { count: number; totalPercentage: number }> = {}
-          result.assemblies.forEach((a: CasteData) => {
-            const castes = [
-              { caste: a.rank1Caste, pct: a.rank1Percentage },
-              { caste: a.rank2Caste, pct: a.rank2Percentage },
-              { caste: a.rank3Caste, pct: a.rank3Percentage },
-              { caste: a.rank4Caste, pct: a.rank4Percentage },
-              { caste: a.rank5Caste, pct: a.rank5Percentage },
-            ]
-            castes.forEach(({ caste, pct }) => {
-              if (caste && pct) {
-                if (!casteCount[caste]) {
-                  casteCount[caste] = { count: 0, totalPercentage: 0 }
-                }
-                casteCount[caste].count++
-                casteCount[caste].totalPercentage += pct
-              }
-            })
-          })
-
-          const topCastes = Object.entries(casteCount)
-            .map(([caste, data]) => ({
-              caste,
-              count: data.count,
-              avgPercentage: Math.round(data.totalPercentage / data.count),
-            }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 10)
-
-          setStats({
-            totalAssemblies: result.assemblies.length,
-            topCastes,
-            uniqueCastes: Object.keys(casteCount).length,
-          })
+          const assemblies = result.assemblies || []
+          setAllData(assemblies)
+          setFilteredData(assemblies)
+          setStats(calculateStats(assemblies))
         }
       } catch (error) {
         console.error('Failed to fetch caste data:', error)
@@ -105,7 +122,7 @@ export function CasteDemographicsClient({ stateSlug }: CasteDemographicsClientPr
     }
 
     fetchData()
-  }, [])
+  }, [prefetchedData, calculateStats])
 
   // Filter data when search or caste filter changes
   React.useEffect(() => {
