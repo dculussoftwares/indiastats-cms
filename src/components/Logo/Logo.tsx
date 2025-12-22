@@ -1,5 +1,8 @@
+'use client'
+
 import clsx from 'clsx'
 import React from 'react'
+import { useTheme } from '@/providers/Theme'
 
 interface Props {
   className?: string
@@ -9,21 +12,25 @@ interface Props {
 
 export const Logo = (props: Props) => {
   const { loading: loadingFromProps, priority: priorityFromProps, className } = props
+  const { theme } = useTheme()
 
   const loading = loadingFromProps || 'lazy'
   const priority = priorityFromProps || 'low'
 
+  // Use dark logo for dark theme, light logo for light theme
+  const logoSrc = theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png'
+
   return (
     /* eslint-disable @next/next/no-img-element */
     <img
-      alt="Payload Logo"
+      alt="IndiaStats.org Logo"
       width={193}
       height={34}
       loading={loading}
       fetchPriority={priority}
       decoding="async"
-      className={clsx('max-w-[9.375rem] w-full h-[34px]', className)}
-      src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-logo-light.svg"
+      className={clsx('max-w-[9.375rem] w-full h-[34px] object-contain', className)}
+      src={logoSrc}
     />
   )
 }
