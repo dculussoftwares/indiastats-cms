@@ -36,6 +36,21 @@ interface AllianceData {
   color: string
 }
 
+interface CasteData {
+  assemblyId: string
+  assemblyName: string
+  rank1Caste: string | null
+  rank1Percentage: number | null
+  rank2Caste: string | null
+  rank2Percentage: number | null
+  rank3Caste: string | null
+  rank3Percentage: number | null
+  rank4Caste: string | null
+  rank4Percentage: number | null
+  rank5Caste: string | null
+  rank5Percentage: number | null
+}
+
 interface DistrictData {
   districtId: string
   districtName: string
@@ -55,6 +70,7 @@ interface DistrictData {
   assemblies: Assembly[]
   electionHistory: ElectionData[]
   allianceData: Record<number, AllianceData[]>
+  assemblyCasteData: CasteData[]
 }
 
 interface DistrictPageClientProps {
@@ -188,7 +204,7 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
           Caste Demographics by Assembly
         </h2>
-        <CasteComparisonTable districtName={data.districtName} />
+        <CasteComparisonTable assemblyCasteData={data.assemblyCasteData} />
       </section>
 
       {/* Year-wise Party Performance */}

@@ -21,7 +21,7 @@ interface CasteData {
 }
 
 interface CasteComparisonTableProps {
-  districtName: string
+  assemblyCasteData: CasteData[] // Required - pre-fetched from server
 }
 
 const RANK_COLORS = [
@@ -32,55 +32,9 @@ const RANK_COLORS = [
   { bg: '#8b5cf6', text: 'text-violet-600' }, // Rank 5
 ]
 
-export function CasteComparisonTable({ districtName }: CasteComparisonTableProps) {
-  const [assemblies, setAssemblies] = React.useState<CasteData[]>([])
-  const [isLoading, setIsLoading] = React.useState(true)
-  const [error, setError] = React.useState<string | null>(null)
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true)
-      try {
-        // Extract English district name if bilingual
-        const englishName = districtName.includes('/')
-          ? districtName.split('/')[1].trim()
-          : districtName
-
-        const response = await fetch(
-          `/api/caste-data?districtName=${encodeURIComponent(englishName)}`,
-        )
-        if (response.ok) {
-          const result = await response.json()
-          setAssemblies(result.assemblies || [])
-        } else {
-          setError('Caste data not available')
-        }
-      } catch {
-        setError('Failed to load caste data')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    if (districtName) {
-      fetchData()
-    }
-  }, [districtName])
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="animate-pulse space-y-3">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
-            <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded" />
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (error || assemblies.length === 0) {
+export function CasteComparisonTable({ assemblyCasteData }: CasteComparisonTableProps) {
+  // Pure display component - no fetch logic
+  if (!assemblyCasteData || assemblyCasteData.length === 0) {
     return null
   }
 
@@ -147,7 +101,7 @@ export function CasteComparisonTable({ districtName }: CasteComparisonTableProps
                 </tr>
               </thead>
               <tbody>
-                {assemblies.map((assembly) => (
+                {assemblyCasteData.map((assembly) => (
                   <tr
                     key={assembly.assemblyId}
                     className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
@@ -177,7 +131,7 @@ export function CasteComparisonTable({ districtName }: CasteComparisonTableProps
           </div>
           <p className="text-xs text-muted-foreground mt-4">
             Hover over any caste to see full name. Based on estimated census data for{' '}
-            {assemblies.length} assemblies.
+            {assemblyCasteData.length} assemblies.
           </p>
         </CardContent>
       </Card>
