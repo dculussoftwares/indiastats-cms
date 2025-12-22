@@ -311,7 +311,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
           Caste Demographics
         </h2>
-        <CasteDemographicsCard assemblyId={data.assemblyId} casteData={data.casteData} />
+        <CasteDemographicsCard casteData={data.casteData} />
       </section>
 
       {/* Population Changes */}

@@ -30,6 +30,12 @@ interface ElectionData {
   }[]
 }
 
+interface AllianceData {
+  allianceName: string
+  parties: { partyName: string }[]
+  color: string
+}
+
 interface DistrictData {
   districtId: string
   districtName: string
@@ -48,6 +54,7 @@ interface DistrictData {
   }
   assemblies: Assembly[]
   electionHistory: ElectionData[]
+  allianceData: Record<number, AllianceData[]>
 }
 
 interface DistrictPageClientProps {
@@ -153,7 +160,10 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
             Most Winning Parties since ADMK formed
           </h2>
-          <MostWinningPartiesCard historicData={data.electionHistory} />
+          <MostWinningPartiesCard
+            historicData={data.electionHistory}
+            allianceData={data.allianceData}
+          />
         </section>
       )}
 

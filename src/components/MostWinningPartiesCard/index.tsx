@@ -47,7 +47,7 @@ interface AllianceData {
 interface MostWinningPartiesCardProps {
   historicData: ElectionData[]
   stateCode?: string // Optional, defaults to 'TN'
-  allianceData?: Record<number, AllianceData[]> // Optional pre-fetched data for SSG
+  allianceData: Record<number, AllianceData[]> // Required - pre-fetched from server
 }
 
 // Function to get leader image using state config
@@ -121,55 +121,9 @@ const getBlocType = (
 export function MostWinningPartiesCard({
   historicData,
   stateCode = 'TN',
-  allianceData: prefetchedAllianceData,
+  allianceData,
 }: MostWinningPartiesCardProps) {
   const [viewMode, setViewMode] = React.useState<'party' | 'alliance'>('party')
-  const [allianceData, setAllianceData] = React.useState<Record<number, AllianceData[]>>(
-    prefetchedAllianceData || {},
-  )
-  const [isLoading, setIsLoading] = React.useState(false)
-
-  // Fetch all alliance data in a single call (grouped by year)
-  React.useEffect(() => {
-    if (viewMode !== 'alliance') return
-
-    // Skip fetch if we have pre-fetched data
-    if (prefetchedAllianceData && Object.keys(prefetchedAllianceData).length > 0) {
-      setAllianceData(prefetchedAllianceData)
-      return
-    }
-
-    const fetchAllianceData = async () => {
-      setIsLoading(true)
-      try {
-        // Single API call to fetch ALL alliances
-        const response = await fetch('/api/alliances')
-        if (response.ok) {
-          const data = await response.json()
-          // Group alliances by year
-          const groupedByYear: Record<number, AllianceData[]> = {}
-          data.alliances?.forEach((alliance: AllianceData & { electionYear: number }) => {
-            const year = alliance.electionYear
-            if (!groupedByYear[year]) {
-              groupedByYear[year] = []
-            }
-            groupedByYear[year].push({
-              allianceName: alliance.allianceName,
-              parties: alliance.parties,
-              color: alliance.color,
-            })
-          })
-          setAllianceData(groupedByYear)
-        }
-      } catch (error) {
-        console.error('Failed to fetch alliances:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchAllianceData()
-  }, [viewMode, prefetchedAllianceData])
 
   if (!historicData || historicData.length === 0) return null
 
@@ -235,7 +189,7 @@ export function MostWinningPartiesCard({
         const year = data.year
 
         // Get alliance mapping for this year
-        const yearAlliances = allianceData[year] || []
+        const yearAlliances = (allianceData && allianceData[year]) || []
 
         // Find which alliance this party belongs to
         const partyToAlliance: Record<string, string> = {}
@@ -402,11 +356,11 @@ export function MostWinningPartiesCard({
 
   // Alliance Bloc View
   const renderAllianceView = () => {
-    if (isLoading) {
+    if (!allianceData || Object.keys(allianceData).length === 0) {
       return (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
-        </div>
+        <p className="text-sm text-muted-foreground text-center py-4">
+          Alliance data not available
+        </p>
       )
     }
 

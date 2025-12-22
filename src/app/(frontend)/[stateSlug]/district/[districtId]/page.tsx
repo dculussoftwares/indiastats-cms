@@ -148,6 +148,28 @@ async function getDistrictData(districtId: string) {
     return entry
   })
 
+  // Get all alliances data (grouped by year)
+  const alliancesResult = await payload.find({
+    collection: 'alliances',
+    limit: 500,
+  })
+
+  const allianceData: Record<
+    number,
+    { allianceName: string; parties: { partyName: string }[]; color: string }[]
+  > = {}
+  alliancesResult.docs.forEach((alliance: any) => {
+    const year = alliance.electionYear
+    if (!allianceData[year]) {
+      allianceData[year] = []
+    }
+    allianceData[year].push({
+      allianceName: alliance.allianceName,
+      parties: alliance.parties,
+      color: alliance.color,
+    })
+  })
+
   return {
     districtId: district.districtId,
     districtName: district.districtName,
@@ -166,6 +188,7 @@ async function getDistrictData(districtId: string) {
     },
     assemblies,
     electionHistory,
+    allianceData,
   }
 }
 

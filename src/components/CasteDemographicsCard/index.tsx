@@ -20,8 +20,7 @@ interface CasteData {
 }
 
 interface CasteDemographicsCardProps {
-  assemblyId: string
-  casteData?: CasteData | null // Optional pre-fetched data for SSG
+  casteData: CasteData | null
 }
 
 // Colors for different castes
@@ -34,75 +33,19 @@ const CASTE_COLORS = [
   '#6b7280', // gray (others)
 ]
 
-export function CasteDemographicsCard({
-  assemblyId,
-  casteData: prefetchedData,
-}: CasteDemographicsCardProps) {
-  // Track if we had prefetched data on initial render
-  const hadPrefetchedData = React.useRef(!!prefetchedData)
-  const [data, setData] = React.useState<CasteData | null>(prefetchedData || null)
-  const [isLoading, setIsLoading] = React.useState(!prefetchedData)
-  const [error, setError] = React.useState<string | null>(null)
-
-  React.useEffect(() => {
-    // If we had prefetched data from the server, never make an API call
-    if (hadPrefetchedData.current) {
-      if (prefetchedData) {
-        setData(prefetchedData)
-      }
-      setIsLoading(false)
-      return
-    }
-
-    // Only fetch if no prefetched data was provided initially
-    const fetchData = async () => {
-      setIsLoading(true)
-      try {
-        const response = await fetch(`/api/caste-data?assemblyId=${assemblyId}`)
-        if (response.ok) {
-          const result = await response.json()
-          setData(result)
-        } else {
-          setError('Caste data not available')
-        }
-      } catch {
-        setError('Failed to load caste data')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    if (assemblyId && !prefetchedData) {
-      fetchData()
-    }
-  }, [assemblyId, prefetchedData])
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="animate-pulse space-y-3">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
-            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-4/5" />
-            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/5" />
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (error || !data) {
+export function CasteDemographicsCard({ casteData }: CasteDemographicsCardProps) {
+  // Pure display component - no fetch logic
+  if (!casteData) {
     return null
   }
 
   // Build caste entries
   const castes = [
-    { name: data.rank1Caste, percentage: data.rank1Percentage },
-    { name: data.rank2Caste, percentage: data.rank2Percentage },
-    { name: data.rank3Caste, percentage: data.rank3Percentage },
-    { name: data.rank4Caste, percentage: data.rank4Percentage },
-    { name: data.rank5Caste, percentage: data.rank5Percentage },
+    { name: casteData.rank1Caste, percentage: casteData.rank1Percentage },
+    { name: casteData.rank2Caste, percentage: casteData.rank2Percentage },
+    { name: casteData.rank3Caste, percentage: casteData.rank3Percentage },
+    { name: casteData.rank4Caste, percentage: casteData.rank4Percentage },
+    { name: casteData.rank5Caste, percentage: casteData.rank5Percentage },
   ].filter((c) => c.name && c.percentage)
 
   // Calculate others
