@@ -2,18 +2,30 @@
 
 import clsx from 'clsx'
 import React from 'react'
+import { useTheme } from '@/providers/Theme'
 
 interface Props {
   className?: string
+  variant?: 'auto' | 'light' | 'dark' // light = dark bg (white text), dark = light bg (dark text)
 }
 
 export const Logo = (props: Props) => {
-  const { className } = props
+  const { className, variant = 'auto' } = props
+  const { theme } = useTheme()
 
-  // BBC Red for bars, dark text for light header background
-  const barColor = '#be1f1f' // BBC Red from your CSS
-  const textColor = '#1a1a1a' // Dark text for white header
-  const orgColor = '#6b7280' // Gray for .org
+  // BBC Red for bars (stays same in both modes)
+  const barColor = '#be1f1f'
+
+  // Determine if we need light text (for dark backgrounds) or dark text (for light backgrounds)
+  let useLightText: boolean
+  if (variant === 'auto') {
+    useLightText = theme === 'dark'
+  } else {
+    useLightText = variant === 'light' // light variant = dark background = light text
+  }
+
+  const textColor = useLightText ? '#ffffff' : '#1a1a1a'
+  const orgColor = useLightText ? '#9ca3af' : '#6b7280'
 
   return (
     <div className={clsx('flex items-end gap-[2px]', className)}>
@@ -32,7 +44,7 @@ export const Logo = (props: Props) => {
         <rect x="14" y="0" width="5" height="18" rx="0.5" fill={barColor} />
       </svg>
 
-      {/* Text - pull up to align with bars (remove descender space) */}
+      {/* Text - theme-aware colors */}
       <span
         className="font-bold text-lg whitespace-nowrap"
         style={{
