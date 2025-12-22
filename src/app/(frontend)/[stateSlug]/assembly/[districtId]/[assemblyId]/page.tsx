@@ -116,6 +116,52 @@ async function getAssemblyData(districtId: string, assemblyId: string) {
     where: { assemblyId: { equals: assemblyId } },
   })
 
+  // Get caste census data for this assembly
+  const casteCensusResult = await payload.find({
+    collection: 'caste-census',
+    where: { assemblyId: { equals: assemblyId } },
+    limit: 1,
+  })
+
+  const casteData = casteCensusResult.docs[0]
+    ? {
+        assemblyId: (casteCensusResult.docs[0] as any).assemblyId,
+        assemblyName: (casteCensusResult.docs[0] as any).assemblyName,
+        rank1Caste: (casteCensusResult.docs[0] as any).rank1Caste,
+        rank1Percentage: (casteCensusResult.docs[0] as any).rank1Percentage,
+        rank2Caste: (casteCensusResult.docs[0] as any).rank2Caste,
+        rank2Percentage: (casteCensusResult.docs[0] as any).rank2Percentage,
+        rank3Caste: (casteCensusResult.docs[0] as any).rank3Caste,
+        rank3Percentage: (casteCensusResult.docs[0] as any).rank3Percentage,
+        rank4Caste: (casteCensusResult.docs[0] as any).rank4Caste,
+        rank4Percentage: (casteCensusResult.docs[0] as any).rank4Percentage,
+        rank5Caste: (casteCensusResult.docs[0] as any).rank5Caste,
+        rank5Percentage: (casteCensusResult.docs[0] as any).rank5Percentage,
+      }
+    : null
+
+  // Get all alliances data (grouped by year)
+  const alliancesResult = await payload.find({
+    collection: 'alliances',
+    limit: 500,
+  })
+
+  const allianceData: Record<
+    number,
+    { allianceName: string; parties: { partyName: string }[]; color: string }[]
+  > = {}
+  alliancesResult.docs.forEach((alliance: any) => {
+    const year = alliance.electionYear
+    if (!allianceData[year]) {
+      allianceData[year] = []
+    }
+    allianceData[year].push({
+      allianceName: alliance.allianceName,
+      parties: alliance.parties,
+      color: alliance.color,
+    })
+  })
+
   return {
     assemblyId: assembly.assemblyId,
     districtId: districtId,
@@ -141,6 +187,8 @@ async function getAssemblyData(districtId: string, assemblyId: string) {
       : null,
     electedMla: assembly.electedMla,
     electionHistory,
+    casteData,
+    allianceData,
   }
 }
 

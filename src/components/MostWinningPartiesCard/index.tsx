@@ -47,6 +47,7 @@ interface AllianceData {
 interface MostWinningPartiesCardProps {
   historicData: ElectionData[]
   stateCode?: string // Optional, defaults to 'TN'
+  allianceData?: Record<number, AllianceData[]> // Optional pre-fetched data for SSG
 }
 
 // Function to get leader image using state config
@@ -120,14 +121,23 @@ const getBlocType = (
 export function MostWinningPartiesCard({
   historicData,
   stateCode = 'TN',
+  allianceData: prefetchedAllianceData,
 }: MostWinningPartiesCardProps) {
   const [viewMode, setViewMode] = React.useState<'party' | 'alliance'>('party')
-  const [allianceData, setAllianceData] = React.useState<Record<number, AllianceData[]>>({})
+  const [allianceData, setAllianceData] = React.useState<Record<number, AllianceData[]>>(
+    prefetchedAllianceData || {},
+  )
   const [isLoading, setIsLoading] = React.useState(false)
 
   // Fetch all alliance data in a single call (grouped by year)
   React.useEffect(() => {
     if (viewMode !== 'alliance') return
+
+    // Skip fetch if we have pre-fetched data
+    if (prefetchedAllianceData && Object.keys(prefetchedAllianceData).length > 0) {
+      setAllianceData(prefetchedAllianceData)
+      return
+    }
 
     const fetchAllianceData = async () => {
       setIsLoading(true)
@@ -159,7 +169,7 @@ export function MostWinningPartiesCard({
     }
 
     fetchAllianceData()
-  }, [viewMode])
+  }, [viewMode, prefetchedAllianceData])
 
   if (!historicData || historicData.length === 0) return null
 

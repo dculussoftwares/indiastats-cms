@@ -29,6 +29,27 @@ interface ElectionYear {
   candidates: Candidate[]
 }
 
+interface CasteData {
+  assemblyId: string
+  assemblyName: string
+  rank1Caste: string | null
+  rank1Percentage: number | null
+  rank2Caste: string | null
+  rank2Percentage: number | null
+  rank3Caste: string | null
+  rank3Percentage: number | null
+  rank4Caste: string | null
+  rank4Percentage: number | null
+  rank5Caste: string | null
+  rank5Percentage: number | null
+}
+
+interface AllianceData {
+  allianceName: string
+  parties: { partyName: string }[]
+  color: string
+}
+
 interface AssemblyData {
   assemblyId: string
   districtId: string
@@ -50,6 +71,8 @@ interface AssemblyData {
   } | null
   electedMla: any
   electionHistory: ElectionYear[]
+  casteData: CasteData | null
+  allianceData: Record<number, AllianceData[]>
 }
 
 interface AssemblyPageClientProps {
@@ -211,6 +234,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                 rank: idx + 1,
               })),
             }))}
+            allianceData={data.allianceData}
           />
         </section>
       )}
@@ -287,7 +311,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
           Caste Demographics
         </h2>
-        <CasteDemographicsCard assemblyId={data.assemblyId} />
+        <CasteDemographicsCard assemblyId={data.assemblyId} casteData={data.casteData} />
       </section>
 
       {/* Population Changes */}

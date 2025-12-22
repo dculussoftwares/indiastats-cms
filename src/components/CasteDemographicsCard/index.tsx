@@ -21,6 +21,7 @@ interface CasteData {
 
 interface CasteDemographicsCardProps {
   assemblyId: string
+  casteData?: CasteData | null // Optional pre-fetched data for SSG
 }
 
 // Colors for different castes
@@ -33,12 +34,22 @@ const CASTE_COLORS = [
   '#6b7280', // gray (others)
 ]
 
-export function CasteDemographicsCard({ assemblyId }: CasteDemographicsCardProps) {
-  const [data, setData] = React.useState<CasteData | null>(null)
-  const [isLoading, setIsLoading] = React.useState(true)
+export function CasteDemographicsCard({
+  assemblyId,
+  casteData: prefetchedData,
+}: CasteDemographicsCardProps) {
+  const [data, setData] = React.useState<CasteData | null>(prefetchedData || null)
+  const [isLoading, setIsLoading] = React.useState(!prefetchedData)
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
+    // Skip API call if we have pre-fetched data
+    if (prefetchedData) {
+      setData(prefetchedData)
+      setIsLoading(false)
+      return
+    }
+
     const fetchData = async () => {
       setIsLoading(true)
       try {
@@ -59,7 +70,7 @@ export function CasteDemographicsCard({ assemblyId }: CasteDemographicsCardProps
     if (assemblyId) {
       fetchData()
     }
-  }, [assemblyId])
+  }, [assemblyId, prefetchedData])
 
   if (isLoading) {
     return (
