@@ -38,18 +38,23 @@ export function CasteDemographicsCard({
   assemblyId,
   casteData: prefetchedData,
 }: CasteDemographicsCardProps) {
+  // Track if we had prefetched data on initial render
+  const hadPrefetchedData = React.useRef(!!prefetchedData)
   const [data, setData] = React.useState<CasteData | null>(prefetchedData || null)
   const [isLoading, setIsLoading] = React.useState(!prefetchedData)
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    // Skip API call if we have pre-fetched data
-    if (prefetchedData) {
-      setData(prefetchedData)
+    // If we had prefetched data from the server, never make an API call
+    if (hadPrefetchedData.current) {
+      if (prefetchedData) {
+        setData(prefetchedData)
+      }
       setIsLoading(false)
       return
     }
 
+    // Only fetch if no prefetched data was provided initially
     const fetchData = async () => {
       setIsLoading(true)
       try {
@@ -67,7 +72,7 @@ export function CasteDemographicsCard({
       }
     }
 
-    if (assemblyId) {
+    if (assemblyId && !prefetchedData) {
       fetchData()
     }
   }, [assemblyId, prefetchedData])
