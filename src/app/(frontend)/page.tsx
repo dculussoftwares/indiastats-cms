@@ -1,5 +1,9 @@
-import PageTemplate, { generateMetadata } from './pages/[pageSlug]/page'
+import { redirect } from 'next/navigation'
 
-export default PageTemplate
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
-export { generateMetadata }
+// Simple redirect to Tamil Nadu dashboard as default landing page
+export default function Home() {
+  redirect('/tamil-nadu/dashboard')
+}
