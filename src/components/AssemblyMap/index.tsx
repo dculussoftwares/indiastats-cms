@@ -32,9 +32,42 @@ if (typeof window !== 'undefined') {
   DivIcon = L.DivIcon
 }
 
+export type MapStats = {
+  totalAssemblies: number
+  totalDistricts: number
+  reservedSeats: number
+  generalSeats: number
+  voters: { male: number; female: number; trans: number; total: number }
+  quickStats?: {
+    largestConstituency: { name: string; voters: number; assemblyId: string }
+    smallestConstituency: { name: string; voters: number; assemblyId: string } | null
+    highestFemaleRatio: { name: string; ratio: number; assemblyId: string }
+    mostBooths: { name: string; booths: number; assemblyId: string }
+  }
+}
+
+export type CasteDataMap = Record<
+  string,
+  {
+    caste: string | null
+    percentage: number
+    rank2Caste?: string | null
+    rank2Percentage?: number
+    rank3Caste?: string | null
+    rank3Percentage?: number
+    rank4Caste?: string | null
+    rank4Percentage?: number
+    rank5Caste?: string | null
+    rank5Percentage?: number
+  }
+>
+
 export type AssemblyMapProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   map: any
+  // Optional prefetched data to skip API calls
+  prefetchedMapStats?: MapStats
+  prefetchedCasteData?: CasteDataMap
 }
 
 // Alliance colors now come from database via API
@@ -308,7 +341,7 @@ const NativeGeoJSON = ({
   return null
 }
 
-export function AssemblyMap({ map }: AssemblyMapProps) {
+export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: AssemblyMapProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -429,8 +462,15 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
     }
   }, [compareMode, selectedElectionYear, compareYear])
 
-  // Fetch map stats on mount
+  // Fetch map stats on mount (or use prefetched data)
   useEffect(() => {
+    // If prefetched data is provided, use it instead of making an API call
+    if (prefetchedMapStats) {
+      setMapStats(prefetchedMapStats)
+      setIsLoadingStats(false)
+      return
+    }
+
     const fetchMapStats = async () => {
       try {
         const response = await fetch('/api/map-stats')
@@ -445,10 +485,16 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       }
     }
     fetchMapStats()
-  }, [])
+  }, [prefetchedMapStats])
 
-  // Fetch caste data on mount
+  // Fetch caste data on mount (or use prefetched data)
   useEffect(() => {
+    // If prefetched data is provided, use it instead of making an API call
+    if (prefetchedCasteData) {
+      setCasteDataMap(prefetchedCasteData)
+      return
+    }
+
     const fetchCasteData = async () => {
       try {
         const response = await fetch('/api/caste-data?all=true')
@@ -504,7 +550,7 @@ export function AssemblyMap({ map }: AssemblyMapProps) {
       }
     }
     fetchCasteData()
-  }, [])
+  }, [prefetchedCasteData])
 
   // Fetch election results when year changes
   useEffect(() => {
