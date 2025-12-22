@@ -22,10 +22,10 @@ variable "container_app_name" {
   default     = "indiastats-cms"
 }
 
-variable "container_registry_name" {
-  description = "Name of the Container Registry (must be globally unique)"
+variable "container_image" {
+  description = "Docker image to deploy (from GHCR)"
   type        = string
-  default     = "indiastatscr"
+  default     = "ghcr.io/dculusindustries/india-stats:latest"
 }
 
 variable "database_url" {

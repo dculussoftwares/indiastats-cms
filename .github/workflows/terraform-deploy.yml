@@ -12,8 +12,8 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY_NAME: indiastatscr
-  IMAGE_NAME: indiastats-cms
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
   RESOURCE_GROUP: rg-indiastats-prod
   # Terraform Backend Config
   TF_BACKEND_STORAGE_ACCOUNT: stindiastatstfstate
@@ -24,6 +24,7 @@ env:
 permissions:
   id-token: write
   contents: read
+  packages: write
 
 jobs:
   build-and-push:
@@ -31,21 +32,18 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.meta.outputs.tags }}
+      image_digest: ${{ steps.build.outputs.digest }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Azure Login (OIDC)
-        uses: azure/login@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Login to ACR
-        run: |
-          az acr login --name ${{ env.REGISTRY_NAME }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -54,12 +52,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,prefix=
             type=raw,value=latest
 
       - name: Build and Push
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -107,7 +106,9 @@ jobs:
           ARM_USE_OIDC: true
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan -input=false
+        run: |
+          terraform plan -out=tfplan -input=false \
+            -var="container_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}

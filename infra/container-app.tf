@@ -1,17 +1,3 @@
-# Azure Container Registry
-resource "azurerm_container_registry" "main" {
-  name                = var.container_registry_name
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  sku                 = "Basic" # Lowest cost tier
-  admin_enabled       = true    # Required for Container Apps
-
-  tags = {
-    Environment = var.environment
-    Project     = "IndiaStats"
-  }
-}
-
 # Log Analytics Workspace (required for Container Apps Environment)
 resource "azurerm_log_analytics_workspace" "main" {
   name                = "log-${var.container_app_name}"
@@ -39,23 +25,12 @@ resource "azurerm_container_app_environment" "main" {
   }
 }
 
-# Container App
+# Container App - Pulling from GitHub Container Registry (public)
 resource "azurerm_container_app" "main" {
   name                         = var.container_app_name
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = azurerm_resource_group.main.name
   revision_mode                = "Single"
-
-  registry {
-    server               = azurerm_container_registry.main.login_server
-    username             = azurerm_container_registry.main.admin_username
-    password_secret_name = "acr-password"
-  }
-
-  secret {
-    name  = "acr-password"
-    value = azurerm_container_registry.main.admin_password
-  }
 
   secret {
     name  = "database-url"
@@ -82,8 +57,8 @@ resource "azurerm_container_app" "main" {
 
     container {
       name   = "indiastats-cms"
-      image  = "${azurerm_container_registry.main.login_server}/${var.container_app_name}:latest"
-      cpu    = 0.5 # Minimum for production
+      image  = var.container_image # Pull from GHCR (public, no auth needed)
+      cpu    = 0.5                 # Minimum for production
       memory = "1Gi"
 
       env {
