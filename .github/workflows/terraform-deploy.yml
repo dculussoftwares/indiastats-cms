@@ -33,6 +33,7 @@ jobs:
     outputs:
       image_tag: ${{ steps.meta.outputs.tags }}
       image_digest: ${{ steps.build.outputs.digest }}
+      sha_tag: ${{ steps.sha.outputs.tag }}
 
     steps:
       - name: Checkout
@@ -70,6 +71,10 @@ jobs:
             DATABASE_URI=${{ secrets.DATABASE_URL }}
             PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
             NEXT_PUBLIC_SERVER_URL=https://indiastats-cms.azurecontainerapps.io
+
+      - name: Get SHA Tag
+        id: sha
+        run: echo "tag=${{ github.sha }}" | cut -c1-7 >> $GITHUB_OUTPUT
 
   terraform:
     name: Terraform Apply
@@ -111,8 +116,9 @@ jobs:
 
       - name: Terraform Plan
         run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           terraform plan -out=tfplan -input=false \
-            -var="container_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+            -var="container_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
