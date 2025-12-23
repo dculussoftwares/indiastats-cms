@@ -27,6 +27,8 @@ interface TwitterCardData {
   party2: { name: string; wins: number } | null
   dmkBlocWins: number
   aiadmkBlocWins: number
+  dmkBlocBreakdown?: Record<string, number>
+  aiadmkBlocBreakdown?: Record<string, number>
 }
 
 interface TwitterCardModalProps {
@@ -43,6 +45,14 @@ const getLeaderImage = (partyName: string): string | null => {
   if (partyName === 'BJP') return '/images/modi.png'
   if (partyName === 'PMK') return '/images/PMK.jpg'
   return null
+}
+
+const formatBreakdown = (breakdown?: Record<string, number>) => {
+  if (!breakdown) return ''
+  return Object.entries(breakdown)
+    .sort(([, a], [, b]) => b - a)
+    .map(([party, wins]) => `${party}(${wins})`)
+    .join(', ')
 }
 
 export function TwitterCardModal({ assemblyId, assemblyName, trigger }: TwitterCardModalProps) {
@@ -558,50 +568,95 @@ export function TwitterCardModal({ assemblyId, assemblyName, trigger }: TwitterC
                       <div
                         style={{
                           display: 'flex',
+                          flexDirection: 'column',
                           alignItems: 'center',
-                          gap: 6,
-                          backgroundColor: '#7f1d1d',
-                          padding: '6px 12px',
-                          borderRadius: 16,
                         }}
                       >
-                        <span
+                        <div
                           style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: 4,
-                            backgroundColor: '#ef4444',
-                            display: 'inline-block',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            backgroundColor: '#7f1d1d',
+                            padding: '6px 12px',
+                            borderRadius: 16,
+                            marginBottom: 4,
                           }}
-                        />
-                        <span style={{ fontSize: 11, color: '#fca5a5' }}>DMK Bloc</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
-                          {cardData.dmkBlocWins}
-                        </span>
+                        >
+                          <span
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: 4,
+                              backgroundColor: '#ef4444',
+                              display: 'inline-block',
+                            }}
+                          />
+                          <span style={{ fontSize: 11, color: '#fca5a5' }}>DMK Bloc</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                            {cardData.dmkBlocWins}
+                          </span>
+                        </div>
+                        {cardData.dmkBlocBreakdown && (
+                          <span
+                            style={{
+                              fontSize: 9,
+                              color: '#9ca3af',
+                              maxWidth: 120,
+                              textAlign: 'center',
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            {formatBreakdown(cardData.dmkBlocBreakdown)}
+                          </span>
+                        )}
                       </div>
+
                       <div
                         style={{
                           display: 'flex',
+                          flexDirection: 'column',
                           alignItems: 'center',
-                          gap: 6,
-                          backgroundColor: '#14532d',
-                          padding: '6px 12px',
-                          borderRadius: 16,
                         }}
                       >
-                        <span
+                        <div
                           style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: 4,
-                            backgroundColor: '#22c55e',
-                            display: 'inline-block',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            backgroundColor: '#14532d',
+                            padding: '6px 12px',
+                            borderRadius: 16,
+                            marginBottom: 4,
                           }}
-                        />
-                        <span style={{ fontSize: 11, color: '#86efac' }}>AIADMK Bloc</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
-                          {cardData.aiadmkBlocWins}
-                        </span>
+                        >
+                          <span
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: 4,
+                              backgroundColor: '#22c55e',
+                              display: 'inline-block',
+                            }}
+                          />
+                          <span style={{ fontSize: 11, color: '#86efac' }}>AIADMK Bloc</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                            {cardData.aiadmkBlocWins}
+                          </span>
+                        </div>
+                        {cardData.aiadmkBlocBreakdown && (
+                          <span
+                            style={{
+                              fontSize: 9,
+                              color: '#9ca3af',
+                              maxWidth: 120,
+                              textAlign: 'center',
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            {formatBreakdown(cardData.aiadmkBlocBreakdown)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

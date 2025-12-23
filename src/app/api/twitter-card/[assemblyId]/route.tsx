@@ -138,14 +138,23 @@ export async function GET(
 
     totalElections = electionsFrom1977.length
 
+    const dmkBlocBreakdown: Record<string, number> = {}
+    const aiadmkBlocBreakdown: Record<string, number> = {}
+
     electionsFrom1977.forEach((year) => {
       const winnerParty = electionsByYear[year].party
       partyWins[winnerParty] = (partyWins[winnerParty] || 0) + 1
 
       const partyToAlliance = allianceByYear[year] || {}
       const blocType = getBlocType(winnerParty, partyToAlliance)
-      if (blocType === 'dmk') dmkBlocWins++
-      if (blocType === 'aiadmk') aiadmkBlocWins++
+      if (blocType === 'dmk') {
+        dmkBlocWins++
+        dmkBlocBreakdown[winnerParty] = (dmkBlocBreakdown[winnerParty] || 0) + 1
+      }
+      if (blocType === 'aiadmk') {
+        aiadmkBlocWins++
+        aiadmkBlocBreakdown[winnerParty] = (aiadmkBlocBreakdown[winnerParty] || 0) + 1
+      }
     })
 
     // Get top 2 parties
@@ -196,6 +205,8 @@ export async function GET(
       // Alliance bloc wins
       dmkBlocWins,
       aiadmkBlocWins,
+      dmkBlocBreakdown,
+      aiadmkBlocBreakdown,
     })
   } catch (error) {
     console.error('Twitter card data error:', error)
