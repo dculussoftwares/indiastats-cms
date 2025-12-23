@@ -265,17 +265,50 @@ export function TwitterCardModal({
     }
   }
 
-  const handleShareTwitter = () => {
+  const handleShareTwitter = async () => {
+    const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
     const dmkWinner = (cardData?.dmkBlocWins || 0) > (cardData?.aiadmkBlocWins || 0)
-    const tweetText = encodeURIComponent(
+    const tweetText =
       `🗳️ ${cardData?.assemblyName || assemblyName} Assembly\n\n` +
-        `📊 Since ADMK formed:\n` +
-        `🔴 DMK Bloc: ${cardData?.dmkBlocWins} wins\n` +
-        `🟢 AIADMK Bloc: ${cardData?.aiadmkBlocWins} wins\n` +
-        `🏆 ${dmkWinner ? 'DMK' : 'AIADMK'} Bloc leads!\n\n` +
-        `Explore more at IndiaStats.org\n#TamilNadu #Elections`,
-    )
-    window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank')
+      `📊 Since ADMK formed:\n` +
+      `🔴 DMK Bloc: ${cardData?.dmkBlocWins} wins\n` +
+      `🟢 AIADMK Bloc: ${cardData?.aiadmkBlocWins} wins\n` +
+      `🏆 ${dmkWinner ? 'DMK' : 'AIADMK'} Bloc leads!\n\n` +
+      `Explore more at IndiaStats.org\n#TamilNadu #Elections`
+
+    // Try Web Share API with image file
+    if (navigator.share && cardRef.current) {
+      try {
+        const { toPng } = await import('html-to-image')
+        const dataUrl = await toPng(cardRef.current, {
+          cacheBust: true,
+          pixelRatio: 3,
+          backgroundColor: '#ffffff',
+        })
+
+        // Convert data URL to Blob
+        const response = await fetch(dataUrl)
+        const blob = await response.blob()
+        const file = new File([blob], `${cardData?.assemblyName || 'assembly'}-quick-view.png`, {
+          type: 'image/png',
+        })
+
+        await navigator.share({
+          title: `${cardData?.assemblyName || assemblyName} Assembly - Quick View`,
+          text: tweetText,
+          url: pageUrl,
+          files: [file],
+        })
+        return
+      } catch (err) {
+        console.log('Web Share API failed, falling back to Twitter intent:', err)
+      }
+    }
+
+    // Fallback: Open Twitter/X intent with URL
+    const encodedText = encodeURIComponent(tweetText)
+    const encodedUrl = encodeURIComponent(pageUrl)
+    window.open(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`, '_blank')
   }
 
   const leader1 = cardData?.party1 ? getLeaderImage(cardData.party1.name) : null
