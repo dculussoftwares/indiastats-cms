@@ -455,13 +455,13 @@ export function TwitterCardModal({
                         >
                           <div
                             style={{
-                              width: 60,
-                              height: 60,
-                              borderRadius: 30,
+                              width: 72,
+                              height: 72,
+                              borderRadius: 36,
                               border: '3px solid #ef4444',
                               backgroundColor: '#374151',
                               overflow: 'hidden',
-                              marginBottom: 6,
+                              marginBottom: 8,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -471,10 +471,10 @@ export function TwitterCardModal({
                               <img
                                 src={leader1}
                                 alt=""
-                                style={{ width: 60, height: 60, objectFit: 'cover' }}
+                                style={{ width: 72, height: 72, objectFit: 'cover' }}
                               />
                             ) : (
-                              <span style={{ fontSize: 24, fontWeight: 700, color: '#ef4444' }}>
+                              <span style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>
                                 {cardData.party1.name.charAt(0)}
                               </span>
                             )}
@@ -490,12 +490,12 @@ export function TwitterCardModal({
                             <img
                               src={`/images/${cardData.party1.name}.png`}
                               alt=""
-                              style={{ width: 16, height: 12, objectFit: 'contain' }}
+                              style={{ width: 24, height: 18, objectFit: 'contain' }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none'
                               }}
                             />
-                            <span style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>
                               {cardData.party1.name}
                             </span>
                           </div>
@@ -562,13 +562,13 @@ export function TwitterCardModal({
                         >
                           <div
                             style={{
-                              width: 60,
-                              height: 60,
-                              borderRadius: 30,
+                              width: 72,
+                              height: 72,
+                              borderRadius: 36,
                               border: '3px solid #9ca3af',
                               backgroundColor: '#374151',
                               overflow: 'hidden',
-                              marginBottom: 6,
+                              marginBottom: 8,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -578,10 +578,10 @@ export function TwitterCardModal({
                               <img
                                 src={leader2}
                                 alt=""
-                                style={{ width: 60, height: 60, objectFit: 'cover' }}
+                                style={{ width: 72, height: 72, objectFit: 'cover' }}
                               />
                             ) : (
-                              <span style={{ fontSize: 24, fontWeight: 700, color: '#9ca3af' }}>
+                              <span style={{ fontSize: 28, fontWeight: 700, color: '#9ca3af' }}>
                                 {cardData.party2.name.charAt(0)}
                               </span>
                             )}
@@ -597,12 +597,12 @@ export function TwitterCardModal({
                             <img
                               src={`/images/${cardData.party2.name}.png`}
                               alt=""
-                              style={{ width: 16, height: 12, objectFit: 'contain' }}
+                              style={{ width: 24, height: 18, objectFit: 'contain' }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none'
                               }}
                             />
-                            <span style={{ fontSize: 13, fontWeight: 600, color: '#9ca3af' }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: '#9ca3af' }}>
                               {cardData.party2.name}
                             </span>
                           </div>
