@@ -423,17 +423,47 @@ export function TwitterCardModal({
                         flex: 1,
                       }}
                     >
-                      <p
+                      <div
                         style={{
-                          fontSize: 9,
-                          color: '#6b7280',
-                          margin: 0,
-                          textTransform: 'uppercase',
-                          letterSpacing: 0.5,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
                         }}
                       >
-                        Total Voters
-                      </p>
+                        <p
+                          style={{
+                            fontSize: 9,
+                            color: '#6b7280',
+                            margin: 0,
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.5,
+                          }}
+                        >
+                          Total Voters
+                        </p>
+                        {cardData.voterGrowth !== null && (
+                          <div
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              backgroundColor: cardData.voterGrowth > 0 ? '#d1fae5' : '#fee2e2',
+                              padding: '1px 4px',
+                              borderRadius: 4,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 9,
+                                fontWeight: 700,
+                                color: cardData.voterGrowth > 0 ? '#059669' : '#dc2626',
+                              }}
+                            >
+                              {cardData.voterGrowth > 0 ? '↑' : '↓'}{' '}
+                              {Math.abs(cardData.voterGrowth).toFixed(1)}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
                       <p
                         style={{
                           fontSize: 20,
@@ -444,29 +474,6 @@ export function TwitterCardModal({
                       >
                         {cardData.totalVoters}
                       </p>
-                      {cardData.voterGrowth !== null && (
-                        <div
-                          style={{
-                            marginTop: 4,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            backgroundColor: cardData.voterGrowth > 0 ? '#d1fae5' : '#fee2e2',
-                            padding: '2px 6px',
-                            borderRadius: 4,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: 10,
-                              fontWeight: 700,
-                              color: cardData.voterGrowth > 0 ? '#059669' : '#dc2626',
-                            }}
-                          >
-                            {cardData.voterGrowth > 0 ? '↑' : '↓'}{' '}
-                            {Math.abs(cardData.voterGrowth).toFixed(1)}%
-                          </span>
-                        </div>
-                      )}
                     </div>
                     <div
                       style={{
@@ -936,7 +943,7 @@ export function TwitterCardModal({
                     Since 1977 • {cardData.totalElections} elections
                   </span>
                   <span style={{ fontSize: 12, color: '#dc2626', fontWeight: 600 }}>
-                    indiastats.org
+                    IndiaStats.org
                   </span>
                 </div>
               </div>
