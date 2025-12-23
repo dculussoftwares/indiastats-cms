@@ -891,6 +891,46 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
     }
   }, [searchParams, map])
 
+  // Handle URL parameter for direct district filter
+  useEffect(() => {
+    const districtParam = searchParams.get('district')
+
+    if (districtParam && districtOptions.length > 0) {
+      // Decode the district name
+      const districtName = decodeURIComponent(districtParam)
+
+      // Find matching district (case-insensitive)
+      // Support both exact match and partial match (for bilingual names like "திண்டுக்கல் / DINDIGUL")
+      const matchingDistrict = districtOptions.find((d) => {
+        const lower = d.toLowerCase()
+        const paramLower = districtName.toLowerCase()
+
+        // Exact match
+        if (lower === paramLower) return true
+
+        // Check if district option contains the parameter (for bilingual names)
+        if (lower.includes(paramLower)) return true
+
+        // Check if parameter contains the district option (reverse check)
+        if (paramLower.includes(lower)) return true
+
+        // Check against English part after "/" for bilingual formats
+        const parts = districtName.split('/').map((p) => p.trim().toLowerCase())
+        if (parts.some((part) => part === lower || lower.includes(part) || part.includes(lower))) {
+          return true
+        }
+
+        return false
+      })
+
+      if (matchingDistrict) {
+        // Apply district filter using existing handler
+        handleDistrictSelect(matchingDistrict)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, districtOptions])
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const styleFeature = (feature: any) => {
     const pcName = feature?.properties?.pc_name

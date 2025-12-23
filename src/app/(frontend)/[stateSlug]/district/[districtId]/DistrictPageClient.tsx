@@ -127,7 +127,9 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
                   </p>
                 </div>
               </div>
-              <Link href={`/${stateSlug}/assembly-map`}>
+              <Link
+                href={`/${stateSlug}/assembly-map?district=${encodeURIComponent(data.districtName)}`}
+              >
                 <Button variant="outline" size="sm" className="text-sm">
                   Open Map
                 </Button>
