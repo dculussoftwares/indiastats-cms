@@ -206,7 +206,7 @@ export function TwitterCardModal({ assemblyId, assemblyName, trigger }: TwitterC
                   {/* Most Winning Section - Highlighted */}
                   <div className="bg-gray-900 rounded-xl p-4">
                     <p className="text-gray-400 text-xs uppercase mb-4 tracking-wide text-center">
-                      🏆 Most Winning Parties since ADMK formed
+                      🏆 Most Winning Parties (1977-2021)
                     </p>
 
                     {cardData.party1 && cardData.party2 && (
