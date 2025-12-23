@@ -10,8 +10,6 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Download, Twitter, Loader2 } from 'lucide-react'
-import html2canvas from 'html2canvas'
-import Image from 'next/image'
 
 interface TwitterCardData {
   assemblyId: string
@@ -76,16 +74,22 @@ export function TwitterCardModal({ assemblyId, assemblyName, trigger }: TwitterC
   }, [isOpen, assemblyId])
 
   const handleDownload = async () => {
-    if (!cardRef.current) return
+    if (!cardRef.current || !cardData) return
     try {
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
+      const { toPng } = await import('html-to-image')
+
+      const dataUrl = await toPng(cardRef.current, {
+        cacheBust: true,
+        pixelRatio: 3,
         backgroundColor: '#ffffff',
-        useCORS: true,
+        style: {
+          margin: '0',
+        },
       })
+
       const link = document.createElement('a')
-      link.download = `${assemblyId}-twitter-card.png`
-      link.href = canvas.toDataURL('image/png')
+      link.download = `${cardData.assemblyName.replace(/\s+/g, '-')}-twitter-card.png`
+      link.href = dataUrl
       link.click()
     } catch (err) {
       console.error('Download failed:', err)
@@ -136,179 +140,466 @@ export function TwitterCardModal({ assemblyId, assemblyName, trigger }: TwitterC
 
           {cardData && !isLoading && (
             <>
-              {/* Card Preview */}
+              {/* Card Preview - All inline styles for html2canvas compatibility */}
               <div
                 ref={cardRef}
-                className="bg-white rounded-lg overflow-hidden shadow-lg"
-                style={{ width: '600px', margin: '0 auto' }}
+                data-card
+                style={{
+                  width: 600,
+                  margin: '0 auto',
+                  backgroundColor: '#ffffff',
+                  borderRadius: 8,
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                }}
               >
                 {/* Red stripe */}
-                <div className="h-2 bg-red-600" />
+                <div style={{ height: 8, backgroundColor: '#dc2626', width: '100%' }} />
 
                 {/* Header */}
-                <div className="flex justify-between items-center px-5 py-3 border-b">
-                  <div className="flex items-end gap-[2px]">
-                    <svg
-                      width="20"
-                      height="18"
-                      viewBox="0 0 20 18"
-                      fill="none"
-                      className="flex-shrink-0"
-                      style={{ marginBottom: '2px' }}
-                    >
-                      <rect x="0" y="11" width="5" height="7" rx="0.5" fill="#be1f1f" />
-                      <rect x="7" y="5" width="5" height="13" rx="0.5" fill="#be1f1f" />
-                      <rect x="14" y="0" width="5" height="18" rx="0.5" fill="#be1f1f" />
-                    </svg>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 20px',
+                    borderBottom: '1px solid #e5e7eb',
+                  }}
+                >
+                  {/* Logo */}
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+                      <div
+                        style={{
+                          width: 6,
+                          height: 10,
+                          backgroundColor: '#dc2626',
+                          borderRadius: 1,
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: 6,
+                          height: 18,
+                          backgroundColor: '#dc2626',
+                          borderRadius: 1,
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: 6,
+                          height: 24,
+                          backgroundColor: '#dc2626',
+                          borderRadius: 1,
+                        }}
+                      />
+                    </div>
                     <span
-                      className="font-bold text-lg text-gray-900 whitespace-nowrap leading-none"
-                      style={{ lineHeight: 1 }}
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 700,
+                        color: '#111827',
+                        marginLeft: 4,
+                        lineHeight: 1,
+                      }}
                     >
-                      IndiaStats<span className="font-normal text-gray-500">.org</span>
+                      IndiaStats
+                    </span>
+                    <span
+                      style={{ fontSize: 20, fontWeight: 400, color: '#6b7280', lineHeight: 1 }}
+                    >
+                      .org
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        cardData.isReserved ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {cardData.isReserved ? 'RESERVED' : 'GENERAL'}
-                    </span>
+                  {/* Badge */}
+                  <div
+                    style={{
+                      backgroundColor: cardData.isReserved ? '#dc2626' : '#f3f4f6',
+                      color: cardData.isReserved ? '#ffffff' : '#374151',
+                      padding: '6px 12px',
+                      borderRadius: 6,
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {cardData.isReserved ? 'RESERVED' : 'GENERAL'}
                   </div>
                 </div>
 
                 {/* Main content */}
-                <div className="p-5">
+                <div style={{ padding: 20 }}>
                   {/* Assembly name */}
-                  <div className="border-l-4 border-red-600 pl-4 mb-5">
-                    <h2 className="text-2xl font-bold text-gray-900">{cardData.assemblyName}</h2>
-                    <p className="text-gray-500 text-sm">
+                  <div
+                    style={{
+                      borderLeft: '4px solid #dc2626',
+                      paddingLeft: 16,
+                      marginBottom: 20,
+                    }}
+                  >
+                    <h2 style={{ fontSize: 28, fontWeight: 700, color: '#111827', margin: 0 }}>
+                      {cardData.assemblyName}
+                    </h2>
+                    <p style={{ fontSize: 14, color: '#6b7280', margin: '4px 0 0 0' }}>
                       {cardData.districtName} District, Tamil Nadu
                     </p>
                   </div>
 
                   {/* Voter Stats */}
-                  <div className="flex gap-2 mb-5">
-                    <div className="bg-gray-50 rounded-lg p-3 flex-1">
-                      <p className="text-xs text-gray-500 uppercase">Total Voters</p>
-                      <p className="text-xl font-bold text-gray-900">{cardData.totalVoters}</p>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                    <div
+                      style={{
+                        backgroundColor: '#f9fafb',
+                        borderRadius: 8,
+                        padding: '12px 16px',
+                        flex: 1,
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 10,
+                          color: '#6b7280',
+                          margin: 0,
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.5,
+                        }}
+                      >
+                        Total Voters
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 22,
+                          fontWeight: 700,
+                          color: '#111827',
+                          margin: '4px 0 0 0',
+                        }}
+                      >
+                        {cardData.totalVoters}
+                      </p>
                     </div>
-                    <div className="bg-blue-50 rounded-lg p-3">
-                      <p className="text-xs text-blue-500 uppercase">Male</p>
-                      <p className="text-lg font-bold text-blue-700">{cardData.maleVoters}</p>
+                    <div
+                      style={{
+                        backgroundColor: '#fee2e2',
+                        borderRadius: 8,
+                        padding: '12px 16px',
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 10,
+                          color: '#dc2626',
+                          margin: 0,
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.5,
+                        }}
+                      >
+                        Male
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: '#dc2626',
+                          margin: '4px 0 0 0',
+                        }}
+                      >
+                        {cardData.maleVoters}
+                      </p>
                     </div>
-                    <div className="bg-pink-50 rounded-lg p-3">
-                      <p className="text-xs text-pink-500 uppercase">Female</p>
-                      <p className="text-lg font-bold text-pink-700">{cardData.femaleVoters}</p>
+                    <div
+                      style={{
+                        backgroundColor: '#fce7f3',
+                        borderRadius: 8,
+                        padding: '12px 16px',
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 10,
+                          color: '#db2777',
+                          margin: 0,
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.5,
+                        }}
+                      >
+                        Female
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: '#db2777',
+                          margin: '4px 0 0 0',
+                        }}
+                      >
+                        {cardData.femaleVoters}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Most Winning Section - Highlighted */}
-                  <div className="bg-gray-900 rounded-xl p-4">
-                    <p className="text-gray-400 text-xs uppercase mb-4 tracking-wide text-center">
-                      🏆 Most Winning Parties (1977-2021)
+                  {/* Most Winning Section */}
+                  <div
+                    style={{
+                      backgroundColor: '#1f2937',
+                      borderRadius: 16,
+                      padding: 16,
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: 11,
+                        color: '#9ca3af',
+                        textTransform: 'uppercase',
+                        letterSpacing: 1,
+                        textAlign: 'center',
+                        margin: '0 0 16px 0',
+                      }}
+                    >
+                      🏆 MOST WINNING PARTIES (1977-2021)
                     </p>
 
                     {cardData.party1 && cardData.party2 && (
-                      <div className="flex items-center justify-center gap-4">
-                        {/* Party 1 - Winner */}
-                        <div className="flex flex-col items-center flex-1">
-                          <div className="w-16 h-16 rounded-full border-4 border-red-500 overflow-hidden mb-2 bg-gray-800">
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {/* Party 1 */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            flex: 1,
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 72,
+                              height: 72,
+                              borderRadius: 36,
+                              border: '4px solid #ef4444',
+                              backgroundColor: '#374151',
+                              overflow: 'hidden',
+                              marginBottom: 8,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
                             {leader1 ? (
-                              <Image
+                              <img
                                 src={leader1}
-                                alt={cardData.party1.name}
-                                width={64}
-                                height={64}
-                                className="object-cover w-full h-full"
+                                alt=""
+                                style={{ width: 72, height: 72, objectFit: 'cover' }}
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-red-500">
+                              <span style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>
                                 {cardData.party1.name.charAt(0)}
-                              </div>
+                              </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-1 mb-1">
-                            <Image
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              marginBottom: 4,
+                            }}
+                          >
+                            <img
                               src={`/images/${cardData.party1.name}.png`}
-                              alt={cardData.party1.name}
-                              width={20}
-                              height={16}
-                              className="object-contain"
+                              alt=""
+                              style={{ width: 18, height: 14, objectFit: 'contain' }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none'
                               }}
                             />
-                            <span className="text-white text-sm font-semibold">
+                            <span style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>
                               {cardData.party1.name}
                             </span>
                           </div>
-                          <p className="text-3xl font-bold text-red-500">{cardData.party1.wins}</p>
-                          <p className="text-gray-500 text-xs">wins</p>
+                          <p
+                            style={{
+                              fontSize: 36,
+                              fontWeight: 700,
+                              color: '#ef4444',
+                              margin: 0,
+                              lineHeight: 1,
+                            }}
+                          >
+                            {cardData.party1.wins}
+                          </p>
+                          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>wins</p>
                         </div>
 
                         {/* VS Badge */}
-                        <div className="flex flex-col items-center">
-                          <div className="w-11 h-11 rounded-full bg-gray-700 flex items-center justify-center">
-                            <span className="text-white text-sm font-bold">VS</span>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            margin: '0 16px',
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: 22,
+                              backgroundColor: '#374151',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <span style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>
+                              VS
+                            </span>
                           </div>
                           {winDiff > 0 && (
-                            <span className="text-red-400 text-xs font-semibold mt-1">
+                            <span
+                              style={{
+                                fontSize: 12,
+                                color: '#ef4444',
+                                marginTop: 4,
+                                fontWeight: 600,
+                              }}
+                            >
                               +{winDiff}
                             </span>
                           )}
                         </div>
 
-                        {/* Party 2 - Runner up */}
-                        <div className="flex flex-col items-center flex-1">
-                          <div className="w-16 h-16 rounded-full border-4 border-gray-500 overflow-hidden mb-2 bg-gray-800">
+                        {/* Party 2 */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            flex: 1,
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 72,
+                              height: 72,
+                              borderRadius: 36,
+                              border: '4px solid #9ca3af',
+                              backgroundColor: '#374151',
+                              overflow: 'hidden',
+                              marginBottom: 8,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
                             {leader2 ? (
-                              <Image
+                              <img
                                 src={leader2}
-                                alt={cardData.party2.name}
-                                width={64}
-                                height={64}
-                                className="object-cover w-full h-full"
+                                alt=""
+                                style={{ width: 72, height: 72, objectFit: 'cover' }}
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-gray-400">
+                              <span style={{ fontSize: 28, fontWeight: 700, color: '#9ca3af' }}>
                                 {cardData.party2.name.charAt(0)}
-                              </div>
+                              </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-1 mb-1">
-                            <Image
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              marginBottom: 4,
+                            }}
+                          >
+                            <img
                               src={`/images/${cardData.party2.name}.png`}
-                              alt={cardData.party2.name}
-                              width={20}
-                              height={16}
-                              className="object-contain"
+                              alt=""
+                              style={{ width: 18, height: 14, objectFit: 'contain' }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none'
                               }}
                             />
-                            <span className="text-gray-400 text-sm font-semibold">
+                            <span style={{ fontSize: 14, fontWeight: 600, color: '#9ca3af' }}>
                               {cardData.party2.name}
                             </span>
                           </div>
-                          <p className="text-3xl font-bold text-gray-400">{cardData.party2.wins}</p>
-                          <p className="text-gray-500 text-xs">wins</p>
+                          <p
+                            style={{
+                              fontSize: 36,
+                              fontWeight: 700,
+                              color: '#9ca3af',
+                              margin: 0,
+                              lineHeight: 1,
+                            }}
+                          >
+                            {cardData.party2.wins}
+                          </p>
+                          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>wins</p>
                         </div>
                       </div>
                     )}
 
                     {/* Alliance Bloc Row */}
-                    <div className="flex justify-center gap-3 mt-4 pt-3 border-t border-gray-700">
-                      <div className="flex items-center gap-2 bg-red-500/20 px-3 py-1.5 rounded-full">
-                        <span className="w-2 h-2 rounded-full bg-red-500" />
-                        <span className="text-red-400 text-xs">DMK Bloc</span>
-                        <span className="text-white text-sm font-bold">{cardData.dmkBlocWins}</span>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        gap: 12,
+                        marginTop: 16,
+                        paddingTop: 12,
+                        borderTop: '1px solid #374151',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          backgroundColor: '#7f1d1d',
+                          padding: '6px 12px',
+                          borderRadius: 16,
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: 4,
+                            backgroundColor: '#ef4444',
+                            display: 'inline-block',
+                          }}
+                        />
+                        <span style={{ fontSize: 11, color: '#fca5a5' }}>DMK Bloc</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                          {cardData.dmkBlocWins}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2 bg-green-500/20 px-3 py-1.5 rounded-full">
-                        <span className="w-2 h-2 rounded-full bg-green-500" />
-                        <span className="text-green-400 text-xs">AIADMK Bloc</span>
-                        <span className="text-white text-sm font-bold">
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          backgroundColor: '#14532d',
+                          padding: '6px 12px',
+                          borderRadius: 16,
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: 4,
+                            backgroundColor: '#22c55e',
+                            display: 'inline-block',
+                          }}
+                        />
+                        <span style={{ fontSize: 11, color: '#86efac' }}>AIADMK Bloc</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
                           {cardData.aiadmkBlocWins}
                         </span>
                       </div>
@@ -317,11 +608,22 @@ export function TwitterCardModal({ assemblyId, assemblyName, trigger }: TwitterC
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-between items-center px-5 py-2 border-t bg-gray-50 text-xs">
-                  <span className="text-gray-500">
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '10px 20px',
+                    borderTop: '1px solid #e5e7eb',
+                    backgroundColor: '#f9fafb',
+                  }}
+                >
+                  <span style={{ fontSize: 12, color: '#6b7280' }}>
                     Since 1977 • {cardData.totalElections} elections
                   </span>
-                  <span className="text-red-600 font-semibold">indiastats.org</span>
+                  <span style={{ fontSize: 12, color: '#dc2626', fontWeight: 600 }}>
+                    indiastats.org
+                  </span>
                 </div>
               </div>
 
