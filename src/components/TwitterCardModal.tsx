@@ -154,12 +154,16 @@ export function TwitterCardModal({ assemblyId, assemblyName, trigger }: TwitterC
                       viewBox="0 0 20 18"
                       fill="none"
                       className="flex-shrink-0"
+                      style={{ marginBottom: '2px' }}
                     >
                       <rect x="0" y="11" width="5" height="7" rx="0.5" fill="#be1f1f" />
                       <rect x="7" y="5" width="5" height="13" rx="0.5" fill="#be1f1f" />
                       <rect x="14" y="0" width="5" height="18" rx="0.5" fill="#be1f1f" />
                     </svg>
-                    <span className="font-bold text-lg text-gray-900 whitespace-nowrap ml-1">
+                    <span
+                      className="font-bold text-lg text-gray-900 whitespace-nowrap leading-none"
+                      style={{ lineHeight: 1 }}
+                    >
                       IndiaStats<span className="font-normal text-gray-500">.org</span>
                     </span>
                   </div>
