@@ -12,6 +12,7 @@ import { PastWinningHistories } from '@/components/PastWinningHistories'
 import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
+import { TwitterCardModal } from '@/components/TwitterCardModal'
 
 interface Candidate {
   name: string
@@ -121,6 +122,10 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
             )}
           </div>
           <p className="text-muted-foreground text-sm">{data.districtName}</p>
+        </div>
+        {/* Twitter Card CTA */}
+        <div className="mt-4">
+          <TwitterCardModal assemblyId={data.assemblyId} assemblyName={data.name} />
         </div>
       </div>
 
