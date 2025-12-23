@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Download, Twitter, Loader2 } from 'lucide-react'
+import { Download, Loader2, Eye } from 'lucide-react'
 
 interface TwitterCardData {
   assemblyId: string
@@ -288,14 +288,14 @@ export function TwitterCardModal({
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" size="sm" className="gap-2">
-            <Twitter className="h-4 w-4" />
-            Generate Twitter Card
+            <Eye className="h-4 w-4" />
+            Quick View
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Twitter Card for {assemblyName}</DialogTitle>
+          <DialogTitle>Quick View: {assemblyName}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -939,10 +939,12 @@ export function TwitterCardModal({
                 <Button
                   onClick={handleShareTwitter}
                   variant="outline"
-                  className="gap-2 bg-[#1DA1F2] text-white hover:bg-[#1a8cd8] hover:text-white"
+                  className="gap-2 bg-black text-white hover:bg-gray-800 hover:text-white"
                 >
-                  <Twitter className="h-4 w-4" />
-                  Share on Twitter
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                  Share on X
                 </Button>
               </div>
 

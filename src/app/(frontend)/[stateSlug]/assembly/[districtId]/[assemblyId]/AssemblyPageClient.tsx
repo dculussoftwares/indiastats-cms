@@ -109,23 +109,23 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {/* BBC Style Hero Section */}
       <div className="mb-8">
         <div className="border-l-4 border-red-600 pl-4 py-2">
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-3xl font-bold text-foreground">{data.name}</h1>
-            {data.voters?.isReservedAc ? (
-              <span className="text-xs font-bold uppercase tracking-wide px-2 py-0.5 bg-red-600 text-white">
-                Reserved
-              </span>
-            ) : (
-              <span className="text-xs font-bold uppercase tracking-wide px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
-                General
-              </span>
-            )}
+          <div className="flex items-center justify-between gap-3 mb-1">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-foreground">{data.name}</h1>
+              {data.voters?.isReservedAc ? (
+                <span className="text-xs font-bold uppercase tracking-wide px-2 py-0.5 bg-red-600 text-white">
+                  Reserved
+                </span>
+              ) : (
+                <span className="text-xs font-bold uppercase tracking-wide px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                  General
+                </span>
+              )}
+            </div>
+            {/* Quick View Button */}
+            <TwitterCardModal assemblyId={data.assemblyId} assemblyName={data.name} data={data} />
           </div>
           <p className="text-muted-foreground text-sm">{data.districtName}</p>
-        </div>
-        {/* Twitter Card CTA */}
-        <div className="mt-4">
-          <TwitterCardModal assemblyId={data.assemblyId} assemblyName={data.name} data={data} />
         </div>
       </div>
 
