@@ -47,9 +47,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const assemblyName = assemblyDoc.name
   const cleanName = assemblyName.split(' / ')[1] || assemblyName
 
+  // Generate OG image URL
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const ogImageUrl = `${baseUrl}/api/og/${assemblyId}`
+
   return {
     title: `${cleanName} Assembly - Election Data | Tamil Nadu`,
     description: `Comprehensive election data for ${cleanName} assembly constituency, Tamil Nadu. View voter statistics, election history, and booth information.`,
+    openGraph: {
+      title: `${cleanName} Assembly - Election Data`,
+      description: `View election history, voter stats, and political insights for ${cleanName} Assembly, Tamil Nadu.`,
+      type: 'website',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${cleanName} Assembly Quick View`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${cleanName} Assembly - Election Data`,
+      description: `View election history, voter stats, and political insights for ${cleanName} Assembly, Tamil Nadu.`,
+      images: [ogImageUrl],
+    },
   }
 }
 
