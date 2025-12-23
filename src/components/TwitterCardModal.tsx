@@ -31,10 +31,64 @@ interface TwitterCardData {
   aiadmkBlocBreakdown?: Record<string, number>
 }
 
+interface AllianceData {
+  allianceName: string
+  parties: { partyName: string }[]
+  color: string
+}
+
+interface AssemblyData {
+  assemblyId: string
+  districtId: string
+  name: string
+  districtName: string
+  voters: {
+    male: number
+    female: number
+    total: number
+    isReservedAc: boolean
+  } | null
+  electionHistory: {
+    year: number
+    winner: string
+    winnerParty: string
+    winnerVotes: number
+  }[]
+  allianceData: Record<number, AllianceData[]>
+}
+
 interface TwitterCardModalProps {
   assemblyId: string
   assemblyName: string
+  data: AssemblyData
   trigger?: React.ReactNode
+}
+
+// Helper to determine bloc type
+const getBlocType = (
+  party: string,
+  partyToAlliance: Record<string, string>,
+): 'dmk' | 'aiadmk' | 'other' => {
+  if (party === 'DMK') return 'dmk'
+  if (party === 'AIADMK' || party === 'ADMK' || party === 'AIADMK(J)' || party === 'AIADMK(JA)') {
+    return 'aiadmk'
+  }
+
+  if (partyToAlliance && partyToAlliance[party]) {
+    const alliance = partyToAlliance[party]
+    if (
+      (alliance.includes('DMK') && !alliance.includes('AIADMK') && !alliance.includes('NDA')) ||
+      alliance.includes('Secular Progressive') ||
+      alliance.includes('DPA') ||
+      alliance.includes('Democratic Progressive')
+    ) {
+      return 'dmk'
+    }
+    if (alliance.includes('AIADMK') || alliance.includes('NDA') || alliance.includes('SDPA')) {
+      return 'aiadmk'
+    }
+  }
+  return 'other'
 }
 
 // Get party leader image
@@ -55,33 +109,91 @@ const formatBreakdown = (breakdown?: Record<string, number>) => {
     .join(', ')
 }
 
-export function TwitterCardModal({ assemblyId, assemblyName, trigger }: TwitterCardModalProps) {
+export function TwitterCardModal({
+  assemblyId,
+  assemblyName,
+  data,
+  trigger,
+}: TwitterCardModalProps) {
   const [isOpen, setIsOpen] = React.useState(false)
-  const [isLoading, setIsLoading] = React.useState(true)
-  const [cardData, setCardData] = React.useState<TwitterCardData | null>(null)
-  const [error, setError] = React.useState<string | null>(null)
   const cardRef = React.useRef<HTMLDivElement>(null)
 
-  React.useEffect(() => {
-    if (isOpen) {
-      setIsLoading(true)
-      setError(null)
-      fetch(`/api/twitter-card/${assemblyId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.error) {
-            setError(data.error)
-          } else {
-            setCardData(data)
-          }
-          setIsLoading(false)
+  const cardData = React.useMemo(() => {
+    if (!data) return null
+
+    // Process data to match TwitterCardData interface
+    const voters = data.voters
+    const electionsFrom1977 = data.electionHistory
+      .filter((e) => e.year >= 1977)
+      .sort((a, b) => b.year - a.year)
+
+    const partyWins: Record<string, number> = {}
+    let dmkBlocWins = 0
+    let aiadmkBlocWins = 0
+    const dmkBlocBreakdown: Record<string, number> = {}
+    const aiadmkBlocBreakdown: Record<string, number> = {}
+
+    electionsFrom1977.forEach((election) => {
+      const winnerParty = election.winnerParty
+      partyWins[winnerParty] = (partyWins[winnerParty] || 0) + 1
+
+      // Build partyToAlliance map for this year
+      const yearAllianceList = data.allianceData[election.year] || []
+      const partyToAlliance: Record<string, string> = {}
+      yearAllianceList.forEach((alliance) => {
+        alliance.parties.forEach((p) => {
+          partyToAlliance[p.partyName] = alliance.allianceName
         })
-        .catch((err) => {
-          setError(err.message)
-          setIsLoading(false)
-        })
+      })
+
+      const blocType = getBlocType(winnerParty, partyToAlliance)
+      if (blocType === 'dmk') {
+        dmkBlocWins++
+        dmkBlocBreakdown[winnerParty] = (dmkBlocBreakdown[winnerParty] || 0) + 1
+      }
+      if (blocType === 'aiadmk') {
+        aiadmkBlocWins++
+        aiadmkBlocBreakdown[winnerParty] = (aiadmkBlocBreakdown[winnerParty] || 0) + 1
+      }
+    })
+
+    const sortedParties = Object.entries(partyWins).sort((a, b) => b[1] - a[1])
+    const party1 = sortedParties[0]
+      ? { name: sortedParties[0][0], wins: sortedParties[0][1] }
+      : null
+    const party2 = sortedParties[1]
+      ? { name: sortedParties[1][0], wins: sortedParties[1][1] }
+      : null
+
+    const formatNumber = (num: number) => {
+      if (num >= 100000) return (num / 100000).toFixed(1) + 'L'
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
+      return num.toLocaleString()
     }
-  }, [isOpen, assemblyId])
+
+    return {
+      assemblyId: data.assemblyId,
+      assemblyName: data.name,
+      districtName: data.districtName,
+      acNumber: assemblyId.replace('ac', '').replace(/^0+/, ''),
+      isReserved: voters?.isReservedAc || false,
+      totalVoters: voters ? formatNumber(voters.total) : 'N/A',
+      maleVoters: voters ? formatNumber(voters.male) : 'N/A',
+      femaleVoters: voters ? formatNumber(voters.female) : 'N/A',
+      currentMla: electionsFrom1977[0]?.winner || '',
+      currentParty: electionsFrom1977[0]?.winnerParty || '',
+      totalElections: electionsFrom1977.length,
+      party1,
+      party2,
+      dmkBlocWins,
+      aiadmkBlocWins,
+      dmkBlocBreakdown,
+      aiadmkBlocBreakdown,
+    }
+  }, [data, assemblyId])
+
+  const isLoading = false
+  const error = null
 
   const handleDownload = async () => {
     if (!cardRef.current || !cardData) return

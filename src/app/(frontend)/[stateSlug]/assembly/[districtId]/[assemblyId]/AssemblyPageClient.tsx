@@ -125,7 +125,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
         </div>
         {/* Twitter Card CTA */}
         <div className="mt-4">
-          <TwitterCardModal assemblyId={data.assemblyId} assemblyName={data.name} />
+          <TwitterCardModal assemblyId={data.assemblyId} assemblyName={data.name} data={data} />
         </div>
       </div>
 
