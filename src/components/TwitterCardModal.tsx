@@ -926,26 +926,6 @@ export function TwitterCardModal({
                     )}
                   </div>
                 </div>
-
-                {/* Footer */}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '8px 16px',
-                    borderTop: '1px solid #e5e7eb',
-                    backgroundColor: '#f9fafb',
-                    marginTop: 8,
-                  }}
-                >
-                  <span style={{ fontSize: 12, color: '#6b7280' }}>
-                    Since 1977 • {cardData.totalElections} elections
-                  </span>
-                  <span style={{ fontSize: 12, color: '#dc2626', fontWeight: 600 }}>
-                    IndiaStats.org
-                  </span>
-                </div>
               </div>
 
               {/* Action Buttons */}
