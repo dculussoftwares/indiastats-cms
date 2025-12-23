@@ -414,133 +414,13 @@ export function TwitterCardModal({
                     </p>
                   </div>
 
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                    <div
-                      style={{
-                        backgroundColor: '#f9fafb',
-                        borderRadius: 8,
-                        padding: '8px 12px',
-                        flex: 1,
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <p
-                          style={{
-                            fontSize: 9,
-                            color: '#6b7280',
-                            margin: 0,
-                            textTransform: 'uppercase',
-                            letterSpacing: 0.5,
-                          }}
-                        >
-                          Total Voters
-                        </p>
-                        {cardData.voterGrowth !== null && (
-                          <div
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              backgroundColor: cardData.voterGrowth > 0 ? '#d1fae5' : '#fee2e2',
-                              padding: '1px 4px',
-                              borderRadius: 4,
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: 9,
-                                fontWeight: 700,
-                                color: cardData.voterGrowth > 0 ? '#059669' : '#dc2626',
-                              }}
-                            >
-                              {cardData.voterGrowth > 0 ? '↑' : '↓'}{' '}
-                              {Math.abs(cardData.voterGrowth).toFixed(1)}%
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <p
-                        style={{
-                          fontSize: 20,
-                          fontWeight: 700,
-                          color: '#111827',
-                          margin: '2px 0 0 0',
-                        }}
-                      >
-                        {cardData.totalVoters}
-                      </p>
-                    </div>
-                    <div
-                      style={{
-                        backgroundColor: '#fee2e2',
-                        borderRadius: 8,
-                        padding: '8px 12px',
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: 9,
-                          color: '#dc2626',
-                          margin: 0,
-                          textTransform: 'uppercase',
-                          letterSpacing: 0.5,
-                        }}
-                      >
-                        Male
-                      </p>
-                      <p
-                        style={{
-                          fontSize: 16,
-                          fontWeight: 700,
-                          color: '#dc2626',
-                          margin: '2px 0 0 0',
-                        }}
-                      >
-                        {cardData.maleVoters}
-                      </p>
-                    </div>
-                    <div
-                      style={{
-                        backgroundColor: '#fce7f3',
-                        borderRadius: 8,
-                        padding: '8px 12px',
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: 9,
-                          color: '#db2777',
-                          margin: 0,
-                          textTransform: 'uppercase',
-                          letterSpacing: 0.5,
-                        }}
-                      >
-                        Female
-                      </p>
-                      <p
-                        style={{
-                          fontSize: 16,
-                          fontWeight: 700,
-                          color: '#db2777',
-                          margin: '2px 0 0 0',
-                        }}
-                      >
-                        {cardData.femaleVoters}
-                      </p>
-                    </div>
-                  </div>
-
                   {/* Most Winning Section */}
                   <div
                     style={{
                       backgroundColor: '#1f2937',
                       borderRadius: 12,
                       padding: 12,
+                      marginBottom: 16,
                     }}
                   >
                     <p
@@ -860,10 +740,11 @@ export function TwitterCardModal({
                         />
                         <p
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: '#9ca3af',
                             textTransform: 'uppercase',
                             letterSpacing: 1,
+                            fontWeight: 600,
                             textAlign: 'center',
                             marginBottom: 12,
                           }}
@@ -900,7 +781,7 @@ export function TwitterCardModal({
                               />
                               <span
                                 style={{
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   fontWeight: 700,
                                   color: 'white',
                                   lineHeight: 1,
@@ -910,7 +791,7 @@ export function TwitterCardModal({
                               </span>
                               <span
                                 style={{
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   color: '#d1d5db',
                                   marginTop: 4,
                                   textAlign: 'center',
@@ -924,6 +805,127 @@ export function TwitterCardModal({
                         </div>
                       </>
                     )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                    <div
+                      style={{
+                        backgroundColor: '#f9fafb',
+                        borderRadius: 8,
+                        padding: '8px 12px',
+                        flex: 1,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontSize: 9,
+                            color: '#6b7280',
+                            margin: 0,
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.5,
+                          }}
+                        >
+                          Total Voters
+                        </p>
+                        {cardData.voterGrowth !== null && (
+                          <div
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              backgroundColor: cardData.voterGrowth > 0 ? '#d1fae5' : '#fee2e2',
+                              padding: '2px 6px',
+                              borderRadius: 4,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: cardData.voterGrowth > 0 ? '#059669' : '#dc2626',
+                              }}
+                            >
+                              {cardData.voterGrowth > 0 ? '↑' : '↓'}{' '}
+                              {Math.abs(cardData.voterGrowth).toFixed(1)}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <p
+                        style={{
+                          fontSize: 20,
+                          fontWeight: 700,
+                          color: '#111827',
+                          margin: '2px 0 0 0',
+                        }}
+                      >
+                        {cardData.totalVoters}
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        backgroundColor: '#fee2e2',
+                        borderRadius: 8,
+                        padding: '8px 12px',
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 9,
+                          color: '#dc2626',
+                          margin: 0,
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.5,
+                        }}
+                      >
+                        Male
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 700,
+                          color: '#dc2626',
+                          margin: '2px 0 0 0',
+                        }}
+                      >
+                        {cardData.maleVoters}
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        backgroundColor: '#fce7f3',
+                        borderRadius: 8,
+                        padding: '8px 12px',
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 9,
+                          color: '#db2777',
+                          margin: 0,
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.5,
+                        }}
+                      >
+                        Female
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 700,
+                          color: '#db2777',
+                          margin: '2px 0 0 0',
+                        }}
+                      >
+                        {cardData.femaleVoters}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
