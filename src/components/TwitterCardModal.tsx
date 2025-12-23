@@ -29,6 +29,17 @@ interface TwitterCardData {
   aiadmkBlocWins: number
   dmkBlocBreakdown?: Record<string, number>
   aiadmkBlocBreakdown?: Record<string, number>
+  voterGrowth: number | null
+  topCastes: { name: string; percentage: number }[]
+}
+
+interface CasteData {
+  rank1Caste: string | null
+  rank1Percentage: number | null
+  rank2Caste: string | null
+  rank2Percentage: number | null
+  rank3Caste: string | null
+  rank3Percentage: number | null
 }
 
 interface AllianceData {
@@ -55,6 +66,10 @@ interface AssemblyData {
     winnerVotes: number
   }[]
   allianceData: Record<number, AllianceData[]>
+  lastElectionVoters: {
+    total: number
+  } | null
+  casteData: CasteData | null
 }
 
 interface TwitterCardModalProps {
@@ -157,6 +172,36 @@ export function TwitterCardModal({
       }
     })
 
+    // Voter Growth (Compare current total vs last election total)
+    let voterGrowth: number | null = null
+    if (voters?.total && data.lastElectionVoters?.total) {
+      voterGrowth =
+        ((voters.total - data.lastElectionVoters.total) / data.lastElectionVoters.total) * 100
+    }
+
+    // Top Castes
+    const topCastes: { name: string; percentage: number }[] = []
+    if (data.casteData) {
+      if (data.casteData.rank1Caste && data.casteData.rank1Percentage) {
+        topCastes.push({
+          name: data.casteData.rank1Caste,
+          percentage: data.casteData.rank1Percentage,
+        })
+      }
+      if (data.casteData.rank2Caste && data.casteData.rank2Percentage) {
+        topCastes.push({
+          name: data.casteData.rank2Caste,
+          percentage: data.casteData.rank2Percentage,
+        })
+      }
+      if (data.casteData.rank3Caste && data.casteData.rank3Percentage) {
+        topCastes.push({
+          name: data.casteData.rank3Caste,
+          percentage: data.casteData.rank3Percentage,
+        })
+      }
+    }
+
     const sortedParties = Object.entries(partyWins).sort((a, b) => b[1] - a[1])
     const party1 = sortedParties[0]
       ? { name: sortedParties[0][0], wins: sortedParties[0][1] }
@@ -189,6 +234,8 @@ export function TwitterCardModal({
       aiadmkBlocWins,
       dmkBlocBreakdown,
       aiadmkBlocBreakdown,
+      voterGrowth,
+      topCastes,
     }
   }, [data, assemblyId])
 
@@ -277,7 +324,7 @@ export function TwitterCardModal({
                 }}
               >
                 {/* Red stripe */}
-                <div style={{ height: 8, backgroundColor: '#dc2626', width: '100%' }} />
+                <div style={{ height: 6, backgroundColor: '#dc2626', width: '100%' }} />
 
                 {/* Header */}
                 <div
@@ -285,7 +332,7 @@ export function TwitterCardModal({
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    padding: '12px 20px',
+                    padding: '12px 16px',
                     borderBottom: '1px solid #e5e7eb',
                   }}
                 >
@@ -294,24 +341,24 @@ export function TwitterCardModal({
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
                       <div
                         style={{
-                          width: 6,
-                          height: 10,
+                          width: 5,
+                          height: 8,
                           backgroundColor: '#dc2626',
                           borderRadius: 1,
                         }}
                       />
                       <div
                         style={{
-                          width: 6,
-                          height: 18,
+                          width: 5,
+                          height: 14,
                           backgroundColor: '#dc2626',
                           borderRadius: 1,
                         }}
                       />
                       <div
                         style={{
-                          width: 6,
-                          height: 24,
+                          width: 5,
+                          height: 20,
                           backgroundColor: '#dc2626',
                           borderRadius: 1,
                         }}
@@ -319,7 +366,7 @@ export function TwitterCardModal({
                     </div>
                     <span
                       style={{
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: 700,
                         color: '#111827',
                         marginLeft: 4,
@@ -329,7 +376,7 @@ export function TwitterCardModal({
                       IndiaStats
                     </span>
                     <span
-                      style={{ fontSize: 20, fontWeight: 400, color: '#6b7280', lineHeight: 1 }}
+                      style={{ fontSize: 18, fontWeight: 400, color: '#6b7280', lineHeight: 1 }}
                     >
                       .org
                     </span>
@@ -339,9 +386,9 @@ export function TwitterCardModal({
                     style={{
                       backgroundColor: cardData.isReserved ? '#dc2626' : '#f3f4f6',
                       color: cardData.isReserved ? '#ffffff' : '#374151',
-                      padding: '6px 12px',
+                      padding: '4px 10px',
                       borderRadius: 6,
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: 600,
                     }}
                   >
@@ -350,36 +397,35 @@ export function TwitterCardModal({
                 </div>
 
                 {/* Main content */}
-                <div style={{ padding: 20 }}>
+                <div style={{ padding: 16 }}>
                   {/* Assembly name */}
                   <div
                     style={{
                       borderLeft: '4px solid #dc2626',
-                      paddingLeft: 16,
-                      marginBottom: 20,
+                      paddingLeft: 12,
+                      marginBottom: 16,
                     }}
                   >
-                    <h2 style={{ fontSize: 28, fontWeight: 700, color: '#111827', margin: 0 }}>
+                    <h2 style={{ fontSize: 24, fontWeight: 700, color: '#111827', margin: 0 }}>
                       {cardData.assemblyName}
                     </h2>
-                    <p style={{ fontSize: 14, color: '#6b7280', margin: '4px 0 0 0' }}>
+                    <p style={{ fontSize: 13, color: '#6b7280', margin: '2px 0 0 0' }}>
                       {cardData.districtName} District, Tamil Nadu
                     </p>
                   </div>
 
-                  {/* Voter Stats */}
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
                     <div
                       style={{
                         backgroundColor: '#f9fafb',
                         borderRadius: 8,
-                        padding: '12px 16px',
+                        padding: '8px 12px',
                         flex: 1,
                       }}
                     >
                       <p
                         style={{
-                          fontSize: 10,
+                          fontSize: 9,
                           color: '#6b7280',
                           margin: 0,
                           textTransform: 'uppercase',
@@ -390,25 +436,48 @@ export function TwitterCardModal({
                       </p>
                       <p
                         style={{
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: 700,
                           color: '#111827',
-                          margin: '4px 0 0 0',
+                          margin: '2px 0 0 0',
                         }}
                       >
                         {cardData.totalVoters}
                       </p>
+                      {cardData.voterGrowth !== null && (
+                        <div
+                          style={{
+                            marginTop: 4,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            backgroundColor: cardData.voterGrowth > 0 ? '#d1fae5' : '#fee2e2',
+                            padding: '2px 6px',
+                            borderRadius: 4,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 700,
+                              color: cardData.voterGrowth > 0 ? '#059669' : '#dc2626',
+                            }}
+                          >
+                            {cardData.voterGrowth > 0 ? '↑' : '↓'}{' '}
+                            {Math.abs(cardData.voterGrowth).toFixed(1)}%
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div
                       style={{
                         backgroundColor: '#fee2e2',
                         borderRadius: 8,
-                        padding: '12px 16px',
+                        padding: '8px 12px',
                       }}
                     >
                       <p
                         style={{
-                          fontSize: 10,
+                          fontSize: 9,
                           color: '#dc2626',
                           margin: 0,
                           textTransform: 'uppercase',
@@ -419,10 +488,10 @@ export function TwitterCardModal({
                       </p>
                       <p
                         style={{
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: 700,
                           color: '#dc2626',
-                          margin: '4px 0 0 0',
+                          margin: '2px 0 0 0',
                         }}
                       >
                         {cardData.maleVoters}
@@ -432,12 +501,12 @@ export function TwitterCardModal({
                       style={{
                         backgroundColor: '#fce7f3',
                         borderRadius: 8,
-                        padding: '12px 16px',
+                        padding: '8px 12px',
                       }}
                     >
                       <p
                         style={{
-                          fontSize: 10,
+                          fontSize: 9,
                           color: '#db2777',
                           margin: 0,
                           textTransform: 'uppercase',
@@ -448,10 +517,10 @@ export function TwitterCardModal({
                       </p>
                       <p
                         style={{
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: 700,
                           color: '#db2777',
-                          margin: '4px 0 0 0',
+                          margin: '2px 0 0 0',
                         }}
                       >
                         {cardData.femaleVoters}
@@ -463,18 +532,18 @@ export function TwitterCardModal({
                   <div
                     style={{
                       backgroundColor: '#1f2937',
-                      borderRadius: 16,
-                      padding: 16,
+                      borderRadius: 12,
+                      padding: 12,
                     }}
                   >
                     <p
                       style={{
-                        fontSize: 11,
+                        fontSize: 10,
                         color: '#9ca3af',
                         textTransform: 'uppercase',
                         letterSpacing: 1,
                         textAlign: 'center',
-                        margin: '0 0 16px 0',
+                        margin: '0 0 12px 0',
                       }}
                     >
                       🏆 MOST WINNING PARTIES (1977-2021)
@@ -499,13 +568,13 @@ export function TwitterCardModal({
                         >
                           <div
                             style={{
-                              width: 72,
-                              height: 72,
-                              borderRadius: 36,
-                              border: '4px solid #ef4444',
+                              width: 60,
+                              height: 60,
+                              borderRadius: 30,
+                              border: '3px solid #ef4444',
                               backgroundColor: '#374151',
                               overflow: 'hidden',
-                              marginBottom: 8,
+                              marginBottom: 6,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -515,10 +584,10 @@ export function TwitterCardModal({
                               <img
                                 src={leader1}
                                 alt=""
-                                style={{ width: 72, height: 72, objectFit: 'cover' }}
+                                style={{ width: 60, height: 60, objectFit: 'cover' }}
                               />
                             ) : (
-                              <span style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>
+                              <span style={{ fontSize: 24, fontWeight: 700, color: '#ef4444' }}>
                                 {cardData.party1.name.charAt(0)}
                               </span>
                             )}
@@ -528,24 +597,24 @@ export function TwitterCardModal({
                               display: 'flex',
                               alignItems: 'center',
                               gap: 4,
-                              marginBottom: 4,
+                              marginBottom: 2,
                             }}
                           >
                             <img
                               src={`/images/${cardData.party1.name}.png`}
                               alt=""
-                              style={{ width: 18, height: 14, objectFit: 'contain' }}
+                              style={{ width: 16, height: 12, objectFit: 'contain' }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none'
                               }}
                             />
-                            <span style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>
                               {cardData.party1.name}
                             </span>
                           </div>
                           <p
                             style={{
-                              fontSize: 36,
+                              fontSize: 30,
                               fontWeight: 700,
                               color: '#ef4444',
                               margin: 0,
@@ -554,7 +623,7 @@ export function TwitterCardModal({
                           >
                             {cardData.party1.wins}
                           </p>
-                          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>wins</p>
+                          <p style={{ fontSize: 10, color: '#9ca3af', margin: 0 }}>wins</p>
                         </div>
 
                         {/* VS Badge */}
@@ -563,28 +632,28 @@ export function TwitterCardModal({
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            margin: '0 16px',
+                            margin: '0 12px',
                           }}
                         >
                           <div
                             style={{
-                              width: 44,
-                              height: 44,
-                              borderRadius: 22,
+                              width: 36,
+                              height: 36,
+                              borderRadius: 18,
                               backgroundColor: '#374151',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                             }}
                           >
-                            <span style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'white' }}>
                               VS
                             </span>
                           </div>
                           {winDiff > 0 && (
                             <span
                               style={{
-                                fontSize: 12,
+                                fontSize: 10,
                                 color: '#ef4444',
                                 marginTop: 4,
                                 fontWeight: 600,
@@ -606,13 +675,13 @@ export function TwitterCardModal({
                         >
                           <div
                             style={{
-                              width: 72,
-                              height: 72,
-                              borderRadius: 36,
-                              border: '4px solid #9ca3af',
+                              width: 60,
+                              height: 60,
+                              borderRadius: 30,
+                              border: '3px solid #9ca3af',
                               backgroundColor: '#374151',
                               overflow: 'hidden',
-                              marginBottom: 8,
+                              marginBottom: 6,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -622,10 +691,10 @@ export function TwitterCardModal({
                               <img
                                 src={leader2}
                                 alt=""
-                                style={{ width: 72, height: 72, objectFit: 'cover' }}
+                                style={{ width: 60, height: 60, objectFit: 'cover' }}
                               />
                             ) : (
-                              <span style={{ fontSize: 28, fontWeight: 700, color: '#9ca3af' }}>
+                              <span style={{ fontSize: 24, fontWeight: 700, color: '#9ca3af' }}>
                                 {cardData.party2.name.charAt(0)}
                               </span>
                             )}
@@ -635,24 +704,24 @@ export function TwitterCardModal({
                               display: 'flex',
                               alignItems: 'center',
                               gap: 4,
-                              marginBottom: 4,
+                              marginBottom: 2,
                             }}
                           >
                             <img
                               src={`/images/${cardData.party2.name}.png`}
                               alt=""
-                              style={{ width: 18, height: 14, objectFit: 'contain' }}
+                              style={{ width: 16, height: 12, objectFit: 'contain' }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none'
                               }}
                             />
-                            <span style={{ fontSize: 14, fontWeight: 600, color: '#9ca3af' }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#9ca3af' }}>
                               {cardData.party2.name}
                             </span>
                           </div>
                           <p
                             style={{
-                              fontSize: 36,
+                              fontSize: 30,
                               fontWeight: 700,
                               color: '#9ca3af',
                               margin: 0,
@@ -661,7 +730,7 @@ export function TwitterCardModal({
                           >
                             {cardData.party2.wins}
                           </p>
-                          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>wins</p>
+                          <p style={{ fontSize: 10, color: '#9ca3af', margin: 0 }}>wins</p>
                         </div>
                       </div>
                     )}
@@ -771,6 +840,83 @@ export function TwitterCardModal({
                         )}
                       </div>
                     </div>
+
+                    {/* Divider and Key Demographics */}
+                    {cardData.topCastes.length > 0 && (
+                      <>
+                        <div
+                          style={{
+                            height: 1,
+                            backgroundColor: '#374151',
+                            margin: '16px 0 12px 0',
+                          }}
+                        />
+                        <p
+                          style={{
+                            fontSize: 10,
+                            color: '#9ca3af',
+                            textTransform: 'uppercase',
+                            letterSpacing: 1,
+                            textAlign: 'center',
+                            marginBottom: 12,
+                          }}
+                        >
+                          👥 Key Demographics (Est.)
+                        </p>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: 16,
+                            alignItems: 'flex-start',
+                          }}
+                        >
+                          {cardData.topCastes.map((caste, idx) => (
+                            <div
+                              key={idx}
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                flex: 1,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: 24,
+                                  height: 4,
+                                  borderRadius: 2,
+                                  backgroundColor:
+                                    idx === 0 ? '#ef4444' : idx === 1 ? '#f59e0b' : '#3b82f6',
+                                  marginBottom: 6,
+                                }}
+                              />
+                              <span
+                                style={{
+                                  fontSize: 16,
+                                  fontWeight: 700,
+                                  color: 'white',
+                                  lineHeight: 1,
+                                }}
+                              >
+                                {caste.percentage}%
+                              </span>
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  color: '#d1d5db',
+                                  marginTop: 4,
+                                  textAlign: 'center',
+                                  lineHeight: 1.2,
+                                }}
+                              >
+                                {caste.name}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -780,9 +926,10 @@ export function TwitterCardModal({
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    padding: '10px 20px',
+                    padding: '8px 16px',
                     borderTop: '1px solid #e5e7eb',
                     backgroundColor: '#f9fafb',
+                    marginTop: 8,
                   }}
                 >
                   <span style={{ fontSize: 12, color: '#6b7280' }}>
