@@ -175,9 +175,6 @@ export function TwitterCardModal({ assemblyId, assemblyName, trigger }: TwitterC
                     >
                       {cardData.isReserved ? 'RESERVED' : 'GENERAL'}
                     </span>
-                    <span className="px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-700">
-                      AC #{cardData.acNumber}
-                    </span>
                   </div>
                 </div>
 
