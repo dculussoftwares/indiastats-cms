@@ -406,10 +406,10 @@ export function TwitterCardModal({
                       marginBottom: 16,
                     }}
                   >
-                    <h2 style={{ fontSize: 24, fontWeight: 700, color: '#111827', margin: 0 }}>
+                    <h2 style={{ fontSize: 30, fontWeight: 700, color: '#111827', margin: 0 }}>
                       {cardData.assemblyName}
                     </h2>
-                    <p style={{ fontSize: 13, color: '#6b7280', margin: '2px 0 0 0' }}>
+                    <p style={{ fontSize: 16, color: '#6b7280', margin: '2px 0 0 0' }}>
                       {cardData.districtName} District, Tamil Nadu
                     </p>
                   </div>
@@ -425,7 +425,7 @@ export function TwitterCardModal({
                   >
                     <p
                       style={{
-                        fontSize: 10,
+                        fontSize: 12,
                         color: '#9ca3af',
                         textTransform: 'uppercase',
                         letterSpacing: 1,
@@ -495,13 +495,13 @@ export function TwitterCardModal({
                                 e.currentTarget.style.display = 'none'
                               }}
                             />
-                            <span style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>
+                            <span style={{ fontSize: 16, fontWeight: 600, color: 'white' }}>
                               {cardData.party1.name}
                             </span>
                           </div>
                           <p
                             style={{
-                              fontSize: 30,
+                              fontSize: 36,
                               fontWeight: 700,
                               color: '#ef4444',
                               margin: 0,
@@ -510,7 +510,7 @@ export function TwitterCardModal({
                           >
                             {cardData.party1.wins}
                           </p>
-                          <p style={{ fontSize: 10, color: '#9ca3af', margin: 0 }}>wins</p>
+                          <p style={{ fontSize: 13, color: '#9ca3af', margin: 0 }}>wins</p>
                         </div>
 
                         {/* VS Badge */}
@@ -602,13 +602,13 @@ export function TwitterCardModal({
                                 e.currentTarget.style.display = 'none'
                               }}
                             />
-                            <span style={{ fontSize: 14, fontWeight: 600, color: '#9ca3af' }}>
+                            <span style={{ fontSize: 16, fontWeight: 600, color: '#9ca3af' }}>
                               {cardData.party2.name}
                             </span>
                           </div>
                           <p
                             style={{
-                              fontSize: 30,
+                              fontSize: 36,
                               fontWeight: 700,
                               color: '#9ca3af',
                               margin: 0,
@@ -617,7 +617,7 @@ export function TwitterCardModal({
                           >
                             {cardData.party2.wins}
                           </p>
-                          <p style={{ fontSize: 10, color: '#9ca3af', margin: 0 }}>wins</p>
+                          <p style={{ fontSize: 13, color: '#9ca3af', margin: 0 }}>wins</p>
                         </div>
                       </div>
                     )}
@@ -660,8 +660,8 @@ export function TwitterCardModal({
                               display: 'inline-block',
                             }}
                           />
-                          <span style={{ fontSize: 11, color: '#fca5a5' }}>DMK Bloc</span>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                          <span style={{ fontSize: 13, color: '#fca5a5' }}>DMK Bloc</span>
+                          <span style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>
                             {cardData.dmkBlocWins}
                           </span>
                         </div>
@@ -707,8 +707,8 @@ export function TwitterCardModal({
                               display: 'inline-block',
                             }}
                           />
-                          <span style={{ fontSize: 11, color: '#86efac' }}>AIADMK Bloc</span>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                          <span style={{ fontSize: 13, color: '#86efac' }}>AIADMK Bloc</span>
+                          <span style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>
                             {cardData.aiadmkBlocWins}
                           </span>
                         </div>
@@ -740,7 +740,7 @@ export function TwitterCardModal({
                         />
                         <p
                           style={{
-                            fontSize: 12,
+                            fontSize: 15,
                             color: '#9ca3af',
                             textTransform: 'uppercase',
                             letterSpacing: 1,
@@ -781,7 +781,7 @@ export function TwitterCardModal({
                               />
                               <span
                                 style={{
-                                  fontSize: 18,
+                                  fontSize: 24,
                                   fontWeight: 700,
                                   color: 'white',
                                   lineHeight: 1,
@@ -791,7 +791,7 @@ export function TwitterCardModal({
                               </span>
                               <span
                                 style={{
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: '#d1d5db',
                                   marginTop: 4,
                                   textAlign: 'center',
@@ -825,7 +825,7 @@ export function TwitterCardModal({
                       >
                         <p
                           style={{
-                            fontSize: 9,
+                            fontSize: 12,
                             color: '#6b7280',
                             margin: 0,
                             textTransform: 'uppercase',
@@ -859,7 +859,7 @@ export function TwitterCardModal({
                       </div>
                       <p
                         style={{
-                          fontSize: 20,
+                          fontSize: 26,
                           fontWeight: 700,
                           color: '#111827',
                           margin: '2px 0 0 0',
@@ -877,7 +877,7 @@ export function TwitterCardModal({
                     >
                       <p
                         style={{
-                          fontSize: 9,
+                          fontSize: 12,
                           color: '#dc2626',
                           margin: 0,
                           textTransform: 'uppercase',
@@ -888,7 +888,7 @@ export function TwitterCardModal({
                       </p>
                       <p
                         style={{
-                          fontSize: 16,
+                          fontSize: 20,
                           fontWeight: 700,
                           color: '#dc2626',
                           margin: '2px 0 0 0',
@@ -906,7 +906,7 @@ export function TwitterCardModal({
                     >
                       <p
                         style={{
-                          fontSize: 9,
+                          fontSize: 12,
                           color: '#db2777',
                           margin: 0,
                           textTransform: 'uppercase',
@@ -917,7 +917,7 @@ export function TwitterCardModal({
                       </p>
                       <p
                         style={{
-                          fontSize: 16,
+                          fontSize: 20,
                           fontWeight: 700,
                           color: '#db2777',
                           margin: '2px 0 0 0',
