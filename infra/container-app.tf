@@ -42,6 +42,11 @@ resource "azurerm_container_app" "main" {
     value = var.payload_secret
   }
 
+  secret {
+    name  = "azure-storage-connection-string"
+    value = azurerm_storage_account.media.primary_connection_string
+  }
+
   ingress {
     external_enabled = true
     target_port      = 3000
@@ -79,6 +84,21 @@ resource "azurerm_container_app" "main" {
       env {
         name  = "NEXT_PUBLIC_SERVER_URL"
         value = "https://${var.container_app_name}.${azurerm_container_app_environment.main.default_domain}"
+      }
+
+      env {
+        name        = "AZURE_STORAGE_CONNECTION_STRING"
+        secret_name = "azure-storage-connection-string"
+      }
+
+      env {
+        name  = "AZURE_STORAGE_CONTAINER_NAME"
+        value = azurerm_storage_container.media.name
+      }
+
+      env {
+        name  = "AZURE_STORAGE_ACCOUNT_BASEURL"
+        value = azurerm_storage_account.media.primary_blob_endpoint
       }
     }
   }

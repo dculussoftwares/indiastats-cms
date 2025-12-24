@@ -39,3 +39,10 @@ variable "payload_secret" {
   type        = string
   sensitive   = true
 }
+
+variable "storage_account_name" {
+  description = "Name of the Azure Storage Account for media files"
+  type        = string
+  default     = "stindiastatsmedia"
+}
+

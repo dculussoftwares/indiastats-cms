@@ -32,6 +32,7 @@
     "@payloadcms/plugin-search": "3.68.4",
     "@payloadcms/plugin-seo": "3.68.4",
     "@payloadcms/richtext-lexical": "3.68.4",
+    "@payloadcms/storage-azure": "3.68.4",
     "@payloadcms/ui": "3.68.4",
     "@radix-ui/react-checkbox": "^1.0.4",
     "@radix-ui/react-dialog": "1.1.15",

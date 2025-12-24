@@ -3,6 +3,7 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
+import { azureStorage } from '@payloadcms/storage-azure'
 import { Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
@@ -89,4 +90,18 @@ export const plugins: Plugin[] = [
       },
     },
   }),
+  // Azure Blob Storage for media files (only in production when env vars are set)
+  ...(process.env.AZURE_STORAGE_CONNECTION_STRING && process.env.AZURE_STORAGE_ACCOUNT_BASEURL
+    ? [
+      azureStorage({
+        collections: {
+          media: true,
+        },
+        connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+        containerName: process.env.AZURE_STORAGE_CONTAINER_NAME || 'indiastats-cms-media',
+        allowContainerCreate: true,
+        baseURL: process.env.AZURE_STORAGE_ACCOUNT_BASEURL,
+      }),
+    ]
+    : []),
 ]
