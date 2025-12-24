@@ -140,6 +140,10 @@ jobs:
             try {
               await page.goto(pageUrl, { waitUntil: 'networkidle2', timeout: 60000 });
               
+              // Wait for all fonts to be loaded (Geist Sans, Tamil fonts, etc.)
+              await page.evaluate(() => document.fonts.ready);
+              console.log('Fonts loaded');
+              
               await page.waitForSelector('h1', { timeout: 10000 });
               const assemblyName = await page.$eval('h1', el => el.textContent.trim());
               
@@ -154,7 +158,11 @@ jobs:
                 }
               }
               
-              await new Promise(r => setTimeout(r, 3000));
+              // Wait for modal animation and fonts to fully render
+              await new Promise(r => setTimeout(r, 2000));
+              // Wait again for any lazy-loaded fonts in the modal
+              await page.evaluate(() => document.fonts.ready);
+              await new Promise(r => setTimeout(r, 1000));
               
               // Find and screenshot the card
               const cardElement = await page.$('[data-card]');
