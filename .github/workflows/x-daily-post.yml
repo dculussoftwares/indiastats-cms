@@ -41,7 +41,7 @@ jobs:
       - name: Install Tamil fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y fonts-noto-core fonts-noto-extra fonts-lohit-taml fonts-samyak-taml
+          sudo apt-get install -y fonts-noto-core fonts-noto-extra fonts-lohit-taml fonts-samyak-taml fonts-inter
           fc-cache -f -v
 
       - name: Install dependencies

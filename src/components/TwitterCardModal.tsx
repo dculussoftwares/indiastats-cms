@@ -355,7 +355,8 @@ export function TwitterCardModal({
                     borderRadius: 8,
                     overflow: 'hidden',
                     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
+                    fontFamily:
+                      'var(--font-geist-sans), "Geist Sans", "Geist", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                   }}
                 >
                   {/* Red stripe */}
