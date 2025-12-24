@@ -13,6 +13,8 @@ import {
   Vote,
   TrendingUp,
   Search,
+  Github,
+  Star,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -159,7 +161,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
 
             {/* Headline */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
-              India's Most Comprehensive
+              India&apos;s Most Comprehensive
               <span className="block mt-2 bg-gradient-to-r from-orange-400 via-white to-green-400 text-transparent bg-clip-text">
                 Election Data Platform
               </span>
@@ -167,7 +169,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
 
             <p className="text-lg md:text-xl text-white/70 mb-8 max-w-2xl mx-auto">
               Explore detailed election history, constituency demographics, and voting patterns
-              across Tamil Nadu's 234 assembly constituencies.
+              across Tamil Nadu&apos;s 234 assembly constituencies.
             </p>
 
             {/* CTA Buttons */}
@@ -220,6 +222,24 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 icon={<UsersRound className="h-6 w-6" />}
               />
             </div>
+
+            {/* Open Source Badge */}
+            <div className="flex justify-center mt-8">
+              <a
+                href="https://github.com/dculussoftwares/indiastats-cms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/20 transition-all duration-300 group"
+              >
+                <Github className="h-5 w-5 text-white" />
+                <span className="text-sm font-medium text-white">Open Source</span>
+                <span className="text-white/50">|</span>
+                <Star className="h-4 w-4 text-yellow-400 group-hover:scale-110 transition-transform" />
+                <span className="text-sm text-white/80 group-hover:text-yellow-400 transition-colors">
+                  Star on GitHub
+                </span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -245,7 +265,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Explore Election Data</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive tools and visualizations to understand Tamil Nadu's electoral landscape
+              Comprehensive tools and visualizations to understand Tamil Nadu&apos;s electoral
+              landscape
             </p>
           </div>
 
