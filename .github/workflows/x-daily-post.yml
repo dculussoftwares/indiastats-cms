@@ -1,0 +1,253 @@
+name: X Daily Post
+
+on:
+  schedule:
+    # 7:30 PM IST = 14:00 UTC
+    - cron: '0 14 * * *'
+    # 9:00 PM IST = 15:30 UTC
+    - cron: '30 15 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (skip actual posting)'
+        required: false
+        default: 'false'
+        type: boolean
+      assembly_override:
+        description: 'Override assembly ID (e.g., ac001)'
+        required: false
+        type: string
+
+env:
+  SITE_URL: https://indiastats.org
+
+jobs:
+  post-to-x:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install puppeteer twitter-api-v2
+
+      - name: Read state and get next assembly
+        id: get-assembly
+        run: |
+          STATE_FILE=".github/x-post-state.json"
+          
+          if [ -n "${{ github.event.inputs.assembly_override }}" ]; then
+            ASSEMBLY_ID="${{ github.event.inputs.assembly_override }}"
+            echo "Using override assembly: $ASSEMBLY_ID"
+            echo "assembly_id=$ASSEMBLY_ID" >> $GITHUB_OUTPUT
+            echo "next_index=-1" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          LAST_INDEX=$(jq -r '.lastPostedIndex' $STATE_FILE)
+          TOTAL=$(jq -r '.totalAssemblies' $STATE_FILE)
+          
+          NEXT_INDEX=$(( (LAST_INDEX + 1) % TOTAL ))
+          ASSEMBLY_NUM=$((NEXT_INDEX + 1))
+          ASSEMBLY_ID=$(printf "ac%03d" $ASSEMBLY_NUM)
+          
+          echo "next_index=$NEXT_INDEX" >> $GITHUB_OUTPUT
+          echo "assembly_id=$ASSEMBLY_ID" >> $GITHUB_OUTPUT
+          echo "Posting assembly: $ASSEMBLY_ID (index: $NEXT_INDEX)"
+
+      - name: Create capture script
+        run: |
+          cat > capture.js << 'ENDOFSCRIPT'
+          const puppeteer = require('puppeteer');
+          const fs = require('fs');
+          
+          const ASSEMBLY_ID = process.env.ASSEMBLY_ID;
+          const SITE_URL = process.env.SITE_URL;
+          
+          // Assembly to District mapping
+          const DISTRICT_MAP = {
+            dt1: ['ac001','ac002','ac003','ac004','ac005','ac006','ac007'],
+            dt2: ['ac008','ac009','ac010','ac011','ac012','ac013'],
+            dt3: ['ac014','ac015','ac016','ac017','ac018','ac019'],
+            dt4: ['ac020','ac021','ac022','ac023','ac024','ac025','ac026'],
+            dt5: ['ac027','ac028','ac029','ac030','ac031','ac032','ac033'],
+            dt6: ['ac034','ac035','ac036','ac037','ac038','ac039','ac040'],
+            dt7: ['ac041','ac042','ac043','ac044','ac045','ac046','ac047','ac048','ac049','ac050','ac051','ac052','ac053','ac054','ac055','ac056','ac057','ac058','ac059','ac060','ac061','ac062','ac063','ac064','ac065','ac066','ac067','ac068','ac069','ac070','ac071','ac072','ac073','ac074','ac075','ac076','ac077','ac078','ac079','ac080','ac081','ac082','ac083','ac084','ac085','ac086','ac087','ac088','ac089','ac090','ac091','ac092','ac093','ac094','ac095','ac096','ac097','ac098'],
+            dt8: ['ac099','ac100','ac101','ac102','ac103','ac104','ac105'],
+            dt9: ['ac106','ac107','ac108','ac109','ac110','ac111','ac112'],
+            dt10: ['ac113','ac114','ac115','ac116','ac117','ac118','ac119'],
+            dt11: ['ac120','ac121','ac122','ac123','ac124','ac125'],
+            dt12: ['ac126','ac127','ac128','ac129','ac130','ac131','ac132'],
+            dt13: ['ac133','ac134','ac135','ac136','ac137','ac138'],
+            dt14: ['ac139','ac140','ac141','ac142','ac143','ac144'],
+            dt15: ['ac145','ac146','ac147','ac148','ac149','ac150'],
+            dt16: ['ac151','ac152','ac153','ac154','ac155','ac156'],
+            dt17: ['ac157','ac158','ac159','ac160','ac161','ac162'],
+            dt18: ['ac163','ac164','ac165','ac166','ac167','ac168'],
+            dt19: ['ac169','ac170','ac171','ac172','ac173','ac174'],
+            dt20: ['ac175','ac176','ac177','ac178','ac179','ac180'],
+            dt21: ['ac181','ac182','ac183','ac184','ac185','ac186'],
+            dt22: ['ac187','ac188','ac189','ac190','ac191','ac192'],
+            dt23: ['ac193','ac194','ac195','ac196','ac197','ac198'],
+            dt24: ['ac199','ac200','ac201','ac202','ac203','ac204'],
+            dt25: ['ac205','ac206','ac207','ac208','ac209','ac210'],
+            dt26: ['ac211','ac212','ac213','ac214','ac215','ac216'],
+            dt27: ['ac217','ac218','ac219','ac220','ac221','ac222'],
+            dt28: ['ac223','ac224','ac225','ac226','ac227','ac228'],
+            dt29: ['ac229','ac230','ac231','ac232','ac233','ac234']
+          };
+          
+          function getDistrictForAssembly(assemblyId) {
+            for (const [districtId, assemblies] of Object.entries(DISTRICT_MAP)) {
+              if (assemblies.includes(assemblyId.toLowerCase())) {
+                return districtId;
+              }
+            }
+            return 'dt7';
+          }
+          
+          (async () => {
+            const districtId = getDistrictForAssembly(ASSEMBLY_ID);
+            const pageUrl = SITE_URL + '/tamil-nadu/assembly/' + districtId + '/' + ASSEMBLY_ID;
+            
+            console.log('Opening: ' + pageUrl);
+            
+            const browser = await puppeteer.launch({
+              headless: 'new',
+              args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+            });
+            
+            const page = await browser.newPage();
+            await page.setViewport({ width: 1400, height: 900 });
+            
+            try {
+              await page.goto(pageUrl, { waitUntil: 'networkidle2', timeout: 60000 });
+              
+              await page.waitForSelector('h1', { timeout: 10000 });
+              const assemblyName = await page.$eval('h1', el => el.textContent.trim());
+              
+              // Click Quick View button
+              await page.waitForSelector('button', { timeout: 5000 });
+              const buttons = await page.$$('button');
+              for (const btn of buttons) {
+                const text = await btn.evaluate(el => el.textContent);
+                if (text && text.includes('Quick View')) {
+                  await btn.click();
+                  break;
+                }
+              }
+              
+              await new Promise(r => setTimeout(r, 3000));
+              
+              // Find and screenshot the card
+              const cardElement = await page.$('[data-card]');
+              if (cardElement) {
+                await cardElement.screenshot({ path: 'quick-view.png', type: 'png' });
+                console.log('Quick View screenshot captured!');
+              } else {
+                await page.screenshot({ path: 'quick-view.png', clip: { x: 0, y: 0, width: 800, height: 600 } });
+                console.log('Fallback screenshot captured');
+              }
+              
+              fs.writeFileSync('assembly-info.json', JSON.stringify({
+                assemblyId: ASSEMBLY_ID,
+                assemblyName: assemblyName || ASSEMBLY_ID,
+                districtId: districtId,
+                pageUrl: pageUrl
+              }));
+              
+              console.log('Assembly: ' + assemblyName + ', District: ' + districtId);
+              
+            } catch (error) {
+              console.error('Error:', error.message);
+              await page.screenshot({ path: 'quick-view.png' });
+            }
+            
+            await browser.close();
+          })();
+          ENDOFSCRIPT
+        env:
+          ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
+          SITE_URL: ${{ env.SITE_URL }}
+
+      - name: Capture Quick View screenshot
+        run: node capture.js
+        env:
+          ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
+          SITE_URL: ${{ env.SITE_URL }}
+
+      - name: Create post script
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          cat > post.js << 'ENDOFSCRIPT'
+          const { TwitterApi } = require('twitter-api-v2');
+          const fs = require('fs');
+          
+          (async () => {
+            let info = { assemblyId: process.env.ASSEMBLY_ID, assemblyName: 'Assembly', pageUrl: '' };
+            try {
+              info = JSON.parse(fs.readFileSync('assembly-info.json', 'utf8'));
+            } catch (e) {}
+            
+            const client = new TwitterApi({
+              appKey: process.env.X_API_KEY,
+              appSecret: process.env.X_API_SECRET,
+              accessToken: process.env.X_ACCESS_TOKEN,
+              accessSecret: process.env.X_ACCESS_TOKEN_SECRET,
+            });
+            
+            const mediaId = await client.v1.uploadMedia('quick-view.png');
+            
+            const text = '📊 Assembly Spotlight: ' + info.assemblyName + '\n\n' +
+              '🗳️ Tamil Nadu Elections Data\n' +
+              'Explore detailed history, demographics & voting patterns\n\n' +
+              '🔗 ' + info.pageUrl + '\n\n' +
+              '#TamilNadu #Elections #IndiaStats #TNElections';
+            
+            await client.v2.tweet({ text: text, media: { media_ids: [mediaId] } });
+            console.log('Tweet posted successfully!');
+          })();
+          ENDOFSCRIPT
+
+      - name: Post to X
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: node post.js
+        env:
+          ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+
+      - name: Update state file
+        if: ${{ steps.get-assembly.outputs.next_index != '-1' }}
+        run: |
+          STATE_FILE=".github/x-post-state.json"
+          NEXT_INDEX="${{ steps.get-assembly.outputs.next_index }}"
+          ASSEMBLY_ID="${{ steps.get-assembly.outputs.assembly_id }}"
+          DATE=$(date -u +"%Y-%m-%d")
+          
+          jq --argjson idx "$NEXT_INDEX" \
+             --arg date "$DATE" \
+             --arg assembly "$ASSEMBLY_ID" \
+             '.lastPostedIndex = $idx | .history += [{"date": $date, "assembly": $assembly}]' \
+             $STATE_FILE > tmp.json && mv tmp.json $STATE_FILE
+
+      - name: Commit updated state
+        if: ${{ steps.get-assembly.outputs.next_index != '-1' }}
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/x-post-state.json
+          git commit -m "chore: posted X card for ${{ steps.get-assembly.outputs.assembly_id }} [skip ci]" || echo "No changes"
+          git push
