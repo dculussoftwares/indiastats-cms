@@ -38,6 +38,12 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install Tamil fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-core fonts-noto-extra fonts-lohit-taml fonts-samyak-taml
+          fc-cache -f -v
+
       - name: Install dependencies
         run: npm install puppeteer twitter-api-v2
 
