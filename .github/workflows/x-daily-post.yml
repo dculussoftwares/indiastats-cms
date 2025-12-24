@@ -67,7 +67,7 @@ jobs:
 
       - name: Create capture script
         run: |
-          cat > capture.js << 'ENDOFSCRIPT'
+          cat > capture.cjs << 'ENDOFSCRIPT'
           const puppeteer = require('puppeteer');
           const fs = require('fs');
           
@@ -181,7 +181,7 @@ jobs:
           SITE_URL: ${{ env.SITE_URL }}
 
       - name: Capture Quick View screenshot
-        run: node capture.js
+        run: node capture.cjs
         env:
           ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
           SITE_URL: ${{ env.SITE_URL }}
@@ -189,7 +189,7 @@ jobs:
       - name: Create post script
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          cat > post.js << 'ENDOFSCRIPT'
+          cat > post.cjs << 'ENDOFSCRIPT'
           const { TwitterApi } = require('twitter-api-v2');
           const fs = require('fs');
           
@@ -221,7 +221,7 @@ jobs:
 
       - name: Post to X
         if: ${{ github.event.inputs.dry_run != 'true' }}
-        run: node post.js
+        run: node post.cjs
         env:
           ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
           X_API_KEY: ${{ secrets.X_API_KEY }}
