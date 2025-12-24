@@ -31,6 +31,7 @@ resource "azurerm_storage_account" "media" {
 # Blob container for media uploads
 resource "azurerm_storage_container" "media" {
   name                  = "indiastats-cms-media"
-  storage_account_id    = azurerm_storage_account.media.id
+  storage_account_name  = azurerm_storage_account.media.name
   container_access_type = "blob" # Public read access for blobs
 }
+
