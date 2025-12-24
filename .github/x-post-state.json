@@ -1,5 +1,5 @@
 {
-  "lastPostedIndex": 1,
+  "lastPostedIndex": 2,
   "totalAssemblies": 234,
   "assemblies": [
     "ac001",
@@ -245,6 +245,10 @@
     {
       "date": "2025-12-24",
       "assembly": "ac002"
+    },
+    {
+      "date": "2025-12-24",
+      "assembly": "ac003"
     }
   ]
 }
