@@ -342,622 +342,625 @@ export function TwitterCardModal({
 
           {cardData && !isLoading && (
             <>
-              {/* Card Preview - All inline styles for html2canvas compatibility */}
-              <div
-                ref={cardRef}
-                data-card
-                style={{
-                  width: 600,
-                  margin: '0 auto',
-                  backgroundColor: '#ffffff',
-                  borderRadius: 8,
-                  overflow: 'hidden',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                  fontFamily: 'system-ui, -apple-system, sans-serif',
-                }}
-              >
-                {/* Red stripe */}
-                <div style={{ height: 6, backgroundColor: '#dc2626', width: '100%' }} />
-
-                {/* Header */}
+              {/* Card Preview - Horizontally scrollable on mobile */}
+              <div className="overflow-x-auto pb-4">
                 <div
+                  ref={cardRef}
+                  data-card
                   style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 16px',
-                    borderBottom: '1px solid #e5e7eb',
+                    width: 600,
+                    minWidth: 600,
+                    margin: '0 auto',
+                    backgroundColor: '#ffffff',
+                    borderRadius: 8,
+                    overflow: 'hidden',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                    fontFamily: 'system-ui, -apple-system, sans-serif',
                   }}
                 >
-                  {/* Logo */}
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4 }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
-                      <div
-                        style={{
-                          width: 5,
-                          height: 8,
-                          backgroundColor: '#dc2626',
-                          borderRadius: 1,
-                        }}
-                      />
-                      <div
-                        style={{
-                          width: 5,
-                          height: 14,
-                          backgroundColor: '#dc2626',
-                          borderRadius: 1,
-                        }}
-                      />
-                      <div
-                        style={{
-                          width: 5,
-                          height: 20,
-                          backgroundColor: '#dc2626',
-                          borderRadius: 1,
-                        }}
-                      />
-                    </div>
-                    <span
-                      style={{
-                        fontSize: 18,
-                        fontWeight: 700,
-                        color: '#111827',
-                        marginLeft: 4,
-                        lineHeight: 1,
-                      }}
-                    >
-                      IndiaStats
-                    </span>
-                    <span
-                      style={{ fontSize: 18, fontWeight: 400, color: '#6b7280', lineHeight: 1 }}
-                    >
-                      .org
-                    </span>
-                  </div>
-                  {/* Badge */}
+                  {/* Red stripe */}
+                  <div style={{ height: 6, backgroundColor: '#dc2626', width: '100%' }} />
+
+                  {/* Header */}
                   <div
                     style={{
-                      backgroundColor: cardData.isReserved ? '#dc2626' : '#f3f4f6',
-                      color: cardData.isReserved ? '#ffffff' : '#374151',
-                      padding: '4px 10px',
-                      borderRadius: 6,
-                      fontSize: 11,
-                      fontWeight: 600,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px 16px',
+                      borderBottom: '1px solid #e5e7eb',
                     }}
                   >
-                    {cardData.isReserved ? 'RESERVED' : 'GENERAL'}
-                  </div>
-                </div>
-
-                {/* Main content */}
-                <div style={{ padding: 16 }}>
-                  {/* Assembly name */}
-                  <div
-                    style={{
-                      borderLeft: '4px solid #dc2626',
-                      paddingLeft: 12,
-                      marginBottom: 16,
-                    }}
-                  >
-                    <h2 style={{ fontSize: 30, fontWeight: 700, color: '#111827', margin: 0 }}>
-                      {cardData.assemblyName}
-                    </h2>
-                    <p style={{ fontSize: 16, color: '#6b7280', margin: '2px 0 0 0' }}>
-                      {cardData.districtName} District, Tamil Nadu
-                    </p>
-                  </div>
-
-                  {/* Most Winning Section */}
-                  <div
-                    style={{
-                      backgroundColor: '#1f2937',
-                      borderRadius: 12,
-                      padding: 12,
-                      marginBottom: 16,
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontSize: 12,
-                        color: '#9ca3af',
-                        textTransform: 'uppercase',
-                        letterSpacing: 1,
-                        textAlign: 'center',
-                        margin: '0 0 12px 0',
-                      }}
-                    >
-                      🏆 MOST WINNING PARTIES (1977-2021)
-                    </p>
-
-                    {cardData.party1 && cardData.party2 && (
-                      <div
+                    {/* Logo */}
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+                        <div
+                          style={{
+                            width: 5,
+                            height: 8,
+                            backgroundColor: '#dc2626',
+                            borderRadius: 1,
+                          }}
+                        />
+                        <div
+                          style={{
+                            width: 5,
+                            height: 14,
+                            backgroundColor: '#dc2626',
+                            borderRadius: 1,
+                          }}
+                        />
+                        <div
+                          style={{
+                            width: 5,
+                            height: 20,
+                            backgroundColor: '#dc2626',
+                            borderRadius: 1,
+                          }}
+                        />
+                      </div>
+                      <span
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: '#111827',
+                          marginLeft: 4,
+                          lineHeight: 1,
                         }}
                       >
-                        {/* Party 1 */}
+                        IndiaStats
+                      </span>
+                      <span
+                        style={{ fontSize: 18, fontWeight: 400, color: '#6b7280', lineHeight: 1 }}
+                      >
+                        .org
+                      </span>
+                    </div>
+                    {/* Badge */}
+                    <div
+                      style={{
+                        backgroundColor: cardData.isReserved ? '#dc2626' : '#f3f4f6',
+                        color: cardData.isReserved ? '#ffffff' : '#374151',
+                        padding: '4px 10px',
+                        borderRadius: 6,
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {cardData.isReserved ? 'RESERVED' : 'GENERAL'}
+                    </div>
+                  </div>
+
+                  {/* Main content */}
+                  <div style={{ padding: 16 }}>
+                    {/* Assembly name */}
+                    <div
+                      style={{
+                        borderLeft: '4px solid #dc2626',
+                        paddingLeft: 12,
+                        marginBottom: 16,
+                      }}
+                    >
+                      <h2 style={{ fontSize: 30, fontWeight: 700, color: '#111827', margin: 0 }}>
+                        {cardData.assemblyName}
+                      </h2>
+                      <p style={{ fontSize: 16, color: '#6b7280', margin: '2px 0 0 0' }}>
+                        {cardData.districtName} District, Tamil Nadu
+                      </p>
+                    </div>
+
+                    {/* Most Winning Section */}
+                    <div
+                      style={{
+                        backgroundColor: '#1f2937',
+                        borderRadius: 12,
+                        padding: 12,
+                        marginBottom: 16,
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: '#9ca3af',
+                          textTransform: 'uppercase',
+                          letterSpacing: 1,
+                          textAlign: 'center',
+                          margin: '0 0 12px 0',
+                        }}
+                      >
+                        🏆 MOST WINNING PARTIES (1977-2021)
+                      </p>
+
+                      {cardData.party1 && cardData.party2 && (
                         <div
                           style={{
                             display: 'flex',
-                            flexDirection: 'column',
                             alignItems: 'center',
-                            flex: 1,
+                            justifyContent: 'center',
                           }}
                         >
+                          {/* Party 1 */}
                           <div
                             style={{
-                              width: 72,
-                              height: 72,
-                              borderRadius: 36,
-                              border: '3px solid #ef4444',
-                              backgroundColor: '#374151',
-                              overflow: 'hidden',
-                              marginBottom: 8,
                               display: 'flex',
+                              flexDirection: 'column',
                               alignItems: 'center',
-                              justifyContent: 'center',
+                              flex: 1,
                             }}
                           >
-                            {leader1 ? (
+                            <div
+                              style={{
+                                width: 72,
+                                height: 72,
+                                borderRadius: 36,
+                                border: '3px solid #ef4444',
+                                backgroundColor: '#374151',
+                                overflow: 'hidden',
+                                marginBottom: 8,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              {leader1 ? (
+                                <img
+                                  src={leader1}
+                                  alt=""
+                                  style={{ width: 72, height: 72, objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <span style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>
+                                  {cardData.party1.name.charAt(0)}
+                                </span>
+                              )}
+                            </div>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                marginBottom: 2,
+                              }}
+                            >
                               <img
-                                src={leader1}
+                                src={`/images/${cardData.party1.name}.png`}
                                 alt=""
-                                style={{ width: 72, height: 72, objectFit: 'cover' }}
+                                style={{ width: 24, height: 18, objectFit: 'contain' }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none'
+                                }}
                               />
-                            ) : (
-                              <span style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>
-                                {cardData.party1.name.charAt(0)}
+                              <span style={{ fontSize: 16, fontWeight: 600, color: 'white' }}>
+                                {cardData.party1.name}
+                              </span>
+                            </div>
+                            <p
+                              style={{
+                                fontSize: 36,
+                                fontWeight: 700,
+                                color: '#ef4444',
+                                margin: 0,
+                                lineHeight: 1,
+                              }}
+                            >
+                              {cardData.party1.wins}
+                            </p>
+                            <p style={{ fontSize: 13, color: '#9ca3af', margin: 0 }}>wins</p>
+                          </div>
+
+                          {/* VS Badge */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              margin: '0 12px',
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: 18,
+                                backgroundColor: '#374151',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <span style={{ fontSize: 12, fontWeight: 700, color: 'white' }}>
+                                VS
+                              </span>
+                            </div>
+                            {winDiff > 0 && (
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  color: '#ef4444',
+                                  marginTop: 4,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                +{winDiff}
                               </span>
                             )}
                           </div>
+
+                          {/* Party 2 */}
                           <div
                             style={{
                               display: 'flex',
+                              flexDirection: 'column',
                               alignItems: 'center',
-                              gap: 4,
-                              marginBottom: 2,
+                              flex: 1,
                             }}
                           >
-                            <img
-                              src={`/images/${cardData.party1.name}.png`}
-                              alt=""
-                              style={{ width: 24, height: 18, objectFit: 'contain' }}
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none'
+                            <div
+                              style={{
+                                width: 72,
+                                height: 72,
+                                borderRadius: 36,
+                                border: '3px solid #9ca3af',
+                                backgroundColor: '#374151',
+                                overflow: 'hidden',
+                                marginBottom: 8,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                               }}
-                            />
-                            <span style={{ fontSize: 16, fontWeight: 600, color: 'white' }}>
-                              {cardData.party1.name}
-                            </span>
+                            >
+                              {leader2 ? (
+                                <img
+                                  src={leader2}
+                                  alt=""
+                                  style={{ width: 72, height: 72, objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <span style={{ fontSize: 28, fontWeight: 700, color: '#9ca3af' }}>
+                                  {cardData.party2.name.charAt(0)}
+                                </span>
+                              )}
+                            </div>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                marginBottom: 2,
+                              }}
+                            >
+                              <img
+                                src={`/images/${cardData.party2.name}.png`}
+                                alt=""
+                                style={{ width: 24, height: 18, objectFit: 'contain' }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none'
+                                }}
+                              />
+                              <span style={{ fontSize: 16, fontWeight: 600, color: '#9ca3af' }}>
+                                {cardData.party2.name}
+                              </span>
+                            </div>
+                            <p
+                              style={{
+                                fontSize: 36,
+                                fontWeight: 700,
+                                color: '#9ca3af',
+                                margin: 0,
+                                lineHeight: 1,
+                              }}
+                            >
+                              {cardData.party2.wins}
+                            </p>
+                            <p style={{ fontSize: 13, color: '#9ca3af', margin: 0 }}>wins</p>
                           </div>
-                          <p
-                            style={{
-                              fontSize: 36,
-                              fontWeight: 700,
-                              color: '#ef4444',
-                              margin: 0,
-                              lineHeight: 1,
-                            }}
-                          >
-                            {cardData.party1.wins}
-                          </p>
-                          <p style={{ fontSize: 13, color: '#9ca3af', margin: 0 }}>wins</p>
                         </div>
+                      )}
 
-                        {/* VS Badge */}
+                      {/* Alliance Bloc Row */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          gap: 12,
+                          marginTop: 16,
+                          paddingTop: 12,
+                          borderTop: '1px solid #374151',
+                        }}
+                      >
                         <div
                           style={{
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            margin: '0 12px',
                           }}
                         >
                           <div
                             style={{
-                              width: 36,
-                              height: 36,
-                              borderRadius: 18,
-                              backgroundColor: '#374151',
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
+                              gap: 6,
+                              backgroundColor: '#7f1d1d',
+                              padding: '6px 12px',
+                              borderRadius: 16,
+                              marginBottom: 4,
                             }}
                           >
-                            <span style={{ fontSize: 12, fontWeight: 700, color: 'white' }}>
-                              VS
-                            </span>
-                          </div>
-                          {winDiff > 0 && (
                             <span
                               style={{
-                                fontSize: 10,
-                                color: '#ef4444',
-                                marginTop: 4,
-                                fontWeight: 600,
+                                width: 8,
+                                height: 8,
+                                borderRadius: 4,
+                                backgroundColor: '#ef4444',
+                                display: 'inline-block',
+                              }}
+                            />
+                            <span style={{ fontSize: 13, color: '#fca5a5' }}>DMK Bloc</span>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>
+                              {cardData.dmkBlocWins}
+                            </span>
+                          </div>
+                          {cardData.dmkBlocBreakdown && (
+                            <span
+                              style={{
+                                fontSize: 9,
+                                color: '#9ca3af',
+                                maxWidth: 120,
+                                textAlign: 'center',
+                                lineHeight: 1.2,
                               }}
                             >
-                              +{winDiff}
+                              {formatBreakdown(cardData.dmkBlocBreakdown)}
                             </span>
                           )}
                         </div>
 
-                        {/* Party 2 */}
                         <div
                           style={{
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            flex: 1,
                           }}
                         >
                           <div
                             style={{
-                              width: 72,
-                              height: 72,
-                              borderRadius: 36,
-                              border: '3px solid #9ca3af',
-                              backgroundColor: '#374151',
-                              overflow: 'hidden',
-                              marginBottom: 8,
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
+                              gap: 6,
+                              backgroundColor: '#14532d',
+                              padding: '6px 12px',
+                              borderRadius: 16,
+                              marginBottom: 4,
                             }}
                           >
-                            {leader2 ? (
-                              <img
-                                src={leader2}
-                                alt=""
-                                style={{ width: 72, height: 72, objectFit: 'cover' }}
-                              />
-                            ) : (
-                              <span style={{ fontSize: 28, fontWeight: 700, color: '#9ca3af' }}>
-                                {cardData.party2.name.charAt(0)}
-                              </span>
-                            )}
-                          </div>
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 4,
-                              marginBottom: 2,
-                            }}
-                          >
-                            <img
-                              src={`/images/${cardData.party2.name}.png`}
-                              alt=""
-                              style={{ width: 24, height: 18, objectFit: 'contain' }}
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none'
+                            <span
+                              style={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: 4,
+                                backgroundColor: '#22c55e',
+                                display: 'inline-block',
                               }}
                             />
-                            <span style={{ fontSize: 16, fontWeight: 600, color: '#9ca3af' }}>
-                              {cardData.party2.name}
+                            <span style={{ fontSize: 13, color: '#86efac' }}>AIADMK Bloc</span>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>
+                              {cardData.aiadmkBlocWins}
                             </span>
                           </div>
-                          <p
-                            style={{
-                              fontSize: 36,
-                              fontWeight: 700,
-                              color: '#9ca3af',
-                              margin: 0,
-                              lineHeight: 1,
-                            }}
-                          >
-                            {cardData.party2.wins}
-                          </p>
-                          <p style={{ fontSize: 13, color: '#9ca3af', margin: 0 }}>wins</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Alliance Bloc Row */}
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: 12,
-                        marginTop: 16,
-                        paddingTop: 12,
-                        borderTop: '1px solid #374151',
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            backgroundColor: '#7f1d1d',
-                            padding: '6px 12px',
-                            borderRadius: 16,
-                            marginBottom: 4,
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: 8,
-                              height: 8,
-                              borderRadius: 4,
-                              backgroundColor: '#ef4444',
-                              display: 'inline-block',
-                            }}
-                          />
-                          <span style={{ fontSize: 13, color: '#fca5a5' }}>DMK Bloc</span>
-                          <span style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>
-                            {cardData.dmkBlocWins}
-                          </span>
-                        </div>
-                        {cardData.dmkBlocBreakdown && (
-                          <span
-                            style={{
-                              fontSize: 9,
-                              color: '#9ca3af',
-                              maxWidth: 120,
-                              textAlign: 'center',
-                              lineHeight: 1.2,
-                            }}
-                          >
-                            {formatBreakdown(cardData.dmkBlocBreakdown)}
-                          </span>
-                        )}
-                      </div>
-
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            backgroundColor: '#14532d',
-                            padding: '6px 12px',
-                            borderRadius: 16,
-                            marginBottom: 4,
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: 8,
-                              height: 8,
-                              borderRadius: 4,
-                              backgroundColor: '#22c55e',
-                              display: 'inline-block',
-                            }}
-                          />
-                          <span style={{ fontSize: 13, color: '#86efac' }}>AIADMK Bloc</span>
-                          <span style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>
-                            {cardData.aiadmkBlocWins}
-                          </span>
-                        </div>
-                        {cardData.aiadmkBlocBreakdown && (
-                          <span
-                            style={{
-                              fontSize: 9,
-                              color: '#9ca3af',
-                              maxWidth: 120,
-                              textAlign: 'center',
-                              lineHeight: 1.2,
-                            }}
-                          >
-                            {formatBreakdown(cardData.aiadmkBlocBreakdown)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Divider and Key Demographics */}
-                    {cardData.topCastes.length > 0 && (
-                      <>
-                        <div
-                          style={{
-                            height: 1,
-                            backgroundColor: '#374151',
-                            margin: '16px 0 12px 0',
-                          }}
-                        />
-                        <p
-                          style={{
-                            fontSize: 15,
-                            color: '#9ca3af',
-                            textTransform: 'uppercase',
-                            letterSpacing: 1,
-                            fontWeight: 600,
-                            textAlign: 'center',
-                            marginBottom: 12,
-                          }}
-                        >
-                          👥 Key Demographics (Est.)
-                        </p>
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            gap: 16,
-                            alignItems: 'flex-start',
-                          }}
-                        >
-                          {cardData.topCastes.map((caste, idx) => (
-                            <div
-                              key={idx}
+                          {cardData.aiadmkBlocBreakdown && (
+                            <span
                               style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                flex: 1,
+                                fontSize: 9,
+                                color: '#9ca3af',
+                                maxWidth: 120,
+                                textAlign: 'center',
+                                lineHeight: 1.2,
                               }}
                             >
-                              <div
-                                style={{
-                                  width: 24,
-                                  height: 4,
-                                  borderRadius: 2,
-                                  backgroundColor:
-                                    idx === 0 ? '#ef4444' : idx === 1 ? '#f59e0b' : '#3b82f6',
-                                  marginBottom: 6,
-                                }}
-                              />
-                              <span
-                                style={{
-                                  fontSize: 24,
-                                  fontWeight: 700,
-                                  color: 'white',
-                                  lineHeight: 1,
-                                }}
-                              >
-                                {caste.percentage}%
-                              </span>
-                              <span
-                                style={{
-                                  fontSize: 14,
-                                  color: '#d1d5db',
-                                  marginTop: 4,
-                                  textAlign: 'center',
-                                  lineHeight: 1.2,
-                                }}
-                              >
-                                {caste.name}
-                              </span>
-                            </div>
-                          ))}
+                              {formatBreakdown(cardData.aiadmkBlocBreakdown)}
+                            </span>
+                          )}
                         </div>
-                      </>
-                    )}
-                  </div>
+                      </div>
 
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                    <div
-                      style={{
-                        backgroundColor: '#f9fafb',
-                        borderRadius: 8,
-                        padding: '8px 12px',
-                        flex: 1,
-                      }}
-                    >
+                      {/* Divider and Key Demographics */}
+                      {cardData.topCastes.length > 0 && (
+                        <>
+                          <div
+                            style={{
+                              height: 1,
+                              backgroundColor: '#374151',
+                              margin: '16px 0 12px 0',
+                            }}
+                          />
+                          <p
+                            style={{
+                              fontSize: 15,
+                              color: '#9ca3af',
+                              textTransform: 'uppercase',
+                              letterSpacing: 1,
+                              fontWeight: 600,
+                              textAlign: 'center',
+                              marginBottom: 12,
+                            }}
+                          >
+                            👥 Key Demographics (Est.)
+                          </p>
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              gap: 16,
+                              alignItems: 'flex-start',
+                            }}
+                          >
+                            {cardData.topCastes.map((caste, idx) => (
+                              <div
+                                key={idx}
+                                style={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  flex: 1,
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: 24,
+                                    height: 4,
+                                    borderRadius: 2,
+                                    backgroundColor:
+                                      idx === 0 ? '#ef4444' : idx === 1 ? '#f59e0b' : '#3b82f6',
+                                    marginBottom: 6,
+                                  }}
+                                />
+                                <span
+                                  style={{
+                                    fontSize: 24,
+                                    fontWeight: 700,
+                                    color: 'white',
+                                    lineHeight: 1,
+                                  }}
+                                >
+                                  {caste.percentage}%
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: 14,
+                                    color: '#d1d5db',
+                                    marginTop: 4,
+                                    textAlign: 'center',
+                                    lineHeight: 1.2,
+                                  }}
+                                >
+                                  {caste.name}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
                       <div
                         style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
+                          backgroundColor: '#f9fafb',
+                          borderRadius: 8,
+                          padding: '8px 12px',
+                          flex: 1,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <p
+                            style={{
+                              fontSize: 12,
+                              color: '#6b7280',
+                              margin: 0,
+                              textTransform: 'uppercase',
+                              letterSpacing: 0.5,
+                            }}
+                          >
+                            Total Voters
+                          </p>
+                          {cardData.voterGrowth !== null && (
+                            <div
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                backgroundColor: cardData.voterGrowth > 0 ? '#d1fae5' : '#fee2e2',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  color: cardData.voterGrowth > 0 ? '#059669' : '#dc2626',
+                                }}
+                              >
+                                {cardData.voterGrowth > 0 ? '↑' : '↓'}{' '}
+                                {Math.abs(cardData.voterGrowth).toFixed(1)}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <p
+                          style={{
+                            fontSize: 26,
+                            fontWeight: 700,
+                            color: '#111827',
+                            margin: '2px 0 0 0',
+                          }}
+                        >
+                          {cardData.totalVoters}
+                        </p>
+                      </div>
+                      <div
+                        style={{
+                          backgroundColor: '#fee2e2',
+                          borderRadius: 8,
+                          padding: '8px 12px',
                         }}
                       >
                         <p
                           style={{
                             fontSize: 12,
-                            color: '#6b7280',
+                            color: '#dc2626',
                             margin: 0,
                             textTransform: 'uppercase',
                             letterSpacing: 0.5,
                           }}
                         >
-                          Total Voters
+                          Male
                         </p>
-                        {cardData.voterGrowth !== null && (
-                          <div
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              backgroundColor: cardData.voterGrowth > 0 ? '#d1fae5' : '#fee2e2',
-                              padding: '2px 6px',
-                              borderRadius: 4,
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: 11,
-                                fontWeight: 700,
-                                color: cardData.voterGrowth > 0 ? '#059669' : '#dc2626',
-                              }}
-                            >
-                              {cardData.voterGrowth > 0 ? '↑' : '↓'}{' '}
-                              {Math.abs(cardData.voterGrowth).toFixed(1)}%
-                            </span>
-                          </div>
-                        )}
+                        <p
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            color: '#dc2626',
+                            margin: '2px 0 0 0',
+                          }}
+                        >
+                          {cardData.maleVoters}
+                        </p>
                       </div>
-                      <p
+                      <div
                         style={{
-                          fontSize: 26,
-                          fontWeight: 700,
-                          color: '#111827',
-                          margin: '2px 0 0 0',
+                          backgroundColor: '#fce7f3',
+                          borderRadius: 8,
+                          padding: '8px 12px',
                         }}
                       >
-                        {cardData.totalVoters}
-                      </p>
-                    </div>
-                    <div
-                      style={{
-                        backgroundColor: '#fee2e2',
-                        borderRadius: 8,
-                        padding: '8px 12px',
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: 12,
-                          color: '#dc2626',
-                          margin: 0,
-                          textTransform: 'uppercase',
-                          letterSpacing: 0.5,
-                        }}
-                      >
-                        Male
-                      </p>
-                      <p
-                        style={{
-                          fontSize: 20,
-                          fontWeight: 700,
-                          color: '#dc2626',
-                          margin: '2px 0 0 0',
-                        }}
-                      >
-                        {cardData.maleVoters}
-                      </p>
-                    </div>
-                    <div
-                      style={{
-                        backgroundColor: '#fce7f3',
-                        borderRadius: 8,
-                        padding: '8px 12px',
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: 12,
-                          color: '#db2777',
-                          margin: 0,
-                          textTransform: 'uppercase',
-                          letterSpacing: 0.5,
-                        }}
-                      >
-                        Female
-                      </p>
-                      <p
-                        style={{
-                          fontSize: 20,
-                          fontWeight: 700,
-                          color: '#db2777',
-                          margin: '2px 0 0 0',
-                        }}
-                      >
-                        {cardData.femaleVoters}
-                      </p>
+                        <p
+                          style={{
+                            fontSize: 12,
+                            color: '#db2777',
+                            margin: 0,
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.5,
+                          }}
+                        >
+                          Female
+                        </p>
+                        <p
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            color: '#db2777',
+                            margin: '2px 0 0 0',
+                          }}
+                        >
+                          {cardData.femaleVoters}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
