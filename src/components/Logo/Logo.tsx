@@ -2,7 +2,6 @@
 
 import clsx from 'clsx'
 import React from 'react'
-import { useTheme } from '@/providers/Theme'
 
 interface Props {
   className?: string
@@ -11,21 +10,27 @@ interface Props {
 
 export const Logo = (props: Props) => {
   const { className, variant = 'auto' } = props
-  const { theme } = useTheme()
 
   // BBC Red for bars (stays same in both modes)
   const barColor = '#be1f1f'
 
-  // Determine if we need light text (for dark backgrounds) or dark text (for light backgrounds)
-  let useLightText: boolean
-  if (variant === 'auto') {
-    useLightText = theme === 'dark'
-  } else {
-    useLightText = variant === 'light' // light variant = dark background = light text
-  }
+  // Use variant to determine colors, or default to CSS foreground which adapts to context
+  let textColor: string
+  let orgColor: string
 
-  const textColor = useLightText ? '#ffffff' : '#1a1a1a'
-  const orgColor = useLightText ? '#9ca3af' : '#6b7280'
+  if (variant === 'light') {
+    // For dark backgrounds - use light colors
+    textColor = '#ffffff'
+    orgColor = '#9ca3af'
+  } else if (variant === 'dark') {
+    // For light backgrounds - use dark colors
+    textColor = '#1a1a1a'
+    orgColor = '#6b7280'
+  } else {
+    // Auto: use CSS variables that adapt to context (hsl format)
+    textColor = 'hsl(var(--foreground))'
+    orgColor = 'hsl(var(--muted-foreground))'
+  }
 
   return (
     <div className={clsx('flex items-end gap-[2px]', className)}>
@@ -44,7 +49,7 @@ export const Logo = (props: Props) => {
         <rect x="14" y="0" width="5" height="18" rx="0.5" fill={barColor} />
       </svg>
 
-      {/* Text - theme-aware colors */}
+      {/* Text - using CSS variables for automatic theme adaptation */}
       <span
         className="font-bold text-lg whitespace-nowrap"
         style={{
