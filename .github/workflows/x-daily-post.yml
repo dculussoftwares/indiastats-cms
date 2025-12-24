@@ -134,7 +134,8 @@ jobs:
             });
             
             const page = await browser.newPage();
-            await page.setViewport({ width: 1400, height: 900 });
+            // Set high deviceScaleFactor (3x) for crisp, high-resolution screenshots
+            await page.setViewport({ width: 1400, height: 900, deviceScaleFactor: 3 });
             
             try {
               await page.goto(pageUrl, { waitUntil: 'networkidle2', timeout: 60000 });
