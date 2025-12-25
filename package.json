@@ -19,7 +19,10 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test --config=playwright.config.ts",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "remotion:preview": "remotion studio src/remotion/index.tsx",
+    "remotion:render": "remotion render src/remotion/index.tsx ReelCard out/reel.mp4",
+    "remotion:thumbnail": "remotion still src/remotion/index.tsx ReelCard out/thumbnail.png --frame=210"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "3.68.4",
@@ -40,6 +43,7 @@
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tooltip": "1.2.8",
+    "@remotion/cli": "4.0.394",
     "@supabase/supabase-js": "2.87.1",
     "chroma-js": "3.2.0",
     "class-variance-authority": "^0.7.0",
@@ -60,6 +64,7 @@
     "react-hook-form": "7.45.4",
     "react-leaflet": "5.0.0",
     "recharts": "3.6.0",
+    "remotion": "4.0.394",
     "sharp": "0.34.2",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7"
