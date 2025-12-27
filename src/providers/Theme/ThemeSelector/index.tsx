@@ -13,6 +13,7 @@ import type { Theme } from './types'
 
 import { useTheme } from '..'
 import { themeLocalStorageKey } from './types'
+import { trackThemeChange } from '@/utilities/clarityTracking'
 
 export const ThemeSelector: React.FC = () => {
   const { setTheme } = useTheme()
@@ -22,9 +23,11 @@ export const ThemeSelector: React.FC = () => {
     if (themeToSet === 'auto') {
       setTheme(null)
       setValue('auto')
+      trackThemeChange('system')
     } else {
       setTheme(themeToSet)
       setValue(themeToSet)
+      trackThemeChange(themeToSet as 'light' | 'dark')
     }
   }
 

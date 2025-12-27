@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChevronRight, Search } from 'lucide-react'
+import { trackSearch, trackSearchResultClick } from '@/utilities/clarityTracking'
 
 export interface District {
   districtId: string
@@ -203,6 +204,7 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     setSelectedAssembly(assembly)
     setAssemblyQuery(assembly.name)
     setIsAssemblyOpen(false)
+    trackSearchResultClick('assembly', assembly.assemblyId)
   }
 
   const handleDirectAssemblySelect = (assembly: Assembly) => {
@@ -217,6 +219,8 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     setAssemblyQuery(assembly.name)
     setDirectAssemblyQuery(assembly.name)
     setIsDirectOpen(false)
+    trackSearch('assembly', assembly.name, 1)
+    trackSearchResultClick('assembly', assembly.assemblyId)
   }
 
   const handleSearchClick = () => {

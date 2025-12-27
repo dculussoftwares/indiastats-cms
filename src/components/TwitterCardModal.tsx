@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Download, Loader2, Eye } from 'lucide-react'
+import { trackQuickViewOpen, trackQuickViewDownload, trackShare } from '@/utilities/clarityTracking'
 
 interface TwitterCardData {
   assemblyId: string
@@ -133,6 +134,14 @@ export function TwitterCardModal({
   const [isOpen, setIsOpen] = React.useState(false)
   const cardRef = React.useRef<HTMLDivElement>(null)
 
+  // Track when Quick View dialog opens
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (open) {
+      trackQuickViewOpen(assemblyId)
+    }
+  }
+
   const cardData = React.useMemo(() => {
     if (!data) return null
 
@@ -244,6 +253,7 @@ export function TwitterCardModal({
 
   const handleDownload = async () => {
     if (!cardRef.current || !cardData) return
+    trackQuickViewDownload(assemblyId)
     try {
       const { toPng } = await import('html-to-image')
 
@@ -266,6 +276,7 @@ export function TwitterCardModal({
   }
 
   const handleShareTwitter = async () => {
+    trackShare('twitter', 'quick_view')
     const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
     const dmkWinner = (cardData?.dmkBlocWins || 0) > (cardData?.aiadmkBlocWins || 0)
     const tweetText =
@@ -317,7 +328,7 @@ export function TwitterCardModal({
     cardData?.party1 && cardData?.party2 ? cardData.party1.wins - cardData.party2.wins : 0
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" size="sm" className="gap-2">
