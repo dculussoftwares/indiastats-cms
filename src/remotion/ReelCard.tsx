@@ -9,7 +9,8 @@ import {
   staticFile,
 } from 'remotion'
 
-interface ReelCardProps {
+export interface ReelCardProps {
+  [key: string]: unknown
   assemblyName: string
   districtName: string
   isReserved: boolean
