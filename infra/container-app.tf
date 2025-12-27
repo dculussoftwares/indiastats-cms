@@ -105,6 +105,16 @@ resource "azurerm_container_app" "main" {
         name  = "NEXT_PUBLIC_CLARITY_ID"
         value = var.clarity_id
       }
+
+      env {
+        name  = "NEXT_PUBLIC_POSTHOG_KEY"
+        value = var.posthog_key
+      }
+
+      env {
+        name  = "NEXT_PUBLIC_POSTHOG_HOST"
+        value = var.posthog_host
+      }
     }
   }
 

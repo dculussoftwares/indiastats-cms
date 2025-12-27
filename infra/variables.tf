@@ -52,3 +52,17 @@ variable "clarity_id" {
   sensitive   = false
   default     = ""
 }
+
+variable "posthog_key" {
+  description = "PostHog Project API Key for analytics"
+  type        = string
+  sensitive   = false
+  default     = ""
+}
+
+variable "posthog_host" {
+  description = "PostHog API Host URL"
+  type        = string
+  sensitive   = false
+  default     = "https://eu.i.posthog.com"
+}
