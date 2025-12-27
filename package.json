@@ -25,6 +25,7 @@
     "remotion:thumbnail": "remotion still src/remotion/index.tsx ReelCard out/thumbnail.png --frame=210"
   },
   "dependencies": {
+    "@microsoft/clarity": "1.0.2",
     "@payloadcms/admin-bar": "3.68.4",
     "@payloadcms/db-postgres": "3.68.4",
     "@payloadcms/live-preview-react": "3.68.4",

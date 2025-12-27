@@ -46,3 +46,9 @@ variable "storage_account_name" {
   default     = "stindiastatsmedia"
 }
 
+variable "clarity_id" {
+  description = "Microsoft Clarity Project ID for analytics"
+  type        = string
+  sensitive   = false
+  default     = ""
+}

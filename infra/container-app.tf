@@ -100,6 +100,11 @@ resource "azurerm_container_app" "main" {
         name  = "AZURE_STORAGE_ACCOUNT_BASEURL"
         value = azurerm_storage_account.media.primary_blob_endpoint
       }
+
+      env {
+        name  = "NEXT_PUBLIC_CLARITY_ID"
+        value = var.clarity_id
+      }
     }
   }
 
