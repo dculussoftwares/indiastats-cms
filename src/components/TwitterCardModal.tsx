@@ -10,7 +10,12 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Download, Loader2, Eye } from 'lucide-react'
-import { trackQuickViewOpen, trackQuickViewDownload, trackShare } from '@/utilities/clarityTracking'
+import {
+  trackQuickViewOpen,
+  trackQuickViewDownload,
+  trackShare,
+  trackButtonClick,
+} from '@/utilities/analytics'
 
 interface TwitterCardData {
   assemblyId: string
@@ -138,7 +143,8 @@ export function TwitterCardModal({
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open)
     if (open) {
-      trackQuickViewOpen(assemblyId)
+      trackQuickViewOpen(assemblyId, assemblyName)
+      trackButtonClick('Quick View Open', { assembly_id: assemblyId })
     }
   }
 
@@ -253,7 +259,8 @@ export function TwitterCardModal({
 
   const handleDownload = async () => {
     if (!cardRef.current || !cardData) return
-    trackQuickViewDownload(assemblyId)
+    trackQuickViewDownload(assemblyId, assemblyName)
+    trackButtonClick('Download Quick View', { assembly_id: assemblyId })
     try {
       const { toPng } = await import('html-to-image')
 
@@ -276,7 +283,8 @@ export function TwitterCardModal({
   }
 
   const handleShareTwitter = async () => {
-    trackShare('twitter', 'quick_view')
+    trackShare('twitter', 'quick_view', assemblyId)
+    trackButtonClick('Share Twitter', { assembly_id: assemblyId })
     const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
     const dmkWinner = (cardData?.dmkBlocWins || 0) > (cardData?.aiadmkBlocWins || 0)
     const tweetText =

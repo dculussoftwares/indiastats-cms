@@ -13,7 +13,7 @@ import type { Theme } from './types'
 
 import { useTheme } from '..'
 import { themeLocalStorageKey } from './types'
-import { trackThemeChange } from '@/utilities/clarityTracking'
+import { trackThemeChange } from '@/utilities/analytics'
 
 export const ThemeSelector: React.FC = () => {
   const { setTheme } = useTheme()

@@ -7,8 +7,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChevronRight, Search } from 'lucide-react'
-import { trackSearch, trackSearchResultClick } from '@/utilities/clarityTracking'
-import { mixpanel } from '@/instrumentation-client'
+import {
+  trackSearch,
+  trackSearchResultClick,
+  trackViewAssembly,
+  trackButtonClick,
+} from '@/utilities/analytics'
 
 export interface District {
   districtId: string
@@ -205,7 +209,7 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     setSelectedAssembly(assembly)
     setAssemblyQuery(assembly.name)
     setIsAssemblyOpen(false)
-    trackSearchResultClick('assembly', assembly.assemblyId)
+    trackSearchResultClick(assembly.assemblyId, assembly.name, 'assembly')
   }
 
   const handleDirectAssemblySelect = (assembly: Assembly) => {
@@ -220,18 +224,19 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     setAssemblyQuery(assembly.name)
     setDirectAssemblyQuery(assembly.name)
     setIsDirectOpen(false)
-    trackSearch('assembly', assembly.name, 1)
-    trackSearchResultClick('assembly', assembly.assemblyId)
-    // Mixpanel Search event
-    mixpanel.track('Search', {
-      search_query: assembly.name,
-      results_count: 1,
-      search_type: 'assembly_direct',
-    })
+    // Unified analytics tracking
+    trackSearch(assembly.name, 1, 'direct')
+    trackSearchResultClick(assembly.assemblyId, assembly.name, 'assembly')
   }
 
   const handleSearchClick = () => {
     if (selectedDistrict && selectedAssembly) {
+      trackViewAssembly(
+        selectedAssembly.assemblyId,
+        selectedAssembly.name,
+        selectedDistrict.districtName,
+      )
+      trackButtonClick('View Assembly', { assembly_id: selectedAssembly.assemblyId })
       router.push(
         `/tamil-nadu/assembly/${selectedDistrict.districtId}/${selectedAssembly.assemblyId}`,
       )
