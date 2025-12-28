@@ -89,9 +89,12 @@ const WEBSITE_DATA: WebsiteSchema = {
 export function JsonLd({ data }: { data: object }) {
   useEffect(() => {
     const typeValue = (data as { '@type'?: string })['@type'] || 'unknown'
+    // Create a safe ID for the data-id attribute (no special characters)
+    const safeId = typeValue.replace(/[^a-zA-Z0-9]/g, '-')
+
     // Check if script already exists
     const existingScript = document.querySelector(
-      `script[type="application/ld+json"][data-id="${JSON.stringify(typeValue)}"]`,
+      `script[type="application/ld+json"][data-id="${safeId}"]`,
     )
     if (existingScript) {
       existingScript.innerHTML = JSON.stringify(data)
@@ -100,7 +103,7 @@ export function JsonLd({ data }: { data: object }) {
 
     const script = document.createElement('script')
     script.type = 'application/ld+json'
-    script.setAttribute('data-id', JSON.stringify(typeValue))
+    script.setAttribute('data-id', safeId)
     script.innerHTML = JSON.stringify(data)
     document.head.appendChild(script)
 
