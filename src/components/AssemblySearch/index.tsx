@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChevronRight, Search } from 'lucide-react'
 import { trackSearch, trackSearchResultClick } from '@/utilities/clarityTracking'
+import { mixpanel } from '@/instrumentation-client'
 
 export interface District {
   districtId: string
@@ -221,6 +222,12 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     setIsDirectOpen(false)
     trackSearch('assembly', assembly.name, 1)
     trackSearchResultClick('assembly', assembly.assemblyId)
+    // Mixpanel Search event
+    mixpanel.track('Search', {
+      search_query: assembly.name,
+      results_count: 1,
+      search_type: 'assembly_direct',
+    })
   }
 
   const handleSearchClick = () => {

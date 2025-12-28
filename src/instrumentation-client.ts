@@ -1,4 +1,5 @@
 import posthog from 'posthog-js'
+import mixpanel from 'mixpanel-browser'
 
 // Initialize PostHog for client-side analytics
 // Only initialize in production and if the key is available
@@ -22,4 +23,16 @@ if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
     })
 }
 
-export { posthog }
+// Initialize Mixpanel for client-side analytics
+// Configured with autocapture and session replay
+if (typeof window !== 'undefined') {
+    mixpanel.init('a0637f05f33e9eaeb35d66867a851c6a', {
+        debug: process.env.NODE_ENV === 'development',
+        track_pageview: true,
+        persistence: 'localStorage',
+        autocapture: true,
+        record_sessions_percent: 100,
+    })
+}
+
+export { posthog, mixpanel }
