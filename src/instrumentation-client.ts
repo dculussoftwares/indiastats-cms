@@ -25,8 +25,8 @@ if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
 
 // Initialize Mixpanel for client-side analytics
 // Configured with autocapture and session replay
-if (typeof window !== 'undefined') {
-    mixpanel.init('a0637f05f33e9eaeb35d66867a851c6a', {
+if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_MIXPANEL_TOKEN) {
+    mixpanel.init(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN, {
         debug: process.env.NODE_ENV === 'development',
         track_pageview: true,
         persistence: 'localStorage',
