@@ -126,10 +126,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'site-settings': SiteSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -2156,6 +2158,67 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * The name of your site
+   */
+  siteName: string;
+  /**
+   * A short tagline for your site
+   */
+  siteTagline?: string | null;
+  /**
+   * Default meta description for your site
+   */
+  siteDescription?: string | null;
+  /**
+   * Twitter handle (include @)
+   */
+  twitterHandle?: string | null;
+  /**
+   * LinkedIn page URL
+   */
+  linkedinUrl?: string | null;
+  /**
+   * Facebook page URL
+   */
+  facebookUrl?: string | null;
+  /**
+   * Default Open Graph image for social shares
+   */
+  defaultOgImage?: (number | null) | Media;
+  /**
+   * Default keywords for SEO (comma-separated)
+   */
+  defaultKeywords?: string | null;
+  /**
+   * Google Search Console verification code
+   */
+  googleSiteVerification?: string | null;
+  /**
+   * Bing Webmaster Tools verification code
+   */
+  bingSiteVerification?: string | null;
+  /**
+   * Microsoft Clarity project ID (set via environment variable in production)
+   */
+  clarityId?: string | null;
+  /**
+   * PostHog project API key (set via environment variable in production)
+   */
+  posthogKey?: string | null;
+  /**
+   * Mixpanel project token (set via environment variable in production)
+   */
+  mixpanelToken?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -2196,6 +2259,28 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  siteTagline?: T;
+  siteDescription?: T;
+  twitterHandle?: T;
+  linkedinUrl?: T;
+  facebookUrl?: T;
+  defaultOgImage?: T;
+  defaultKeywords?: T;
+  googleSiteVerification?: T;
+  bingSiteVerification?: T;
+  clarityId?: T;
+  posthogKey?: T;
+  mixpanelToken?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

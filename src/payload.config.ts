@@ -18,6 +18,7 @@ import { CasteCensus } from './collections/CasteCensus'
 import { States } from './collections/States'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
+import { SiteSettings } from './globals/SiteSettings'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -71,7 +72,7 @@ export default buildConfig({
   }),
   collections: [Pages, Posts, Media, Categories, Users, States, Assemblies, Districts, Booths, ElectionHistory, Alliances, CasteCensus],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
+  globals: [Header, Footer, SiteSettings],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,

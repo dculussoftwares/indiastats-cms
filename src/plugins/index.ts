@@ -15,13 +15,26 @@ import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
+  return doc?.title ? `${doc.title} | IndiaStats.org` : 'IndiaStats.org - Tamil Nadu Election Data'
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
   const url = getServerSideURL()
 
   return doc?.slug ? `${url}/${doc.slug}` : url
+}
+
+// Generate meta description from content
+const generateDescription = ({ doc }: { doc: Post | Page }) => {
+  // If there's a custom meta description, use it
+  if (doc?.meta?.description) return doc.meta.description as string
+
+  // Otherwise generate from title
+  if (doc?.title) {
+    return `Learn more about ${doc.title} on IndiaStats.org - Comprehensive election data, voter statistics, and political insights for Tamil Nadu.`
+  }
+
+  return 'Comprehensive election data, voter statistics, and political insights for Tamil Nadu assembly constituencies.'
 }
 
 export const plugins: Plugin[] = [
@@ -54,6 +67,18 @@ export const plugins: Plugin[] = [
   seoPlugin({
     generateTitle,
     generateURL,
+    generateDescription,
+    uploadsCollection: 'media',
+    fields: ({ defaultFields }) => [
+      ...defaultFields,
+      {
+        name: 'keywords',
+        type: 'text',
+        admin: {
+          description: 'Comma-separated keywords for SEO',
+        },
+      },
+    ],
   }),
   formBuilderPlugin({
     fields: {

@@ -12,6 +12,7 @@ import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
+import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo/JsonLd'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -28,6 +29,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <Providers>
+          <OrganizationJsonLd />
+          <WebsiteJsonLd />
           <AdminBar
             adminBarProps={{
               preview: isEnabled,
@@ -45,9 +48,36 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
+  title: {
+    default: 'IndiaStats.org - Tamil Nadu Election Data & Statistics',
+    template: '%s | IndiaStats.org',
+  },
+  description:
+    'Comprehensive election data, voter statistics, and political insights for Tamil Nadu assembly constituencies. Explore MLA history, booth-level data, and demographic trends.',
+  keywords: [
+    'Tamil Nadu elections',
+    'assembly constituency',
+    'voter data',
+    'MLA history',
+    'election statistics',
+    'India elections',
+  ],
+  authors: [{ name: 'IndiaStats.org' }],
   openGraph: mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',
-    creator: '@payloadcms',
+    creator: '@IndiaStatsOrg',
+    site: '@IndiaStatsOrg',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }

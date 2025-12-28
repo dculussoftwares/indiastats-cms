@@ -46,18 +46,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const assemblyDoc = assembly.docs[0] as any
   const assemblyName = assemblyDoc.name
   const cleanName = assemblyName.split(' / ')[1] || assemblyName
+  const districtId = assemblyDoc.districtId
 
   // Generate OG image URL
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const ogImageUrl = `${baseUrl}/api/og/${assemblyId}`
+  const canonicalUrl = `${baseUrl}/tamil-nadu/assembly/${districtId}/${assemblyId}`
 
   return {
-    title: `${cleanName} Assembly - Election Data | Tamil Nadu`,
-    description: `Comprehensive election data for ${cleanName} assembly constituency, Tamil Nadu. View voter statistics, election history, and booth information.`,
+    title: `${cleanName} Assembly - Voter Data & Election History`,
+    description: `Complete election data for ${cleanName} assembly constituency, Tamil Nadu. Includes ${assemblyDoc.noOfBooths || 'multiple'} polling booths, voter statistics, MLA history since 1972, and demographic insights.`,
+    keywords: [
+      `${cleanName} assembly`,
+      `${cleanName} MLA`,
+      'Tamil Nadu elections',
+      `${assemblyDoc.districtName} district`,
+      'voter data',
+      'election history',
+    ],
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      title: `${cleanName} Assembly - Election Data`,
-      description: `View election history, voter stats, and political insights for ${cleanName} Assembly, Tamil Nadu.`,
+      title: `${cleanName} Assembly - Election Data & Statistics`,
+      description: `View election history, voter stats, and political insights for ${cleanName} Assembly, ${assemblyDoc.districtName} District, Tamil Nadu.`,
       type: 'website',
+      url: canonicalUrl,
       images: [
         {
           url: ogImageUrl,

@@ -82,7 +82,20 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 }
 
 export function generateMetadata(): Metadata {
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   return {
-    title: `Payload Website Template Search`,
+    title: 'Search Tamil Nadu Election Data',
+    description:
+      'Search for assembly constituencies, MLAs, and election data across Tamil Nadu. Find voter statistics, election history, and political insights.',
+    alternates: {
+      canonical: `${baseUrl}/search`,
+    },
+    openGraph: {
+      title: 'Search - IndiaStats.org',
+      description:
+        'Search Tamil Nadu election data, assembly constituencies, and voter statistics.',
+      type: 'website',
+      url: `${baseUrl}/search`,
+    },
   }
 }

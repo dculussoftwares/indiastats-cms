@@ -1,7 +1,7 @@
 const SITE_URL =
   process.env.NEXT_PUBLIC_SERVER_URL ||
   process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-  'https://example.com'
+  'https://indiastats.org'
 
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
@@ -12,6 +12,8 @@ module.exports = {
     '/pages-sitemap.xml',
     '/districts-sitemap.xml',
     '/assemblies-sitemap.xml',
+    '/admin/*',
+    '/api/*',
     '/*',
     '/posts/*',
     '/tamil-nadu/district/*',
@@ -21,7 +23,8 @@ module.exports = {
     policies: [
       {
         userAgent: '*',
-        disallow: '/admin/*',
+        allow: '/',
+        disallow: ['/admin/*', '/api/*'],
       },
     ],
     additionalSitemaps: [
@@ -32,4 +35,3 @@ module.exports = {
     ],
   },
 }
-
