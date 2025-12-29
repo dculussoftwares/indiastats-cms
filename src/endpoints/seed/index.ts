@@ -44,8 +44,10 @@ export const seed = async ({
   payload.logger.info(`— Clearing collections and globals...`)
 
   // clear the database
+  // Only reset header and footer globals that have navItems
+  // SiteSettings doesn't have navItems so we skip it
   await Promise.all(
-    globals.map((global) =>
+    (['header', 'footer'] as const).map((global) =>
       payload.updateGlobal({
         slug: global,
         data: {
