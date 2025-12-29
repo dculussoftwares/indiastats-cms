@@ -70,7 +70,7 @@ jobs:
           build-args: |
             DATABASE_URI=${{ secrets.DATABASE_URL }}
             PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
-            NEXT_PUBLIC_SERVER_URL=https://indiastats-cms.azurecontainerapps.io
+            NEXT_PUBLIC_SERVER_URL=https://indiastats.org
             NEXT_PUBLIC_CLARITY_ID=${{ secrets.NEXT_PUBLIC_CLARITY_ID }}
             NEXT_PUBLIC_POSTHOG_KEY=${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
             NEXT_PUBLIC_POSTHOG_HOST=${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}

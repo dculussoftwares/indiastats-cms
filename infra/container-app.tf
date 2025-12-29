@@ -83,7 +83,7 @@ resource "azurerm_container_app" "main" {
 
       env {
         name  = "NEXT_PUBLIC_SERVER_URL"
-        value = "https://${var.container_app_name}.${azurerm_container_app_environment.main.default_domain}"
+        value = "https://indiastats.org"
       }
 
       env {
