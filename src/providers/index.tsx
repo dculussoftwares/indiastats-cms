@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { ClarityProvider } from './Clarity'
+import { CommandPaletteProvider } from './CommandPalette'
 import { HeaderThemeProvider } from './HeaderTheme'
 import { ThemeProvider } from './Theme'
 
@@ -10,7 +11,9 @@ export const Providers: React.FC<{
   return (
     <ThemeProvider>
       <HeaderThemeProvider>
-        <ClarityProvider>{children}</ClarityProvider>
+        <ClarityProvider>
+          <CommandPaletteProvider>{children}</CommandPaletteProvider>
+        </ClarityProvider>
       </HeaderThemeProvider>
     </ThemeProvider>
   )
