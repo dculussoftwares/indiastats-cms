@@ -293,7 +293,8 @@ export function TwitterCardModal({
       `🔴 DMK Bloc: ${cardData?.dmkBlocWins} wins\n` +
       `🟢 AIADMK Bloc: ${cardData?.aiadmkBlocWins} wins\n` +
       `🏆 ${dmkWinner ? 'DMK' : 'AIADMK'} Bloc leads!\n\n` +
-      `Explore more at IndiaStats.org\n#TamilNadu #Elections`
+      `Explore more at IndiaStats.org\n\n` +
+      `#TamilNadu #TNElections #TamilNaduPolitics #IndiaStats #DMK #AIADMK #TNPolls #ElectionData #TVK #Vijay #Stalin #EPS #BJP #Modi #INC #RahulGandhi`
 
     // Try Web Share API with image file
     if (navigator.share && cardRef.current) {
