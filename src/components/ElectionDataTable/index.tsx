@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select'
 import { exportToExcel, flattenElectionDataForExcel } from '@/utilities/excelExport'
 import { getPartyColor } from '@/lib/partyColors'
+import { track } from '@/utilities/analytics'
 import { Download, ChevronUp, ChevronDown, ChevronsUpDown, Loader2 } from 'lucide-react'
 
 interface CandidateData {
@@ -311,6 +312,14 @@ export function ElectionDataTable() {
 
   // Handle export
   const handleExport = () => {
+    // Track export action
+    track('Election Data Export', {
+      year: selectedYear,
+      district: selectedDistrict,
+      party: selectedParty,
+      record_count: filteredData.length,
+    })
+
     const flatData = flattenElectionDataForExcel(filteredData)
     const yearLabel = selectedYear === 'all' ? 'AllYears' : selectedYear
     const districtLabel = selectedDistrict === 'all' ? '' : `_${selectedDistrict}`
@@ -319,6 +328,32 @@ export function ElectionDataTable() {
       sheetName: 'Election Data',
     })
   }
+
+  // Handle filter changes with tracking
+  const handleYearChange = (value: string) => {
+    track('Election Data Filter', { filter_type: 'year', value })
+    setSelectedYear(value)
+  }
+
+  const handleDistrictChange = (value: string) => {
+    track('Election Data Filter', { filter_type: 'district', value })
+    setSelectedDistrict(value)
+  }
+
+  const handlePartyChange = (value: string) => {
+    track('Election Data Filter', { filter_type: 'party', value })
+    setSelectedParty(value)
+  }
+
+  // Track X contact link click
+  const handleXLinkClick = () => {
+    track('X Contact Link Click', { page: 'election_data', reason: 'full_data_download' })
+  }
+
+  // Track page view on mount
+  useEffect(() => {
+    track('Page View', { page_name: 'Election Data Table', page_url: '/election-data' })
+  }, [])
 
   if (loading) {
     return (
@@ -339,7 +374,7 @@ export function ElectionDataTable() {
       <div className="flex flex-wrap gap-4 items-end p-4 bg-muted/30 rounded-lg">
         <div className="space-y-1">
           <label className="text-sm font-medium text-muted-foreground">Election Year</label>
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
+          <Select value={selectedYear} onValueChange={handleYearChange}>
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="All Years" />
             </SelectTrigger>
@@ -356,7 +391,7 @@ export function ElectionDataTable() {
 
         <div className="space-y-1">
           <label className="text-sm font-medium text-muted-foreground">District</label>
-          <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+          <Select value={selectedDistrict} onValueChange={handleDistrictChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Districts" />
             </SelectTrigger>
@@ -373,7 +408,7 @@ export function ElectionDataTable() {
 
         <div className="space-y-1">
           <label className="text-sm font-medium text-muted-foreground">Winner Party</label>
-          <Select value={selectedParty} onValueChange={setSelectedParty}>
+          <Select value={selectedParty} onValueChange={handlePartyChange}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All Parties" />
             </SelectTrigger>
@@ -410,6 +445,7 @@ export function ElectionDataTable() {
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              onClick={handleXLinkClick}
             >
               Contact us on <span className="font-semibold">@india_stats_org</span> for full data
             </a>
