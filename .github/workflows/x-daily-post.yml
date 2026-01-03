@@ -253,7 +253,7 @@ jobs:
               '🗳️ Tamil Nadu Elections Data\n' +
               'Explore detailed history, demographics & voting patterns\n\n' +
               '🔗 ' + info.pageUrl + '\n\n' +
-              dynamicTags + '#IndiaStats #ADMK #DMK #BJP #Congress #EPS #MKStalin #Modi #TVK #Vijay';
+              dynamicTags + ' #IndiaStats #ADMK #DMK #BJP #Congress #EPS #MKStalin #Modi #TVK #Vijay';
             
             await client.v2.tweet({ text: text, media: { media_ids: [mediaId] } });
             console.log('Tweet posted successfully!');
