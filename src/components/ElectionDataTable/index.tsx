@@ -119,6 +119,8 @@ export function ElectionDataTable() {
     years: number[]
     parties: string[]
   }>({ districts: [], years: [], parties: [] })
+  // Store initial year list separately (never gets overwritten after first load)
+  const [initialYears, setInitialYears] = useState<number[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -163,6 +165,12 @@ export function ElectionDataTable() {
       columnHelper.accessor((row) => row.candidates[1], {
         id: 'runnerUp',
         header: 'Runner-up',
+        cell: (info) => <PartyBadge candidate={info.getValue()} />,
+        enableSorting: false,
+      }),
+      columnHelper.accessor((row) => row.candidates[2], {
+        id: 'runnerUp2',
+        header: '2nd Runner-up',
         cell: (info) => <PartyBadge candidate={info.getValue()} />,
         enableSorting: false,
       }),
@@ -215,7 +223,24 @@ export function ElectionDataTable() {
     [],
   )
 
-  // Fetch data on mount and when year filter changes
+  // Fetch initial years list once on mount
+  useEffect(() => {
+    async function fetchInitialYears() {
+      try {
+        // Fetch without year filter to get all available years
+        const response = await fetch('/api/election-data-table')
+        if (response.ok) {
+          const result: ElectionDataTableResponse = await response.json()
+          setInitialYears(result.filters.years)
+        }
+      } catch {
+        // Silently fail, years will be empty
+      }
+    }
+    fetchInitialYears()
+  }, [])
+
+  // Fetch data when year filter changes
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
@@ -231,7 +256,12 @@ export function ElectionDataTable() {
         }
         const result: ElectionDataTableResponse = await response.json()
         setData(result.data)
-        setAvailableFilters(result.filters)
+        // Only update districts and parties from filtered response, not years
+        setAvailableFilters({
+          districts: result.filters.districts,
+          years: result.filters.years, // This is still set but we use initialYears for dropdown
+          parties: result.filters.parties,
+        })
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
@@ -315,7 +345,7 @@ export function ElectionDataTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Years</SelectItem>
-              {availableFilters.years.map((year) => (
+              {initialYears.map((year) => (
                 <SelectItem key={year} value={String(year)}>
                   {year}
                 </SelectItem>

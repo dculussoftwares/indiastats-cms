@@ -64,6 +64,9 @@ export interface FlatElectionRow {
     'Runner-up Name': string
     'Runner-up Party': string
     'Runner-up Votes': number
+    '2nd Runner-up Name': string
+    '2nd Runner-up Party': string
+    '2nd Runner-up Votes': number
     'Margin': number | null
     'Margin %': number | null
     'All Candidates': string
@@ -86,6 +89,7 @@ export function flattenElectionDataForExcel(
     return data.map(row => {
         const winner = row.candidates[0] || { name: '', party: '', votes: 0 }
         const runnerUp = row.candidates[1] || { name: '', party: '', votes: 0 }
+        const runnerUp2 = row.candidates[2] || { name: '', party: '', votes: 0 }
 
         // Create a string with all candidates
         const allCandidates = row.candidates
@@ -106,6 +110,9 @@ export function flattenElectionDataForExcel(
             'Runner-up Name': runnerUp.name,
             'Runner-up Party': runnerUp.party,
             'Runner-up Votes': runnerUp.votes,
+            '2nd Runner-up Name': runnerUp2.name,
+            '2nd Runner-up Party': runnerUp2.party,
+            '2nd Runner-up Votes': runnerUp2.votes,
             'Margin': row.margin,
             'Margin %': row.marginPercent,
             'All Candidates': allCandidates,
