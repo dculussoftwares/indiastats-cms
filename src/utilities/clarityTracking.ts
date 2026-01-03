@@ -7,9 +7,13 @@ import Clarity from '@microsoft/clarity'
  * Provides methods to track custom events, set dimensions, and identify users
  */
 
-// Check if Clarity is initialized (only in production)
+// Check if Clarity is initialized and available
 const isClarityReady = () => {
-    return typeof window !== 'undefined' && process.env.NODE_ENV === 'production'
+    return (
+        typeof window !== 'undefined' &&
+        process.env.NODE_ENV === 'production' &&
+        typeof (window as unknown as { clarity?: unknown }).clarity === 'function'
+    )
 }
 
 /**
@@ -18,7 +22,11 @@ const isClarityReady = () => {
  */
 export const trackEvent = (eventName: string) => {
     if (isClarityReady()) {
-        Clarity.event(eventName)
+        try {
+            Clarity.event(eventName)
+        } catch {
+            // Silently fail if Clarity is not ready
+        }
     }
 }
 
@@ -28,7 +36,11 @@ export const trackEvent = (eventName: string) => {
  */
 export const setDimension = (key: string, value: string) => {
     if (isClarityReady()) {
-        Clarity.setTag(key, value)
+        try {
+            Clarity.setTag(key, value)
+        } catch {
+            // Silently fail if Clarity is not ready
+        }
     }
 }
 
@@ -38,7 +50,11 @@ export const setDimension = (key: string, value: string) => {
  */
 export const identifyUser = (userId: string, sessionId?: string, pageId?: string) => {
     if (isClarityReady()) {
-        Clarity.identify(userId, sessionId, pageId)
+        try {
+            Clarity.identify(userId, sessionId, pageId)
+        } catch {
+            // Silently fail if Clarity is not ready
+        }
     }
 }
 
@@ -48,7 +64,11 @@ export const identifyUser = (userId: string, sessionId?: string, pageId?: string
  */
 export const upgradeSession = (reason: string) => {
     if (isClarityReady()) {
-        Clarity.upgrade(reason)
+        try {
+            Clarity.upgrade(reason)
+        } catch {
+            // Silently fail if Clarity is not ready
+        }
     }
 }
 
@@ -58,7 +78,11 @@ export const upgradeSession = (reason: string) => {
  */
 export const grantConsent = () => {
     if (isClarityReady()) {
-        Clarity.consent()
+        try {
+            Clarity.consent()
+        } catch {
+            // Silently fail if Clarity is not ready
+        }
     }
 }
 
