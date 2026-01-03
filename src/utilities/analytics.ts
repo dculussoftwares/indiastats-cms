@@ -17,17 +17,29 @@ import { trackEvent, setDimension } from '@/utilities/clarityTracking'
  */
 export const track = (eventName: string, properties?: Record<string, unknown>) => {
     // PostHog
-    if (posthog) {
-        posthog.capture(eventName, properties)
+    if (posthog && typeof posthog.capture === 'function') {
+        try {
+            posthog.capture(eventName, properties)
+        } catch {
+            // Silently fail if PostHog is not ready
+        }
     }
 
     // Mixpanel
-    if (mixpanel) {
-        mixpanel.track(eventName, properties)
+    if (mixpanel && typeof mixpanel.track === 'function') {
+        try {
+            mixpanel.track(eventName, properties)
+        } catch {
+            // Silently fail if Mixpanel is not ready
+        }
     }
 
     // Clarity (event only, no properties support)
-    trackEvent(eventName.toLowerCase().replace(/\s+/g, '_'))
+    try {
+        trackEvent(eventName.toLowerCase().replace(/\s+/g, '_'))
+    } catch {
+        // Silently fail if Clarity is not ready
+    }
 }
 
 /**
@@ -35,19 +47,31 @@ export const track = (eventName: string, properties?: Record<string, unknown>) =
  */
 export const setUserProperties = (properties: Record<string, unknown>) => {
     // PostHog
-    if (posthog) {
-        posthog.people.set(properties)
+    if (posthog && posthog.people && typeof posthog.people.set === 'function') {
+        try {
+            posthog.people.set(properties)
+        } catch {
+            // Silently fail
+        }
     }
 
     // Mixpanel
-    if (mixpanel) {
-        mixpanel.people.set(properties)
+    if (mixpanel && mixpanel.people && typeof mixpanel.people.set === 'function') {
+        try {
+            mixpanel.people.set(properties)
+        } catch {
+            // Silently fail
+        }
     }
 
     // Clarity - set each property as a dimension
     Object.entries(properties).forEach(([key, value]) => {
         if (typeof value === 'string') {
-            setDimension(key, value)
+            try {
+                setDimension(key, value)
+            } catch {
+                // Silently fail
+            }
         }
     })
 }
@@ -57,15 +81,23 @@ export const setUserProperties = (properties: Record<string, unknown>) => {
  */
 export const identify = (userId: string, properties?: Record<string, unknown>) => {
     // PostHog
-    if (posthog) {
-        posthog.identify(userId, properties)
+    if (posthog && typeof posthog.identify === 'function') {
+        try {
+            posthog.identify(userId, properties)
+        } catch {
+            // Silently fail
+        }
     }
 
     // Mixpanel
-    if (mixpanel) {
-        mixpanel.identify(userId)
-        if (properties) {
-            mixpanel.people.set(properties)
+    if (mixpanel && typeof mixpanel.identify === 'function') {
+        try {
+            mixpanel.identify(userId)
+            if (properties && mixpanel.people && typeof mixpanel.people.set === 'function') {
+                mixpanel.people.set(properties)
+            }
+        } catch {
+            // Silently fail
         }
     }
 }

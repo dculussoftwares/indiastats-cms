@@ -371,11 +371,11 @@ export function ElectionDataTable() {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 items-end p-4 bg-muted/30 rounded-lg">
-        <div className="space-y-1">
+      <div className="flex flex-wrap gap-3 md:gap-4 items-end p-4 bg-muted/30 rounded-lg">
+        <div className="space-y-1 w-full sm:w-auto">
           <label className="text-sm font-medium text-muted-foreground">Election Year</label>
           <Select value={selectedYear} onValueChange={handleYearChange}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-full sm:w-[140px]">
               <SelectValue placeholder="All Years" />
             </SelectTrigger>
             <SelectContent>
@@ -389,10 +389,10 @@ export function ElectionDataTable() {
           </Select>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 w-full sm:w-auto">
           <label className="text-sm font-medium text-muted-foreground">District</label>
           <Select value={selectedDistrict} onValueChange={handleDistrictChange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Districts" />
             </SelectTrigger>
             <SelectContent>
@@ -406,10 +406,10 @@ export function ElectionDataTable() {
           </Select>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 w-full sm:w-auto">
           <label className="text-sm font-medium text-muted-foreground">Winner Party</label>
           <Select value={selectedParty} onValueChange={handlePartyChange}>
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-full sm:w-[150px]">
               <SelectValue placeholder="All Parties" />
             </SelectTrigger>
             <SelectContent>
@@ -423,12 +423,12 @@ export function ElectionDataTable() {
           </Select>
         </div>
 
-        <div className="flex-1" />
+        <div className="hidden md:flex flex-1" />
 
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col w-full sm:w-auto items-stretch sm:items-end gap-1 mt-2 sm:mt-0">
           <Button
             onClick={handleExport}
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto"
             disabled={selectedDistrict === 'all'}
             title={
               selectedDistrict === 'all'
@@ -440,15 +440,20 @@ export function ElectionDataTable() {
             Export to Excel
           </Button>
           {selectedDistrict === 'all' && (
-            <a
-              href="https://x.com/india_stats_org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted-foreground hover:text-primary transition-colors"
-              onClick={handleXLinkClick}
-            >
-              Contact us on <span className="font-semibold">@india_stats_org</span> for full data
-            </a>
+            <div className="flex flex-col items-center sm:items-end gap-0.5 text-center sm:text-right">
+              <span className="text-xs text-muted-foreground">
+                Select a district to enable export
+              </span>
+              <a
+                href="https://x.com/india_stats_org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                onClick={handleXLinkClick}
+              >
+                Contact <span className="font-semibold">@india_stats_org</span> for full data
+              </a>
+            </div>
           )}
         </div>
       </div>
