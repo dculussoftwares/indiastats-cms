@@ -70,7 +70,8 @@
     "remotion": "4.0.394",
     "sharp": "0.34.2",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "xlsx": "0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -97,8 +98,7 @@
     "tsx": "4.21.0",
     "typescript": "5.7.3",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "3.2.3",
-    "xlsx": "0.18.5"
+    "vitest": "3.2.3"
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0",
