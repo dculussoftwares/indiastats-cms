@@ -16,6 +16,7 @@ import {
   Star,
   Search,
   ExternalLink,
+  Download,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -180,7 +181,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
             {/* Interactive Map */}
             <Link href="/tamil-nadu/assembly-map" className="group">
               <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-red-500/50 transition-all duration-300">
@@ -242,6 +243,22 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 </h3>
                 <p className="text-white/50 text-sm mb-4">Population data by constituency</p>
                 <div className="flex items-center text-red-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  Explore <ChevronRight className="h-4 w-4 ml-1" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Election Data Table - NEW */}
+            <Link href="/election-data" className="group">
+              <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-green-500/50 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-green-600/20 flex items-center justify-center mb-4 group-hover:bg-green-600/30 transition-colors">
+                  <Download className="h-6 w-6 text-green-500" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-green-400 transition-colors">
+                  Election Data Table
+                </h3>
+                <p className="text-white/50 text-sm mb-4">Filter, sort & export to Excel</p>
+                <div className="flex items-center text-green-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Explore <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
               </div>
