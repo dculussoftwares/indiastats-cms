@@ -390,19 +390,31 @@ export function ElectionDataTable() {
 
         <div className="flex-1" />
 
-        <Button
-          onClick={handleExport}
-          className="gap-2"
-          disabled={selectedDistrict === 'all'}
-          title={
-            selectedDistrict === 'all'
-              ? 'Please select a specific district to export'
-              : 'Export filtered data to Excel'
-          }
-        >
-          <Download className="w-4 h-4" />
-          Export to Excel
-        </Button>
+        <div className="flex flex-col items-end gap-1">
+          <Button
+            onClick={handleExport}
+            className="gap-2"
+            disabled={selectedDistrict === 'all'}
+            title={
+              selectedDistrict === 'all'
+                ? 'Please select a specific district to export'
+                : 'Export filtered data to Excel'
+            }
+          >
+            <Download className="w-4 h-4" />
+            Export to Excel
+          </Button>
+          {selectedDistrict === 'all' && (
+            <a
+              href="https://x.com/india_stats_org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              Contact us on <span className="font-semibold">@india_stats_org</span> for full data
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Results count */}
