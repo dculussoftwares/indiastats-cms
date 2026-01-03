@@ -2,6 +2,17 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  getFilteredRowModel,
+  flexRender,
+  createColumnHelper,
+  SortingState,
+  ColumnFiltersState,
+} from '@tanstack/react-table'
+import {
   Table,
   TableBody,
   TableCell,
@@ -19,7 +30,7 @@ import {
 } from '@/components/ui/select'
 import { exportToExcel, flattenElectionDataForExcel } from '@/utilities/excelExport'
 import { getPartyColor } from '@/lib/partyColors'
-import { Download, ChevronUp, ChevronDown, Loader2 } from 'lucide-react'
+import { Download, ChevronUp, ChevronDown, ChevronsUpDown, Loader2 } from 'lucide-react'
 
 interface CandidateData {
   name: string
@@ -52,20 +63,58 @@ interface ElectionDataTableResponse {
   totalRecords: number
 }
 
-type SortField =
-  | 'acNo'
-  | 'acName'
-  | 'districtName'
-  | 'electionYear'
-  | 'totalElectors'
-  | 'totalVotes'
-  | 'margin'
-  | 'marginPercent'
-type SortDirection = 'asc' | 'desc'
+const columnHelper = createColumnHelper<AssemblyElectionData>()
+
+// Party Badge Component
+function PartyBadge({ candidate }: { candidate: CandidateData | undefined }) {
+  if (!candidate) return null
+
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        className="inline-flex items-center justify-center w-2 h-8 rounded-sm shrink-0"
+        style={{ backgroundColor: getPartyColor(candidate.party) }}
+      />
+      <div>
+        <div className="font-medium">{candidate.name}</div>
+        <div className="text-xs text-muted-foreground">
+          <span
+            className="inline-block px-1.5 py-0.5 rounded text-white text-[10px] font-semibold mr-1"
+            style={{ backgroundColor: getPartyColor(candidate.party) }}
+          >
+            {candidate.party}
+          </span>
+          {candidate.votes.toLocaleString()}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Sort Header Component
+function SortableHeader({ column, children }: { column: any; children: React.ReactNode }) {
+  const isSorted = column.getIsSorted()
+
+  return (
+    <button
+      className="flex items-center gap-1 hover:text-foreground transition-colors"
+      onClick={() => column.toggleSorting()}
+    >
+      {children}
+      {isSorted === 'asc' ? (
+        <ChevronUp className="w-4 h-4" />
+      ) : isSorted === 'desc' ? (
+        <ChevronDown className="w-4 h-4" />
+      ) : (
+        <ChevronsUpDown className="w-4 h-4 opacity-50" />
+      )}
+    </button>
+  )
+}
 
 export function ElectionDataTable() {
   const [data, setData] = useState<AssemblyElectionData[]>([])
-  const [filters, setFilters] = useState<{
+  const [availableFilters, setAvailableFilters] = useState<{
     districts: string[]
     years: number[]
     parties: string[]
@@ -78,13 +127,93 @@ export function ElectionDataTable() {
   const [selectedDistrict, setSelectedDistrict] = useState<string>('all')
   const [selectedParty, setSelectedParty] = useState<string>('all')
 
-  // Sort state
-  const [sortField, setSortField] = useState<SortField>('acNo')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  // TanStack Table State
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'acNo', desc: false }])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(25)
+  // Define columns
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('acNo', {
+        header: ({ column }) => <SortableHeader column={column}>AC No</SortableHeader>,
+        cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+        sortingFn: 'basic',
+      }),
+      columnHelper.accessor('acName', {
+        header: ({ column }) => <SortableHeader column={column}>AC Name</SortableHeader>,
+        cell: (info) => info.getValue(),
+        sortingFn: 'text',
+      }),
+      columnHelper.accessor('districtName', {
+        header: ({ column }) => <SortableHeader column={column}>District</SortableHeader>,
+        cell: (info) => info.getValue(),
+        sortingFn: 'text',
+      }),
+      columnHelper.accessor('electionYear', {
+        header: ({ column }) => <SortableHeader column={column}>Year</SortableHeader>,
+        cell: (info) => info.getValue(),
+        sortingFn: 'basic',
+      }),
+      columnHelper.accessor((row) => row.candidates[0], {
+        id: 'winner',
+        header: 'Winner',
+        cell: (info) => <PartyBadge candidate={info.getValue()} />,
+        enableSorting: false,
+      }),
+      columnHelper.accessor((row) => row.candidates[1], {
+        id: 'runnerUp',
+        header: 'Runner-up',
+        cell: (info) => <PartyBadge candidate={info.getValue()} />,
+        enableSorting: false,
+      }),
+      columnHelper.accessor('totalElectors', {
+        header: ({ column }) => (
+          <div className="text-right">
+            <SortableHeader column={column}>Electors</SortableHeader>
+          </div>
+        ),
+        cell: (info) => (
+          <div className="text-right">{info.getValue()?.toLocaleString() ?? '-'}</div>
+        ),
+        sortingFn: 'basic',
+      }),
+      columnHelper.accessor('totalVotes', {
+        header: ({ column }) => (
+          <div className="text-right">
+            <SortableHeader column={column}>Votes</SortableHeader>
+          </div>
+        ),
+        cell: (info) => (
+          <div className="text-right">{info.getValue()?.toLocaleString() ?? '-'}</div>
+        ),
+        sortingFn: 'basic',
+      }),
+      columnHelper.accessor('margin', {
+        header: ({ column }) => (
+          <div className="text-right">
+            <SortableHeader column={column}>Margin</SortableHeader>
+          </div>
+        ),
+        cell: (info) => (
+          <div className="text-right font-medium">{info.getValue()?.toLocaleString() ?? '-'}</div>
+        ),
+        sortingFn: 'basic',
+      }),
+      columnHelper.accessor('marginPercent', {
+        header: ({ column }) => (
+          <div className="text-right">
+            <SortableHeader column={column}>Margin %</SortableHeader>
+          </div>
+        ),
+        cell: (info) => {
+          const value = info.getValue()
+          return <div className="text-right">{value != null ? `${value}%` : '-'}</div>
+        },
+        sortingFn: 'basic',
+      }),
+    ],
+    [],
+  )
 
   // Fetch data on mount and when year filter changes
   useEffect(() => {
@@ -102,7 +231,7 @@ export function ElectionDataTable() {
         }
         const result: ElectionDataTableResponse = await response.json()
         setData(result.data)
-        setFilters(result.filters)
+        setAvailableFilters(result.filters)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
@@ -112,110 +241,47 @@ export function ElectionDataTable() {
     fetchData()
   }, [selectedYear])
 
-  // Reset page when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [selectedDistrict, selectedParty, sortField, sortDirection])
-
-  // Filter and sort data
-  const filteredAndSortedData = useMemo(() => {
+  // Filter data based on district and party selections
+  const filteredData = useMemo(() => {
     let filtered = [...data]
 
-    // Apply district filter
     if (selectedDistrict !== 'all') {
       filtered = filtered.filter((row) => row.districtName === selectedDistrict)
     }
 
-    // Apply party filter (by winner's party)
     if (selectedParty !== 'all') {
       filtered = filtered.filter(
         (row) => row.candidates.length > 0 && row.candidates[0].party === selectedParty,
       )
     }
 
-    // Sort
-    filtered.sort((a, b) => {
-      let aVal: any
-      let bVal: any
-
-      switch (sortField) {
-        case 'acNo':
-          aVal = a.acNo || 0
-          bVal = b.acNo || 0
-          break
-        case 'acName':
-          aVal = a.acName.toLowerCase()
-          bVal = b.acName.toLowerCase()
-          break
-        case 'districtName':
-          aVal = a.districtName.toLowerCase()
-          bVal = b.districtName.toLowerCase()
-          break
-        case 'electionYear':
-          aVal = a.electionYear
-          bVal = b.electionYear
-          break
-        case 'totalElectors':
-          aVal = a.totalElectors || 0
-          bVal = b.totalElectors || 0
-          break
-        case 'totalVotes':
-          aVal = a.totalVotes || 0
-          bVal = b.totalVotes || 0
-          break
-        case 'margin':
-          aVal = a.margin || 0
-          bVal = b.margin || 0
-          break
-        case 'marginPercent':
-          aVal = a.marginPercent || 0
-          bVal = b.marginPercent || 0
-          break
-        default:
-          aVal = 0
-          bVal = 0
-      }
-
-      if (typeof aVal === 'string') {
-        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
-      }
-      return sortDirection === 'asc' ? aVal - bVal : bVal - aVal
-    })
-
     return filtered
-  }, [data, selectedDistrict, selectedParty, sortField, sortDirection])
+  }, [data, selectedDistrict, selectedParty])
 
-  // Paginate
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * pageSize
-    return filteredAndSortedData.slice(start, start + pageSize)
-  }, [filteredAndSortedData, currentPage, pageSize])
-
-  const totalPages = Math.ceil(filteredAndSortedData.length / pageSize)
-
-  // Handle sort
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-    } else {
-      setSortField(field)
-      setSortDirection('asc')
-    }
-  }
-
-  // Sort indicator
-  const SortIndicator = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return null
-    return sortDirection === 'asc' ? (
-      <ChevronUp className="inline w-4 h-4" />
-    ) : (
-      <ChevronDown className="inline w-4 h-4" />
-    )
-  }
+  // Initialize table
+  const table = useReactTable({
+    data: filteredData,
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 25,
+      },
+    },
+  })
 
   // Handle export
   const handleExport = () => {
-    const flatData = flattenElectionDataForExcel(filteredAndSortedData)
+    const flatData = flattenElectionDataForExcel(filteredData)
     const yearLabel = selectedYear === 'all' ? 'AllYears' : selectedYear
     const districtLabel = selectedDistrict === 'all' ? '' : `_${selectedDistrict}`
     exportToExcel(flatData, {
@@ -249,7 +315,7 @@ export function ElectionDataTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Years</SelectItem>
-              {filters.years.map((year) => (
+              {availableFilters.years.map((year) => (
                 <SelectItem key={year} value={String(year)}>
                   {year}
                 </SelectItem>
@@ -266,7 +332,7 @@ export function ElectionDataTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Districts</SelectItem>
-              {filters.districts.map((district) => (
+              {availableFilters.districts.map((district) => (
                 <SelectItem key={district} value={district}>
                   {district}
                 </SelectItem>
@@ -283,7 +349,7 @@ export function ElectionDataTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Parties</SelectItem>
-              {filters.parties.map((party) => (
+              {availableFilters.parties.map((party) => (
                 <SelectItem key={party} value={party}>
                   {party}
                 </SelectItem>
@@ -302,135 +368,43 @@ export function ElectionDataTable() {
 
       {/* Results count */}
       <div className="text-sm text-muted-foreground">
-        Showing {paginatedData.length} of {filteredAndSortedData.length} records
+        Showing {table.getRowModel().rows.length} of {filteredData.length} records
       </div>
 
       {/* Table */}
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead
-                className="cursor-pointer hover:bg-muted"
-                onClick={() => handleSort('acNo')}
-              >
-                AC No <SortIndicator field="acNo" />
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted"
-                onClick={() => handleSort('acName')}
-              >
-                AC Name <SortIndicator field="acName" />
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted"
-                onClick={() => handleSort('districtName')}
-              >
-                District <SortIndicator field="districtName" />
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted"
-                onClick={() => handleSort('electionYear')}
-              >
-                Year <SortIndicator field="electionYear" />
-              </TableHead>
-              <TableHead>Winner</TableHead>
-              <TableHead>Runner-up</TableHead>
-              <TableHead
-                className="text-right cursor-pointer hover:bg-muted"
-                onClick={() => handleSort('totalElectors')}
-              >
-                Electors <SortIndicator field="totalElectors" />
-              </TableHead>
-              <TableHead
-                className="text-right cursor-pointer hover:bg-muted"
-                onClick={() => handleSort('totalVotes')}
-              >
-                Votes <SortIndicator field="totalVotes" />
-              </TableHead>
-              <TableHead
-                className="text-right cursor-pointer hover:bg-muted"
-                onClick={() => handleSort('margin')}
-              >
-                Margin <SortIndicator field="margin" />
-              </TableHead>
-              <TableHead
-                className="text-right cursor-pointer hover:bg-muted"
-                onClick={() => handleSort('marginPercent')}
-              >
-                Margin % <SortIndicator field="marginPercent" />
-              </TableHead>
-            </TableRow>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="bg-muted/50">
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
           </TableHeader>
           <TableBody>
-            {paginatedData.map((row, idx) => {
-              const winner = row.candidates[0]
-              const runnerUp = row.candidates[1]
-              return (
-                <TableRow key={`${row.assemblyId}-${row.electionYear}-${idx}`}>
-                  <TableCell className="font-medium">{row.acNo}</TableCell>
-                  <TableCell>{row.acName}</TableCell>
-                  <TableCell>{row.districtName}</TableCell>
-                  <TableCell>{row.electionYear}</TableCell>
-                  <TableCell>
-                    {winner && (
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="inline-flex items-center justify-center w-2 h-8 rounded-sm shrink-0"
-                          style={{ backgroundColor: getPartyColor(winner.party) }}
-                        />
-                        <div>
-                          <div className="font-medium">{winner.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            <span
-                              className="inline-block px-1.5 py-0.5 rounded text-white text-[10px] font-semibold mr-1"
-                              style={{ backgroundColor: getPartyColor(winner.party) }}
-                            >
-                              {winner.party}
-                            </span>
-                            {winner.votes.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {runnerUp && (
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="inline-flex items-center justify-center w-2 h-8 rounded-sm shrink-0"
-                          style={{ backgroundColor: getPartyColor(runnerUp.party) }}
-                        />
-                        <div>
-                          <div className="font-medium">{runnerUp.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            <span
-                              className="inline-block px-1.5 py-0.5 rounded text-white text-[10px] font-semibold mr-1"
-                              style={{ backgroundColor: getPartyColor(runnerUp.party) }}
-                            >
-                              {runnerUp.party}
-                            </span>
-                            {runnerUp.votes.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {row.totalElectors?.toLocaleString() ?? '-'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {row.totalVotes?.toLocaleString() ?? '-'}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {row.margin?.toLocaleString() ?? '-'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {row.marginPercent != null ? `${row.marginPercent}%` : '-'}
-                  </TableCell>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
                 </TableRow>
-              )
-            })}
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results found.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
@@ -440,11 +414,8 @@ export function ElectionDataTable() {
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Rows per page:</span>
           <Select
-            value={String(pageSize)}
-            onValueChange={(v) => {
-              setPageSize(Number(v))
-              setCurrentPage(1)
-            }}
+            value={String(table.getState().pagination.pageSize)}
+            onValueChange={(value) => table.setPageSize(Number(value))}
           >
             <SelectTrigger className="w-[80px]">
               <SelectValue />
@@ -460,21 +431,21 @@ export function ElectionDataTable() {
 
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages || 1}
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount() || 1}
           </span>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
           >
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage >= totalPages}
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
           >
             Next
           </Button>

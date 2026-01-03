@@ -46,6 +46,7 @@
     "@radix-ui/react-tooltip": "1.2.8",
     "@remotion/cli": "4.0.394",
     "@supabase/supabase-js": "2.87.1",
+    "@tanstack/react-table": "8.21.3",
     "chroma-js": "3.2.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
