@@ -390,7 +390,16 @@ export function ElectionDataTable() {
 
         <div className="flex-1" />
 
-        <Button onClick={handleExport} className="gap-2">
+        <Button
+          onClick={handleExport}
+          className="gap-2"
+          disabled={selectedDistrict === 'all'}
+          title={
+            selectedDistrict === 'all'
+              ? 'Please select a specific district to export'
+              : 'Export filtered data to Excel'
+          }
+        >
           <Download className="w-4 h-4" />
           Export to Excel
         </Button>

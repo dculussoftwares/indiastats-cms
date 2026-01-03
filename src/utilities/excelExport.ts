@@ -11,7 +11,7 @@ export interface ExcelExportOptions {
 }
 
 /**
- * Export data to an Excel file and trigger download
+ * Export data to an Excel file and trigger download with IndiaStats branding
  */
 export function exportToExcel(
     data: ExcelExportRow[],
@@ -19,16 +19,54 @@ export function exportToExcel(
 ): void {
     const { filename, sheetName = 'Data', columnWidths } = options
 
-    // Create workbook and worksheet
+    // Create workbook
     const workbook = XLSX.utils.book_new()
-    const worksheet = XLSX.utils.json_to_sheet(data)
 
-    // Set column widths if provided
+    // Create branding header rows with marketing content
+    const brandingRows = [
+        { '': '═══════════════════════════════════════════════════════════════════════════════' },
+        { '': '                    ★★★  INDIASTATS.ORG  ★★★' },
+        { '': '           India\'s Most Comprehensive Election Data Platform' },
+        { '': '═══════════════════════════════════════════════════════════════════════════════' },
+        { '': '' },
+        { '': '🌐  WEBSITE:  https://indiastats.org' },
+        { '': '🐦  TWITTER/X:  @india_stats_org' },
+        { '': '' },
+        { '': '✅  234 Assembly Constituencies  |  38 Districts  |  50,000+ Booths' },
+        { '': '✅  Election Results from 1967 to 2021  |  Interactive Maps  |  Caste Demographics' },
+        { '': '' },
+        { '': `📅  Data Exported: ${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} at ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` },
+        { '': '═══════════════════════════════════════════════════════════════════════════════' },
+        { '': '' }, // Empty row before data
+    ]
+
+    // Get headers from data
+    const headers = Object.keys(data[0] || {})
+    const brandingRowCount = brandingRows.length
+
+    // Create worksheet with branding first
+    const worksheet = XLSX.utils.json_to_sheet(brandingRows, { skipHeader: true })
+
+    // Append actual data with headers starting after branding
+    XLSX.utils.sheet_add_json(worksheet, data, { origin: `A${brandingRowCount + 1}` })
+
+    // Add footer after data
+    const footerStartRow = brandingRowCount + data.length + 2
+    const footerRows = [
+        { '': '' },
+        { '': '═══════════════════════════════════════════════════════════════════════════════' },
+        { '': '📊  Explore more election data at:  https://indiastats.org' },
+        { '': '🔗  Share this data! Tag us @india_stats_org on Twitter/X' },
+        { '': '⭐  Open Source Project: github.com/dculussoftwares/indiastats-cms' },
+        { '': '═══════════════════════════════════════════════════════════════════════════════' },
+    ]
+    XLSX.utils.sheet_add_json(worksheet, footerRows, { origin: `A${footerStartRow}`, skipHeader: true })
+
+    // Set column widths
     if (columnWidths && columnWidths.length > 0) {
         worksheet['!cols'] = columnWidths.map(width => ({ wch: width }))
     } else {
         // Auto-calculate column widths based on content
-        const headers = Object.keys(data[0] || {})
         worksheet['!cols'] = headers.map(header => {
             // Get max length of content in this column
             const maxLength = Math.max(
@@ -38,6 +76,17 @@ export function exportToExcel(
             return { wch: Math.min(maxLength + 2, 50) } // Cap at 50 chars
         })
     }
+
+    // Merge branding header cells across all columns for better appearance
+    const merges = []
+    for (let i = 0; i < brandingRowCount; i++) {
+        merges.push({ s: { r: i, c: 0 }, e: { r: i, c: headers.length - 1 } })
+    }
+    // Merge footer rows
+    for (let i = 0; i < footerRows.length; i++) {
+        merges.push({ s: { r: footerStartRow - 1 + i, c: 0 }, e: { r: footerStartRow - 1 + i, c: headers.length - 1 } })
+    }
+    worksheet['!merges'] = merges
 
     // Add worksheet to workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
