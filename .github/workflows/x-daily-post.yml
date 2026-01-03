@@ -181,7 +181,28 @@ jobs:
                 pageUrl: pageUrl
               }));
               
-              console.log('Assembly: ' + assemblyName + ', District: ' + districtId);
+              // Try to extract district name from the page
+              let districtName = '';
+              try {
+                districtName = await page.$eval('[data-district-name]', el => el.textContent.trim());
+              } catch {
+                // Try alternative selector - look for district in breadcrumb or header
+                try {
+                  const pageText = await page.evaluate(() => document.body.innerText);
+                  const districtMatch = pageText.match(/District:\s*([A-Za-z\s]+)/i);
+                  if (districtMatch) districtName = districtMatch[1].trim();
+                } catch {}
+              }
+              
+              fs.writeFileSync('assembly-info.json', JSON.stringify({
+                assemblyId: ASSEMBLY_ID,
+                assemblyName: assemblyName || ASSEMBLY_ID,
+                districtId: districtId,
+                districtName: districtName,
+                pageUrl: pageUrl
+              }));
+              
+              console.log('Assembly: ' + assemblyName + ', District: ' + districtId + ' (' + districtName + ')');
               
             } catch (error) {
               console.error('Error:', error.message);
@@ -223,11 +244,16 @@ jobs:
             
             const mediaId = await client.v1.uploadMedia('quick-view.png');
             
+            // Create hashtag-friendly versions (remove spaces, special chars)
+            const assemblyTag = info.assemblyName.replace(/[^a-zA-Z0-9]/g, '');
+            const districtTag = (info.districtName || '').replace(/[^a-zA-Z0-9]/g, '');
+            const dynamicTags = (districtTag ? '#' + districtTag + ' ' : '') + '#' + assemblyTag;
+            
             const text = '📊 Assembly Spotlight: ' + info.assemblyName + '\n\n' +
               '🗳️ Tamil Nadu Elections Data\n' +
               'Explore detailed history, demographics & voting patterns\n\n' +
               '🔗 ' + info.pageUrl + '\n\n' +
-              '#TamilNadu #Elections #IndiaStats #TNElections';
+              dynamicTags + ' #TamilNadu #Elections #IndiaStats #TNElections #TamilNaduElections #ADMK #DMK #ADMKvsDMK #BJP #Congress #EPS #MKStalin #Modi #TVK #Vijay #OPS #TTV';
             
             await client.v2.tweet({ text: text, media: { media_ids: [mediaId] } });
             console.log('Tweet posted successfully!');
