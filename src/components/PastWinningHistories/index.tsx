@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Trophy, TrendingUp, Target, Flame, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/utilities/ui'
+import { track } from '@/utilities/analytics'
 
 interface Candidate {
   name: string
@@ -118,6 +119,10 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
   const stats = calculateStats(electionHistory)
 
   const toggleExpanded = (year: number) => {
+    const isOpening = expandedYear !== year
+    if (isOpening) {
+      track('Election Year Expand', { year })
+    }
     setExpandedYear(expandedYear === year ? null : year)
   }
 

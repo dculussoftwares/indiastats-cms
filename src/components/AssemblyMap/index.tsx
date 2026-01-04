@@ -12,6 +12,7 @@ import { ElectionInsightsPanel } from '@/components/ElectionInsightsPanel'
 import { ClosestRacesPanel } from '@/components/ClosestRacesPanel'
 import { AllianceSummary } from '@/components/AllianceSummary'
 import { CasteInsightsPanel } from '@/components/CasteInsightsPanel'
+import { track } from '@/utilities/analytics'
 import './leaflet-style-import'
 
 // Dynamic imports for react-leaflet (SSR disabled)
@@ -814,6 +815,17 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
         const { lat, lng } = e.latlng
         const acName = feature?.properties?.ac_name
         const pcName = feature?.properties?.pc_name
+        const assemblyId = feature?.properties?.ac
+          ? `ac${String(feature.properties.ac).padStart(3, '0')}`
+          : null
+
+        // Track the assembly click
+        track('Map Assembly Click', {
+          assembly_name: acName,
+          assembly_id: assemblyId,
+          district_name: pcName,
+          election_year: selectedElectionYearRef.current,
+        })
 
         // Check if clicking within the currently selected district
         const isWithinSelectedDistrict =
@@ -844,6 +856,9 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
 
   // Handle search selection - clears district selection (dropdown = select only that assembly)
   const handleAssemblySearch = (value: string) => {
+    // Track the search selection
+    track('Map Assembly Search', { assembly_name: value })
+
     // Clear district selection when selecting from assembly dropdown
     selectedDistrictRef.current = null
     setSelectedDistrict(null)
@@ -993,6 +1008,11 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
 
   // Handle district selection
   const handleDistrictSelect = (district: string | null) => {
+    // Track the district filter
+    if (district) {
+      track('Map District Filter', { district_name: district })
+    }
+
     // Clear assembly selection when selecting a district (keep only last selection)
     selectedAssemblyRef.current = null
     setSelectedAssembly(null)

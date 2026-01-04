@@ -9,6 +9,7 @@ import {
   getBlocs,
   getStateByCode,
 } from '@/config/states'
+import { track } from '@/utilities/analytics'
 
 interface Candidate {
   name: string
@@ -517,7 +518,10 @@ export function MostWinningPartiesCard({
         <div className="flex justify-center mb-6">
           <div className="flex items-center gap-0.5 p-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <button
-              onClick={() => setViewMode('party')}
+              onClick={() => {
+                track('Party View Toggle', { view_mode: 'party' })
+                setViewMode('party')
+              }}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
                 viewMode === 'party'
                   ? 'bg-white dark:bg-gray-900 text-primary shadow-sm'
@@ -527,7 +531,10 @@ export function MostWinningPartiesCard({
               By Party
             </button>
             <button
-              onClick={() => setViewMode('alliance')}
+              onClick={() => {
+                track('Party View Toggle', { view_mode: 'alliance' })
+                setViewMode('alliance')
+              }}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
                 viewMode === 'alliance'
                   ? 'bg-white dark:bg-gray-900 text-primary shadow-sm'
