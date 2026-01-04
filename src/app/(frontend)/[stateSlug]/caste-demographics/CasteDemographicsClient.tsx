@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ArrowLeft, Search, Users, TrendingUp, MapPin, Filter } from 'lucide-react'
+import { track } from '@/utilities/analytics'
 
 interface CasteData {
   id: string
@@ -292,7 +293,13 @@ export function CasteDemographicsClient({
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-bold text-gray-500 w-6">{idx + 1}</span>
                         <button
-                          onClick={() => setCasteFilter(caste.caste)}
+                          onClick={() => {
+                            track('Caste Filter Click', {
+                              caste_name: caste.caste,
+                              assemblies_count: caste.count,
+                            })
+                            setCasteFilter(caste.caste)
+                          }}
                           className="text-sm font-medium hover:text-blue-600 hover:underline"
                         >
                           {caste.caste}
@@ -338,14 +345,20 @@ export function CasteDemographicsClient({
               <Button
                 variant={sortBy === 'assembly' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSortBy('assembly')}
+                onClick={() => {
+                  track('Caste Sort Change', { sort_by: 'assembly' })
+                  setSortBy('assembly')
+                }}
               >
                 A-Z
               </Button>
               <Button
                 variant={sortBy === 'percentage' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSortBy('percentage')}
+                onClick={() => {
+                  track('Caste Sort Change', { sort_by: 'percentage' })
+                  setSortBy('percentage')
+                }}
               >
                 By %
               </Button>
@@ -389,6 +402,12 @@ export function CasteDemographicsClient({
                         <Link
                           href={`/${stateSlug}/assembly-map?ac=${assembly.assemblyId.replace('ac', '')}`}
                           className="hover:text-blue-600 hover:underline"
+                          onClick={() =>
+                            track('Caste Assembly Click', {
+                              assembly_id: assembly.assemblyId,
+                              assembly_name: assembly.assemblyName,
+                            })
+                          }
                         >
                           {getEnglishName(assembly.assemblyName)}
                         </Link>

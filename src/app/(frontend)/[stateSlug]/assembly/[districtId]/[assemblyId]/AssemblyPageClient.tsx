@@ -13,6 +13,7 @@ import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
 import { TwitterCardModal } from '@/components/TwitterCardModal'
+import { track } from '@/utilities/analytics'
 
 interface Candidate {
   name: string
@@ -144,7 +145,16 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
             Assembly Overview
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <Link href={`/${stateSlug}/assembly/${data.districtId}/${data.assemblyId}/booths`}>
+            <Link
+              href={`/${stateSlug}/assembly/${data.districtId}/${data.assemblyId}/booths`}
+              onClick={() =>
+                track('View Booths Click', {
+                  page: 'assembly',
+                  assembly_id: data.assemblyId,
+                  assembly_name: data.name,
+                })
+              }
+            >
               <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
                 <CardContent className="pt-4 pb-3">
                   <div className="flex items-center gap-3">
@@ -294,7 +304,13 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
               <div className="mt-4 flex justify-center">
                 <Button
                   variant="outline"
-                  onClick={() => setShowAllWinningHistories(true)}
+                  onClick={() => {
+                    track('View All History Click', {
+                      assembly_id: data.assemblyId,
+                      assembly_name: data.name,
+                    })
+                    setShowAllWinningHistories(true)
+                  }}
                   className="text-sm font-medium"
                 >
                   View all

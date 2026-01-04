@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { track } from '@/utilities/analytics'
 
 interface HomePageClientProps {
   stats: {
@@ -136,7 +137,15 @@ export function HomePageClient({ stats }: HomePageClientProps) {
 
               <div className="flex flex-wrap gap-4 mb-8">
                 <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white">
-                  <Link href="/tamil-nadu/dashboard">
+                  <Link
+                    href="/tamil-nadu/dashboard"
+                    onClick={() =>
+                      track('Hero CTA Click', {
+                        button: 'Explore Data',
+                        destination: '/tamil-nadu/dashboard',
+                      })
+                    }
+                  >
                     <Search className="mr-2 h-5 w-5" />
                     Explore Data
                   </Link>
@@ -147,7 +156,15 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                   variant="outline"
                   className="border-white/20 text-white hover:bg-white/10 bg-transparent"
                 >
-                  <Link href="/tamil-nadu/assembly-map">
+                  <Link
+                    href="/tamil-nadu/assembly-map"
+                    onClick={() =>
+                      track('Hero CTA Click', {
+                        button: 'Interactive Map',
+                        destination: '/tamil-nadu/assembly-map',
+                      })
+                    }
+                  >
                     <Map className="mr-2 h-5 w-5" />
                     Interactive Map
                   </Link>
@@ -183,7 +200,16 @@ export function HomePageClient({ stats }: HomePageClientProps) {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
             {/* Interactive Map */}
-            <Link href="/tamil-nadu/assembly-map" className="group">
+            <Link
+              href="/tamil-nadu/assembly-map"
+              className="group"
+              onClick={() =>
+                track('Feature Card Click', {
+                  feature: 'Interactive Map',
+                  destination: '/tamil-nadu/assembly-map',
+                })
+              }
+            >
               <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-red-500/50 transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-red-600/20 flex items-center justify-center mb-4 group-hover:bg-red-600/30 transition-colors">
                   <Map className="h-6 w-6 text-red-500" />
@@ -249,7 +275,16 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             </Link>
 
             {/* Election Data Table - NEW */}
-            <Link href="/election-data" className="group">
+            <Link
+              href="/election-data"
+              className="group"
+              onClick={() =>
+                track('Feature Card Click', {
+                  feature: 'Election Data Table',
+                  destination: '/election-data',
+                })
+              }
+            >
               <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-green-500/50 transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-green-600/20 flex items-center justify-center mb-4 group-hover:bg-green-600/30 transition-colors">
                   <Download className="h-6 w-6 text-green-500" />
@@ -302,7 +337,15 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                   </ul>
 
                   <Button asChild className="bg-red-600 hover:bg-red-700">
-                    <Link href="/tamil-nadu/dashboard">
+                    <Link
+                      href="/tamil-nadu/dashboard"
+                      onClick={() =>
+                        track('Hero CTA Click', {
+                          button: 'Start Exploring',
+                          destination: '/tamil-nadu/dashboard',
+                        })
+                      }
+                    >
                       Start Exploring
                       <ExternalLink className="ml-2 h-4 w-4" />
                     </Link>

@@ -13,6 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowLeft, Search, MapPin, FileText, ExternalLink, Building2 } from 'lucide-react'
+import { track } from '@/utilities/analytics'
 
 interface Booth {
   id: string
@@ -170,6 +171,12 @@ export function BoothsPageClient({
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex"
+                              onClick={() =>
+                                track('Booth PDF Click', {
+                                  booth_id: booth.boothId,
+                                  assembly_id: assemblyId,
+                                })
+                              }
                             >
                               <Button variant="outline" size="sm">
                                 <FileText className="h-4 w-4 mr-1" />
@@ -179,6 +186,13 @@ export function BoothsPageClient({
                           )}
                           <Link
                             href={`/${stateSlug}/assembly/${districtId}/${assemblyId}/booths/${booth.boothId}`}
+                            onClick={() =>
+                              track('View Booth Click', {
+                                booth_id: booth.boothId,
+                                assembly_id: assemblyId,
+                                assembly_name: assemblyName,
+                              })
+                            }
                           >
                             <Button variant="default" size="sm">
                               View
