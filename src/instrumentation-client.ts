@@ -1,6 +1,9 @@
 import posthog from 'posthog-js'
 import mixpanel from 'mixpanel-browser'
 
+// Track Mixpanel initialization state
+let mixpanelReady = false
+
 // Initialize PostHog for client-side analytics
 // Only initialize in production and if the key is available
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
@@ -32,7 +35,14 @@ if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_MIXPANEL_TOKEN) {
         persistence: 'localStorage',
         autocapture: true,
         record_sessions_percent: 100,
+        ignore_dnt: true,
+        loaded: () => {
+            mixpanelReady = true
+            if (process.env.NODE_ENV === 'development') {
+                console.log('[Mixpanel] Initialized successfully')
+            }
+        },
     })
 }
 
-export { posthog, mixpanel }
+export { posthog, mixpanel, mixpanelReady }

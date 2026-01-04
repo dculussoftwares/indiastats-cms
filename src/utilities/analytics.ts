@@ -1,6 +1,6 @@
 'use client'
 
-import { posthog, mixpanel } from '@/instrumentation-client'
+import { posthog, mixpanel, mixpanelReady } from '@/instrumentation-client'
 import { trackEvent, setDimension } from '@/utilities/clarityTracking'
 
 /**
@@ -16,6 +16,8 @@ import { trackEvent, setDimension } from '@/utilities/clarityTracking'
  * Track an event across all analytics platforms
  */
 export const track = (eventName: string, properties?: Record<string, unknown>) => {
+    const isDev = typeof window !== 'undefined' && process.env.NODE_ENV === 'development'
+
     // PostHog
     if (posthog && typeof posthog.capture === 'function') {
         try {
@@ -25,13 +27,20 @@ export const track = (eventName: string, properties?: Record<string, unknown>) =
         }
     }
 
-    // Mixpanel
-    if (mixpanel && typeof mixpanel.track === 'function') {
+    // Mixpanel - only track if fully initialized
+    if (mixpanelReady && mixpanel && typeof mixpanel.track === 'function') {
         try {
             mixpanel.track(eventName, properties)
-        } catch {
-            // Silently fail if Mixpanel is not ready
+            if (isDev) {
+                console.log('[Analytics] Mixpanel event tracked:', eventName, properties)
+            }
+        } catch (error) {
+            if (isDev) {
+                console.error('[Analytics] Mixpanel track error:', error)
+            }
         }
+    } else if (isDev && !mixpanelReady) {
+        console.warn('[Analytics] Mixpanel not ready yet, skipping event:', eventName)
     }
 
     // Clarity (event only, no properties support)
