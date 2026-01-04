@@ -31,7 +31,15 @@ import {
 import { exportToExcel, flattenElectionDataForExcel } from '@/utilities/excelExport'
 import { getPartyColor } from '@/lib/partyColors'
 import { track } from '@/utilities/analytics'
-import { Download, ChevronUp, ChevronDown, ChevronsUpDown, Loader2 } from 'lucide-react'
+import {
+  Download,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
+  Loader2,
+  ExternalLink,
+} from 'lucide-react'
+import Link from 'next/link'
 
 interface CandidateData {
   name: string
@@ -44,6 +52,7 @@ interface AssemblyElectionData {
   acName: string
   acNo: number | null
   assemblyId: string
+  districtId: string
   districtName: string
   electionYear: number
   totalElectors: number | null
@@ -144,12 +153,36 @@ export function ElectionDataTable() {
       }),
       columnHelper.accessor('acName', {
         header: ({ column }) => <SortableHeader column={column}>AC Name</SortableHeader>,
-        cell: (info) => info.getValue(),
+        cell: (info) => {
+          const row = info.row.original
+          const url = `/tamil-nadu/assembly/${row.districtId}/${row.assemblyId}`
+          return (
+            <Link
+              href={url}
+              className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+            >
+              {info.getValue()}
+              <ExternalLink className="h-3 w-3 opacity-50" />
+            </Link>
+          )
+        },
         sortingFn: 'text',
       }),
       columnHelper.accessor('districtName', {
         header: ({ column }) => <SortableHeader column={column}>District</SortableHeader>,
-        cell: (info) => info.getValue(),
+        cell: (info) => {
+          const row = info.row.original
+          const url = `/tamil-nadu/district/${row.districtId}`
+          return (
+            <Link
+              href={url}
+              className="text-primary hover:underline inline-flex items-center gap-1"
+            >
+              {info.getValue()}
+              <ExternalLink className="h-3 w-3 opacity-50" />
+            </Link>
+          )
+        },
         sortingFn: 'text',
       }),
       columnHelper.accessor('electionYear', {

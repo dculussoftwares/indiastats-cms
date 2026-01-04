@@ -13,6 +13,7 @@ export interface AssemblyElectionData {
     acName: string
     acNo: number | null
     assemblyId: string
+    districtId: string
     districtName: string
     electionYear: number
     totalElectors: number | null
@@ -71,16 +72,33 @@ export async function GET(request: NextRequest) {
             limit: 500,
         })
 
-        // Create assembly lookup map: assemblyId -> { districtName, voters }
-        const assemblyMap: Record<string, { districtName: string; totalElectors: number | null }> = {}
+        // Fetch all districts to create districtName -> districtId lookup
+        const districts = await payload.find({
+            collection: 'districts',
+            limit: 100,
+        })
+
+        // Create districtName -> districtId lookup map
+        const districtNameToIdMap: Record<string, string> = {}
+        districts.docs.forEach((district: any) => {
+            if (district.districtName && district.districtId) {
+                districtNameToIdMap[district.districtName] = district.districtId
+            }
+        })
+
+        // Create assembly lookup map: assemblyId -> { districtId, districtName, voters }
+        const assemblyMap: Record<string, { districtId: string; districtName: string; totalElectors: number | null }> = {}
         assemblies.docs.forEach((assembly: any) => {
             const voters = assembly.voters
             let totalElectors: number | null = null
             if (voters && typeof voters === 'object' && 'total' in voters) {
                 totalElectors = voters.total
             }
+            const districtName = assembly.districtName || ''
             assemblyMap[assembly.assemblyId] = {
-                districtName: assembly.districtName || '',
+                // Look up districtId from districtName since assemblies don't have districtId
+                districtId: districtNameToIdMap[districtName] || '',
+                districtName,
                 totalElectors,
             }
         })
@@ -108,6 +126,7 @@ export async function GET(request: NextRequest) {
             const assemblyId = firstRecord.assemblyId
             const electionYear = firstRecord.electionYear
             const assemblyInfo = assemblyMap[assemblyId]
+            const districtId = assemblyInfo?.districtId || ''
             const districtName = assemblyInfo?.districtName || firstRecord.districtName || 'Unknown'
 
             // Apply district filter
@@ -162,6 +181,7 @@ export async function GET(request: NextRequest) {
                 acName: firstRecord.assemblyName || assemblyId,
                 acNo: firstRecord.assemblyNo || null,
                 assemblyId,
+                districtId,
                 districtName,
                 electionYear,
                 totalElectors,
