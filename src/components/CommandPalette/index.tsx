@@ -218,11 +218,21 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       {/* Modal - Centered */}
       <div className="fixed inset-0 z-[10000] flex items-start justify-center pt-[10vh] px-4">
         <div
-          className="w-full max-w-xl overflow-hidden rounded-lg border-t-4 border-red-600 bg-white shadow-2xl dark:bg-[#1a1a2e]"
+          className="relative w-full max-w-xl overflow-hidden rounded-lg border-t-4 border-red-600 bg-white shadow-2xl dark:bg-[#1a1a2e]"
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute right-3 top-3 z-10 rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+            type="button"
+            aria-label="Close search"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
           {/* Search Input */}
-          <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-4 dark:border-gray-700">
+          <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-4 pr-12 dark:border-gray-700">
             <Search className="h-5 w-5 text-gray-400" />
             <input
               ref={inputRef}
