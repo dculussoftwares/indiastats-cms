@@ -160,6 +160,15 @@ export function ElectionDataTable() {
             <Link
               href={url}
               className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+              onClick={() =>
+                track('Election Data Assembly Click', {
+                  assembly_id: row.assemblyId,
+                  assembly_name: row.acName,
+                  district_id: row.districtId,
+                  district_name: row.districtName,
+                  election_year: row.electionYear,
+                })
+              }
             >
               {info.getValue()}
               <ExternalLink className="h-3 w-3 opacity-50" />
@@ -177,6 +186,12 @@ export function ElectionDataTable() {
             <Link
               href={url}
               className="text-primary hover:underline inline-flex items-center gap-1"
+              onClick={() =>
+                track('Election Data District Click', {
+                  district_id: row.districtId,
+                  district_name: row.districtName,
+                })
+              }
             >
               {info.getValue()}
               <ExternalLink className="h-3 w-3 opacity-50" />
