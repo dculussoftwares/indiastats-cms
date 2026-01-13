@@ -58,6 +58,7 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
           assembly.districtId || assembly.districtName,
           {
             districtId: assembly.districtId || assembly.districtName,
+            districtSlug: assembly.districtSlug || assembly.districtId || assembly.districtName,
             districtName: assembly.districtName,
           },
         ]),
@@ -219,6 +220,7 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     // Create district from assembly data
     const district: District = {
       districtId: assembly.districtId,
+      districtSlug: assembly.districtSlug,
       districtName: assembly.districtName,
     }
     setSelectedDistrict(district)

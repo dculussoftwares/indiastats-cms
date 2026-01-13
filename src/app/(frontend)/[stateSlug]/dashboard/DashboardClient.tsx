@@ -5,7 +5,9 @@ import { AssemblySearch, Assembly } from '@/components/AssemblySearch'
 
 interface AssemblyData {
   assemblyId: string
+  assemblySlug: string
   districtId: string
+  districtSlug: string
   districtName: string
   name: string
   voters?: {

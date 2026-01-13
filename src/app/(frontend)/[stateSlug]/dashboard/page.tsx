@@ -37,17 +37,22 @@ async function getDashboardData() {
     }
   })
 
-  // Create a map of districtName -> districtId for lookup
+  // Create maps for lookup
   const districtNameToIdMap: Record<string, string> = {}
+  const districtNameToSlugMap: Record<string, string> = {}
   districtsData.docs.forEach((d: any) => {
     districtNameToIdMap[d.districtName] = d.districtId
+    districtNameToSlugMap[d.districtName] = d.slug || d.districtId
   })
 
   // Transform assemblies for search components (include voters for district details)
   // Note: Assemblies collection only has districtName, so we look up districtId from districts
   const assemblies = assembliesData.docs.map((a: any) => ({
     assemblyId: a.assemblyId,
-    districtId: districtNameToIdMap[a.districtName] || '', // Look up districtId from districtName
+    assemblySlug: a.slug || a.assemblyId,
+    districtId: districtNameToIdMap[a.districtName] || '',
+    districtSlug:
+      districtNameToSlugMap[a.districtName] || districtNameToIdMap[a.districtName] || '',
     districtName: a.districtName,
     name: a.name,
     voters: a.voters
@@ -63,6 +68,7 @@ async function getDashboardData() {
   // Transform districts
   const districts = districtsData.docs.map((d: any) => ({
     districtId: d.districtId,
+    districtSlug: d.slug || d.districtId,
     districtName: d.districtName,
   }))
 
