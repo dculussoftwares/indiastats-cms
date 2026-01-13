@@ -14,28 +14,44 @@ export async function generateStaticParams() {
   const assemblies = await payload.find({
     collection: 'assemblies',
     limit: 300,
-    select: { assemblyId: true, districtId: true },
+    select: { slug: true, districtId: true },
+  })
+
+  // Get district slugs mapping
+  const districts = await payload.find({
+    collection: 'districts',
+    limit: 100,
+    select: { districtId: true, slug: true },
+  })
+
+  const districtIdToSlug = new Map<string, string>()
+  districts.docs.forEach((d: any) => {
+    if (d.districtId && d.slug) {
+      districtIdToSlug.set(d.districtId, d.slug)
+    }
   })
 
   // Generate params for all assemblies in Tamil Nadu
-  return assemblies.docs.map((assembly: any) => ({
-    stateSlug: 'tamil-nadu',
-    districtId: assembly.districtId || 'dt1', // Fallback if missing
-    assemblyId: assembly.assemblyId,
-  }))
+  return assemblies.docs
+    .filter((assembly: any) => assembly.slug && assembly.districtId)
+    .map((assembly: any) => ({
+      stateSlug: 'tamil-nadu',
+      districtSlug: districtIdToSlug.get(assembly.districtId) || assembly.districtId,
+      assemblySlug: assembly.slug,
+    }))
 }
 
 interface PageProps {
-  params: Promise<{ districtId: string; assemblyId: string; stateSlug: string }>
+  params: Promise<{ districtSlug: string; assemblySlug: string; stateSlug: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { assemblyId } = await params
+  const { assemblySlug, districtSlug } = await params
   const payload = await getPayload({ config })
 
   const assembly = await payload.find({
     collection: 'assemblies',
-    where: { assemblyId: { equals: assemblyId } },
+    where: { slug: { equals: assemblySlug } },
     limit: 1,
   })
 
@@ -46,12 +62,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const assemblyDoc = assembly.docs[0] as any
   const assemblyName = assemblyDoc.name
   const cleanName = assemblyName.split(' / ')[1] || assemblyName
-  const districtId = assemblyDoc.districtId
 
   // Generate OG image URL
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
-  const ogImageUrl = `${baseUrl}/api/og/${assemblyId}`
-  const canonicalUrl = `${baseUrl}/tamil-nadu/assembly/${districtId}/${assemblyId}`
+  const ogImageUrl = `${baseUrl}/api/og/${assemblyDoc.assemblyId}`
+  const canonicalUrl = `${baseUrl}/tamil-nadu/assembly/${districtSlug}/${assemblySlug}`
 
   return {
     title: `${cleanName} Assembly - Voter Data & Election History`,
@@ -90,13 +105,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-async function getAssemblyData(districtId: string, assemblyId: string) {
+async function getAssemblyData(districtSlug: string, assemblySlug: string) {
   const payload = await getPayload({ config })
 
-  // Get assembly info
+  // Get assembly info by slug
   const assemblyResult = await payload.find({
     collection: 'assemblies',
-    where: { assemblyId: { equals: assemblyId } },
+    where: { slug: { equals: assemblySlug } },
     limit: 1,
   })
 
@@ -105,6 +120,7 @@ async function getAssemblyData(districtId: string, assemblyId: string) {
   }
 
   const assembly = assemblyResult.docs[0] as any
+  const assemblyId = assembly.assemblyId
 
   // Get election history for this assembly
   const historyResult = await payload.find({
@@ -201,7 +217,9 @@ async function getAssemblyData(districtId: string, assemblyId: string) {
 
   return {
     assemblyId: assembly.assemblyId,
-    districtId: districtId,
+    assemblySlug: assembly.slug,
+    districtSlug: districtSlug,
+    districtId: assembly.districtId,
     name: assembly.name,
     districtName: assembly.districtName,
     noOfBooths: assembly.noOfBooths || boothsCount.totalDocs,
@@ -230,8 +248,8 @@ async function getAssemblyData(districtId: string, assemblyId: string) {
 }
 
 export default async function AssemblyPage({ params }: PageProps) {
-  const { districtId, assemblyId, stateSlug } = await params
-  const data = await getAssemblyData(districtId, assemblyId)
+  const { districtSlug, assemblySlug, stateSlug } = await params
+  const data = await getAssemblyData(districtSlug, assemblySlug)
 
   if (!data) {
     notFound()

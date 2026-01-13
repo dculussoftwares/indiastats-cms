@@ -54,6 +54,8 @@ interface AllianceData {
 
 interface AssemblyData {
   assemblyId: string
+  assemblySlug: string
+  districtSlug: string
   districtId: string
   name: string
   districtName: string
@@ -99,7 +101,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
     <div className="container py-8">
       {/* Back Button */}
       <div className="mb-4">
-        <Link href={`/${stateSlug}/district/${data.districtId}`}>
+        <Link href={`/${stateSlug}/district/${data.districtSlug}`}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to {data.districtName}
@@ -146,7 +148,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Link
-              href={`/${stateSlug}/assembly/${data.districtId}/${data.assemblyId}/booths`}
+              href={`/${stateSlug}/assembly/${data.districtSlug}/${data.assemblySlug}/booths`}
               onClick={() =>
                 track('View Booths Click', {
                   page: 'assembly',

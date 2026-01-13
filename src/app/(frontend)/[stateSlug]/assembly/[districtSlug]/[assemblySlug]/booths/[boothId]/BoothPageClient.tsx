@@ -17,8 +17,8 @@ interface Booth {
 }
 
 interface BoothPageClientProps {
-  districtId: string
-  assemblyId: string
+  districtSlug: string
+  assemblySlug: string
   boothId: string
   assemblyName: string
   isReservedAc: boolean
@@ -26,8 +26,8 @@ interface BoothPageClientProps {
 }
 
 export function BoothPageClient({
-  districtId,
-  assemblyId,
+  districtSlug,
+  assemblySlug,
   boothId,
   assemblyName,
   isReservedAc,
@@ -68,7 +68,7 @@ export function BoothPageClient({
       <div className="container py-8">
         <div className="text-center py-16">
           <p className="text-muted-foreground">Booth not found</p>
-          <Link href={`/${stateSlug}/assembly/${districtId}/${assemblyId}/booths`}>
+          <Link href={`/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths`}>
             <Button variant="outline" className="mt-4">
               Back to Booths List
             </Button>
@@ -82,7 +82,7 @@ export function BoothPageClient({
     <div className="container py-8">
       {/* Back Button */}
       <div className="mb-4">
-        <Link href={`/${stateSlug}/assembly/${districtId}/${assemblyId}/booths`}>
+        <Link href={`/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths`}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Booths
@@ -172,7 +172,7 @@ export function BoothPageClient({
 
       {/* Navigation */}
       <div className="mt-6 flex justify-center gap-4">
-        <Link href={`/${stateSlug}/assembly/${districtId}/${assemblyId}`}>
+        <Link href={`/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`}>
           <Button variant="outline">View Assembly Details</Button>
         </Link>
         <Link href={`/${stateSlug}/assembly-map`}>

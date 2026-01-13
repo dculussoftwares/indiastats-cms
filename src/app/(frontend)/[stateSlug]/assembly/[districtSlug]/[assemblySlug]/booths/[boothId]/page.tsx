@@ -6,8 +6,8 @@ import BoothPageClient from './BoothPageClient'
 
 interface Props {
   params: Promise<{
-    districtId: string
-    assemblyId: string
+    districtSlug: string
+    assemblySlug: string
     boothId: string
     stateSlug: string
   }>
@@ -23,13 +23,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BoothPage({ params }: Props) {
-  const { districtId, assemblyId, boothId, stateSlug } = await params
+  const { districtSlug, assemblySlug, boothId, stateSlug } = await params
   const payload = await getPayload({ config })
 
-  // Fetch assembly info
+  // Fetch assembly info by slug
   const assemblies = await payload.find({
     collection: 'assemblies',
-    where: { assemblyId: { equals: assemblyId } },
+    where: { slug: { equals: assemblySlug } },
     limit: 1,
   })
 
@@ -43,8 +43,8 @@ export default async function BoothPage({ params }: Props) {
 
   return (
     <BoothPageClient
-      districtId={districtId}
-      assemblyId={assemblyId}
+      districtSlug={districtSlug}
+      assemblySlug={assemblySlug}
       boothId={boothId}
       assemblyName={assembly.name || 'Assembly'}
       isReservedAc={voters?.isReservedAc || false}

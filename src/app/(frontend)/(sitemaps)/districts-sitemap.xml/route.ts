@@ -20,6 +20,7 @@ const getDistrictsSitemap = unstable_cache(
             select: {
                 districtId: true,
                 districtName: true,
+                slug: true,
                 updatedAt: true,
             },
         })
@@ -28,10 +29,10 @@ const getDistrictsSitemap = unstable_cache(
 
         const sitemap = results.docs
             ? results.docs
-                .filter((district) => Boolean(district?.districtId))
-                .map((district) => {
+                .filter((district: any) => Boolean(district?.slug))
+                .map((district: any) => {
                     return {
-                        loc: `${SITE_URL}/tamil-nadu/district/${district.districtId}`,
+                        loc: `${SITE_URL}/tamil-nadu/district/${district.slug}`,
                         lastmod: district.updatedAt || dateFallback,
                         priority: 0.8,
                         changefreq: 'monthly' as const,

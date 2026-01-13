@@ -26,7 +26,8 @@ interface Booth {
 }
 
 interface BoothsPageClientProps {
-  districtId: string
+  districtSlug: string
+  assemblySlug: string
   assemblyId: string
   assemblyName: string
   districtName: string
@@ -34,7 +35,8 @@ interface BoothsPageClientProps {
 }
 
 export function BoothsPageClient({
-  districtId,
+  districtSlug,
+  assemblySlug,
   assemblyId,
   assemblyName,
   districtName,
@@ -77,7 +79,7 @@ export function BoothsPageClient({
     <div className="container py-8">
       {/* Back Button */}
       <div className="mb-4">
-        <Link href={`/${stateSlug}/assembly/${districtId}/${assemblyId}`}>
+        <Link href={`/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to {assemblyName}
@@ -185,7 +187,7 @@ export function BoothsPageClient({
                             </a>
                           )}
                           <Link
-                            href={`/${stateSlug}/assembly/${districtId}/${assemblyId}/booths/${booth.boothId}`}
+                            href={`/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths/${booth.boothId}`}
                             onClick={() =>
                               track('View Booth Click', {
                                 booth_id: booth.boothId,

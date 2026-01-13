@@ -38,5 +38,14 @@ export const Districts: CollectionConfig = {
                 description: 'District name (bilingual)',
             },
         },
+        {
+            name: 'slug',
+            type: 'text',
+            unique: true,
+            index: true,
+            admin: {
+                description: 'URL-friendly slug (e.g., tiruvallur)',
+            },
+        },
     ],
 }

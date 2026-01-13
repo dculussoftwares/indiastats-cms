@@ -47,6 +47,23 @@ export const Assemblies: CollectionConfig = {
             },
         },
         {
+            name: 'districtId',
+            type: 'text',
+            index: true,
+            admin: {
+                description: 'District ID reference (e.g., dt1)',
+            },
+        },
+        {
+            name: 'slug',
+            type: 'text',
+            unique: true,
+            index: true,
+            admin: {
+                description: 'URL-friendly slug (e.g., ambattur)',
+            },
+        },
+        {
             name: 'noOfBooths',
             type: 'number',
             required: true,

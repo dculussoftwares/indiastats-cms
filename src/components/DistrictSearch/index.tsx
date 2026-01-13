@@ -11,6 +11,7 @@ import { track } from '@/utilities/analytics'
 
 export interface District {
   districtId: string
+  districtSlug: string
   districtName: string
 }
 
@@ -90,8 +91,8 @@ export const DistrictSearch: React.FC<DistrictSearchProps> = ({ districts, onSea
       if (onSearch) {
         onSearch(selectedDistrict)
       }
-      // Navigate to district page
-      router.push(`/tamil-nadu/district/${selectedDistrict.districtId}`)
+      // Navigate to district page using slug
+      router.push(`/tamil-nadu/district/${selectedDistrict.districtSlug}`)
     }
   }
 

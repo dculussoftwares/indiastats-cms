@@ -21,13 +21,14 @@ const getAssembliesSitemap = unstable_cache(
             select: {
                 districtId: true,
                 districtName: true,
+                slug: true,
             },
         })
 
-        const districtNameToIdMap: Record<string, string> = {}
-        districtsResult.docs.forEach((d) => {
-            if (d.districtName && d.districtId) {
-                districtNameToIdMap[d.districtName] = d.districtId
+        const districtNameToSlugMap: Record<string, string> = {}
+        districtsResult.docs.forEach((d: any) => {
+            if (d.districtName && d.slug) {
+                districtNameToSlugMap[d.districtName] = d.slug
             }
         })
 
@@ -42,6 +43,7 @@ const getAssembliesSitemap = unstable_cache(
                 assemblyId: true,
                 name: true,
                 districtName: true,
+                slug: true,
                 updatedAt: true,
             },
         })
@@ -50,11 +52,11 @@ const getAssembliesSitemap = unstable_cache(
 
         const sitemap = results.docs
             ? results.docs
-                .filter((assembly) => Boolean(assembly?.assemblyId))
-                .map((assembly) => {
-                    const districtId = districtNameToIdMap[assembly.districtName] || ''
+                .filter((assembly: any) => Boolean(assembly?.slug))
+                .map((assembly: any) => {
+                    const districtSlug = districtNameToSlugMap[assembly.districtName] || ''
                     return {
-                        loc: `${SITE_URL}/tamil-nadu/assembly/${districtId}/${assembly.assemblyId}`,
+                        loc: `${SITE_URL}/tamil-nadu/assembly/${districtSlug}/${assembly.slug}`,
                         lastmod: assembly.updatedAt || dateFallback,
                         priority: 0.7,
                         changefreq: 'monthly' as const,

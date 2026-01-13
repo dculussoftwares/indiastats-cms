@@ -16,12 +16,15 @@ import {
 
 export interface District {
   districtId: string
+  districtSlug: string
   districtName: string
 }
 
 export interface Assembly {
   assemblyId: string
+  assemblySlug: string
   districtId: string
+  districtSlug: string
   districtName: string
   name: string
 }
@@ -238,7 +241,7 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
       )
       trackButtonClick('View Assembly', { assembly_id: selectedAssembly.assemblyId })
       router.push(
-        `/tamil-nadu/assembly/${selectedDistrict.districtId}/${selectedAssembly.assemblyId}`,
+        `/tamil-nadu/assembly/${selectedDistrict.districtSlug}/${selectedAssembly.assemblySlug}`,
       )
       if (onSearch) {
         onSearch(selectedDistrict, selectedAssembly)

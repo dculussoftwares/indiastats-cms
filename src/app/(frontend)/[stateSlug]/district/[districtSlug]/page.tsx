@@ -14,27 +14,29 @@ export async function generateStaticParams() {
   const districts = await payload.find({
     collection: 'districts',
     limit: 100,
-    select: { districtId: true },
+    select: { slug: true },
   })
 
   // Generate params for all districts in Tamil Nadu
-  return districts.docs.map((district: any) => ({
-    stateSlug: 'tamil-nadu',
-    districtId: district.districtId,
-  }))
+  return districts.docs
+    .filter((district: any) => district.slug)
+    .map((district: any) => ({
+      stateSlug: 'tamil-nadu',
+      districtSlug: district.slug,
+    }))
 }
 
 interface PageProps {
-  params: Promise<{ districtId: string; stateSlug: string }>
+  params: Promise<{ districtSlug: string; stateSlug: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { districtId } = await params
+  const { districtSlug } = await params
   const payload = await getPayload({ config })
 
   const district = await payload.find({
     collection: 'districts',
-    where: { districtId: { equals: districtId } },
+    where: { slug: { equals: districtSlug } },
     limit: 1,
   })
 
@@ -42,10 +44,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'District Not Found' }
   }
 
-  const districtName = district.docs[0].districtName
+  const districtDoc = district.docs[0] as any
+  const districtName = districtDoc.districtName
   const cleanName = districtName.split(' / ')[1] || districtName
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
-  const canonicalUrl = `${baseUrl}/tamil-nadu/district/${districtId}`
+  const canonicalUrl = `${baseUrl}/tamil-nadu/district/${districtSlug}`
 
   return {
     title: `${cleanName} District - Assembly Constituencies & Election Data`,
@@ -74,13 +77,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-async function getDistrictData(districtId: string) {
+async function getDistrictData(districtSlug: string) {
   const payload = await getPayload({ config })
 
-  // Get district info
+  // Get district info by slug
   const districtResult = await payload.find({
     collection: 'districts',
-    where: { districtId: { equals: districtId } },
+    where: { slug: { equals: districtSlug } },
     limit: 1,
   })
 
@@ -88,7 +91,7 @@ async function getDistrictData(districtId: string) {
     return null
   }
 
-  const district = districtResult.docs[0]
+  const district = districtResult.docs[0] as any
 
   // Get assemblies in this district
   const assembliesResult = await payload.find({
@@ -122,6 +125,7 @@ async function getDistrictData(districtId: string) {
     }
     return {
       assemblyId: a.assemblyId,
+      assemblySlug: a.slug || a.assemblyId,
       name: a.name,
       noOfBooths: a.noOfBooths || 0,
     }
@@ -218,6 +222,7 @@ async function getDistrictData(districtId: string) {
 
   return {
     districtId: district.districtId,
+    districtSlug: district.slug,
     districtName: district.districtName,
     noOfAssemblies: assemblies.length,
     voters: {
@@ -240,8 +245,8 @@ async function getDistrictData(districtId: string) {
 }
 
 export default async function DistrictPage({ params }: PageProps) {
-  const { districtId, stateSlug } = await params
-  const data = await getDistrictData(districtId)
+  const { districtSlug, stateSlug } = await params
+  const data = await getDistrictData(districtSlug)
 
   if (!data) {
     notFound()

@@ -6,19 +6,19 @@ import BoothsPageClient from './BoothsPageClient'
 
 interface Props {
   params: Promise<{
-    districtId: string
-    assemblyId: string
+    districtSlug: string
+    assemblySlug: string
     stateSlug: string
   }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { districtId, assemblyId } = await params
+  const { assemblySlug } = await params
   const payload = await getPayload({ config })
 
   const assemblies = await payload.find({
     collection: 'assemblies',
-    where: { assemblyId: { equals: assemblyId } },
+    where: { slug: { equals: assemblySlug } },
     limit: 1,
   })
 
@@ -32,13 +32,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BoothsPage({ params }: Props) {
-  const { districtId, assemblyId, stateSlug } = await params
+  const { districtSlug, assemblySlug, stateSlug } = await params
   const payload = await getPayload({ config })
 
-  // Fetch assembly info
+  // Fetch assembly info by slug
   const assemblies = await payload.find({
     collection: 'assemblies',
-    where: { assemblyId: { equals: assemblyId } },
+    where: { slug: { equals: assemblySlug } },
     limit: 1,
   })
 
@@ -46,21 +46,22 @@ export default async function BoothsPage({ params }: Props) {
     notFound()
   }
 
-  const assembly = assemblies.docs[0]
+  const assembly = assemblies.docs[0] as any
 
-  // Fetch district info
+  // Fetch district info by slug
   const districts = await payload.find({
     collection: 'districts',
-    where: { districtId: { equals: districtId } },
+    where: { slug: { equals: districtSlug } },
     limit: 1,
   })
 
-  const district = districts.docs[0]
+  const district = districts.docs[0] as any
 
   return (
     <BoothsPageClient
-      districtId={districtId}
-      assemblyId={assemblyId}
+      districtSlug={districtSlug}
+      assemblySlug={assemblySlug}
+      assemblyId={assembly.assemblyId}
       assemblyName={assembly.name || 'Assembly'}
       districtName={district?.districtName || 'District'}
       stateSlug={stateSlug}

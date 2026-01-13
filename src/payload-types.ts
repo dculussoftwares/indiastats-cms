@@ -898,6 +898,14 @@ export interface Assembly {
    * District name (bilingual)
    */
   districtName: string;
+  /**
+   * District ID reference (e.g., dt1)
+   */
+  districtId?: string | null;
+  /**
+   * URL-friendly slug (e.g., ambattur)
+   */
+  slug?: string | null;
   noOfBooths: number;
   /**
    * Current elected MLA data
@@ -956,6 +964,10 @@ export interface District {
    * District name (bilingual)
    */
   districtName: string;
+  /**
+   * URL-friendly slug (e.g., tiruvallur)
+   */
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1733,6 +1745,8 @@ export interface AssembliesSelect<T extends boolean = true> {
   assemblyId?: T;
   name?: T;
   districtName?: T;
+  districtId?: T;
+  slug?: T;
   noOfBooths?: T;
   electedMla?: T;
   voters?: T;
@@ -1748,6 +1762,7 @@ export interface DistrictsSelect<T extends boolean = true> {
   stateCode?: T;
   districtId?: T;
   districtName?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }

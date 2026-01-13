@@ -14,6 +14,7 @@ import { track } from '@/utilities/analytics'
 
 interface Assembly {
   assemblyId: string
+  assemblySlug: string
   name: string
   noOfBooths: number
 }
@@ -54,6 +55,7 @@ interface CasteData {
 
 interface DistrictData {
   districtId: string
+  districtSlug: string
   districtName: string
   noOfAssemblies: number
   voters: {
@@ -247,7 +249,7 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
                 </div>
                 <div className="mt-3 flex gap-2">
                   <Link
-                    href={`/${stateSlug}/assembly/${data.districtId}/${assembly.assemblyId}`}
+                    href={`/${stateSlug}/assembly/${data.districtSlug}/${assembly.assemblySlug}`}
                     className="flex-1"
                     onClick={() =>
                       track('View Assembly Click', {
@@ -264,7 +266,7 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
                     </Button>
                   </Link>
                   <Link
-                    href={`/${stateSlug}/assembly/${data.districtId}/${assembly.assemblyId}/booths`}
+                    href={`/${stateSlug}/assembly/${data.districtSlug}/${assembly.assemblySlug}/booths`}
                     onClick={() =>
                       track('View Booths Click', {
                         page: 'district',
