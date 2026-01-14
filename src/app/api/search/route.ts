@@ -28,9 +28,23 @@ export async function GET(request: NextRequest) {
     const searchQuery = query.trim().toLowerCase()
 
     try {
+        // First, fetch district slugs mapping
+        const districtsResult = await payload.find({
+            collection: 'districts',
+            limit: 100,
+            select: { districtId: true, slug: true },
+        })
+
+        const districtIdToSlug = new Map<string, string>()
+        districtsResult.docs.forEach((d: any) => {
+            if (d.districtId && d.slug) {
+                districtIdToSlug.set(d.districtId, d.slug)
+            }
+        })
+
         // Search all content types in parallel
-        const [assembliesResult, districtsResult, postsResult] = await Promise.all([
-            // Search assemblies
+        const [assembliesResult, districtsSearchResult, postsResult] = await Promise.all([
+            // Search assemblies - include slug and districtId for URL generation
             payload.find({
                 collection: 'assemblies',
                 where: {
@@ -43,8 +57,10 @@ export async function GET(request: NextRequest) {
                 select: {
                     id: true,
                     assemblyId: true,
+                    slug: true,
                     name: true,
                     districtName: true,
+                    districtId: true,
                 },
             }),
 
@@ -61,6 +77,7 @@ export async function GET(request: NextRequest) {
                 select: {
                     districtId: true,
                     districtName: true,
+                    slug: true,
                 },
             }),
 
@@ -83,28 +100,32 @@ export async function GET(request: NextRequest) {
             }),
         ])
 
-        // Transform results
+        // Transform results - use slugs for URLs
         const assemblies: SearchResult[] = assembliesResult.docs.map((doc) => {
             const cleanName = doc.name?.split(' / ')[1] || doc.name || 'Unknown Assembly'
-            // Extract districtId from districtName if available (format: "dtX / DistrictName")
-            const districtIdFromName = doc.districtName?.split(' / ')[0]?.trim() || 'dt1'
+            // Use the district slug lookup, fallback to districtId if not found
+            const districtSlug = districtIdToSlug.get(doc.districtId || '') || doc.districtId || 'unknown'
+            // Use assembly slug, fallback to assemblyId
+            const assemblySlug = doc.slug || doc.assemblyId
             return {
                 id: doc.assemblyId || String(doc.id),
                 title: cleanName,
                 subtitle: doc.districtName?.split(' / ')[1] || doc.districtName || 'Tamil Nadu',
                 category: 'assembly' as const,
-                url: `/tamil-nadu/assembly/${districtIdFromName}/${doc.assemblyId}`,
+                url: `/tamil-nadu/assembly/${districtSlug}/${assemblySlug}`,
             }
         })
 
-        const districts: SearchResult[] = districtsResult.docs.map((doc) => {
+        const districts: SearchResult[] = districtsSearchResult.docs.map((doc) => {
             const cleanName = doc.districtName?.split(' / ')[1] || doc.districtName || 'Unknown District'
+            // Use slug for URL, fallback to districtId
+            const districtSlug = doc.slug || doc.districtId
             return {
                 id: doc.districtId || String(doc.id),
                 title: cleanName,
                 subtitle: 'Tamil Nadu',
                 category: 'district' as const,
-                url: `/tamil-nadu/district/${doc.districtId}`,
+                url: `/tamil-nadu/district/${districtSlug}`,
             }
         })
 
