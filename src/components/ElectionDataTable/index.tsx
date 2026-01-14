@@ -52,7 +52,9 @@ interface AssemblyElectionData {
   acName: string
   acNo: number | null
   assemblyId: string
+  assemblySlug: string
   districtId: string
+  districtSlug: string
   districtName: string
   electionYear: number
   totalElectors: number | null
@@ -155,7 +157,7 @@ export function ElectionDataTable() {
         header: ({ column }) => <SortableHeader column={column}>AC Name</SortableHeader>,
         cell: (info) => {
           const row = info.row.original
-          const url = `/tamil-nadu/assembly/${row.districtId}/${row.assemblyId}`
+          const url = `/tamil-nadu/assembly/${row.districtSlug}/${row.assemblySlug}`
           return (
             <Link
               href={url}
@@ -181,7 +183,7 @@ export function ElectionDataTable() {
         header: ({ column }) => <SortableHeader column={column}>District</SortableHeader>,
         cell: (info) => {
           const row = info.row.original
-          const url = `/tamil-nadu/district/${row.districtId}`
+          const url = `/tamil-nadu/district/${row.districtSlug}`
           return (
             <Link
               href={url}
