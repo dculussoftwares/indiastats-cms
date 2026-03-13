@@ -242,8 +242,6 @@ jobs:
               accessSecret: process.env.X_ACCESS_TOKEN_SECRET,
             });
             
-            const mediaId = await client.v1.uploadMedia('quick-view.png');
-            
             // Create hashtag-friendly versions (remove spaces, special chars)
             const assemblyTag = info.assemblyName.replace(/[^a-zA-Z0-9]/g, '');
             const districtTag = (info.districtName || '').replace(/[^a-zA-Z0-9]/g, '');
@@ -255,7 +253,7 @@ jobs:
               '🔗 ' + info.pageUrl + '\n\n' +
               dynamicTags + ' #IndiaStats #ADMK #DMK #BJP #Congress #EPS #MKStalin #Modi #TVK #Vijay';
             
-            await client.v2.tweet({ text: text, media: { media_ids: [mediaId] } });
+            await client.v2.tweet({ text: text });
             console.log('Tweet posted successfully!');
           })();
           ENDOFSCRIPT
