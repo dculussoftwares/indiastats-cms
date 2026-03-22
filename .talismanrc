@@ -1,4 +1,6 @@
 fileignoreconfig:
 - filename: scripts/test-x-post.mjs
   checksum: aae6ea276a224e50cc1be7ab8b342d7f3e66a315e0695c021e5186c7024610f9
+- filename: .github/workflows/x-daily-post.yml
+  checksum: 327d3ec868671f525cae278ea059fa5203107c1bf46357f1040fb48616e1c933
 version: "1.0"
