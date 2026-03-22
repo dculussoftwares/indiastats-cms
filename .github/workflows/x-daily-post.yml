@@ -313,7 +313,7 @@ jobs:
               console.log('Refresh token rotated — will update GitHub Secret.');
             }
 
-            // --- 2. Upload screenshot image ---
+            // --- 2. Upload screenshot image (best-effort, non-fatal) ---
             let mediaIds = [];
             try {
               const imageBuffer = readFileSync('quick-view.png');
@@ -337,22 +337,28 @@ jobs:
                 }, (res) => {
                   let d = '';
                   res.on('data', c => d += c);
-                  res.on('end', () => resolve({ status: res.statusCode, body: JSON.parse(d) }));
+                  res.on('end', () => {
+                    // Safe JSON parse — don't throw inside event callback
+                    let body = null;
+                    try { body = JSON.parse(d); } catch (_) {}
+                    console.log('Media upload HTTP status:', res.statusCode);
+                    console.log('Media upload raw response:', d.slice(0, 300));
+                    resolve({ status: res.statusCode, body });
+                  });
                 });
                 req.on('error', reject);
                 req.write(multipart);
                 req.end();
               });
 
-              console.log('Media upload status:', mediaRes.status);
-              if (mediaRes.status === 200 && mediaRes.body.media_id_string) {
+              if (mediaRes.status === 200 && mediaRes.body && mediaRes.body.media_id_string) {
                 mediaIds = [mediaRes.body.media_id_string];
                 console.log('Media ID:', mediaRes.body.media_id_string);
               } else {
-                console.warn('Media upload failed:', JSON.stringify(mediaRes.body));
+                console.warn('Media upload did not return media_id (status ' + mediaRes.status + ') — posting text-only.');
               }
             } catch (e) {
-              console.warn('Image upload skipped:', e.message);
+              console.warn('Image upload skipped:', e.message, '— posting text-only.');
             }
 
             // --- 3. Build tweet text ---
