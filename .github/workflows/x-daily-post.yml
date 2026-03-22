@@ -36,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install Tamil fonts
         run: |
@@ -45,7 +45,7 @@ jobs:
           fc-cache -f -v
 
       - name: Install dependencies
-        run: npm install puppeteer twitter-api-v2
+        run: npm install puppeteer@24 twitter-api-v2@1.29
 
       - name: Read state and get next assembly
         id: get-assembly
@@ -129,7 +129,7 @@ jobs:
             console.log('Opening: ' + pageUrl);
             
             const browser = await puppeteer.launch({
-              headless: 'new',
+              headless: true,
               args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
             });
             

@@ -1,0 +1,4 @@
+fileignoreconfig:
+- filename: scripts/test-x-post.mjs
+  checksum: aae6ea276a224e50cc1be7ab8b342d7f3e66a315e0695c021e5186c7024610f9
+version: "1.0"
