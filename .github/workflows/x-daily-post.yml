@@ -241,7 +241,10 @@ jobs:
             let info = { assemblyId: process.env.ASSEMBLY_ID, assemblyName: 'Assembly', pageUrl: '', districtName: '' };
             try {
               info = JSON.parse(readFileSync('assembly-info.json', 'utf8'));
-            } catch {}
+              console.log('Assembly info:', JSON.stringify(info));
+            } catch (e) {
+              console.warn('Could not read assembly-info.json:', e.message);
+            }
 
             // --- Refresh OAuth 2.0 access token ---
             const appClient = new TwitterApi({
@@ -249,8 +252,13 @@ jobs:
               clientSecret: process.env.TWITTER_CLIENT_SECRET,
             });
 
-            const { client, refreshToken: newRefreshToken } =
+            console.log('Refreshing OAuth 2.0 token...');
+            const { client: userClient, refreshToken: newRefreshToken } =
               await appClient.refreshOAuth2Token(process.env.X_OAUTH2_REFRESH_TOKEN);
+
+            // Verify user context
+            const me = await userClient.v2.me();
+            console.log('Authenticated as @' + me.data.username);
 
             // If a new refresh token is issued, save it so the next step can update GitHub Secrets
             if (newRefreshToken && newRefreshToken !== process.env.X_OAUTH2_REFRESH_TOKEN) {
@@ -269,8 +277,20 @@ jobs:
               '🔗 ' + info.pageUrl + '\n\n' +
               dynamicTags + '#IndiaStats #ADMK #DMK #BJP #Congress #EPS #MKStalin #Modi #TVK #Vijay';
 
-            const { data } = await client.v2.tweet({ text });
-            console.log('Tweet posted successfully! ID:', data.id);
+            console.log('--- Tweet text (' + text.length + ' chars) ---');
+            console.log(text);
+            console.log('---');
+
+            try {
+              const { data } = await userClient.v2.tweet({ text });
+              console.log('Tweet posted successfully! ID:', data.id);
+            } catch (err) {
+              console.error('Tweet failed:', err.message);
+              console.error('Error code:', err.code);
+              console.error('Error data:', JSON.stringify(err.data, null, 2));
+              console.error('Error errors:', JSON.stringify(err.errors, null, 2));
+              process.exit(1);
+            }
           })();
           ENDOFSCRIPT
 
