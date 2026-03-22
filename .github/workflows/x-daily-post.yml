@@ -234,63 +234,91 @@ jobs:
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           cat > post.mjs << 'ENDOFSCRIPT'
-          import { TwitterApi } from 'twitter-api-v2';
+          import https from 'https';
           import { readFileSync, writeFileSync } from 'fs';
+
+          // Raw HTTPS helper
+          function httpsPost(hostname, path, body, headers) {
+            return new Promise((resolve, reject) => {
+              const postData = typeof body === 'string' ? body : JSON.stringify(body);
+              const req = https.request({ hostname, path, method: 'POST',
+                headers: { ...headers, 'Content-Length': Buffer.byteLength(postData) }
+              }, (res) => {
+                let data = '';
+                res.on('data', c => data += c);
+                res.on('end', () => resolve({ status: res.statusCode, body: JSON.parse(data) }));
+              });
+              req.on('error', reject);
+              req.write(postData);
+              req.end();
+            });
+          }
 
           (async () => {
             let info = { assemblyId: process.env.ASSEMBLY_ID, assemblyName: 'Assembly', pageUrl: '', districtName: '' };
             try {
               info = JSON.parse(readFileSync('assembly-info.json', 'utf8'));
-              console.log('Assembly info:', JSON.stringify(info));
-            } catch (e) {
-              console.warn('Could not read assembly-info.json:', e.message);
-            }
+              console.log('Assembly:', info.assemblyName, '| URL:', info.pageUrl);
+            } catch (e) { console.warn('assembly-info.json:', e.message); }
 
-            // --- Refresh OAuth 2.0 access token ---
-            const appClient = new TwitterApi({
-              clientId: process.env.TWITTER_CLIENT_ID,
-              clientSecret: process.env.TWITTER_CLIENT_SECRET,
+            const clientId     = process.env.TWITTER_CLIENT_ID;
+            const clientSecret = process.env.TWITTER_CLIENT_SECRET;
+            const refreshToken = process.env.X_OAUTH2_REFRESH_TOKEN;
+
+            // --- 1. Refresh OAuth 2.0 token via raw HTTP ---
+            console.log('Refreshing token...');
+            const refreshBody = new URLSearchParams({
+              grant_type: 'refresh_token',
+              refresh_token: refreshToken,
+              client_id: clientId,
+            }).toString();
+            const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+            const tokenRes = await httpsPost('api.twitter.com', '/2/oauth2/token', refreshBody, {
+              'Authorization': `Basic ${basicAuth}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
             });
+            console.log('Token refresh status:', tokenRes.status);
+            if (tokenRes.status !== 200) {
+              console.error('Token refresh failed:', JSON.stringify(tokenRes.body));
+              process.exit(1);
+            }
+            const { access_token, refresh_token: newRefreshToken } = tokenRes.body;
+            console.log('Access token obtained. Scope:', tokenRes.body.scope);
 
-            console.log('Refreshing OAuth 2.0 token...');
-            const { client: userClient, refreshToken: newRefreshToken } =
-              await appClient.refreshOAuth2Token(process.env.X_OAUTH2_REFRESH_TOKEN);
-
-            // Verify user context
-            const me = await userClient.v2.me();
-            console.log('Authenticated as @' + me.data.username);
-
-            // If a new refresh token is issued, save it so the next step can update GitHub Secrets
-            if (newRefreshToken && newRefreshToken !== process.env.X_OAUTH2_REFRESH_TOKEN) {
+            // Save new refresh token if rotated
+            if (newRefreshToken && newRefreshToken !== refreshToken) {
               writeFileSync('.new-refresh-token.txt', newRefreshToken, 'utf8');
               console.log('Refresh token rotated — will update GitHub Secret.');
             }
 
-            // --- Build tweet text ---
-            const assemblyTag = info.assemblyName.replace(/[^a-zA-Z0-9]/g, '');
-            const districtTag = (info.districtName || '').replace(/[^a-zA-Z0-9]/g, '');
+            // --- 2. Build tweet text ---
+            const assemblyTag = info.assemblyName.replace(/[^a-zA-Z0-9]/g, '').slice(0, 30);
+            const districtTag = (info.districtName || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
             const dynamicTags = (districtTag ? '#' + districtTag + ' ' : '') + (assemblyTag ? '#' + assemblyTag + ' ' : '');
 
             const text = '📊 Assembly Spotlight: ' + info.assemblyName + '\n\n' +
               '🗳️ Tamil Nadu Elections Data\n' +
-              'Explore detailed history, demographics & voting patterns\n\n' +
+              'Explore detailed history & voting patterns\n\n' +
               '🔗 ' + info.pageUrl + '\n\n' +
-              dynamicTags + '#IndiaStats #ADMK #DMK #BJP #Congress #EPS #MKStalin #Modi #TVK #Vijay';
+              dynamicTags + '#IndiaStats #TamilNadu #ADMK #DMK #BJP';
 
-            console.log('--- Tweet text (' + text.length + ' chars) ---');
-            console.log(text);
-            console.log('---');
+            console.log('Tweet (' + text.length + ' chars):\n' + text + '\n---');
 
-            try {
-              const { data } = await userClient.v2.tweet({ text });
-              console.log('Tweet posted successfully! ID:', data.id);
-            } catch (err) {
-              console.error('Tweet failed:', err.message);
-              console.error('Error code:', err.code);
-              console.error('Error data:', JSON.stringify(err.data, null, 2));
-              console.error('Error errors:', JSON.stringify(err.errors, null, 2));
+            // --- 3. Post tweet via raw HTTP ---
+            const tweetRes = await httpsPost('api.twitter.com', '/2/tweets',
+              { text },
+              {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json',
+              }
+            );
+            console.log('Tweet response status:', tweetRes.status);
+            console.log('Tweet response body:', JSON.stringify(tweetRes.body, null, 2));
+            if (tweetRes.status !== 201) {
+              console.error('Tweet failed!');
               process.exit(1);
             }
+            console.log('Tweet posted! ID:', tweetRes.body.data?.id);
           })();
           ENDOFSCRIPT
 
