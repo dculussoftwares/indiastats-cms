@@ -53,7 +53,29 @@ jobs:
           fc-cache -f -v
 
       - name: Install dependencies
-        run: npm install puppeteer@24 twitter-api-v2@1.29
+        run: npm install puppeteer@24
+
+      - name: Load refresh token
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          if [ -f .github/x-token.enc ]; then
+            echo "Decrypting token from .github/x-token.enc..."
+            TOKEN=$(openssl enc -d -aes-256-cbc -pbkdf2 -pass pass:"$PASS" -base64 -in .github/x-token.enc 2>/dev/null | tr -d '\n')
+            if [ -n "$TOKEN" ]; then
+              echo "::add-mask::$TOKEN"
+              printf 'REFRESH_TOKEN=%s\n' "$TOKEN" >> $GITHUB_ENV
+              echo "Using token from encrypted file."
+            else
+              echo "Decryption failed, falling back to Secret."
+              printf 'REFRESH_TOKEN=%s\n' "$FALLBACK" >> $GITHUB_ENV
+            fi
+          else
+            echo "No encrypted file found. Using Secret."
+            printf 'REFRESH_TOKEN=%s\n' "$FALLBACK" >> $GITHUB_ENV
+          fi
+        env:
+          FALLBACK: ${{ secrets.X_OAUTH2_REFRESH_TOKEN }}
+          PASS: ${{ secrets.TWITTER_CLIENT_SECRET }}
 
       - name: Read state and get next assembly
         id: get-assembly
@@ -237,7 +259,7 @@ jobs:
           import https from 'https';
           import { readFileSync, writeFileSync } from 'fs';
 
-          // Raw HTTPS helper
+          // Raw HTTPS helper — uses the built-in https module, no external deps
           function httpsPost(hostname, path, body, headers) {
             return new Promise((resolve, reject) => {
               const postData = typeof body === 'string' ? body : JSON.stringify(body);
@@ -263,7 +285,7 @@ jobs:
 
             const clientId     = process.env.TWITTER_CLIENT_ID;
             const clientSecret = process.env.TWITTER_CLIENT_SECRET;
-            const refreshToken = process.env.X_OAUTH2_REFRESH_TOKEN;
+            const refreshToken = process.env.REFRESH_TOKEN;
 
             // --- 1. Refresh OAuth 2.0 token via raw HTTP ---
             console.log('Refreshing token...');
@@ -329,21 +351,29 @@ jobs:
           ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
           TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID }}
           TWITTER_CLIENT_SECRET: ${{ secrets.TWITTER_CLIENT_SECRET }}
-          X_OAUTH2_REFRESH_TOKEN: ${{ secrets.X_OAUTH2_REFRESH_TOKEN }}
+          REFRESH_TOKEN: ${{ env.REFRESH_TOKEN }}
 
-      - name: Rotate refresh token if changed
-        if: ${{ github.event.inputs.dry_run != 'true' }}
+      - name: Persist rotated token
+        # ALWAYS runs — even when posting fails — so the consumed refresh
+        # token is never lost. Encrypts the new token and commits to repo.
+        if: always()
         run: |
           if [ -f .new-refresh-token.txt ]; then
             NEW_TOKEN=$(cat .new-refresh-token.txt)
-            echo "Updating X_OAUTH2_REFRESH_TOKEN secret..."
-            gh secret set X_OAUTH2_REFRESH_TOKEN --body "$NEW_TOKEN" --repo ${{ github.repository }}
-            echo "Secret updated."
+            echo "::add-mask::$NEW_TOKEN"
+            echo "Persisting encrypted token to .github/x-token.enc ..."
+            printf '%s' "$NEW_TOKEN" | openssl enc -aes-256-cbc -pbkdf2 -pass pass:"$PASS" -base64 > .github/x-token.enc
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git pull --rebase --autostash || true
+            git add .github/x-token.enc
+            git commit -m "chore: rotate oauth2 token [skip ci]" || echo "Nothing to commit"
+            git push || echo "Push failed — will recover on next run"
           else
-            echo "Refresh token unchanged, no rotation needed."
+            echo "No token rotation needed."
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PASS: ${{ secrets.TWITTER_CLIENT_SECRET }}
 
       - name: Update state file
         if: ${{ steps.get-assembly.outputs.next_index != '-1' }}
