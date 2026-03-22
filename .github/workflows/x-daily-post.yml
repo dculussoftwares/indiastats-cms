@@ -34,7 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      secrets: write
     
     steps:
       - name: Checkout repository
