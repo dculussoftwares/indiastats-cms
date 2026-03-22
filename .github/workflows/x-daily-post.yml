@@ -313,7 +313,49 @@ jobs:
               console.log('Refresh token rotated — will update GitHub Secret.');
             }
 
-            // --- 2. Build tweet text ---
+            // --- 2. Upload screenshot image ---
+            let mediaIds = [];
+            try {
+              const imageBuffer = readFileSync('quick-view.png');
+              console.log('Uploading image (' + imageBuffer.length + ' bytes)...');
+
+              const boundary = '----XMediaBoundary' + Date.now();
+              const preamble = '--' + boundary + '\r\nContent-Disposition: form-data; name="media"; filename="image.png"\r\nContent-Type: image/png\r\n\r\n';
+              const closing = '\r\n--' + boundary + '--';
+              const multipart = Buffer.concat([Buffer.from(preamble), imageBuffer, Buffer.from(closing)]);
+
+              const mediaRes = await new Promise((resolve, reject) => {
+                const req = https.request({
+                  hostname: 'upload.twitter.com',
+                  path: '/1.1/media/upload.json',
+                  method: 'POST',
+                  headers: {
+                    'Authorization': 'Bearer ' + access_token,
+                    'Content-Type': 'multipart/form-data; boundary=' + boundary,
+                    'Content-Length': multipart.length,
+                  }
+                }, (res) => {
+                  let d = '';
+                  res.on('data', c => d += c);
+                  res.on('end', () => resolve({ status: res.statusCode, body: JSON.parse(d) }));
+                });
+                req.on('error', reject);
+                req.write(multipart);
+                req.end();
+              });
+
+              console.log('Media upload status:', mediaRes.status);
+              if (mediaRes.status === 200 && mediaRes.body.media_id_string) {
+                mediaIds = [mediaRes.body.media_id_string];
+                console.log('Media ID:', mediaRes.body.media_id_string);
+              } else {
+                console.warn('Media upload failed:', JSON.stringify(mediaRes.body));
+              }
+            } catch (e) {
+              console.warn('Image upload skipped:', e.message);
+            }
+
+            // --- 3. Build tweet text ---
             const assemblyTag = info.assemblyName.replace(/[^a-zA-Z0-9]/g, '').slice(0, 30);
             const districtTag = (info.districtName || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
             const dynamicTags = (districtTag ? '#' + districtTag + ' ' : '') + (assemblyTag ? '#' + assemblyTag + ' ' : '');
@@ -326,9 +368,14 @@ jobs:
 
             console.log('Tweet (' + text.length + ' chars):\n' + text + '\n---');
 
-            // --- 3. Post tweet via raw HTTP ---
+            // --- 4. Post tweet with image ---
+            const tweetPayload = { text };
+            if (mediaIds.length > 0) {
+              tweetPayload.media = { media_ids: mediaIds };
+              console.log('Attaching media IDs:', mediaIds);
+            }
             const tweetRes = await httpsPost('api.twitter.com', '/2/tweets',
-              { text },
+              tweetPayload,
               {
                 'Authorization': `Bearer ${access_token}`,
                 'Content-Type': 'application/json',
