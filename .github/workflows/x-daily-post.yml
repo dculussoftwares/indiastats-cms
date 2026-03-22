@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      secrets: write
     
     steps:
       - name: Checkout repository
@@ -225,48 +226,69 @@ jobs:
       - name: Create post script
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          cat > post.cjs << 'ENDOFSCRIPT'
-          const { TwitterApi } = require('twitter-api-v2');
-          const fs = require('fs');
-          
+          cat > post.mjs << 'ENDOFSCRIPT'
+          import { TwitterApi } from 'twitter-api-v2';
+          import { readFileSync, writeFileSync } from 'fs';
+
           (async () => {
-            let info = { assemblyId: process.env.ASSEMBLY_ID, assemblyName: 'Assembly', pageUrl: '' };
+            let info = { assemblyId: process.env.ASSEMBLY_ID, assemblyName: 'Assembly', pageUrl: '', districtName: '' };
             try {
-              info = JSON.parse(fs.readFileSync('assembly-info.json', 'utf8'));
-            } catch (e) {}
-            
-            const client = new TwitterApi({
-              appKey: process.env.X_API_KEY,
-              appSecret: process.env.X_API_SECRET,
-              accessToken: process.env.X_ACCESS_TOKEN,
-              accessSecret: process.env.X_ACCESS_TOKEN_SECRET,
+              info = JSON.parse(readFileSync('assembly-info.json', 'utf8'));
+            } catch {}
+
+            // --- Refresh OAuth 2.0 access token ---
+            const appClient = new TwitterApi({
+              clientId: process.env.TWITTER_CLIENT_ID,
+              clientSecret: process.env.TWITTER_CLIENT_SECRET,
             });
-            
-            // Create hashtag-friendly versions (remove spaces, special chars)
+
+            const { client, refreshToken: newRefreshToken } =
+              await appClient.refreshOAuth2Token(process.env.X_OAUTH2_REFRESH_TOKEN);
+
+            // If a new refresh token is issued, save it so the next step can update GitHub Secrets
+            if (newRefreshToken && newRefreshToken !== process.env.X_OAUTH2_REFRESH_TOKEN) {
+              writeFileSync('.new-refresh-token.txt', newRefreshToken, 'utf8');
+              console.log('Refresh token rotated — will update GitHub Secret.');
+            }
+
+            // --- Build tweet text ---
             const assemblyTag = info.assemblyName.replace(/[^a-zA-Z0-9]/g, '');
             const districtTag = (info.districtName || '').replace(/[^a-zA-Z0-9]/g, '');
-            const dynamicTags = (districtTag ? '#' + districtTag + ' ' : '') + '#' + assemblyTag;
-            
+            const dynamicTags = (districtTag ? '#' + districtTag + ' ' : '') + (assemblyTag ? '#' + assemblyTag + ' ' : '');
+
             const text = '📊 Assembly Spotlight: ' + info.assemblyName + '\n\n' +
               '🗳️ Tamil Nadu Elections Data\n' +
               'Explore detailed history, demographics & voting patterns\n\n' +
               '🔗 ' + info.pageUrl + '\n\n' +
-              dynamicTags + ' #IndiaStats #ADMK #DMK #BJP #Congress #EPS #MKStalin #Modi #TVK #Vijay';
-            
-            await client.v2.tweet({ text: text });
-            console.log('Tweet posted successfully!');
+              dynamicTags + '#IndiaStats #ADMK #DMK #BJP #Congress #EPS #MKStalin #Modi #TVK #Vijay';
+
+            const { data } = await client.v2.tweet({ text });
+            console.log('Tweet posted successfully! ID:', data.id);
           })();
           ENDOFSCRIPT
 
       - name: Post to X
         if: ${{ github.event.inputs.dry_run != 'true' }}
-        run: node post.cjs
+        run: node post.mjs
         env:
           ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
-          X_API_KEY: ${{ secrets.X_API_KEY }}
-          X_API_SECRET: ${{ secrets.X_API_SECRET }}
-          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
-          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID }}
+          TWITTER_CLIENT_SECRET: ${{ secrets.TWITTER_CLIENT_SECRET }}
+          X_OAUTH2_REFRESH_TOKEN: ${{ secrets.X_OAUTH2_REFRESH_TOKEN }}
+
+      - name: Rotate refresh token if changed
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          if [ -f .new-refresh-token.txt ]; then
+            NEW_TOKEN=$(cat .new-refresh-token.txt)
+            echo "Updating X_OAUTH2_REFRESH_TOKEN secret..."
+            gh secret set X_OAUTH2_REFRESH_TOKEN --body "$NEW_TOKEN" --repo ${{ github.repository }}
+            echo "Secret updated."
+          else
+            echo "Refresh token unchanged, no rotation needed."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update state file
         if: ${{ steps.get-assembly.outputs.next_index != '-1' }}
@@ -275,7 +297,7 @@ jobs:
           NEXT_INDEX="${{ steps.get-assembly.outputs.next_index }}"
           ASSEMBLY_ID="${{ steps.get-assembly.outputs.assembly_id }}"
           DATE=$(date -u +"%Y-%m-%d")
-          
+
           jq --argjson idx "$NEXT_INDEX" \
              --arg date "$DATE" \
              --arg assembly "$ASSEMBLY_ID" \
@@ -290,3 +312,4 @@ jobs:
           git add .github/x-post-state.json
           git commit -m "chore: posted X card for ${{ steps.get-assembly.outputs.assembly_id }} [skip ci]" || echo "No changes"
           git push
+

@@ -27,3 +27,8 @@ infra/*.tfstate.*
 infra/*.tfvars
 infra/.terraform.lock.hcl
 
+.env.local
+
+# OAuth 2.0 token files (local only, never commit)
+.oauth2-refresh-token.txt
+.new-refresh-token.txt

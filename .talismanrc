@@ -1,6 +1,8 @@
 fileignoreconfig:
 - filename: scripts/test-x-post.mjs
-  checksum: aae6ea276a224e50cc1be7ab8b342d7f3e66a315e0695c021e5186c7024610f9
+  checksum: 8821e4b3bd4d9423373229ecf52527d1235d2aa7ef05875ad5f375cc0e965aa3
+- filename: scripts/oauth2-setup.mjs
+  checksum: 46ff199fa4859fee4e1cd58f11690dc2b0f08f80389c318064db84f5ceb686eb
 - filename: .github/workflows/x-daily-post.yml
-  checksum: 327d3ec868671f525cae278ea059fa5203107c1bf46357f1040fb48616e1c933
+  checksum: ad721457ff749fe24cd0c5fca79598c0b4378dfba89348485eeac29fa84c3ced
 version: "1.0"
