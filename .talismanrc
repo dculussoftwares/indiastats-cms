@@ -4,5 +4,5 @@ fileignoreconfig:
 - filename: scripts/oauth2-setup.mjs
   checksum: 46ff199fa4859fee4e1cd58f11690dc2b0f08f80389c318064db84f5ceb686eb
 - filename: .github/workflows/x-daily-post.yml
-  checksum: ad721457ff749fe24cd0c5fca79598c0b4378dfba89348485eeac29fa84c3ced
+  checksum: 109f42f7335796d6157484ab548e20c081cba1291ef61a00061ea98b735af69b
 version: "1.0"
