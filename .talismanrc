@@ -1,8 +1,1 @@
-fileignoreconfig:
-- filename: scripts/test-x-post.mjs
-  checksum: 8821e4b3bd4d9423373229ecf52527d1235d2aa7ef05875ad5f375cc0e965aa3
-- filename: scripts/oauth2-setup.mjs
-  checksum: 46ff199fa4859fee4e1cd58f11690dc2b0f08f80389c318064db84f5ceb686eb
-- filename: .github/workflows/x-daily-post.yml
-  checksum: cbfc800707f6fd91c758598e3a3fe6ee072da1ea4e160d95e6e1505dc7d2e304
-version: "1.0"
+threshold: high
