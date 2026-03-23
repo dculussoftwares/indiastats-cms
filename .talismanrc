@@ -1,1 +1,4 @@
 threshold: high
+fileignoreconfig:
+- filename: .github/x-token.enc
+  checksum: 620a85b6de572caa942d4d412c4f30590f7f97990ac66df6fe5c2aefd4641499

@@ -149,6 +149,22 @@ const server = http.createServer(async (req, res) => {
       console.log(`💾  Refresh token saved to: .oauth2-refresh-token.txt`);
       console.log('    (This file is git-ignored — do not commit it!)\n');
 
+      // Also bootstrap .github/x-token.enc so the workflow picks up the new token
+      // without needing the stale encrypted file to be manually deleted.
+      try {
+        const { execSync } = await import('child_process');
+        const encFile = resolve(root, '.github', 'x-token.enc');
+        execSync(
+          `printf '%s' '${refreshToken.replace(/'/g, "'\\''")}' | openssl enc -aes-256-cbc -pbkdf2 -pass pass:'${CLIENT_SECRET.replace(/'/g, "'\\''")}' -base64 > '${encFile}'`,
+          { stdio: 'pipe' }
+        );
+        console.log(`🔒  Encrypted token saved to: .github/x-token.enc`);
+        console.log('    Run: git add .github/x-token.enc && git commit -m "chore: bootstrap oauth2 token" && git push\n');
+      } catch (e) {
+        console.warn('⚠️  Could not create .github/x-token.enc (openssl may not be available):', e.message);
+        console.warn('    If the workflow fails with "invalid token", delete .github/x-token.enc from the repo.\n');
+      }
+
       console.log('🔐  Now set these GitHub Secrets:\n');
       console.log(`   gh secret set TWITTER_CLIENT_ID     --body "${CLIENT_ID}"     --repo dculussoftwares/indiastats-cms`);
       console.log(`   gh secret set TWITTER_CLIENT_SECRET --body "${CLIENT_SECRET}" --repo dculussoftwares/indiastats-cms`);
