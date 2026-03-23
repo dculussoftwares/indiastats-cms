@@ -317,12 +317,11 @@ jobs:
             let mediaIds = [];
             try {
               const imageBuffer = readFileSync('quick-view.png');
-              console.log('Uploading image (' + imageBuffer.length + ' bytes)...');
+              const imageBase64 = imageBuffer.toString('base64');
+              console.log('Uploading image (' + imageBuffer.length + ' bytes, base64 ' + imageBase64.length + ' chars)...');
 
-              const boundary = '----XMediaBoundary' + Date.now();
-              const preamble = '--' + boundary + '\r\nContent-Disposition: form-data; name="media"; filename="image.png"\r\nContent-Type: image/png\r\n\r\n';
-              const closing = '\r\n--' + boundary + '--';
-              const multipart = Buffer.concat([Buffer.from(preamble), imageBuffer, Buffer.from(closing)]);
+              // Use base64 media_data field (more compatible with OAuth 2.0 than multipart)
+              const uploadBody = 'media_data=' + encodeURIComponent(imageBase64);
 
               const mediaRes = await new Promise((resolve, reject) => {
                 const req = https.request({
@@ -331,23 +330,23 @@ jobs:
                   method: 'POST',
                   headers: {
                     'Authorization': 'Bearer ' + access_token,
-                    'Content-Type': 'multipart/form-data; boundary=' + boundary,
-                    'Content-Length': multipart.length,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Length': Buffer.byteLength(uploadBody),
+                    'User-Agent': 'IndiaStats-XBot/1.0',
                   }
                 }, (res) => {
                   let d = '';
                   res.on('data', c => d += c);
                   res.on('end', () => {
-                    // Safe JSON parse — don't throw inside event callback
                     let body = null;
                     try { body = JSON.parse(d); } catch (_) {}
                     console.log('Media upload HTTP status:', res.statusCode);
-                    console.log('Media upload raw response:', d.slice(0, 300));
+                    console.log('Media upload raw response:', d.slice(0, 500));
                     resolve({ status: res.statusCode, body });
                   });
                 });
                 req.on('error', reject);
-                req.write(multipart);
+                req.write(uploadBody);
                 req.end();
               });
 
