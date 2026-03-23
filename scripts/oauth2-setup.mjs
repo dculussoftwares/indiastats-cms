@@ -14,7 +14,7 @@
  * In the X Developer Portal:
  *   1. App → Settings → User authentication settings → Enable OAuth 2.0
  *   2. Set Callback URI / Redirect URL to: http://localhost:3001/callback
- *   3. Request scopes: tweet.write, tweet.read, users.read, offline.access
+ *   3. Request scopes: tweet.write, tweet.read, users.read, offline.access, media.write
  */
 
 import { readFileSync, existsSync, writeFileSync } from 'fs';
@@ -67,7 +67,7 @@ const client = new TwitterApi({
 
 // ------- Generate authorization URL -------
 const { url, codeVerifier, state } = client.generateOAuth2AuthLink(CALLBACK_URL, {
-  scope: ['tweet.write', 'tweet.read', 'users.read', 'offline.access'],
+  scope: ['tweet.write', 'tweet.read', 'users.read', 'offline.access', 'media.write'],
 });
 
 console.log('\n============================================================');
