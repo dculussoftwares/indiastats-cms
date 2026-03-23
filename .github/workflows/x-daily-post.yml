@@ -325,7 +325,7 @@ jobs:
 
               const mediaRes = await new Promise((resolve, reject) => {
                 const req = https.request({
-                  hostname: 'upload.twitter.com',
+                  hostname: 'api.twitter.com',
                   path: '/1.1/media/upload.json',
                   method: 'POST',
                   headers: {
@@ -333,6 +333,7 @@ jobs:
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'Content-Length': Buffer.byteLength(uploadBody),
                     'User-Agent': 'IndiaStats-XBot/1.0',
+                    'Accept': '*/*',
                   }
                 }, (res) => {
                   let d = '';
