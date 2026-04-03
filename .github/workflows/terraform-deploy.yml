@@ -15,8 +15,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   RESOURCE_GROUP: rg-indiastats-prod
-  # Terraform Backend Config
-  TF_BACKEND_STORAGE_ACCOUNT: stindiastatstfstate
+  # Terraform Backend Config (Sponsorship Subscription)
+  TF_BACKEND_STORAGE_ACCOUNT: stindiastfstate23438
   TF_BACKEND_CONTAINER: tfstate
   TF_BACKEND_KEY: indiastats.tfstate
   TF_BACKEND_RG: rg-indiastats-tfstate

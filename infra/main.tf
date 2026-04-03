@@ -15,6 +15,7 @@ terraform {
 provider "azurerm" {
   features {}
   use_oidc = true
+  # subscription_id loaded from ARM_SUBSCRIPTION_ID env var (set from GitHub Secrets)
 }
 
 # Resource Group
