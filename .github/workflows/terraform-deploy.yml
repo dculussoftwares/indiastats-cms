@@ -122,7 +122,8 @@ jobs:
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           terraform plan -out=tfplan -input=false \
-            -var="container_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}"
+            -var="container_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}" \
+            -var="storage_account_name=stindiastatsmediaspn"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
