@@ -1,10 +1,10 @@
 import type { CollectionConfig } from 'payload'
 
-export const Districts: CollectionConfig = {
-    slug: 'districts',
+export const Zones: CollectionConfig = {
+    slug: 'zones',
     admin: {
-        useAsTitle: 'districtName',
-        defaultColumns: ['districtId', 'districtName'],
+        useAsTitle: 'zoneName',
+        defaultColumns: ['zoneId', 'zoneName', 'stateCode', 'districtCount', 'assemblyCount'],
         group: 'Election Data',
     },
     access: {
@@ -22,45 +22,45 @@ export const Districts: CollectionConfig = {
             },
         },
         {
-            name: 'districtId',
+            name: 'zoneId',
             type: 'text',
             required: true,
             unique: true,
             admin: {
-                description: 'Unique district identifier (e.g., dt1)',
-            },
-        },
-        {
-            name: 'districtName',
-            type: 'text',
-            required: true,
-            admin: {
-                description: 'District name (bilingual)',
-            },
-        },
-        {
-            name: 'zoneId',
-            type: 'text',
-            index: true,
-            admin: {
-                description: 'Zone ID reference (e.g., z1)',
+                description: 'Unique zone identifier (e.g., z1)',
             },
         },
         {
             name: 'zoneName',
             type: 'text',
+            required: true,
             admin: {
-                description: 'Zone Name (e.g., Kongu Nadu)',
+                description: 'Name of the zone (e.g., Kongu Nadu)',
             },
         },
         {
             name: 'slug',
             type: 'text',
+            required: true,
             unique: true,
-            index: true,
             admin: {
-                description: 'URL-friendly slug (e.g., tiruvallur)',
+                description: 'URL-friendly slug (auto-generated usually)',
             },
+        },
+        {
+            name: 'description',
+            type: 'textarea',
+            admin: {
+                description: 'Optional description of the zone geographically',
+            },
+        },
+        {
+            name: 'districtCount',
+            type: 'number',
+        },
+        {
+            name: 'assemblyCount',
+            type: 'number',
         },
     ],
 }

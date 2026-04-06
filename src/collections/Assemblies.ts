@@ -55,6 +55,21 @@ export const Assemblies: CollectionConfig = {
             },
         },
         {
+            name: 'zoneId',
+            type: 'text',
+            index: true,
+            admin: {
+                description: 'Zone ID reference (e.g., z1)',
+            },
+        },
+        {
+            name: 'zoneName',
+            type: 'text',
+            admin: {
+                description: 'Zone Name (e.g., Kongu Nadu)',
+            },
+        },
+        {
             name: 'slug',
             type: 'text',
             unique: true,

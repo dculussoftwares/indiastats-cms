@@ -73,6 +73,7 @@ export interface Config {
     categories: Category;
     users: User;
     states: State;
+    zones: Zone;
     assemblies: Assembly;
     districts: District;
     booths: Booth;
@@ -102,6 +103,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     states: StatesSelect<false> | StatesSelect<true>;
+    zones: ZonesSelect<false> | ZonesSelect<true>;
     assemblies: AssembliesSelect<false> | AssembliesSelect<true>;
     districts: DistrictsSelect<false> | DistrictsSelect<true>;
     booths: BoothsSelect<false> | BoothsSelect<true>;
@@ -878,6 +880,37 @@ export interface State {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "zones".
+ */
+export interface Zone {
+  id: number;
+  /**
+   * State code (e.g., TN, KA, AP)
+   */
+  stateCode: string;
+  /**
+   * Unique zone identifier (e.g., z1)
+   */
+  zoneId: string;
+  /**
+   * Name of the zone (e.g., Kongu Nadu)
+   */
+  zoneName: string;
+  /**
+   * URL-friendly slug (auto-generated usually)
+   */
+  slug: string;
+  /**
+   * Optional description of the zone geographically
+   */
+  description?: string | null;
+  districtCount?: number | null;
+  assemblyCount?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "assemblies".
  */
 export interface Assembly {
@@ -902,6 +935,14 @@ export interface Assembly {
    * District ID reference (e.g., dt1)
    */
   districtId?: string | null;
+  /**
+   * Zone ID reference (e.g., z1)
+   */
+  zoneId?: string | null;
+  /**
+   * Zone Name (e.g., Kongu Nadu)
+   */
+  zoneName?: string | null;
   /**
    * URL-friendly slug (e.g., ambattur)
    */
@@ -964,6 +1005,14 @@ export interface District {
    * District name (bilingual)
    */
   districtName: string;
+  /**
+   * Zone ID reference (e.g., z1)
+   */
+  zoneId?: string | null;
+  /**
+   * Zone Name (e.g., Kongu Nadu)
+   */
+  zoneName?: string | null;
   /**
    * URL-friendly slug (e.g., tiruvallur)
    */
@@ -1312,6 +1361,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'states';
         value: number | State;
+      } | null)
+    | ({
+        relationTo: 'zones';
+        value: number | Zone;
       } | null)
     | ({
         relationTo: 'assemblies';
@@ -1738,6 +1791,21 @@ export interface StatesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "zones_select".
+ */
+export interface ZonesSelect<T extends boolean = true> {
+  stateCode?: T;
+  zoneId?: T;
+  zoneName?: T;
+  slug?: T;
+  description?: T;
+  districtCount?: T;
+  assemblyCount?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "assemblies_select".
  */
 export interface AssembliesSelect<T extends boolean = true> {
@@ -1746,6 +1814,8 @@ export interface AssembliesSelect<T extends boolean = true> {
   name?: T;
   districtName?: T;
   districtId?: T;
+  zoneId?: T;
+  zoneName?: T;
   slug?: T;
   noOfBooths?: T;
   electedMla?: T;
@@ -1762,6 +1832,8 @@ export interface DistrictsSelect<T extends boolean = true> {
   stateCode?: T;
   districtId?: T;
   districtName?: T;
+  zoneId?: T;
+  zoneName?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
