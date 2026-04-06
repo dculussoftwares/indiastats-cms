@@ -64,15 +64,16 @@ export async function middleware(request: NextRequest) {
     // Check if this is an old assembly URL
     const assemblyMatch = pathname.match(OLD_ASSEMBLY_URL_PATTERN)
     if (assemblyMatch) {
-        const [, stateSlug, _districtId, assemblyId, rest = ''] = assemblyMatch
+        const [, stateSlug, districtId, assemblyId, rest = ''] = assemblyMatch
 
         await loadSlugMappings()
 
-        const fullAssemblyPath = assemblyIdToSlug?.get(assemblyId)
+        const districtSlug = districtIdToSlug?.get(districtId)
+        const assemblySlug = assemblyIdToSlug?.get(assemblyId)
 
-        if (fullAssemblyPath) {
+        if (districtSlug && assemblySlug) {
             const newUrl = new URL(
-                `/${stateSlug}/assembly/${fullAssemblyPath}${rest}`,
+                `/${stateSlug}/assembly/${districtSlug}/${assemblySlug}${rest}`,
                 request.url
             )
             // Preserve query parameters
