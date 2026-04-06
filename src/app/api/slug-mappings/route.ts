@@ -40,13 +40,29 @@ export async function GET(request: Request) {
                 collection: 'assemblies',
                 limit: 300,
                 pagination: false,
-                select: { assemblyId: true, slug: true },
+                select: { assemblyId: true, slug: true, districtId: true },
             })
+
+            const districts = await payload.find({
+                collection: 'districts',
+                limit: 100,
+                pagination: false,
+                select: { districtId: true, slug: true },
+            })
+            
+            const distMap: Record<string, string> = {}
+            for (const d of districts.docs) {
+                const dDoc = d as any
+                if (dDoc.districtId && dDoc.slug) {
+                    distMap[dDoc.districtId] = dDoc.slug
+                }
+            }
 
             for (const assembly of assemblies.docs) {
                 const doc = assembly as any
                 if (doc.assemblyId && doc.slug) {
-                    mappings[doc.assemblyId] = doc.slug
+                    const dSlug = distMap[doc.districtId] || 'unknown'
+                    mappings[doc.assemblyId] = `${dSlug}/${doc.slug}`
                 }
             }
         }
