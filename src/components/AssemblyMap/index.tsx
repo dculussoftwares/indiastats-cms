@@ -13,6 +13,7 @@ import { ClosestRacesPanel } from '@/components/ClosestRacesPanel'
 import { AllianceSummary } from '@/components/AllianceSummary'
 import { CasteInsightsPanel } from '@/components/CasteInsightsPanel'
 import { track } from '@/utilities/analytics'
+import { buildAssemblyUrl } from '@/lib/assemblyRouting'
 import './leaflet-style-import'
 
 // Dynamic imports for react-leaflet (SSR disabled)
@@ -1540,11 +1541,10 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
 
                       <button
                         className="w-full flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
-                        onClick={() =>
-                          router.push(
-                            `/tamil-nadu/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
-                          )
-                        }
+                        onClick={() => {
+                          const url = buildAssemblyUrl(popupContent.ac)
+                          if (url) router.push(url)
+                        }}
                       >
                         View Assembly Details
                         <ExternalLink className="h-3 w-3" />
@@ -1754,11 +1754,10 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
 
                       <button
                         className="w-full flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
-                        onClick={() =>
-                          router.push(
-                            `/tamil-nadu/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
-                          )
-                        }
+                        onClick={() => {
+                          const url = buildAssemblyUrl(popupContent.ac)
+                          if (url) router.push(url)
+                        }}
                       >
                         View Assembly Details
                         <ExternalLink className="h-3 w-3" />
@@ -2031,11 +2030,10 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
 
                     <button
                       className="w-full flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
-                      onClick={() =>
-                        router.push(
-                          `/tamil-nadu/assembly/dt${popupContent.pc}/ac${String(popupContent.ac).padStart(3, '0')}`,
-                        )
-                      }
+                      onClick={() => {
+                        const url = buildAssemblyUrl(popupContent.ac)
+                        if (url) router.push(url)
+                      }}
                     >
                       View Assembly
                       <ExternalLink className="h-3 w-3" />
