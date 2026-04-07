@@ -354,10 +354,11 @@ jobs:
               // Use /2/media/upload for OAuth 2.0 compatibility
               const boundary = '----FormBoundary' + Date.now();
               const formBody = buildFormData(boundary, {
-                media_data: {
+                media: {
                   data: imageBuffer.toString('base64'),
                   filename: 'quick-view.png'
-                }
+                },
+                media_category: 'TWEET_IMAGE'
               });
 
               const mediaRes = await httpsRequest('api.twitter.com', '/2/media/upload', 'POST', formBody, {
@@ -369,7 +370,10 @@ jobs:
               console.log('Media upload HTTP status:', mediaRes.status);
               console.log('Media upload response:', JSON.stringify(mediaRes.body, null, 2));
 
-              if (mediaRes.status === 200 && mediaRes.body && mediaRes.body.data && mediaRes.body.data.media_id) {
+              if (mediaRes.status === 200 && mediaRes.body && mediaRes.body.media_id) {
+                mediaIds = [mediaRes.body.media_id];
+                console.log('✅ Media uploaded successfully. Media ID:', mediaIds[0]);
+              } else if (mediaRes.status === 200 && mediaRes.body && mediaRes.body.data && mediaRes.body.data.media_id) {
                 mediaIds = [mediaRes.body.data.media_id];
                 console.log('✅ Media uploaded successfully. Media ID:', mediaIds[0]);
               } else {
