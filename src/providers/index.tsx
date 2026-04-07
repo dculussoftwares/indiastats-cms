@@ -2,6 +2,7 @@ import React from 'react'
 
 import { ClarityProvider } from './Clarity'
 import { CommandPaletteProvider } from './CommandPalette'
+import { GTMProvider } from './GTM'
 import { HeaderThemeProvider } from './HeaderTheme'
 import { ThemeProvider } from './Theme'
 
@@ -12,7 +13,10 @@ export const Providers: React.FC<{
     <ThemeProvider>
       <HeaderThemeProvider>
         <ClarityProvider>
-          <CommandPaletteProvider>{children}</CommandPaletteProvider>
+          <CommandPaletteProvider>
+            <GTMProvider />
+            {children}
+          </CommandPaletteProvider>
         </ClarityProvider>
       </HeaderThemeProvider>
     </ThemeProvider>

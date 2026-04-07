@@ -16,6 +16,7 @@ import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo/JsonLd'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
+import Script from 'next/script'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
@@ -23,6 +24,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
       <head>
+        {/* Google Tag Manager */}
+        <Script
+          id="gtm-script"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MS8LQ9GB');`,
+          }}
+        />
         <InitTheme />
         <link href="/icon.png" rel="icon" type="image/png" sizes="32x32" />
         <link href="/icon.png" rel="icon" type="image/png" sizes="192x192" />

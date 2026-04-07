@@ -2,3 +2,6 @@ threshold: high
 fileignoreconfig:
 - filename: .github/x-token.enc
   checksum: 0adc4fb0d955e87bd75439e29f6849f010428602903c4b8f84a985b883c46599
+
+- filename: package-lock.json
+  checksum: 961bbc8ffb1a47f781a0e972085f6244d0439ea7f345f569f2a87e13059e2715
