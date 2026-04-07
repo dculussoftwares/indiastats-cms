@@ -260,20 +260,50 @@ jobs:
           import { readFileSync, writeFileSync } from 'fs';
 
           // Raw HTTPS helper — uses the built-in https module, no external deps
-          function httpsPost(hostname, path, body, headers) {
+          function httpsRequest(hostname, path, method = 'GET', body = null, headers = {}) {
             return new Promise((resolve, reject) => {
-              const postData = typeof body === 'string' ? body : JSON.stringify(body);
-              const req = https.request({ hostname, path, method: 'POST',
-                headers: { ...headers, 'Content-Length': Buffer.byteLength(postData) }
+              const requestBody = typeof body === 'string' ? body : (body ? JSON.stringify(body) : null);
+              const req = https.request({
+                hostname,
+                path,
+                method,
+                headers: {
+                  ...headers,
+                  ...(requestBody ? { 'Content-Length': Buffer.byteLength(requestBody) } : {})
+                }
               }, (res) => {
                 let data = '';
                 res.on('data', c => data += c);
-                res.on('end', () => resolve({ status: res.statusCode, body: JSON.parse(data) }));
+                res.on('end', () => {
+                  let body = null;
+                  try { body = JSON.parse(data); } catch (_) {}
+                  resolve({ status: res.statusCode, body, headers: res.headers, rawData: data });
+                });
               });
               req.on('error', reject);
-              req.write(postData);
+              if (requestBody) req.write(requestBody);
               req.end();
             });
+          }
+
+          // Multipart form-data helper for media upload
+          function buildFormData(boundary, fields) {
+            let body = '';
+            for (const [key, value] of Object.entries(fields)) {
+              body += `--${boundary}\r\n`;
+              body += `Content-Disposition: form-data; name="${key}"`;
+              if (key === 'media_data' && typeof value === 'object' && value.filename) {
+                body += `; filename="${value.filename}"\r\n`;
+                body += `Content-Type: application/octet-stream\r\n\r\n`;
+                body += value.data;
+              } else {
+                body += '\r\n\r\n';
+                body += value;
+              }
+              body += '\r\n';
+            }
+            body += `--${boundary}--\r\n`;
+            return body;
           }
 
           (async () => {
@@ -287,7 +317,7 @@ jobs:
             const clientSecret = process.env.TWITTER_CLIENT_SECRET;
             const refreshToken = process.env.REFRESH_TOKEN;
 
-            // --- 1. Refresh OAuth 2.0 token via raw HTTP ---
+            // --- 1. Refresh OAuth 2.0 token ---
             console.log('Refreshing token...');
             const refreshBody = new URLSearchParams({
               grant_type: 'refresh_token',
@@ -295,7 +325,7 @@ jobs:
               client_id: clientId,
             }).toString();
             const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-            const tokenRes = await httpsPost('api.twitter.com', '/2/oauth2/token', refreshBody, {
+            const tokenRes = await httpsRequest('api.twitter.com', '/2/oauth2/token', 'POST', refreshBody, {
               'Authorization': `Basic ${basicAuth}`,
               'Content-Type': 'application/x-www-form-urlencoded',
             });
@@ -313,52 +343,39 @@ jobs:
               console.log('Refresh token rotated — will update GitHub Secret.');
             }
 
-            // --- 2. Upload screenshot image (best-effort, non-fatal) ---
+            // --- 2. Upload screenshot image via v2 media upload API ---
             let mediaIds = [];
             try {
               const imageBuffer = readFileSync('quick-view.png');
-              const imageBase64 = imageBuffer.toString('base64');
-              console.log('Uploading image (' + imageBuffer.length + ' bytes, base64 ' + imageBase64.length + ' chars)...');
+              console.log('Uploading image (' + imageBuffer.length + ' bytes)...');
 
-              // Use base64 media_data field (more compatible with OAuth 2.0 than multipart)
-              const uploadBody = 'media_data=' + encodeURIComponent(imageBase64);
-
-              const mediaRes = await new Promise((resolve, reject) => {
-                const req = https.request({
-                  hostname: 'api.twitter.com',
-                  path: '/1.1/media/upload.json',
-                  method: 'POST',
-                  headers: {
-                    'Authorization': 'Bearer ' + access_token,
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Content-Length': Buffer.byteLength(uploadBody),
-                    'User-Agent': 'IndiaStats-XBot/1.0',
-                    'Accept': '*/*',
-                  }
-                }, (res) => {
-                  let d = '';
-                  res.on('data', c => d += c);
-                  res.on('end', () => {
-                    let body = null;
-                    try { body = JSON.parse(d); } catch (_) {}
-                    console.log('Media upload HTTP status:', res.statusCode);
-                    console.log('Media upload raw response:', d.slice(0, 500));
-                    resolve({ status: res.statusCode, body });
-                  });
-                });
-                req.on('error', reject);
-                req.write(uploadBody);
-                req.end();
+              // Use /2/media/upload for OAuth 2.0 compatibility
+              const boundary = '----FormBoundary' + Date.now();
+              const formBody = buildFormData(boundary, {
+                media_data: {
+                  data: imageBuffer.toString('base64'),
+                  filename: 'quick-view.png'
+                }
               });
 
-              if (mediaRes.status === 200 && mediaRes.body && mediaRes.body.media_id_string) {
-                mediaIds = [mediaRes.body.media_id_string];
-                console.log('Media ID:', mediaRes.body.media_id_string);
+              const mediaRes = await httpsRequest('api.twitter.com', '/2/media/upload', 'POST', formBody, {
+                'Authorization': 'Bearer ' + access_token,
+                'Content-Type': 'multipart/form-data; boundary=' + boundary,
+                'User-Agent': 'IndiaStats-XBot/1.0',
+              });
+
+              console.log('Media upload HTTP status:', mediaRes.status);
+              console.log('Media upload response:', JSON.stringify(mediaRes.body, null, 2));
+
+              if (mediaRes.status === 200 && mediaRes.body && mediaRes.body.data && mediaRes.body.data.media_id) {
+                mediaIds = [mediaRes.body.data.media_id];
+                console.log('✅ Media uploaded successfully. Media ID:', mediaIds[0]);
               } else {
-                console.warn('Media upload did not return media_id (status ' + mediaRes.status + ') — posting text-only.');
+                console.warn('⚠️ Media upload did not return media_id (status ' + mediaRes.status + ') — will post text-only.');
+                console.warn('Response body:', mediaRes.rawData.slice(0, 500));
               }
             } catch (e) {
-              console.warn('Image upload skipped:', e.message, '— posting text-only.');
+              console.warn('⚠️ Image upload failed:', e.message, '— posting text-only.');
             }
 
             // --- 3. Build tweet text ---
@@ -374,26 +391,23 @@ jobs:
 
             console.log('Tweet (' + text.length + ' chars):\n' + text + '\n---');
 
-            // --- 4. Post tweet with image ---
+            // --- 4. Post tweet with media ---
             const tweetPayload = { text };
             if (mediaIds.length > 0) {
               tweetPayload.media = { media_ids: mediaIds };
-              console.log('Attaching media IDs:', mediaIds);
+              console.log('📎 Attaching media IDs:', mediaIds);
             }
-            const tweetRes = await httpsPost('api.twitter.com', '/2/tweets',
-              tweetPayload,
-              {
-                'Authorization': `Bearer ${access_token}`,
-                'Content-Type': 'application/json',
-              }
-            );
+            const tweetRes = await httpsRequest('api.twitter.com', '/2/tweets', 'POST', tweetPayload, {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            });
             console.log('Tweet response status:', tweetRes.status);
             console.log('Tweet response body:', JSON.stringify(tweetRes.body, null, 2));
             if (tweetRes.status !== 201) {
-              console.error('Tweet failed!');
+              console.error('❌ Tweet failed!');
               process.exit(1);
             }
-            console.log('Tweet posted! ID:', tweetRes.body.data?.id);
+            console.log('✅ Tweet posted! ID:', tweetRes.body.data?.id);
           })();
           ENDOFSCRIPT
 
