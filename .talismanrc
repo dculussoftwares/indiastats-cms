@@ -5,3 +5,5 @@ fileignoreconfig:
 
 - filename: package-lock.json
   checksum: 961bbc8ffb1a47f781a0e972085f6244d0439ea7f345f569f2a87e13059e2715
+- filename: Dockerfile
+  checksum: 5807cb14934a74823339fc8f268244eb3d0b546685a0bb3b2d2cac366afef8b1
