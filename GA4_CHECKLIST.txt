@@ -1,0 +1,44 @@
+╔════════════════════════════════════════════════════════════════════╗
+║              GA4 DEPLOYMENT CHECKLIST                              ║
+╚════════════════════════════════════════════════════════════════════╝
+
+✅ CODE CHANGES COMPLETE
+  ✓ GitHub Actions workflow updated (.github/workflows/terraform-deploy.yml)
+  ✓ Terraform variables added (infra/variables.tf)
+  ✓ Container App config updated (infra/container-app.tf)
+  ✓ GA4 script embedded in layout (src/app/(frontend)/layout.tsx)
+  ✓ Analytics utility has GA4 support (src/utilities/analytics.ts)
+  ✓ .env.example documented
+
+⏳ MANUAL STEPS REQUIRED
+  [ ] Step 1: Go to GitHub repo → Settings → Secrets and variables → Actions
+  [ ] Step 2: Click "New repository secret"
+  [ ] Step 3: Enter Name: NEXT_PUBLIC_GA_ID
+  [ ] Step 4: Enter Value: G-NVB7E06128
+  [ ] Step 5: Click "Add secret"
+
+🚀 DEPLOYMENT
+  [ ] Step 6: Push to main branch (or manually trigger workflow)
+  [ ] Step 7: Watch workflow in Actions tab
+  [ ] Step 8: Wait for deployment to complete (~5-10 minutes)
+
+✨ VERIFICATION
+  [ ] Step 9: Visit https://indiastats.org in browser
+  [ ] Step 10: Open DevTools → Network tab
+  [ ] Step 11: Refresh page
+  [ ] Step 12: Look for requests to www.googletagmanager.com
+  [ ] Step 13: Should see: gtag.js?id=G-NVB7E06128
+
+📊 VERIFY IN GOOGLE ANALYTICS
+  [ ] Step 14: Go to analytics.google.com
+  [ ] Step 15: Select IndiaStats property
+  [ ] Step 16: Click "Realtime" → "Overview"
+  [ ] Step 17: You should see active users (if site has traffic)
+
+╔════════════════════════════════════════════════════════════════════╗
+║ THAT'S IT! GA4 is now live and tracking all user events.          ║
+║                                                                    ║
+║ See GA4_SETUP.md for quick reference                              ║
+║ See GA4_GITHUB_ACTIONS_FLOW.md for detailed flow                  ║
+║ See GA4_IMPLEMENTATION_SUMMARY.md for technical details           ║
+╚════════════════════════════════════════════════════════════════════╝

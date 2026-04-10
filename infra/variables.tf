@@ -66,3 +66,10 @@ variable "posthog_host" {
   sensitive   = false
   default     = "https://eu.i.posthog.com"
 }
+
+variable "ga_id" {
+  description = "Google Analytics 4 Measurement ID (public identifier, not sensitive)"
+  type        = string
+  sensitive   = false
+  default     = ""
+}

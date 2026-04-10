@@ -75,6 +75,7 @@ jobs:
             NEXT_PUBLIC_POSTHOG_KEY=${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
             NEXT_PUBLIC_POSTHOG_HOST=${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}
             NEXT_PUBLIC_MIXPANEL_TOKEN=${{ secrets.NEXT_PUBLIC_MIXPANEL_TOKEN }}
+            NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}
 
       - name: Get SHA Tag
         id: sha
@@ -131,6 +132,7 @@ jobs:
           ARM_USE_OIDC: true
           TF_VAR_database_url: ${{ secrets.DATABASE_URL }}
           TF_VAR_payload_secret: ${{ secrets.PAYLOAD_SECRET }}
+          TF_VAR_ga_id: ${{ secrets.NEXT_PUBLIC_GA_ID }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan

@@ -115,6 +115,11 @@ resource "azurerm_container_app" "main" {
         name  = "NEXT_PUBLIC_POSTHOG_HOST"
         value = var.posthog_host
       }
+
+      env {
+        name  = "NEXT_PUBLIC_GA_ID"
+        value = var.ga_id
+      }
     }
   }
 

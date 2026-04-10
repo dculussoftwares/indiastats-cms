@@ -5,8 +5,11 @@ import { trackEvent, setDimension } from '@/utilities/clarityTracking'
 
 /**
  * Unified Analytics Utility
- * Sends events to PostHog, Mixpanel, and Clarity simultaneously
+ * Sends events to PostHog, Mixpanel, Clarity, and Google Analytics 4 simultaneously
  */
+
+// GA4 Measurement ID from environment (public variable, safe to commit)
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
 // ============================================
 // Core Tracking Functions
@@ -48,6 +51,15 @@ export const track = (eventName: string, properties?: Record<string, unknown>) =
         trackEvent(eventName.toLowerCase().replace(/\s+/g, '_'))
     } catch {
         // Silently fail if Clarity is not ready
+    }
+
+    // Google Analytics 4
+    if (GA_ID && typeof window !== 'undefined' && window.gtag) {
+        try {
+            window.gtag('event', eventName.toLowerCase().replace(/\s+/g, '_'), properties)
+        } catch {
+            // Silently fail if GA is not ready
+        }
     }
 }
 
@@ -222,4 +234,11 @@ export const trackPageView = (pageName: string, pageUrl: string, properties?: Re
         page_url: pageUrl,
         ...properties,
     })
+}
+
+declare global {
+    interface Window {
+        gtag?: (command: string, ...args: any[]) => void
+        dataLayer?: any[]
+    }
 }
