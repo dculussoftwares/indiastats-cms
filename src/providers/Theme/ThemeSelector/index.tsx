@@ -13,22 +13,26 @@ import type { Theme } from './types'
 
 import { useTheme } from '..'
 import { themeLocalStorageKey } from './types'
-import { trackThemeChange } from '@/utilities/analytics'
+import { ui, getPageContext } from '@/analytics'
 
 export const ThemeSelector: React.FC = () => {
   const { setTheme } = useTheme()
   const [value, setValue] = useState('')
 
   const onThemeChange = (themeToSet: Theme & 'auto') => {
+    const theme = themeToSet === 'auto' ? 'system' : (themeToSet as 'light' | 'dark')
     if (themeToSet === 'auto') {
       setTheme(null)
       setValue('auto')
-      trackThemeChange('system')
     } else {
       setTheme(themeToSet)
       setValue(themeToSet)
-      trackThemeChange(themeToSet as 'light' | 'dark')
     }
+    const pageContext = getPageContext()
+    ui.themeChanged({
+      page_name: pageContext.page_name || 'Unknown',
+      theme,
+    })
   }
 
   React.useEffect(() => {

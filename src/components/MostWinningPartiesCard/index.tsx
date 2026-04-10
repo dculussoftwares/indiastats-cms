@@ -9,7 +9,7 @@ import {
   getBlocs,
   getStateByCode,
 } from '@/config/states'
-import { track } from '@/utilities/analytics'
+import { ui, getPageContext } from '@/analytics'
 
 interface Candidate {
   name: string
@@ -519,7 +519,12 @@ export function MostWinningPartiesCard({
           <div className="flex items-center gap-0.5 p-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <button
               onClick={() => {
-                track('Party View Toggle', { view_mode: 'party' })
+                const pageContext = getPageContext()
+                ui.buttonClicked({
+                  page_name: pageContext.page_name || 'Election Data',
+                  button_name: 'view_by_party',
+                  button_label: 'By Party',
+                })
                 setViewMode('party')
               }}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
@@ -532,7 +537,12 @@ export function MostWinningPartiesCard({
             </button>
             <button
               onClick={() => {
-                track('Party View Toggle', { view_mode: 'alliance' })
+                const pageContext = getPageContext()
+                ui.buttonClicked({
+                  page_name: pageContext.page_name || 'Election Data',
+                  button_name: 'view_by_alliance',
+                  button_label: 'By Alliance Bloc',
+                })
                 setViewMode('alliance')
               }}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${

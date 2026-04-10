@@ -13,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowLeft, Search, MapPin, FileText, ExternalLink, Building2 } from 'lucide-react'
-import { track } from '@/utilities/analytics'
+import { ui, getPageContext } from '@/analytics'
 
 interface Booth {
   id: string
@@ -173,12 +173,14 @@ export function BoothsPageClient({
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex"
-                              onClick={() =>
-                                track('Booth PDF Click', {
-                                  booth_id: booth.boothId,
-                                  assembly_id: assemblyId,
+                              onClick={() => {
+                                const pageContext = getPageContext()
+                                ui.linkClicked({
+                                  page_name: pageContext.page_name || 'Booths',
+                                  link_name: 'download_booth_pdf',
+                                  link_location: 'booths_table',
                                 })
-                              }
+                              }}
                             >
                               <Button variant="outline" size="sm">
                                 <FileText className="h-4 w-4 mr-1" />
@@ -188,13 +190,14 @@ export function BoothsPageClient({
                           )}
                           <Link
                             href={`/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths/${booth.boothId}`}
-                            onClick={() =>
-                              track('View Booth Click', {
-                                booth_id: booth.boothId,
-                                assembly_id: assemblyId,
-                                assembly_name: assemblyName,
+                            onClick={() => {
+                              const pageContext = getPageContext()
+                              ui.linkClicked({
+                                page_name: pageContext.page_name || 'Booths',
+                                link_name: 'view_booth_details',
+                                link_location: 'booths_table',
                               })
-                            }
+                            }}
                           >
                             <Button variant="default" size="sm">
                               View

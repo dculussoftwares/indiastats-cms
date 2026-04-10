@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { CommandPalette } from '@/components/CommandPalette'
-import { trackButtonClick } from '@/utilities/analytics'
+import { ui, getPageContext } from '@/analytics'
 
 interface CommandPaletteContextType {
   isOpen: boolean
@@ -25,7 +25,11 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
 
   const open = useCallback(() => {
     setIsOpen(true)
-    trackButtonClick('command_palette_open', { method: 'programmatic' })
+    const pageContext = getPageContext()
+    ui.commandPaletteOpened({
+      page_name: pageContext.page_name || 'Unknown',
+      trigger: 'programmatic',
+    })
   }, [])
 
   const close = useCallback(() => {
@@ -35,7 +39,11 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
   const toggle = useCallback(() => {
     setIsOpen((prev) => {
       if (!prev) {
-        trackButtonClick('command_palette_open', { method: 'keyboard' })
+        const pageContext = getPageContext()
+        ui.commandPaletteOpened({
+          page_name: pageContext.page_name || 'Unknown',
+          trigger: 'keyboard',
+        })
       }
       return !prev
     })

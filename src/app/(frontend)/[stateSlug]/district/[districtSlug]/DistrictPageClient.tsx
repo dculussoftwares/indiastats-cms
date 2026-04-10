@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CasteComparisonTable } from '@/components/CasteComparisonTable'
 import { ArrowLeft, ChevronRight, Building2, MapPin, Locate } from 'lucide-react'
-import { track } from '@/utilities/analytics'
+import { ui, getPageContext } from '@/analytics'
 
 interface Assembly {
   assemblyId: string
@@ -132,13 +132,14 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
               </div>
               <Link
                 href={`/${stateSlug}/assembly-map?district=${encodeURIComponent(data.districtName)}`}
-                onClick={() =>
-                  track('View on Map Click', {
-                    page: 'district',
-                    district_id: data.districtId,
-                    district_name: data.districtName,
+                onClick={() => {
+                  const pageContext = getPageContext()
+                  ui.linkClicked({
+                    page_name: pageContext.page_name || 'District Detail',
+                    link_name: 'view_on_map',
+                    link_location: 'district_header',
                   })
-                }
+                }}
               >
                 <Button variant="outline" size="sm" className="text-sm">
                   Open Map
@@ -251,14 +252,14 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
                   <Link
                     href={`/${stateSlug}/assembly/${data.districtSlug}/${assembly.assemblySlug}`}
                     className="flex-1"
-                    onClick={() =>
-                      track('View Assembly Click', {
-                        page: 'district',
-                        assembly_id: assembly.assemblyId,
-                        assembly_name: assembly.name,
-                        district_id: data.districtId,
+                    onClick={() => {
+                      const pageContext = getPageContext()
+                      ui.linkClicked({
+                        page_name: pageContext.page_name || 'District Detail',
+                        link_name: 'view_assembly',
+                        link_location: 'assembly_card',
                       })
-                    }
+                    }}
                   >
                     <Button variant="outline" size="sm" className="w-full text-sm">
                       View Assembly
@@ -267,13 +268,14 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
                   </Link>
                   <Link
                     href={`/${stateSlug}/assembly/${data.districtSlug}/${assembly.assemblySlug}/booths`}
-                    onClick={() =>
-                      track('View Booths Click', {
-                        page: 'district',
-                        assembly_id: assembly.assemblyId,
-                        assembly_name: assembly.name,
+                    onClick={() => {
+                      const pageContext = getPageContext()
+                      ui.linkClicked({
+                        page_name: pageContext.page_name || 'District Detail',
+                        link_name: 'view_booths',
+                        link_location: 'assembly_card',
                       })
-                    }
+                    }}
                   >
                     <Button
                       variant="ghost"

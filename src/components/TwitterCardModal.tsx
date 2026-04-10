@@ -10,12 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Download, Loader2, Eye } from 'lucide-react'
-import {
-  trackQuickViewOpen,
-  trackQuickViewDownload,
-  trackShare,
-  trackButtonClick,
-} from '@/utilities/analytics'
+import { assembly, ui, getPageContext } from '@/analytics'
 
 interface TwitterCardData {
   assemblyId: string
@@ -143,8 +138,12 @@ export function TwitterCardModal({
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open)
     if (open) {
-      trackQuickViewOpen(assemblyId, assemblyName)
-      trackButtonClick('Quick View Open', { assembly_id: assemblyId })
+      const pageContext = getPageContext()
+      assembly.quickViewOpened({
+        page_name: pageContext.page_name || 'Assembly Detail',
+        assembly_id: assemblyId,
+        assembly_name: assemblyName,
+      })
     }
   }
 
@@ -259,8 +258,12 @@ export function TwitterCardModal({
 
   const handleDownload = async () => {
     if (!cardRef.current || !cardData) return
-    trackQuickViewDownload(assemblyId, assemblyName)
-    trackButtonClick('Download Quick View', { assembly_id: assemblyId })
+    const pageContext = getPageContext()
+    assembly.quickViewDownloaded({
+      page_name: pageContext.page_name || 'Assembly Detail',
+      assembly_id: assemblyId,
+      assembly_name: assemblyName,
+    })
     try {
       const { toPng } = await import('html-to-image')
 
@@ -283,8 +286,13 @@ export function TwitterCardModal({
   }
 
   const handleShareTwitter = async () => {
-    trackShare('twitter', 'quick_view', assemblyId)
-    trackButtonClick('Share Twitter', { assembly_id: assemblyId })
+    const pageContext = getPageContext()
+    ui.shareInitiated({
+      page_name: pageContext.page_name || 'Assembly Detail',
+      share_platform: 'twitter',
+      content_type: 'quick_view',
+      content_id: assemblyId,
+    })
     const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
     const dmkWinner = (cardData?.dmkBlocWins || 0) > (cardData?.aiadmkBlocWins || 0)
     const tweetText =

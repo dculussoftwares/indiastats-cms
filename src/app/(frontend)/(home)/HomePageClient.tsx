@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { track } from '@/utilities/analytics'
+import { ui, getPageContext } from '@/analytics'
 
 interface HomePageClientProps {
   stats: {
@@ -139,12 +139,14 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white">
                   <Link
                     href="/tamil-nadu/dashboard"
-                    onClick={() =>
-                      track('Hero CTA Click', {
-                        button: 'Explore Data',
-                        destination: '/tamil-nadu/dashboard',
+                    onClick={() => {
+                      const pageContext = getPageContext()
+                      ui.buttonClicked({
+                        page_name: pageContext.page_name || 'Homepage',
+                        button_name: 'explore_data',
+                        button_label: 'Explore Data',
                       })
-                    }
+                    }}
                   >
                     <Search className="mr-2 h-5 w-5" />
                     Explore Data
@@ -158,12 +160,14 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 >
                   <Link
                     href="/tamil-nadu/assembly-map"
-                    onClick={() =>
-                      track('Hero CTA Click', {
-                        button: 'Interactive Map',
-                        destination: '/tamil-nadu/assembly-map',
+                    onClick={() => {
+                      const pageContext = getPageContext()
+                      ui.buttonClicked({
+                        page_name: pageContext.page_name || 'Homepage',
+                        button_name: 'interactive_map',
+                        button_label: 'Interactive Map',
                       })
-                    }
+                    }}
                   >
                     <Map className="mr-2 h-5 w-5" />
                     Interactive Map
@@ -203,12 +207,14 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             <Link
               href="/tamil-nadu/assembly-map"
               className="group"
-              onClick={() =>
-                track('Feature Card Click', {
-                  feature: 'Interactive Map',
-                  destination: '/tamil-nadu/assembly-map',
+              onClick={() => {
+                const pageContext = getPageContext()
+                ui.linkClicked({
+                  page_name: pageContext.page_name || 'Homepage',
+                  link_name: 'interactive_map_card',
+                  link_location: 'features_section',
                 })
-              }
+              }}
             >
               <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-red-500/50 transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-red-600/20 flex items-center justify-center mb-4 group-hover:bg-red-600/30 transition-colors">
@@ -278,12 +284,14 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             <Link
               href="/election-data"
               className="group"
-              onClick={() =>
-                track('Feature Card Click', {
-                  feature: 'Election Data Table',
-                  destination: '/election-data',
+              onClick={() => {
+                const pageContext = getPageContext()
+                ui.linkClicked({
+                  page_name: pageContext.page_name || 'Homepage',
+                  link_name: 'election_data_table_card',
+                  link_location: 'features_section',
                 })
-              }
+              }}
             >
               <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-green-500/50 transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-green-600/20 flex items-center justify-center mb-4 group-hover:bg-green-600/30 transition-colors">
@@ -339,12 +347,14 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                   <Button asChild className="bg-red-600 hover:bg-red-700">
                     <Link
                       href="/tamil-nadu/dashboard"
-                      onClick={() =>
-                        track('Hero CTA Click', {
-                          button: 'Start Exploring',
-                          destination: '/tamil-nadu/dashboard',
+                      onClick={() => {
+                        const pageContext = getPageContext()
+                        ui.buttonClicked({
+                          page_name: pageContext.page_name || 'Homepage',
+                          button_name: 'start_exploring',
+                          button_label: 'Start Exploring',
                         })
-                      }
+                      }}
                     >
                       Start Exploring
                       <ExternalLink className="ml-2 h-4 w-4" />

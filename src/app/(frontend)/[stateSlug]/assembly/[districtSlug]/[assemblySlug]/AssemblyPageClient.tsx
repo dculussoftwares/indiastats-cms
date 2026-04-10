@@ -13,7 +13,7 @@ import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
 import { TwitterCardModal } from '@/components/TwitterCardModal'
-import { track } from '@/utilities/analytics'
+import { ui, getPageContext } from '@/analytics'
 
 interface Candidate {
   name: string
@@ -149,13 +149,14 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Link
               href={`/${stateSlug}/assembly/${data.districtSlug}/${data.assemblySlug}/booths`}
-              onClick={() =>
-                track('View Booths Click', {
-                  page: 'assembly',
-                  assembly_id: data.assemblyId,
-                  assembly_name: data.name,
+              onClick={() => {
+                const pageContext = getPageContext()
+                ui.linkClicked({
+                  page_name: pageContext.page_name || 'Assembly Detail',
+                  link_name: 'view_booths',
+                  link_location: 'assembly_overview',
                 })
-              }
+              }}
             >
               <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
                 <CardContent className="pt-4 pb-3">
@@ -307,9 +308,11 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                 <Button
                   variant="outline"
                   onClick={() => {
-                    track('View All History Click', {
-                      assembly_id: data.assemblyId,
-                      assembly_name: data.name,
+                    const pageContext = getPageContext()
+                    ui.buttonClicked({
+                      page_name: pageContext.page_name || 'Assembly Detail',
+                      button_name: 'view_all_history',
+                      button_label: 'View all',
                     })
                     setShowAllWinningHistories(true)
                   }}

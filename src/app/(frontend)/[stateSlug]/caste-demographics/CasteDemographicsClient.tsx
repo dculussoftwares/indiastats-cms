@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ArrowLeft, Search, Users, TrendingUp, MapPin, Filter } from 'lucide-react'
-import { track } from '@/utilities/analytics'
+import { ui, search, getPageContext } from '@/analytics'
 
 interface CasteData {
   id: string
@@ -294,9 +294,11 @@ export function CasteDemographicsClient({
                         <span className="text-sm font-bold text-gray-500 w-6">{idx + 1}</span>
                         <button
                           onClick={() => {
-                            track('Caste Filter Click', {
-                              caste_name: caste.caste,
-                              assemblies_count: caste.count,
+                            const pageContext = getPageContext()
+                            search.filterApplied({
+                              page_name: pageContext.page_name || 'Caste Demographics',
+                              filter_name: 'caste',
+                              filter_value: caste.caste,
                             })
                             setCasteFilter(caste.caste)
                           }}
@@ -346,7 +348,12 @@ export function CasteDemographicsClient({
                 variant={sortBy === 'assembly' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => {
-                  track('Caste Sort Change', { sort_by: 'assembly' })
+                  const pageContext = getPageContext()
+                  ui.buttonClicked({
+                    page_name: pageContext.page_name || 'Caste Demographics',
+                    button_name: 'sort_by_assembly',
+                    button_label: 'A-Z',
+                  })
                   setSortBy('assembly')
                 }}
               >
@@ -356,7 +363,12 @@ export function CasteDemographicsClient({
                 variant={sortBy === 'percentage' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => {
-                  track('Caste Sort Change', { sort_by: 'percentage' })
+                  const pageContext = getPageContext()
+                  ui.buttonClicked({
+                    page_name: pageContext.page_name || 'Caste Demographics',
+                    button_name: 'sort_by_percentage',
+                    button_label: 'By %',
+                  })
                   setSortBy('percentage')
                 }}
               >
@@ -402,12 +414,14 @@ export function CasteDemographicsClient({
                         <Link
                           href={`/${stateSlug}/assembly-map?ac=${assembly.assemblyId.replace('ac', '')}`}
                           className="hover:text-blue-600 hover:underline"
-                          onClick={() =>
-                            track('Caste Assembly Click', {
-                              assembly_id: assembly.assemblyId,
-                              assembly_name: assembly.assemblyName,
+                          onClick={() => {
+                            const pageContext = getPageContext()
+                            ui.linkClicked({
+                              page_name: pageContext.page_name || 'Caste Demographics',
+                              link_name: 'view_assembly_on_map',
+                              link_location: 'caste_table',
                             })
-                          }
+                          }}
                         >
                           {getEnglishName(assembly.assemblyName)}
                         </Link>

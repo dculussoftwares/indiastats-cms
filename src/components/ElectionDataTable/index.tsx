@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select'
 import { exportToExcel, flattenElectionDataForExcel } from '@/utilities/excelExport'
 import { getPartyColor } from '@/lib/partyColors'
-import { track } from '@/utilities/analytics'
+import { search, ui, getPageContext } from '@/analytics'
 import {
   Download,
   ChevronUp,
@@ -162,15 +162,14 @@ export function ElectionDataTable() {
             <Link
               href={url}
               className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-              onClick={() =>
-                track('Election Data Assembly Click', {
-                  assembly_id: row.assemblyId,
-                  assembly_name: row.acName,
-                  district_id: row.districtId,
-                  district_name: row.districtName,
-                  election_year: row.electionYear,
+              onClick={() => {
+                const pageContext = getPageContext()
+                ui.linkClicked({
+                  page_name: pageContext.page_name || 'Election Data',
+                  link_name: 'view_assembly',
+                  link_location: 'data_table',
                 })
-              }
+              }}
             >
               {info.getValue()}
               <ExternalLink className="h-3 w-3 opacity-50" />
@@ -188,12 +187,14 @@ export function ElectionDataTable() {
             <Link
               href={url}
               className="text-primary hover:underline inline-flex items-center gap-1"
-              onClick={() =>
-                track('Election Data District Click', {
-                  district_id: row.districtId,
-                  district_name: row.districtName,
+              onClick={() => {
+                const pageContext = getPageContext()
+                ui.linkClicked({
+                  page_name: pageContext.page_name || 'Election Data',
+                  link_name: 'view_district',
+                  link_location: 'data_table',
                 })
-              }
+              }}
             >
               {info.getValue()}
               <ExternalLink className="h-3 w-3 opacity-50" />
@@ -363,11 +364,11 @@ export function ElectionDataTable() {
   // Handle export
   const handleExport = () => {
     // Track export action
-    track('Election Data Export', {
-      year: selectedYear,
-      district: selectedDistrict,
-      party: selectedParty,
-      record_count: filteredData.length,
+    const pageContext = getPageContext()
+    ui.buttonClicked({
+      page_name: pageContext.page_name || 'Election Data',
+      button_name: 'export_to_excel',
+      button_label: 'Export',
     })
 
     const flatData = flattenElectionDataForExcel(filteredData)
@@ -381,29 +382,44 @@ export function ElectionDataTable() {
 
   // Handle filter changes with tracking
   const handleYearChange = (value: string) => {
-    track('Election Data Filter', { filter_type: 'year', value })
+    const pageContext = getPageContext()
+    search.filterApplied({
+      page_name: pageContext.page_name || 'Election Data',
+      filter_name: 'year',
+      filter_value: value,
+    })
     setSelectedYear(value)
   }
 
   const handleDistrictChange = (value: string) => {
-    track('Election Data Filter', { filter_type: 'district', value })
+    const pageContext = getPageContext()
+    search.filterApplied({
+      page_name: pageContext.page_name || 'Election Data',
+      filter_name: 'district',
+      filter_value: value,
+    })
     setSelectedDistrict(value)
   }
 
   const handlePartyChange = (value: string) => {
-    track('Election Data Filter', { filter_type: 'party', value })
+    const pageContext = getPageContext()
+    search.filterApplied({
+      page_name: pageContext.page_name || 'Election Data',
+      filter_name: 'party',
+      filter_value: value,
+    })
     setSelectedParty(value)
   }
 
   // Track X contact link click
   const handleXLinkClick = () => {
-    track('X Contact Link Click', { page: 'election_data', reason: 'full_data_download' })
+    const pageContext = getPageContext()
+    ui.linkClicked({
+      page_name: pageContext.page_name || 'Election Data',
+      link_name: 'x_contact',
+      link_location: 'data_table_footer',
+    })
   }
-
-  // Track page view on mount
-  useEffect(() => {
-    track('Page View', { page_name: 'Election Data Table', page_url: '/election-data' })
-  }, [])
 
   if (loading) {
     return (

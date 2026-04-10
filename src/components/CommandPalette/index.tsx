@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Search, MapPin, Building2, FileText, Clock, X } from 'lucide-react'
 import { useDebounce } from '@/utilities/useDebounce'
-import { trackButtonClick } from '@/utilities/analytics'
+import { ui, search, getPageContext } from '@/analytics'
 
 // Types for search results
 interface SearchResult {
@@ -139,10 +139,16 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const navigateToResult = useCallback(
     (result: SearchResult) => {
       addRecentSearch(query)
-      trackButtonClick('command_palette_result', {
-        category: result.category,
-        resultId: result.id,
-        query,
+      const pageContext = getPageContext()
+      // Track as search result click
+      search.resultClicked({
+        page_name: pageContext.page_name || 'Search',
+        search_query: query,
+        result_id: result.id,
+        result_name: result.title,
+        result_type: result.category,
+        result_position: 1,
+        search_type: 'command_palette',
       })
       onClose()
       // Use window.location for more reliable navigation

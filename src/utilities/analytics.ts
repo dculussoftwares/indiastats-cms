@@ -1,235 +1,192 @@
 'use client'
 
-import { posthog, mixpanel, mixpanelReady } from '@/instrumentation-client'
-import { trackEvent, setDimension } from '@/utilities/clarityTracking'
-
 /**
- * Unified Analytics Utility
- * Sends events to PostHog, Mixpanel, Clarity, and Google Analytics 4 simultaneously
+ * DEPRECATED: Analytics Utilities
+ *
+ * This file is kept for backward compatibility.
+ *
+ * New code should use the standardized analytics from '@/analytics' instead:
+ *
+ * @example
+ * import { events, setPageContext } from '@/analytics'
+ *
+ * // Set page context once
+ * setPageContext({ page_name: 'Assembly Detail', page_url: location.href })
+ *
+ * // Use typed event functions
+ * events.assembly.viewed({ assembly_id: 'ac001', ... })
+ * events.ui.buttonClicked({ button_name: 'download', ... })
  */
 
-// GA4 Measurement ID from environment (public variable, safe to commit)
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID
+import { track as coreTrack, setPageContext } from '@/analytics/tracker'
+import { normalizeEventName, normalizeProperties } from '@/analytics/tracker'
 
 // ============================================
-// Core Tracking Functions
+// Backward Compatibility Re-exports
 // ============================================
 
 /**
- * Track an event across all analytics platforms
+ * @deprecated Use '@/analytics' instead. Track an event across all analytics platforms.
  */
 export const track = (eventName: string, properties?: Record<string, unknown>) => {
-    const isDev = typeof window !== 'undefined' && process.env.NODE_ENV === 'development'
-
-    // PostHog
-    if (posthog && typeof posthog.capture === 'function') {
-        try {
-            posthog.capture(eventName, properties)
-        } catch {
-            // Silently fail if PostHog is not ready
-        }
-    }
-
-    // Mixpanel - only track if fully initialized
-    if (mixpanelReady && mixpanel && typeof mixpanel.track === 'function') {
-        try {
-            mixpanel.track(eventName, properties)
-            if (isDev) {
-                console.log('[Analytics] Mixpanel event tracked:', eventName, properties)
-            }
-        } catch (error) {
-            if (isDev) {
-                console.error('[Analytics] Mixpanel track error:', error)
-            }
-        }
-    } else if (isDev && !mixpanelReady) {
-        console.warn('[Analytics] Mixpanel not ready yet, skipping event:', eventName)
-    }
-
-    // Clarity (event only, no properties support)
-    try {
-        trackEvent(eventName.toLowerCase().replace(/\s+/g, '_'))
-    } catch {
-        // Silently fail if Clarity is not ready
-    }
-
-    // Google Analytics 4
-    if (GA_ID && typeof window !== 'undefined' && window.gtag) {
-        try {
-            window.gtag('event', eventName.toLowerCase().replace(/\s+/g, '_'), properties)
-        } catch {
-            // Silently fail if GA is not ready
-        }
-    }
+    const normalizedEventName = normalizeEventName(eventName)
+    const normalizedProperties = normalizeProperties(properties)
+    coreTrack(normalizedEventName, normalizedProperties)
 }
 
 /**
- * Set user properties across all platforms
+ * @deprecated Use '@/analytics/tracker' instead.
  */
 export const setUserProperties = (properties: Record<string, unknown>) => {
-    // PostHog
-    if (posthog && posthog.people && typeof posthog.people.set === 'function') {
-        try {
-            posthog.people.set(properties)
-        } catch {
-            // Silently fail
-        }
-    }
-
-    // Mixpanel
-    if (mixpanel && mixpanel.people && typeof mixpanel.people.set === 'function') {
-        try {
-            mixpanel.people.set(properties)
-        } catch {
-            // Silently fail
-        }
-    }
-
-    // Clarity - set each property as a dimension
-    Object.entries(properties).forEach(([key, value]) => {
-        if (typeof value === 'string') {
-            try {
-                setDimension(key, value)
-            } catch {
-                // Silently fail
-            }
-        }
-    })
+    const { setUserProperties: setCoreUserProperties } = require('@/analytics/tracker')
+    setCoreUserProperties(properties)
 }
 
 /**
- * Identify a user across all platforms
+ * @deprecated Use '@/analytics/tracker' instead.
  */
 export const identify = (userId: string, properties?: Record<string, unknown>) => {
-    // PostHog
-    if (posthog && typeof posthog.identify === 'function') {
-        try {
-            posthog.identify(userId, properties)
-        } catch {
-            // Silently fail
-        }
-    }
-
-    // Mixpanel
-    if (mixpanel && typeof mixpanel.identify === 'function') {
-        try {
-            mixpanel.identify(userId)
-            if (properties && mixpanel.people && typeof mixpanel.people.set === 'function') {
-                mixpanel.people.set(properties)
-            }
-        } catch {
-            // Silently fail
-        }
-    }
+    const { identify: coreIdentify } = require('@/analytics/tracker')
+    coreIdentify(userId, properties)
 }
 
 // ============================================
-// Pre-defined Button Events for IndiaStats
+// Backward Compatibility Wrapper Functions
 // ============================================
 
 /**
- * Track button click with consistent naming
+ * @deprecated Use 'events.ui.buttonClicked()' instead
  */
 export const trackButtonClick = (buttonName: string, properties?: Record<string, unknown>) => {
-    track('Button Click', {
+    track('button_clicked', {
         button_name: buttonName,
         ...properties,
     })
 }
 
-// View Assembly Button
+/**
+ * @deprecated Use 'events.assembly.viewed()' instead
+ */
 export const trackViewAssembly = (assemblyId: string, assemblyName: string, districtName: string) => {
-    track('View Assembly', {
+    track('assembly_viewed', {
         assembly_id: assemblyId,
         assembly_name: assemblyName,
         district_name: districtName,
     })
 }
 
-// Quick View Modal
+/**
+ * @deprecated Use 'events.assembly.quickViewOpened()' instead
+ */
 export const trackQuickViewOpen = (assemblyId: string, assemblyName: string) => {
-    track('Quick View Open', {
+    track('quick_view_opened', {
         assembly_id: assemblyId,
         assembly_name: assemblyName,
     })
 }
 
+/**
+ * @deprecated Use 'events.assembly.quickViewDownloaded()' instead
+ */
 export const trackQuickViewDownload = (assemblyId: string, assemblyName: string) => {
-    track('Quick View Download', {
+    track('quick_view_downloaded', {
         assembly_id: assemblyId,
         assembly_name: assemblyName,
     })
 }
 
-// Share Events
+/**
+ * @deprecated Use 'events.ui.shareInitiated()' instead
+ */
 export const trackShare = (platform: 'twitter' | 'instagram' | 'copy_link', contentType: string, contentId?: string) => {
-    track('Share', {
-        platform,
+    track('share_initiated', {
+        share_platform: platform,
         content_type: contentType,
         content_id: contentId,
     })
 }
 
-// Search Events
+/**
+ * @deprecated Use 'events.search.performed()' instead
+ */
 export const trackSearch = (searchQuery: string, resultsCount: number, searchType: 'assembly' | 'district' | 'direct') => {
-    track('Search', {
+    track('search_performed', {
         search_query: searchQuery,
         results_count: resultsCount,
         search_type: searchType,
     })
 }
 
+/**
+ * @deprecated Use 'events.search.resultClicked()' instead
+ */
 export const trackSearchResultClick = (resultId: string, resultName: string, searchType: string) => {
-    track('Search Result Click', {
+    track('search_result_clicked', {
         result_id: resultId,
         result_name: resultName,
         search_type: searchType,
     })
 }
 
-// Theme Change
+/**
+ * @deprecated Use 'events.ui.themeChanged()' instead
+ */
 export const trackThemeChange = (theme: 'light' | 'dark' | 'system') => {
-    track('Theme Change', {
+    track('theme_changed', {
         theme,
     })
 }
 
-// Map Interactions
+/**
+ * @deprecated Use 'events.ui.linkClicked()' or map-specific events instead
+ */
 export const trackMapInteraction = (action: 'zoom' | 'pan' | 'click_constituency' | 'select_year', details?: Record<string, unknown>) => {
-    track('Map Interaction', {
+    track(`map_${action}`, {
         action,
         ...details,
     })
 }
 
-// Election Year Selection
+/**
+ * @deprecated Use 'events.assembly.electionYearSelected()' instead
+ */
 export const trackElectionYearSelect = (year: string, mode: 'solo' | 'compare') => {
-    track('Election Year Select', {
-        year,
+    track('assembly_election_year_selected', {
+        selected_year: year,
         mode,
     })
 }
 
-// Navigation
+/**
+ * @deprecated Use 'events.ui.navigationOccurred()' instead
+ */
 export const trackNavigation = (from: string, to: string) => {
-    track('Navigation', {
+    track('navigation_occurred', {
         from_page: from,
         to_page: to,
     })
 }
 
-// Error Tracking
+/**
+ * @deprecated Use 'events.errors.occurred()' instead
+ */
 export const trackError = (errorType: string, errorMessage?: string, pageUrl?: string) => {
-    track('Error', {
+    track('error_occurred', {
         error_type: errorType,
         error_message: errorMessage,
         page_url: pageUrl,
     })
 }
 
-// Page View (for manual use if needed)
+/**
+ * @deprecated Use 'events.pageViews.viewed()' instead
+ */
 export const trackPageView = (pageName: string, pageUrl: string, properties?: Record<string, unknown>) => {
-    track('Page View', {
+    setPageContext({
+        page_name: pageName,
+        page_url: pageUrl,
+    })
+    track('page_view', {
         page_name: pageName,
         page_url: pageUrl,
         ...properties,

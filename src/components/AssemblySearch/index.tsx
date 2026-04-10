@@ -7,12 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChevronRight, Search } from 'lucide-react'
-import {
-  trackSearch,
-  trackSearchResultClick,
-  trackViewAssembly,
-  trackButtonClick,
-} from '@/utilities/analytics'
+import { assembly, search, ui, getPageContext } from '@/analytics'
 
 export interface District {
   districtId: string
@@ -213,7 +208,16 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     setSelectedAssembly(assembly)
     setAssemblyQuery(assembly.name)
     setIsAssemblyOpen(false)
-    trackSearchResultClick(assembly.assemblyId, assembly.name, 'assembly')
+    const pageContext = getPageContext()
+    search.resultClicked({
+      page_name: pageContext.page_name || 'Search Results',
+      search_query: assembly.name,
+      result_id: assembly.assemblyId,
+      result_name: assembly.name,
+      result_type: 'assembly',
+      result_position: 1,
+      search_type: 'assembly',
+    })
   }
 
   const handleDirectAssemblySelect = (assembly: Assembly) => {
@@ -230,18 +234,34 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     setDirectAssemblyQuery(assembly.name)
     setIsDirectOpen(false)
     // Unified analytics tracking
-    trackSearch(assembly.name, 1, 'direct')
-    trackSearchResultClick(assembly.assemblyId, assembly.name, 'assembly')
+    const pageContext = getPageContext()
+    search.performed({
+      page_name: pageContext.page_name || 'Search Results',
+      search_query: assembly.name,
+      search_type: 'direct',
+      results_count: 1,
+    })
+    search.resultClicked({
+      page_name: pageContext.page_name || 'Search Results',
+      search_query: assembly.name,
+      result_id: assembly.assemblyId,
+      result_name: assembly.name,
+      result_type: 'assembly',
+      result_position: 1,
+      search_type: 'direct',
+    })
   }
 
   const handleSearchClick = () => {
     if (selectedDistrict && selectedAssembly) {
-      trackViewAssembly(
-        selectedAssembly.assemblyId,
-        selectedAssembly.name,
-        selectedDistrict.districtName,
-      )
-      trackButtonClick('View Assembly', { assembly_id: selectedAssembly.assemblyId })
+      const pageContext = getPageContext()
+      assembly.viewed({
+        page_name: pageContext.page_name || 'Assembly Detail',
+        assembly_id: selectedAssembly.assemblyId,
+        assembly_name: selectedAssembly.name,
+        district_id: selectedDistrict.districtId,
+        district_name: selectedDistrict.districtName,
+      })
       router.push(
         `/tamil-nadu/assembly/${selectedDistrict.districtSlug}/${selectedAssembly.assemblySlug}`,
       )

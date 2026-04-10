@@ -2,11 +2,12 @@
 
 ## Overview
 
-This document provides a comprehensive list of all analytics events tracked across the India Stats CMS application. Events are tracked through three analytics platforms simultaneously:
+This document provides a comprehensive list of all analytics events tracked across the India Stats CMS application. Events are tracked through four analytics platforms simultaneously:
 
 1. **PostHog** - Product analytics and session recording
 2. **Mixpanel** - Product analytics and user behavior tracking
 3. **Microsoft Clarity** - Session recording and user behavior insights
+4. **Google Analytics 4 (GA4)** - Web analytics and user acquisition tracking
 
 ---
 
@@ -45,19 +46,37 @@ This document provides a comprehensive list of all analytics events tracked acro
   - GDPR consent support
   - Production only
 
+### 4. Google Analytics 4 (GA4)
+- **Purpose**: Web analytics and user acquisition tracking
+- **Initialization**: `src/utilities/analytics.ts` (client-side via `window.gtag`)
+- **Environment Variables**: `NEXT_PUBLIC_GA_ID` (Measurement ID)
+- **Features**:
+  - Event-based tracking
+  - Automatic pageview capture (via Next.js)
+  - Conversion tracking support
+  - User properties and custom dimensions
+  - Privacy-friendly analytics
+  - Requires gtag script in HTML (configured in layout)
+
 ---
 
 ## Core Tracking Functions
 
 ### Unified Analytics Utility (`src/utilities/analytics.ts`)
 
-All events are sent through the unified `track()` function which automatically routes to all three platforms:
+All events are sent through the unified `track()` function which automatically routes to all four platforms:
 
 ```typescript
 track(eventName: string, properties?: Record<string, unknown>)
 ```
 
 **Properties**: Optional key-value pairs that provide context for the event.
+
+**How it works**:
+1. **PostHog**: Receives event name and full properties object
+2. **Mixpanel**: Receives event name and full properties object
+3. **Clarity**: Receives snake_case event name (properties not supported)
+4. **GA4**: Receives snake_case event name and properties object
 
 ---
 
@@ -481,6 +500,60 @@ NEXT_PUBLIC_MIXPANEL_TOKEN=your_mixpanel_token
 
 # Clarity (typically configured via HTML script tag)
 NEXT_PUBLIC_CLARITY_ID=your_clarity_id
+
+# Google Analytics 4
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX  # Your GA4 Measurement ID (e.g., G-NVB7E06128)
+```
+
+**Note**: GA4 Measurement ID is **public** (safe to commit to repository) as it only identifies your analytics property, not sensitive data.
+
+---
+
+## GA4 Implementation Details
+
+### How GA4 Integration Works
+
+1. **gtag Script**: GA4 requires the `gtag` global function (provided by Google Analytics script tag in HTML)
+2. **Event Format**: Events are converted to snake_case before sending to GA4
+3. **Properties Passed**: All event properties are forwarded to GA4 as custom parameters
+4. **Conditional**: Only sends events if:
+   - `NEXT_PUBLIC_GA_ID` environment variable is set
+   - `window.gtag` is available (script loaded)
+5. **Error Handling**: Gracefully fails if gtag unavailable (doesn't break other platforms)
+
+### GA4 Event Name Conversion
+
+Events are automatically converted to snake_case for GA4 compatibility:
+
+```typescript
+'View Assembly' → 'view_assembly'
+'Search' → 'search'
+'Button Click' → 'button_click'
+'Theme Change' → 'theme_change'
+```
+
+### GA4 Properties
+
+All event properties are sent to GA4. Common properties include:
+- `page_name`: Name of the page where event occurred
+- `assembly_id`: Assembly identifier
+- `district_name`: District name
+- `search_query`: Search query string
+- `results_count`: Number of results
+- Platform-specific dimensions and metrics
+
+### Example GA4 Event
+
+```typescript
+// Tracking code
+trackViewAssembly('ac001', 'Chennai South', 'Chennai')
+
+// What GA4 receives
+window.gtag('event', 'view_assembly', {
+  assembly_id: 'ac001',
+  assembly_name: 'Chennai South',
+  district_name: 'Chennai'
+})
 ```
 
 ---

@@ -12,7 +12,7 @@ import { ElectionInsightsPanel } from '@/components/ElectionInsightsPanel'
 import { ClosestRacesPanel } from '@/components/ClosestRacesPanel'
 import { AllianceSummary } from '@/components/AllianceSummary'
 import { CasteInsightsPanel } from '@/components/CasteInsightsPanel'
-import { track } from '@/utilities/analytics'
+import { ui, search, getPageContext } from '@/analytics'
 import { buildAssemblyUrl } from '@/lib/assemblyRouting'
 import './leaflet-style-import'
 
@@ -821,11 +821,11 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
           : null
 
         // Track the assembly click
-        track('Map Assembly Click', {
-          assembly_name: acName,
-          assembly_id: assemblyId,
-          district_name: pcName,
-          election_year: selectedElectionYearRef.current,
+        const pageContext = getPageContext()
+        ui.linkClicked({
+          page_name: pageContext.page_name || 'Assembly Map',
+          link_name: 'view_assembly_from_map',
+          link_location: 'interactive_map',
         })
 
         // Check if clicking within the currently selected district
@@ -858,7 +858,16 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
   // Handle search selection - clears district selection (dropdown = select only that assembly)
   const handleAssemblySearch = (value: string) => {
     // Track the search selection
-    track('Map Assembly Search', { assembly_name: value })
+    const pageContext = getPageContext()
+    search.resultClicked({
+      page_name: pageContext.page_name || 'Assembly Map',
+      search_query: value,
+      result_id: value,
+      result_name: value,
+      result_type: 'assembly',
+      result_position: 1,
+      search_type: 'map',
+    })
 
     // Clear district selection when selecting from assembly dropdown
     selectedDistrictRef.current = null
@@ -1011,7 +1020,12 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
   const handleDistrictSelect = (district: string | null) => {
     // Track the district filter
     if (district) {
-      track('Map District Filter', { district_name: district })
+      const pageContext = getPageContext()
+      search.filterApplied({
+        page_name: pageContext.page_name || 'Assembly Map',
+        filter_name: 'district',
+        filter_value: district,
+      })
     }
 
     // Clear assembly selection when selecting a district (keep only last selection)

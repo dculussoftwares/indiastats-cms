@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChevronRight, Search } from 'lucide-react'
-import { track } from '@/utilities/analytics'
+import { search, getPageContext } from '@/analytics'
 
 export interface District {
   districtId: string
@@ -75,17 +75,26 @@ export const DistrictSearch: React.FC<DistrictSearchProps> = ({ districts, onSea
     setSelectedDistrict(district)
     setSearchQuery(district.districtName)
     setIsOpen(false)
-    track('District Select', {
-      district_id: district.districtId,
-      district_name: district.districtName,
+    const pageContext = getPageContext()
+    search.resultClicked({
+      page_name: pageContext.page_name || 'Search Results',
+      search_query: district.districtName,
+      result_id: district.districtId,
+      result_name: district.districtName,
+      result_type: 'district',
+      result_position: 1,
+      search_type: 'district',
     })
   }
 
   const handleSearchClick = () => {
     if (selectedDistrict) {
-      track('District Search Click', {
-        district_id: selectedDistrict.districtId,
-        district_name: selectedDistrict.districtName,
+      const pageContext = getPageContext()
+      search.performed({
+        page_name: pageContext.page_name || 'Search Results',
+        search_query: selectedDistrict.districtName,
+        search_type: 'district',
+        results_count: 1,
       })
       // Call onSearch callback if provided
       if (onSearch) {
