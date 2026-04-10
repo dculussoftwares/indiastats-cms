@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ArrowLeft, Search, Users, TrendingUp, MapPin, Filter } from 'lucide-react'
-import { ui, search, getPageContext } from '@/analytics'
+import { ui, search, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 
 interface CasteData {
   id: string
@@ -48,6 +48,14 @@ export function CasteDemographicsClient({
   const [searchQuery, setSearchQuery] = React.useState('')
   const [casteFilter, setCasteFilter] = React.useState('')
   const [sortBy, setSortBy] = React.useState<'assembly' | 'percentage'>('assembly')
+
+  React.useEffect(() => {
+    setPageContext({
+      page_name: PAGE_NAMES.CASTE_DEMOGRAPHICS,
+      page_url: typeof window !== 'undefined' ? window.location.href : '',
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+  }, [])
 
   // Statistics
   const [stats, setStats] = React.useState<{

@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CasteComparisonTable } from '@/components/CasteComparisonTable'
 import { ArrowLeft, ChevronRight, Building2, MapPin, Locate } from 'lucide-react'
-import { ui, getPageContext } from '@/analytics'
+import { ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 
 interface Assembly {
   assemblyId: string
@@ -82,6 +82,14 @@ interface DistrictPageClientProps {
 }
 
 export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps) {
+  React.useEffect(() => {
+    setPageContext({
+      page_name: PAGE_NAMES.DISTRICT_DETAIL,
+      page_url: typeof window !== 'undefined' ? window.location.href : '',
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+  }, [])
+
   const districtDetailsData: DistrictDetailsData = {
     districtId: data.districtId,
     districtName: data.districtName,

@@ -12,7 +12,7 @@ import { ElectionInsightsPanel } from '@/components/ElectionInsightsPanel'
 import { ClosestRacesPanel } from '@/components/ClosestRacesPanel'
 import { AllianceSummary } from '@/components/AllianceSummary'
 import { CasteInsightsPanel } from '@/components/CasteInsightsPanel'
-import { ui, search, getPageContext } from '@/analytics'
+import { ui, search, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { buildAssemblyUrl } from '@/lib/assemblyRouting'
 import './leaflet-style-import'
 
@@ -346,6 +346,15 @@ const NativeGeoJSON = ({
 export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: AssemblyMapProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  useEffect(() => {
+    setPageContext({
+      page_name: PAGE_NAMES.ASSEMBLY_MAP,
+      page_url: typeof window !== 'undefined' ? window.location.href : '',
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+  }, [])
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [popupContent, setPopupContent] = useState<any | null>(null)
   const [popupPosition, setPopupPosition] = useState<[number, number] | null>(null)

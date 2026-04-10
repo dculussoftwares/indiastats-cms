@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ui, getPageContext } from '@/analytics'
+import { ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 
 interface HomePageClientProps {
   stats: {
@@ -90,6 +90,14 @@ function StatCounter({ value, label }: { value: number; label: string }) {
 }
 
 export function HomePageClient({ stats }: HomePageClientProps) {
+  useEffect(() => {
+    setPageContext({
+      page_name: PAGE_NAMES.HOMEPAGE,
+      page_url: typeof window !== 'undefined' ? window.location.href : '',
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+  }, [])
+
   return (
     <div className="min-h-screen">
       {/* Dark Hero with Tricolor Accent */}

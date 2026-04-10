@@ -13,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowLeft, Search, MapPin, FileText, ExternalLink, Building2 } from 'lucide-react'
-import { ui, getPageContext } from '@/analytics'
+import { ui, getPageContext, setPageContext } from '@/analytics'
 
 interface Booth {
   id: string
@@ -45,6 +45,14 @@ export function BoothsPageClient({
   const [booths, setBooths] = React.useState<Booth[]>([])
   const [loading, setLoading] = React.useState(true)
   const [searchTerm, setSearchTerm] = React.useState('')
+
+  React.useEffect(() => {
+    setPageContext({
+      page_name: 'Booths',
+      page_url: typeof window !== 'undefined' ? window.location.href : '',
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+  }, [])
 
   React.useEffect(() => {
     async function fetchBooths() {

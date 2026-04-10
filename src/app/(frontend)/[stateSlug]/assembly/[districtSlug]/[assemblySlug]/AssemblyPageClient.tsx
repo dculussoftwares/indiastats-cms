@@ -13,7 +13,7 @@ import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
 import { TwitterCardModal } from '@/components/TwitterCardModal'
-import { ui, getPageContext } from '@/analytics'
+import { ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 
 interface Candidate {
   name: string
@@ -96,6 +96,14 @@ function formatNumber(num: number): string {
 
 export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps) {
   const [showAllWinningHistories, setShowAllWinningHistories] = React.useState(false)
+
+  React.useEffect(() => {
+    setPageContext({
+      page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
+      page_url: typeof window !== 'undefined' ? window.location.href : '',
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+  }, [])
 
   return (
     <div className="container py-8">

@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select'
 import { exportToExcel, flattenElectionDataForExcel } from '@/utilities/excelExport'
 import { getPartyColor } from '@/lib/partyColors'
-import { search, ui, getPageContext } from '@/analytics'
+import { search, ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import {
   Download,
   ChevronUp,
@@ -125,6 +125,14 @@ function SortableHeader({ column, children }: { column: any; children: React.Rea
 }
 
 export function ElectionDataTable() {
+  useEffect(() => {
+    setPageContext({
+      page_name: PAGE_NAMES.ELECTION_DATA,
+      page_url: typeof window !== 'undefined' ? window.location.href : '',
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+  }, [])
+
   const [data, setData] = useState<AssemblyElectionData[]>([])
   const [availableFilters, setAvailableFilters] = useState<{
     districts: string[]
