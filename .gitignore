@@ -32,3 +32,4 @@ infra/.terraform.lock.hcl
 # OAuth 2.0 token files (local only, never commit)
 .oauth2-refresh-token.txt
 .new-refresh-token.txt
+/.idea/
