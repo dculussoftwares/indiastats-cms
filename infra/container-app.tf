@@ -120,6 +120,11 @@ resource "azurerm_container_app" "main" {
         name  = "NEXT_PUBLIC_GA_ID"
         value = var.ga_id
       }
+
+      env {
+        name  = "NEXT_PUBLIC_ADSENSE_CLIENT_ID"
+        value = var.adsense_client_id
+      }
     }
   }
 

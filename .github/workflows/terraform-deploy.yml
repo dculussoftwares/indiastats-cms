@@ -76,6 +76,7 @@ jobs:
             NEXT_PUBLIC_POSTHOG_HOST=${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}
             NEXT_PUBLIC_MIXPANEL_TOKEN=${{ secrets.NEXT_PUBLIC_MIXPANEL_TOKEN }}
             NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}
+            NEXT_PUBLIC_ADSENSE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_ADSENSE_CLIENT_ID }}
 
       - name: Get SHA Tag
         id: sha

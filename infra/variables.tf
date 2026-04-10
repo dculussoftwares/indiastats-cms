@@ -73,3 +73,10 @@ variable "ga_id" {
   sensitive   = false
   default     = ""
 }
+
+variable "adsense_client_id" {
+  description = "Google AdSense Publisher ID (public identifier, not sensitive)"
+  type        = string
+  sensitive   = false
+  default     = ""
+}
