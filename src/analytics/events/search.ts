@@ -75,7 +75,8 @@ export const resultsViewed = (properties: SearchPerformedProperties) => {
  * Track when user applies or changes search filters
  */
 export const filterApplied = (
-  properties: SearchPerformedProperties & {
+  properties: Partial<SearchPerformedProperties> & {
+    page_name: string
     filter_name: string
     filter_value: string
   },

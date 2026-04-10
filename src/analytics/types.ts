@@ -60,7 +60,7 @@ export interface QuickViewProperties extends UniversalEventProperties {
   assembly_id: string
   assembly_name: string
   district_name?: string
-  action: 'open' | 'download' | 'share'
+  action?: 'open' | 'download' | 'share'
 }
 
 export interface AssemblyComparedProperties extends UniversalEventProperties {
@@ -86,9 +86,9 @@ export interface SearchResultClickedProperties extends UniversalEventProperties 
   search_query: string
   result_id: string
   result_name: string
-  result_type: 'assembly' | 'district'
+  result_type: 'assembly' | 'district' | 'post'
   result_position: number
-  search_type: 'assembly' | 'district' | 'direct'
+  search_type: 'assembly' | 'district' | 'direct' | 'command_palette' | 'map'
 }
 
 // ============================================
@@ -165,7 +165,8 @@ export interface NavigationOccurredProperties extends UniversalEventProperties {
 }
 
 export interface LinkClickedProperties extends UniversalEventProperties {
-  link_url: string
+  link_url?: string
+  link_name?: string
   link_text?: string
   link_location?: string
   is_external?: boolean

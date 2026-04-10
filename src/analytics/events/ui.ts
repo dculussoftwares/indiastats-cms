@@ -34,12 +34,13 @@ export const buttonClicked = (properties: ButtonClickedProperties) => {
  * Track command palette open
  */
 export const commandPaletteOpened = (
-  properties: ButtonClickedProperties & {
-    trigger_method: 'keyboard' | 'button'
+  properties: Partial<ButtonClickedProperties> & {
+    page_name: string
+    trigger?: 'keyboard' | 'button' | 'programmatic'
   },
 ) => {
   track('command_palette_opened', {
-    trigger_method: properties.trigger_method,
+    trigger: properties.trigger,
     page_name: properties.page_name,
   })
 }
