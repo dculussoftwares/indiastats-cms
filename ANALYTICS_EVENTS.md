@@ -62,428 +62,422 @@ This document provides a comprehensive list of all analytics events tracked acro
 
 ## Core Tracking Functions
 
-### Unified Analytics Utility (`src/utilities/analytics.ts`)
+### Standardized Analytics Module (`src/analytics/`)
 
-All events are sent through the unified `track()` function which automatically routes to all four platforms:
+All events are tracked through the **standardized analytics system** (status: ✅ Complete migration):
 
 ```typescript
-track(eventName: string, properties?: Record<string, unknown>)
+import { assembly, search, ui, errors, pageViews, getPageContext, setPageContext } from '@/analytics'
+
+// Set page context once per page
+setPageContext({ page_name: 'Assembly Detail', page_url: location.href })
+
+// Track events using namespaced functions
+assembly.viewed({ assembly_id: 'ac001', assembly_name: 'Chennai South', ... })
+search.performed({ search_query: 'Chennai', results_count: 5, ... })
+ui.buttonClicked({ button_name: 'download', button_label: 'Download', ... })
 ```
 
-**Properties**: Optional key-value pairs that provide context for the event.
-
 **How it works**:
-1. **PostHog**: Receives event name and full properties object
-2. **Mixpanel**: Receives event name and full properties object
-3. **Clarity**: Receives snake_case event name (properties not supported)
-4. **GA4**: Receives snake_case event name and properties object
+1. All events automatically route to all four platforms (PostHog, Mixpanel, Clarity, GA4)
+2. Event names are automatically normalized to snake_case
+3. Page context is auto-injected into all events via `getPageContext()`
+4. Properties are unified and consistent across all platforms
+5. Full TypeScript support with IDE autocomplete
 
 ---
 
 ## Tracked Events by Category
 
-### 1. **Assembly Page Navigation**
+### 1. **Assembly Events**
 
-#### Event: `View Assembly`
-- **Location**: `src/components/AssemblySearch/index.tsx`, `src/components/TwitterCardModal.tsx`
-- **Trigger**: User clicks "View Assembly" button or selects an assembly
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
+#### Event: `assembly_viewed`
+- **Namespace**: `assembly.viewed()`
+- **Trigger**: User navigates to assembly detail page
 - **Properties**:
+  - `page_name`: Page name (auto-injected)
   - `assembly_id`: Assembly identifier (e.g., "ac001")
   - `assembly_name`: Name of the assembly
+  - `district_id`: Parent district ID
   - `district_name`: Parent district name
 
 ```typescript
-trackViewAssembly(assemblyId, assemblyName, districtName)
-```
-
----
-
-### 2. **Quick View Modal**
-
-#### Event: `Quick View Open`
-- **Location**: `src/components/TwitterCardModal.tsx` (line 146)
-- **Trigger**: User opens Quick View modal for an assembly
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `assembly_id`: Assembly identifier
-  - `assembly_name`: Assembly name
-
-```typescript
-trackQuickViewOpen(assemblyId, assemblyName)
-```
-
-#### Event: `Quick View Download`
-- **Location**: `src/components/TwitterCardModal.tsx` (line 262)
-- **Trigger**: User downloads Quick View card as PNG
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `assembly_id`: Assembly identifier
-  - `assembly_name`: Assembly name
-
-```typescript
-trackQuickViewDownload(assemblyId, assemblyName)
-```
-
----
-
-### 3. **Share Events**
-
-#### Event: `Share`
-- **Location**: `src/components/TwitterCardModal.tsx` (lines 286)
-- **Trigger**: User shares content on social media or copies link
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `platform`: 'twitter' | 'instagram' | 'copy_link'
-  - `content_type`: Type of content being shared (e.g., 'quick_view')
-  - `content_id`: Optional content identifier
-
-```typescript
-trackShare(platform: 'twitter' | 'instagram' | 'copy_link', contentType: string, contentId?: string)
-```
-
----
-
-### 4. **Search Events**
-
-#### Event: `Search`
-- **Location**: `src/components/AssemblySearch/index.tsx` (line 233)
-- **Trigger**: User performs a search (district, assembly, or direct)
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `search_query`: The search term entered
-  - `results_count`: Number of results returned
-  - `search_type`: 'assembly' | 'district' | 'direct'
-
-```typescript
-trackSearch(searchQuery: string, resultsCount: number, searchType: 'assembly' | 'district' | 'direct')
-```
-
-#### Event: `Search Result Click`
-- **Location**: `src/components/AssemblySearch/index.tsx` (lines 216, 234)
-- **Trigger**: User clicks on a search result
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `result_id`: Identifier of the clicked result (assembly/district ID)
-  - `result_name`: Name of the result
-  - `search_type`: Type of search result (assembly, district, etc.)
-
-```typescript
-trackSearchResultClick(resultId: string, resultName: string, searchType: string)
-```
-
----
-
-### 5. **Theme Changes**
-
-#### Event: `Theme Change`
-- **Location**: `src/providers/Theme/ThemeSelector/index.tsx` (lines 26, 30)
-- **Trigger**: User changes theme preference (light/dark/auto)
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `theme`: 'light' | 'dark' | 'system'
-
-```typescript
-trackThemeChange(theme: 'light' | 'dark' | 'system')
-```
-
----
-
-### 6. **Button Clicks**
-
-#### Event: `Button Click`
-- **Location**: Multiple locations throughout the app
-- **Trigger**: Generic button click tracking
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `button_name`: Name/identifier of the button
-  - Additional context properties as needed
-
-```typescript
-trackButtonClick(buttonName: string, properties?: Record<string, unknown>)
-```
-
-**Usage Examples**:
-- `trackButtonClick('command_palette_open', { method: 'keyboard' })` - Command palette opened via keyboard
-- `trackButtonClick('Quick View Open', { assembly_id: assemblyId })` - Quick View button clicked
-- `trackButtonClick('Download Quick View', { assembly_id: assemblyId })` - Download button clicked
-- `trackButtonClick('Share Twitter', { assembly_id: assemblyId })` - Share to Twitter clicked
-- `trackButtonClick('View Assembly', { assembly_id: selectedAssembly.assemblyId })` - View Assembly button clicked
-
----
-
-### 7. **Map Interactions** (Potential/Planned)
-
-#### Event: `Map Interaction`
-- **Location**: Planned for map components
-- **Trigger**: User interacts with map (zoom, pan, click constituency)
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `action`: 'zoom' | 'pan' | 'click_constituency' | 'select_year'
-  - Additional detail properties
-
-```typescript
-trackMapInteraction(action: 'zoom' | 'pan' | 'click_constituency' | 'select_year', details?: Record<string, unknown>)
-```
-
----
-
-### 8. **Election Year Selection** (Potential/Planned)
-
-#### Event: `Election Year Select`
-- **Location**: Planned for election comparison pages
-- **Trigger**: User selects election year(s) for comparison
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `year`: Selected election year
-  - `mode`: 'solo' | 'compare'
-
-```typescript
-trackElectionYearSelect(year: string, mode: 'solo' | 'compare')
-```
-
----
-
-### 9. **Navigation Events**
-
-#### Event: `Navigation`
-- **Location**: Planned for page transitions
-- **Trigger**: User navigates between pages
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `from_page`: Source page name
-  - `to_page`: Destination page name
-
-```typescript
-trackNavigation(from: string, to: string)
-```
-
----
-
-### 10. **Error Tracking**
-
-#### Event: `Error`
-- **Location**: Planned for error handling
-- **Trigger**: Application error occurs
-- **Page Name Parameter**: Should include `page_name` in properties (refactor needed)
-- **Properties**:
-  - `error_type`: Type of error that occurred
-  - `error_message`: Error message (optional)
-  - `page_url`: URL where error occurred (optional)
-
-```typescript
-trackError(errorType: string, errorMessage?: string, pageUrl?: string)
-```
-
----
-
-### 11. **Page View Tracking** (Manual)
-
-#### Event: `Page View`
-- **Location**: Can be used for manual page tracking
-- **Trigger**: When specific page views need to be tracked
-- **Page Name Parameter**: Explicitly passed
-- **Properties**:
-  - `page_name`: Name of the page
-  - `page_url`: URL of the page
-  - Additional custom properties
-
-```typescript
-trackPageView(pageName: string, pageUrl: string, properties?: Record<string, unknown>)
-```
-
----
-
-## Clarity-Specific Tracking (`src/utilities/clarityTracking.ts`)
-
-In addition to unified tracking, Clarity has its own tracking functions with page name parameters:
-
-### Assembly View
-```typescript
-trackAssemblyView(assemblyId: string, assemblyName: string, districtName: string)
-```
-- Dimensions: `assembly_id`, `assembly_name`, `district_name`
-- Event: `view_assembly`
-
-### District View
-```typescript
-trackDistrictView(districtId: string, districtName: string)
-```
-- Dimensions: `district_id`, `district_name`
-- Event: `view_district`
-
-### Page View
-```typescript
-trackPageView(pageType: string, pageId?: string)
-```
-- Dimensions: `page_type`, `page_id` (optional)
-- Event: `view_{pageType}`
-
-### 404 Error
-```typescript
-track404(attemptedUrl: string)
-```
-- Dimensions: `attempted_url`
-- Event: `page_not_found`
-- Session upgrade: 'error'
-
-### Footer Link Click
-```typescript
-trackFooterClick(linkName: string)
-```
-- Dimensions: `footer_link`
-- Event: `click_footer_link`
-
-### External Link Click
-```typescript
-trackExternalLink(url: string)
-```
-- Dimensions: `external_url`
-- Event: `click_external_link`
-
----
-
-## Current Event Locations
-
-| Event | Component/Page | Line(s) | Uses |
-|-------|---|---|---|
-| Theme Change | `Theme/ThemeSelector/index.tsx` | 26, 30 | trackThemeChange() |
-| Button Click (Command Palette) | `providers/CommandPalette/index.tsx` | Multiple | trackButtonClick() |
-| Quick View Open | `components/TwitterCardModal.tsx` | 146 | trackQuickViewOpen() |
-| Quick View Download | `components/TwitterCardModal.tsx` | 262 | trackQuickViewDownload() |
-| Share Twitter | `components/TwitterCardModal.tsx` | 286 | trackShare() |
-| Button Click (Quick View) | `components/TwitterCardModal.tsx` | 147, 263, 287 | trackButtonClick() |
-| Search | `components/AssemblySearch/index.tsx` | 233 | trackSearch() |
-| Search Result Click | `components/AssemblySearch/index.tsx` | 216, 234 | trackSearchResultClick() |
-| View Assembly | `components/AssemblySearch/index.tsx` | 239-244 | trackViewAssembly(), trackButtonClick() |
-
----
-
-## Refactoring Recommendations
-
-### 1. **Add Page Name Parameter to All Events**
-
-**Current Issue**: Events are not consistently tracking which page they occurred on.
-
-**Solution**: Modify all tracking functions to accept and include a `page_name` parameter:
-
-```typescript
-// Before
-trackViewAssembly(assemblyId, assemblyName, districtName)
-
-// After
-trackViewAssembly(
-  assemblyId: string,
-  assemblyName: string,
-  districtName: string,
-  pageName: string  // NEW
-)
-```
-
-**Implementation**:
-1. Update `src/utilities/analytics.ts` to add `page_name` parameter to all tracking functions
-2. Update `src/utilities/clarityTracking.ts` similarly
-3. Update all call sites to pass the page name
-
----
-
-### 2. **Standardize Event Parameter Format**
-
-Create consistent naming conventions across platforms:
-
-```typescript
-interface EventProperties {
-  page_name?: string          // NEW
-  page_url?: string           // NEW
-  timestamp?: number          // Optional, auto-added by platforms
-  user_id?: string            // For authenticated users
-  session_id?: string         // Auto-tracked by platforms
-  [key: string]: unknown      // Additional custom properties
-}
-```
-
----
-
-### 3. **Create Page-Specific Event Functions**
-
-```typescript
-// Create namespace for each page type
-export const assemblyPageEvents = {
-  trackViewAssembly: (assemblyId, name, district, pageName) => { ... },
-  trackQuickViewOpen: (assemblyId, pageName) => { ... },
-  trackShare: (platform, contentType, pageName) => { ... }
-}
-
-export const searchPageEvents = {
-  trackSearch: (query, resultCount, searchType, pageName) => { ... },
-  trackSearchResultClick: (resultId, name, type, pageName) => { ... }
-}
-```
-
----
-
-### 4. **Consistency Across Platforms**
-
-Currently:
-- PostHog: Receives full properties object
-- Mixpanel: Receives full properties object
-- Clarity: Receives event name + limited dimension support
-
-**Recommendation**: Map properties to Clarity dimensions consistently:
-
-```typescript
-const clarityDimensionMapping: Record<string, (props: Record<string, unknown>) => void> = {
-  'View Assembly': (props) => {
-    setDimension('page_name', props.page_name as string)
-    setDimension('assembly_id', props.assembly_id as string)
-    setDimension('assembly_name', props.assembly_name as string)
-  }
-}
-```
-
----
-
-## Usage Examples
-
-### Example 1: Tracking Assembly View with Page Name
-
-**Current**:
-```typescript
-trackViewAssembly(assemblyId, assemblyName, districtName)
-trackButtonClick('View Assembly', { assembly_id: assemblyId })
-```
-
-**Refactored**:
-```typescript
-trackViewAssembly(
-  assemblyId,
-  assemblyName,
-  districtName,
-  'Assembly Detail Page'  // Page name
-)
-trackButtonClick('View Assembly', {
-  assembly_id: assemblyId,
-  page_name: 'Assembly Detail Page'
+import { assembly, getPageContext } from '@/analytics'
+
+const pageContext = getPageContext()
+assembly.viewed({
+  page_name: pageContext.page_name || 'Assembly Detail',
+  assembly_id: 'ac001',
+  assembly_name: 'Chennai South',
+  district_id: 'dt1',
+  district_name: 'Chennai'
 })
 ```
 
-### Example 2: Tracking Search with Page Name
+---
 
-**Current**:
+### 2. **Search Events**
+
+#### Event: `search_performed`
+- **Namespace**: `search.performed()`
+- **Trigger**: User performs a search
+- **Properties**:
+  - `page_name`: Page name (auto-injected)
+  - `search_query`: The search term entered
+  - `results_count`: Number of results
+  - `search_type`: 'assembly' | 'district' | 'direct'
+
 ```typescript
-trackSearch(assembly.name, 1, 'direct')
-trackSearchResultClick(assembly.assemblyId, assembly.name, 'assembly')
+search.performed({
+  page_name: pageContext.page_name || 'Homepage',
+  search_query: 'Chennai',
+  results_count: 5,
+  search_type: 'direct'
+})
 ```
 
-**Refactored**:
+#### Event: `search_result_clicked`
+- **Namespace**: `search.resultClicked()`
+- **Trigger**: User clicks on a search result
+- **Properties**:
+  - `page_name`: Page name (auto-injected)
+  - `search_query`: Original search query
+  - `result_id`: ID of clicked result
+  - `result_name`: Name of result
+  - `result_type`: 'assembly' | 'district' | 'post'
+  - `result_position`: Position in results
+  - `search_type`: Type of search
+
 ```typescript
-trackSearch(assembly.name, 1, 'direct', 'Homepage Search')
-trackSearchResultClick(
-  assembly.assemblyId,
-  assembly.name,
-  'assembly',
-  'Homepage Search'
-)
+search.resultClicked({
+  page_name: pageContext.page_name || 'Search Results',
+  search_query: 'Chennai',
+  result_id: 'ac001',
+  result_name: 'Chennai South',
+  result_type: 'assembly',
+  result_position: 1,
+  search_type: 'direct'
+})
+```
+
+#### Event: `search_filter_applied`
+- **Namespace**: `search.filterApplied()`
+- **Trigger**: User applies a filter in search/table
+- **Properties**:
+  - `page_name`: Page name (auto-injected)
+  - `filter_name`: Name of filter
+  - `filter_value`: Value applied
+
+```typescript
+search.filterApplied({
+  page_name: pageContext.page_name || 'Election Data',
+  filter_name: 'year',
+  filter_value: '2021'
+})
+```
+
+---
+
+### 3. **UI Events**
+
+#### Event: `button_clicked`
+- **Namespace**: `ui.buttonClicked()`
+- **Trigger**: User clicks any button
+- **Properties**:
+  - `page_name`: Page name (auto-injected)
+  - `button_name`: Identifier of button
+  - `button_label`: Display text of button
+
+```typescript
+ui.buttonClicked({
+  page_name: pageContext.page_name || 'Homepage',
+  button_name: 'download_quick_view',
+  button_label: 'Download PNG'
+})
+```
+
+#### Event: `link_clicked`
+- **Namespace**: `ui.linkClicked()`
+- **Trigger**: User clicks a link
+- **Properties**:
+  - `page_name`: Page name (auto-injected)
+  - `link_name`: Identifier of link
+  - `link_location`: Where on page the link is
+
+```typescript
+ui.linkClicked({
+  page_name: pageContext.page_name || 'Assembly Detail',
+  link_name: 'view_assembly',
+  link_location: 'search_results'
+})
+```
+
+#### Event: `theme_changed`
+- **Namespace**: `ui.themeChanged()`
+- **Trigger**: User changes theme preference
+- **Properties**:
+  - `page_name`: Page name (auto-injected)
+  - `theme`: 'light' | 'dark' | 'system'
+
+```typescript
+ui.themeChanged({
+  page_name: pageContext.page_name || 'Homepage',
+  theme: 'dark'
+})
+```
+
+#### Event: `command_palette_opened`
+- **Namespace**: `ui.commandPaletteOpened()`
+- **Trigger**: User opens command palette
+- **Properties**:
+  - `page_name`: Page name (auto-injected)
+  - `trigger`: 'keyboard' | 'button' | 'programmatic'
+
+#### Event: `share_initiated`
+- **Namespace**: `ui.shareInitiated()`
+- **Trigger**: User initiates a share action
+- **Properties**:
+  - `page_name`: Page name
+  - `platform`: 'twitter' | 'instagram' | 'copy_link'
+  - `content_type`: Type of content being shared
+
+---
+
+### 4. **Page View Events**
+
+#### Event: `page_viewed`
+- **Namespace**: `pageViews.viewed()` or specific page functions
+- **Trigger**: User views a page
+- **Properties**: Auto-tracked by Next.js + explicitly set via `setPageContext()`
+
+```typescript
+import { setPageContext, PAGE_NAMES } from '@/analytics'
+
+// Set once per page in layout
+setPageContext({
+  page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
+  page_url: location.href,
+  page_path: location.pathname
+})
+```
+
+---
+
+### 5. **Error Events**
+
+#### Event: `error_occurred`
+- **Namespace**: `errors.occurred()`
+- **Trigger**: Application error detected
+- **Properties**:
+  - `page_name`: Page name (auto-injected)
+  - `error_type`: Type of error
+  - `error_message`: Error message
+  - `error_severity`: 'low' | 'medium' | 'high' | 'critical'
+
+```typescript
+errors.occurred({
+  page_name: pageContext.page_name || 'Unknown',
+  error_type: 'network',
+  error_message: 'Failed to fetch data',
+  error_severity: 'high'
+})
+```
+
+---
+
+## Available Constants
+
+### Page Names
+```typescript
+import { PAGE_NAMES } from '@/analytics'
+
+PAGE_NAMES.HOMEPAGE = 'Homepage'
+PAGE_NAMES.ASSEMBLY_DETAIL = 'Assembly Detail'
+PAGE_NAMES.DISTRICT_DETAIL = 'District Detail'
+PAGE_NAMES.SEARCH_RESULTS = 'Search Results'
+PAGE_NAMES.ASSEMBLY_MAP = 'Assembly Map'
+PAGE_NAMES.NOT_FOUND = '404 Not Found'
+```
+
+### Button Names
+```typescript
+import { BUTTON_NAMES } from '@/analytics'
+
+BUTTON_NAMES.VIEW_ASSEMBLY = 'view_assembly'
+BUTTON_NAMES.DOWNLOAD_QUICK_VIEW = 'download_quick_view'
+BUTTON_NAMES.SEARCH = 'search'
+```
+
+### Share Platforms
+```typescript
+import { SHARE_PLATFORMS } from '@/analytics'
+
+SHARE_PLATFORMS.TWITTER = 'twitter'
+SHARE_PLATFORMS.INSTAGRAM = 'instagram'
+SHARE_PLATFORMS.COPY_LINK = 'copy_link'
+```
+
+### Search Types
+```typescript
+import { SEARCH_TYPES } from '@/analytics'
+
+SEARCH_TYPES.ASSEMBLY = 'assembly'
+SEARCH_TYPES.DISTRICT = 'district'
+SEARCH_TYPES.DIRECT = 'direct'
+```
+
+---
+
+## Migration from Old API
+
+### Old API (Deprecated but Still Works)
+```typescript
+import { trackViewAssembly, trackShare, track } from '@/utilities/analytics'
+
+trackViewAssembly(assemblyId, assemblyName, districtName)
+trackShare('twitter', 'quick_view', assemblyId)
+track('Custom Event', { custom_prop: 'value' })
+```
+
+### New API (Recommended)
+```typescript
+import { assembly, ui, search, getPageContext } from '@/analytics'
+
+// Set context once per page
+setPageContext({ page_name: 'Assembly Detail', page_url: location.href })
+
+// Use namespaced events
+const pageContext = getPageContext()
+assembly.viewed({
+  page_name: pageContext.page_name || 'Assembly Detail',
+  assembly_id: assemblyId,
+  assembly_name: assemblyName,
+  district_name: districtName
+})
+
+ui.shareInitiated({
+  page_name: pageContext.page_name || 'Assembly Detail',
+  platform: 'twitter',
+  content_type: 'quick_view'
+})
+
+// Old API still works for backward compatibility
+track('Custom Event', { custom_prop: 'value' })
+```
+
+---
+
+## Implementation Examples
+
+### Example 1: Setting Page Context in Layout
+
+```typescript
+// In page layout or top component
+import { setPageContext, PAGE_NAMES } from '@/analytics'
+
+useEffect(() => {
+  setPageContext({
+    page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
+    page_url: location.href,
+    page_path: location.pathname
+  })
+}, [])
+```
+
+### Example 2: Tracking Assembly View
+
+```typescript
+import { assembly, getPageContext } from '@/analytics'
+
+const handleViewAssembly = (assembly: Assembly, district: District) => {
+  const pageContext = getPageContext()
+  assembly.viewed({
+    page_name: pageContext.page_name || 'Search Results',
+    assembly_id: assembly.assemblyId,
+    assembly_name: assembly.name,
+    district_id: district.districtId,
+    district_name: district.districtName
+  })
+  router.push(`/assembly/${district.slug}/${assembly.slug}`)
+}
+```
+
+### Example 3: Tracking Search Events
+
+```typescript
+import { search, getPageContext } from '@/analytics'
+
+const handleSearch = (query: string, results: SearchResult[]) => {
+  const pageContext = getPageContext()
+  search.performed({
+    page_name: pageContext.page_name || 'Homepage',
+    search_query: query,
+    results_count: results.length,
+    search_type: 'direct'
+  })
+}
+
+const handleResultClick = (result: SearchResult, query: string) => {
+  const pageContext = getPageContext()
+  search.resultClicked({
+    page_name: pageContext.page_name || 'Homepage',
+    search_query: query,
+    result_id: result.id,
+    result_name: result.name,
+    result_type: 'assembly',
+    result_position: 1,
+    search_type: 'direct'
+  })
+}
+```
+
+### Example 4: Tracking UI Interactions
+
+```typescript
+import { ui, getPageContext } from '@/analytics'
+
+const handleButtonClick = () => {
+  const pageContext = getPageContext()
+  ui.buttonClicked({
+    page_name: pageContext.page_name || 'Homepage',
+    button_name: 'download_quick_view',
+    button_label: 'Download PNG'
+  })
+}
+
+const handleLinkClick = () => {
+  const pageContext = getPageContext()
+  ui.linkClicked({
+    page_name: pageContext.page_name || 'Assembly Detail',
+    link_name: 'view_assembly_on_map',
+    link_location: 'assembly_card'
+  })
+}
+```
+
+---
+
+## Naming Conventions
+
+All events and properties follow **snake_case** naming:
+
+- Events: `view_assembly`, `search_performed`, `button_clicked`
+- Properties: `assembly_id`, `search_query`, `button_name`
+- Page names: Use constants from `PAGE_NAMES` for consistency
+
+Example:
+```typescript
+// ✅ Correct
+search.performed({
+  search_query: 'Chennai',
+  results_count: 5
+})
+
+// ❌ Avoid
+search.performed({
+  searchQuery: 'Chennai',
+  resultsCount: 5
+})
 ```
 
 ---
@@ -509,68 +503,18 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX  # Your GA4 Measurement ID (e.g., G-NVB7E06128)
 
 ---
 
-## GA4 Implementation Details
-
-### How GA4 Integration Works
-
-1. **gtag Script**: GA4 requires the `gtag` global function (provided by Google Analytics script tag in HTML)
-2. **Event Format**: Events are converted to snake_case before sending to GA4
-3. **Properties Passed**: All event properties are forwarded to GA4 as custom parameters
-4. **Conditional**: Only sends events if:
-   - `NEXT_PUBLIC_GA_ID` environment variable is set
-   - `window.gtag` is available (script loaded)
-5. **Error Handling**: Gracefully fails if gtag unavailable (doesn't break other platforms)
-
-### GA4 Event Name Conversion
-
-Events are automatically converted to snake_case for GA4 compatibility:
-
-```typescript
-'View Assembly' → 'view_assembly'
-'Search' → 'search'
-'Button Click' → 'button_click'
-'Theme Change' → 'theme_change'
-```
-
-### GA4 Properties
-
-All event properties are sent to GA4. Common properties include:
-- `page_name`: Name of the page where event occurred
-- `assembly_id`: Assembly identifier
-- `district_name`: District name
-- `search_query`: Search query string
-- `results_count`: Number of results
-- Platform-specific dimensions and metrics
-
-### Example GA4 Event
-
-```typescript
-// Tracking code
-trackViewAssembly('ac001', 'Chennai South', 'Chennai')
-
-// What GA4 receives
-window.gtag('event', 'view_assembly', {
-  assembly_id: 'ac001',
-  assembly_name: 'Chennai South',
-  district_name: 'Chennai'
-})
-```
-
----
-
 ## Testing Analytics Events
 
 ### In Development
-- Mixpanel: Debug logs printed to console
-- PostHog: Opted out automatically (development mode)
-- Clarity: Not initialized (production only)
+- **Mixpanel**: Debug logs printed to console
+- **PostHog**: Opted out automatically (development mode)
+- **Clarity**: Not initialized (production only)
+- **GA4**: Sends to test property if `NEXT_PUBLIC_GA_ID` set
 
 ### Debugging Events
 ```typescript
-// Add to any tracking call:
-if (process.env.NODE_ENV === 'development') {
-  console.log('[Analytics]', eventName, properties)
-}
+// Events are automatically logged in development
+// Check browser console for event tracking information
 ```
 
 ---
@@ -581,16 +525,47 @@ if (process.env.NODE_ENV === 'development') {
 2. **Do Not Track**: PostHog respects DNT, Mixpanel ignores it
 3. **Session Recording**: Both PostHog and Mixpanel support session recording
 4. **Data Privacy**: No sensitive data (passwords, tokens) should be included in event properties
+5. **Page Context Auto-Injection**: Page context set via `setPageContext()` is automatically included in all events
 
 ---
 
 ## Related Files
 
-- `src/utilities/analytics.ts` - Unified analytics functions
-- `src/utilities/clarityTracking.ts` - Clarity-specific functions
+**Core Analytics Module:**
+- `src/analytics/` - Main standardized analytics module (✅ Implementation Complete)
+- `src/analytics/index.ts` - Main export
+- `src/analytics/tracker.ts` - Core tracking engine
+- `src/analytics/types.ts` - TypeScript interfaces
+- `src/analytics/constants.ts` - Event constants
+- `src/analytics/events/` - Event namespaces
+
+**Platform Integration:**
+- `src/utilities/analytics.ts` - Old API (deprecated, for backward compatibility)
 - `src/instrumentation-client.ts` - Platform initialization
-- `src/components/TwitterCardModal.tsx` - Quick View and Share events
+
+**Migrated Components:**
+- `src/components/TwitterCardModal.tsx` - Share and quick view events
 - `src/components/AssemblySearch/index.tsx` - Search events
-- `src/providers/Theme/ThemeSelector/index.tsx` - Theme events
+- `src/components/DistrictSearch/index.tsx` - District search events
+- `src/components/AssemblyMap/index.tsx` - Map interaction events
+- `src/components/ElectionDataTable/index.tsx` - Data table events
+- `src/components/MostWinningPartiesCard/index.tsx` - UI toggles
+- `src/components/PastWinningHistories/index.tsx` - Accordion events
+- `src/providers/Theme/ThemeSelector/index.tsx` - Theme change events
 - `src/providers/CommandPalette/index.tsx` - Command palette events
+- `src/app/(frontend)/(home)/HomePageClient.tsx` - Homepage events
+- `src/app/(frontend)/[stateSlug]/assembly/...` - Assembly page events
+- `src/app/(frontend)/[stateSlug]/district/...` - District page events
+- `src/app/(frontend)/[stateSlug]/caste-demographics/...` - Caste demographics events
+- `src/app/(frontend)/[stateSlug]/assembly/.../booths/...` - Booths page events
+
+---
+
+## Migration Status
+
+✅ **All 16 components migrated to standardized analytics API**
+✅ **Full TypeScript support with IDE autocomplete**
+✅ **Page context auto-injection working**
+✅ **Multi-platform event routing functional**
+✅ **Backward compatibility maintained**
 
