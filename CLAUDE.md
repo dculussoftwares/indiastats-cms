@@ -4,128 +4,72 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- **Development server**: `pnpm dev` (runs on http://localhost:3001)
-- **Build**: `pnpm build`
-- **Generate types**: `pnpm generate:types`
-- **Lint**: `pnpm lint`
-
-## Technology Stack
-
-- **Framework**: PayloadCMS 3.x with Next.js 15
-- **Database**: PostgreSQL (via `@payloadcms/db-postgres`)
-- **UI**: React 19, TailwindCSS, shadcn/ui components
-- **Original Data Source**: Supabase (for migration reference)
-
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── (frontend)/     # Public-facing pages
-│   └── (payload)/      # Admin panel routes
-├── collections/        # PayloadCMS collection definitions
-│   ├── Assemblies.ts   # Tamil Nadu assembly constituencies
-│   ├── Districts.ts    # District data (38 districts)
-│   ├── Booths.ts       # Polling booth data (~45k records)
-│   ├── ElectionHistory.ts # Election results by candidate/year (~15k records)
-│   ├── Pages.ts        # CMS pages
-│   ├── Posts.ts        # Blog posts
-│   └── ...
-├── scripts/            # Migration and utility scripts
-└── payload.config.ts   # Main Payload configuration
-```
-
-## Database Schema - Election Data Collections
-
-### Assemblies Collection
-
-Stores Tamil Nadu Legislative Assembly constituencies.
-
-| Field                | Type          | Description                                                    |
-| -------------------- | ------------- | -------------------------------------------------------------- |
-| `assemblyId`         | text (unique) | Unique ID like "ac001", "ac234"                                |
-| `name`               | text          | Bilingual name (Tamil / English)                               |
-| `districtName`       | text          | Parent district name                                           |
-| `noOfBooths`         | number        | Number of polling booths                                       |
-| `electedMla`         | json          | Array of elected MLAs by year                                  |
-| `voters`             | json          | Current voter stats (male, female, trans, total, isReservedAc) |
-| `lastElectionVoters` | json          | 2019 voter data                                                |
-
-### Districts Collection
-
-Stores the 38 districts of Tamil Nadu.
-
-| Field          | Type          | Description                      |
-| -------------- | ------------- | -------------------------------- |
-| `districtId`   | text (unique) | Unique ID like "dt1", "dt38"     |
-| `districtName` | text          | Bilingual name (Tamil / English) |
-
-### Booths Collection
-
-Stores polling booth information (~45,616 unique records).
-
-| Field         | Type           | Description                      |
-| ------------- | -------------- | -------------------------------- |
-| `boothId`     | text           | Booth identifier within assembly |
-| `assemblyId`  | text (indexed) | Reference to assembly            |
-| `districtId`  | text (indexed) | Reference to district            |
-| `wardAddress` | text           | Ward/location address            |
-| `pdfLink`     | text           | Link to voter list PDF           |
-| `streetName`  | text           | Street name                      |
-
-### ElectionHistory Collection
-
-Stores election results from AssemblyHistoricDataTable_V4 (~15,725 records).
-Each record represents one candidate in one election year.
-
-| Field            | Type             | Description                  |
-| ---------------- | ---------------- | ---------------------------- |
-| `assemblyId`     | text (indexed)   | Reference to assembly        |
-| `assemblyName`   | text             | Assembly name (denormalized) |
-| `assemblyNo`     | number           | Assembly number              |
-| `electionYear`   | number (indexed) | Year like 1972, 2021         |
-| `totalVoters`    | number           | Total registered voters      |
-| `votesPolled`    | number           | Total votes cast             |
-| `candidateName`  | text             | Candidate name               |
-| `candidateParty` | text (indexed)   | Party abbreviation           |
-| `candidateVotes` | number           | Votes received               |
-
-## Data Migration
-
-Data was migrated from Supabase (indiastats-main project) to PayloadCMS.
-
-### Source Tables (Supabase)
-
-- `AssemblyDataTable` → `assemblies` collection
-- `AssemblyHistoricDataTable_V4` → `election-history` collection (use V4 only, skip V1-V3)
-- `BoothDataTable` → `booths` collection
-- Districts are derived from unique `districtName` values in assemblies
-
-### Migration Scripts
-
 ```bash
-# Full migration (assemblies, districts, election history)
-pnpm exec tsx scripts/migrate-supabase.ts
-
-# Include booths (takes ~2 hours for 68k records)
-pnpm exec tsx scripts/migrate-supabase.ts --include-booths
-
-# Migrate remaining records (missing history + booths)
-pnpm exec tsx scripts/migrate-remaining.ts
-
-# Verify migration counts
-pnpm exec tsx scripts/verify-migration.ts
+pnpm dev                # Dev server on http://localhost:3001
+pnpm build              # Production build (output: standalone for Docker)
+pnpm lint               # ESLint
+pnpm lint:fix           # ESLint with auto-fix
+pnpm generate:types     # Regenerate PayloadCMS types → src/payload-types.ts
+pnpm test:int           # Vitest unit/integration tests
+pnpm test:e2e           # Playwright end-to-end tests
+pnpm test               # Run both int + e2e
 ```
 
-### Required Environment Variables for Migration
+Run a single integration test: `pnpm exec vitest run --config ./vitest.config.mts path/to/file.test.ts`
+
+Remotion (video generation):
+```bash
+pnpm remotion:preview   # Open Remotion studio
+pnpm remotion:render    # Render reel video → out/reel.mp4
+pnpm remotion:thumbnail # Render thumbnail → out/thumbnail.png
+```
+
+## Architecture Overview
+
+**PayloadCMS 3.x + Next.js 15** app serving Tamil Nadu election data (assemblies, districts, booths, election history). Deployed to Azure Container Apps via Terraform.
+
+### Key Architectural Patterns
+
+1. **State-scoped routing**: All election pages live under `[stateSlug]/` (e.g., `/tamil-nadu/assembly/...`). The `[stateSlug]/layout.tsx` validates the slug via `src/config/states/` registry and wraps children in `<StateProvider>`. Currently only Tamil Nadu (`TN`) is registered.
+
+2. **State configuration system** (`src/config/states/`): Each state has a `StateConfig` defining party colors, blocs, leader images, GeoJSON map path, and election years. New states are added by creating a config file and registering it in `src/config/states/index.ts`.
+
+3. **Client/Server page split**: Pages follow the pattern of a server component (`page.tsx`) that fetches data via Payload Local API, passing it to a `*Client.tsx` component for interactivity (e.g., `AssemblyPageClient.tsx`, `HomePageClient.tsx`).
+
+4. **PayloadCMS collections** (`src/collections/`): 13 collections registered in `src/payload.config.ts`. Election data collections (Assemblies, Districts, Booths, ElectionHistory) are read-only public. CMS collections (Pages, Posts, Media) use Payload's admin panel with live preview.
+
+5. **Plugins** (`src/plugins/index.ts`): SEO, redirects, nested docs, form builder, search (Posts only), and Azure Blob Storage (conditional — only active when `AZURE_STORAGE_CONNECTION_STRING` is set).
+
+6. **Analytics** (`src/analytics/`): Standardized event system supporting PostHog, Mixpanel, Clarity, and GA4. Import from `@/analytics`. Uses `events.{namespace}.{action}()` pattern with `setPageContext()` per page. All event/property names are snake_case.
+
+7. **Path alias**: `@/*` maps to `src/*` (tsconfig paths). Payload config accessed via `@payload-config`.
+
+### Frontend Route Structure
 
 ```
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
+/                                          # Landing/redirect
+/[stateSlug]/                              # State home (e.g., /tamil-nadu)
+/[stateSlug]/assembly/[district]/[assembly] # Assembly detail
+/[stateSlug]/assembly/.../booths           # Booth listing
+/[stateSlug]/district/[districtSlug]       # District detail
+/[stateSlug]/assembly-map                  # Interactive map (Leaflet)
+/[stateSlug]/caste-demographics            # Caste census data
+/[stateSlug]/dashboard                     # Dashboard view
+/election-data                             # Cross-state election data table
+/posts/, /pages/, /search, /privacy-policy # CMS content
 ```
 
-## Data Relationships
+### Infrastructure
 
+- **Deployment**: Docker (standalone Next.js) → Azure Container App (0.25 CPU, 0.5Gi)
+- **IaC**: Terraform in `infra/` with remote state in Azure Blob Storage
+- **CI/CD**: GitHub Actions (`terraform-deploy.yml`), plus `x-daily-post.yml` for automated X/Twitter posts
+- **Media storage**: Azure Blob Storage (`@payloadcms/storage-azure`)
+- **Database**: PostgreSQL (external, via `DATABASE_URI`)
+
+## Database Schema
+
+### Data Relationships
 ```
 Districts (38)
   └── Assemblies (234)
@@ -133,91 +77,55 @@ Districts (38)
         └── ElectionHistory (~15.7k candidate records)
 ```
 
-## API Endpoints
+Additional collections: `States`, `Zones`, `Alliances`, `CasteCensus`
 
-All collections are accessible via PayloadCMS REST API:
+### Key Data Conventions
 
-- `GET /api/assemblies` - List assemblies
-- `GET /api/assemblies?where[districtName][contains]=Chennai` - Filter by district
-- `GET /api/election-history?where[assemblyId][equals]=ac001&where[electionYear][equals]=2021` - Get 2021 results for assembly
-- `GET /api/booths?where[assemblyId][equals]=ac001` - Get booths for assembly
+- **Bilingual names**: Stored as "Tamil / English" (e.g., "சென்னை / CHENNAI")
+- **Assembly IDs**: Format `ac001`–`ac234`; District IDs: `dt1`–`dt38`
+- **Election history**: One record per candidate per election year. Query by `assemblyId` + `electionYear`, sort by `candidateVotes` DESC to get results.
+- **Voters JSON**: Contains `{ male, female, trans, total, isReservedAc }` for SC/ST reserved constituency flag
+- **Elected MLAs**: JSON array in assemblies with historical MLA + party data
 
-## Notes for Future Development
+### API Access
 
-1. **Election History Structure**: Each candidate is a separate record. To get election results, query by `assemblyId` + `electionYear` and sort by `candidateVotes` DESC.
-
-2. **Bilingual Names**: Assembly and district names are stored as "Tamil / English" format (e.g., "சென்னை / CHENNAI").
-
-3. **Reserved Constituencies**: The `isReservedAc` flag in voters JSON indicates SC/ST reserved constituencies.
-
-4. **Elected MLAs**: The `electedMla` JSON array in assemblies contains historical MLA data with party information.
-
----
-
-## Design Principles - BBC News Style
-
-The frontend follows a **BBC News-inspired design language** emphasizing clarity, minimalism, and professionalism.
-
-### Color Palette
-
-| Token          | Value                 | Usage                                 |
-| -------------- | --------------------- | ------------------------------------- |
-| Primary/Accent | `#BB1919` / `red-600` | Borders, badges, important indicators |
-| Background     | `white`               | Page/card backgrounds                 |
-| Foreground     | `hsl(0, 0%, 10%)`     | Primary text                          |
-| Muted          | `gray-500`            | Secondary icons, muted text           |
-
-### Typography
-
-- **Headlines**: `text-2xl` to `text-3xl`, `font-bold`
-- **Section Headers**: `text-lg font-bold` with red left border
-- **Labels**: `uppercase tracking-wide text-xs`
-
-### Section Headers
-
-All section headers use a red left border:
-
-```tsx
-<h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">Section Title</h2>
+PayloadCMS REST API on all collections:
+```
+GET /api/assemblies?where[districtName][contains]=Chennai
+GET /api/election-history?where[assemblyId][equals]=ac001&where[electionYear][equals]=2021
+GET /api/booths?where[assemblyId][equals]=ac001
 ```
 
-### Cards
+## Migration Scripts
 
-- Minimal borders (`border border-border`)
-- Small radius (`rounded` = 0.25rem global)
-- No heavy shadows
-- White backgrounds
+Data was migrated from Supabase. Source: `AssemblyDataTable`, `AssemblyHistoricDataTable_V4` (V4 only), `BoothDataTable`.
 
-### Buttons
+```bash
+pnpm exec tsx scripts/migrate-supabase.ts              # Full migration
+pnpm exec tsx scripts/migrate-supabase.ts --include-booths  # Include booths (~2h)
+pnpm exec tsx scripts/migrate-remaining.ts             # Fill gaps
+pnpm exec tsx scripts/verify-migration.ts              # Verify counts
+```
 
-| Variant   | Hover Style                              |
-| --------- | ---------------------------------------- |
-| `ghost`   | `bg-gray-100`                            |
-| `outline` | Red border + text + light red background |
+Requires `SUPABASE_URL` and `SUPABASE_ANON_KEY` env vars.
 
-### Icons
+## Design Principles — BBC News Style
 
-- General: `text-gray-500`
-- Accent contexts: `text-red-600` with `bg-red-50` container
+The frontend follows a **BBC News-inspired design language**: clarity, minimalism, professionalism.
 
-### Charts (Recharts)
+### Core Rules
 
-- Rounded bar tops: `radius={[4, 4, 0, 0]}`
-- Horizontal-only grid: `vertical={false}`
-- No axis lines: `axisLine={false} tickLine={false}`
-- Circular legends: `iconType="circle"`
-- Tooltip: White background, red header
-
-### Header
-
-- Sticky: `sticky top-0 z-50`
-- Red top border: `border-t-4 border-red-600`
-- White background with shadow
+- **Accent color**: `#BB1919` / `red-600` — used for borders, badges, indicators
+- **Section headers**: Always use red left border: `border-l-4 border-red-600 pl-3`
+- **Cards**: Minimal borders (`border border-border`), small radius (`rounded`), white bg, no heavy shadows
+- **Typography**: Headlines `text-2xl`–`text-3xl font-bold`, labels `uppercase tracking-wide text-xs`
+- **Icons**: Default `text-gray-500`; accent contexts use `text-red-600` with `bg-red-50`
+- **Charts** (Recharts): Rounded bar tops, horizontal-only grid, no axis lines, circular legends, white tooltip with red header
+- **Header**: `sticky top-0 z-50`, red top border (`border-t-4 border-red-600`), white bg with shadow
 
 ### Don'ts
 
-❌ Heavy shadows or gradients on cards
-❌ Colorful icon backgrounds (use gray)
-❌ Overuse vertical left-border lines
-❌ Large border-radius (keep minimal)
-❌ Neumorphic or glassmorphism effects
+- No heavy shadows or gradients on cards
+- No colorful icon backgrounds (use gray)
+- No large border-radius (keep minimal)
+- No neumorphic or glassmorphism effects
