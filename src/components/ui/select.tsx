@@ -2,7 +2,7 @@
 
 import { cn } from '@/utilities/ui'
 import * as SelectPrimitive from '@radix-ui/react-select'
-import { Check, ChevronDown, ChevronUp } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, X } from 'lucide-react'
 import * as React from 'react'
 
 const Select = SelectPrimitive.Root
@@ -72,7 +72,22 @@ const SelectContent: React.FC<
       ref={ref}
       {...props}
     >
-      <SelectScrollUpButton />
+      <div className="flex items-center justify-between px-1">
+        <SelectScrollUpButton />
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            // Find the trigger button and click it to close
+            const trigger = document.querySelector('[data-radix-select-trigger]') as HTMLButtonElement
+            trigger?.click()
+          }}
+          className="p-1 hover:bg-accent rounded transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4 opacity-50 hover:opacity-100" />
+        </button>
+      </div>
       <SelectPrimitive.Viewport
         className={cn(
           'p-1',

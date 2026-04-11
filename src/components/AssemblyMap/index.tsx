@@ -368,6 +368,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
   const [showDistrictDropdown, setShowDistrictDropdown] = useState(false)
   const [showDistrictBoundaries, setShowDistrictBoundaries] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [hideElectionYearHint, setHideElectionYearHint] = useState(false)
   // Election overlay state
   const [selectedElectionYear, setSelectedElectionYear] = useState<number | null>(null)
   const [electionResults, setElectionResults] = useState<
@@ -1840,15 +1841,26 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
               </div>
             )}
             {/* Empty State Hint - shown when no election year is selected */}
-            {!selectedElectionYear && !compareMode && (
+            {!selectedElectionYear && !compareMode && !hideElectionYearHint && (
               <div className="absolute inset-0 z-[1000] pointer-events-none flex items-center justify-center">
-                <div className="bg-white/90 dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-6 py-4 text-center backdrop-blur-sm">
-                  <p className="text-gray-600 dark:text-gray-300 text-sm font-medium mb-1">
-                    🗳️ Select an election year
-                  </p>
-                  <p className="text-gray-400 dark:text-gray-500 text-xs">
-                    to see party-wise results on the map
-                  </p>
+                <div className="bg-white/90 dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-6 py-4 text-center backdrop-blur-sm pointer-events-auto flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="text-gray-600 dark:text-gray-300 text-sm font-medium mb-1">
+                        🗳️ Select an election year
+                      </p>
+                      <p className="text-gray-400 dark:text-gray-500 text-xs">
+                        to see party-wise results on the map
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setHideElectionYearHint(true)}
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors flex-shrink-0"
+                      aria-label="Close hint"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
