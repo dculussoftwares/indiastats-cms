@@ -108,9 +108,15 @@ jobs:
           cat > capture.cjs << 'ENDOFSCRIPT'
           const puppeteer = require('puppeteer');
           const fs = require('fs');
-          
+
           const ASSEMBLY_ID = process.env.ASSEMBLY_ID;
           const SITE_URL = process.env.SITE_URL;
+
+          // 8 templates to post sequentially
+          // Timeline, Did You Know, Fight Night, Election Map, Analytics, Breaking News, Newspaper, Bold Classic
+          const TEMPLATES = ['card21', 'card18', 'card17', 'card16', 'card13', 'card9', 'card4', 'card1'];
+          const CURRENT_TEMPLATE_INDEX = parseInt(process.env.TEMPLATE_INDEX) || 0;
+          const CARD_TEMPLATE = TEMPLATES[CURRENT_TEMPLATE_INDEX % TEMPLATES.length];
           
           // Assembly to District mapping
           const DISTRICT_MAP = {
@@ -153,12 +159,13 @@ jobs:
             }
             return 'dt7';
           }
-          
+
           (async () => {
-            const districtId = getDistrictForAssembly(ASSEMBLY_ID);
-            const pageUrl = SITE_URL + '/tamil-nadu/assembly/' + districtId + '/' + ASSEMBLY_ID;
-            
+            // Use x-card route to render specific template
+            const pageUrl = SITE_URL + '/x-card/' + ASSEMBLY_ID + '?template=' + CARD_TEMPLATE;
+
             console.log('Opening: ' + pageUrl);
+            console.log('Template: ' + CARD_TEMPLATE + ' (Index: ' + CURRENT_TEMPLATE_INDEX + ')');
             
             const browser = await puppeteer.launch({
               headless: true,
@@ -166,8 +173,8 @@ jobs:
             });
             
             const page = await browser.newPage();
-            // Set high deviceScaleFactor (3x) for crisp, high-resolution screenshots
-            await page.setViewport({ width: 1400, height: 900, deviceScaleFactor: 3 });
+            // Set viewport to match card aspect ratio (1024:512) with 2x scaling for clarity
+            await page.setViewport({ width: 1024, height: 512, deviceScaleFactor: 2 });
             
             try {
               await page.goto(pageUrl, { waitUntil: 'networkidle2', timeout: 60000 });
@@ -176,65 +183,41 @@ jobs:
               await page.evaluate(() => document.fonts.ready);
               console.log('Fonts loaded');
               
-              await page.waitForSelector('h1', { timeout: 10000 });
-              const assemblyName = await page.$eval('h1', el => el.textContent.trim());
-              
-              // Click Quick View button
-              await page.waitForSelector('button', { timeout: 5000 });
-              const buttons = await page.$$('button');
-              for (const btn of buttons) {
-                const text = await btn.evaluate(el => el.textContent);
-                if (text && text.includes('Quick View')) {
-                  await btn.click();
-                  break;
-                }
+              // Wait for card element to render
+              await page.waitForSelector('[data-card]', { timeout: 10000 });
+              console.log('Card element found');
+
+              // Extract assembly name from h1
+              let assemblyName = ASSEMBLY_ID;
+              try {
+                assemblyName = await page.$eval('h1', el => el.textContent.trim());
+              } catch (e) {
+                console.warn('Could not extract assembly name');
               }
-              
-              // Wait for modal animation and fonts to fully render
-              await new Promise(r => setTimeout(r, 2000));
-              // Wait again for any lazy-loaded fonts in the modal
+
+              // Wait for fonts to load
               await page.evaluate(() => document.fonts.ready);
-              await new Promise(r => setTimeout(r, 1000));
-              
-              // Find and screenshot the card
+              await new Promise(r => setTimeout(r, 500));
+
+              // Screenshot the card element
               const cardElement = await page.$('[data-card]');
               if (cardElement) {
                 await cardElement.screenshot({ path: 'quick-view.png', type: 'png' });
-                console.log('Quick View screenshot captured!');
+                console.log('Card screenshot captured!');
               } else {
-                await page.screenshot({ path: 'quick-view.png', clip: { x: 0, y: 0, width: 800, height: 600 } });
-                console.log('Fallback screenshot captured');
+                await page.screenshot({ path: 'quick-view.png' });
+                console.log('Full page screenshot captured');
               }
               
               fs.writeFileSync('assembly-info.json', JSON.stringify({
                 assemblyId: ASSEMBLY_ID,
-                assemblyName: assemblyName || ASSEMBLY_ID,
-                districtId: districtId,
-                pageUrl: pageUrl
+                assemblyName: assemblyName,
+                pageUrl: pageUrl,
+                template: CARD_TEMPLATE,
+                templateIndex: CURRENT_TEMPLATE_INDEX
               }));
-              
-              // Try to extract district name from the page
-              let districtName = '';
-              try {
-                districtName = await page.$eval('[data-district-name]', el => el.textContent.trim());
-              } catch {
-                // Try alternative selector - look for district in breadcrumb or header
-                try {
-                  const pageText = await page.evaluate(() => document.body.innerText);
-                  const districtMatch = pageText.match(/District:\s*([A-Za-z\s]+)/i);
-                  if (districtMatch) districtName = districtMatch[1].trim();
-                } catch {}
-              }
-              
-              fs.writeFileSync('assembly-info.json', JSON.stringify({
-                assemblyId: ASSEMBLY_ID,
-                assemblyName: assemblyName || ASSEMBLY_ID,
-                districtId: districtId,
-                districtName: districtName,
-                pageUrl: pageUrl
-              }));
-              
-              console.log('Assembly: ' + assemblyName + ', District: ' + districtId + ' (' + districtName + ')');
+
+              console.log('Assembly: ' + assemblyName + ', Template: ' + CARD_TEMPLATE);
               
             } catch (error) {
               console.error('Error:', error.message);
@@ -248,10 +231,11 @@ jobs:
           ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
           SITE_URL: ${{ env.SITE_URL }}
 
-      - name: Capture Quick View screenshot
+      - name: Capture Card screenshot with template
         run: node capture.cjs
         env:
           ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
+          TEMPLATE_INDEX: ${{ steps.get-assembly.outputs.next_index }}
           SITE_URL: ${{ env.SITE_URL }}
 
       - name: Create post script
@@ -466,12 +450,24 @@ jobs:
              '.lastPostedIndex = $idx | .history += [{"date": $date, "assembly": $assembly}]' \
              $STATE_FILE > tmp.json && mv tmp.json $STATE_FILE
 
+      - name: Update template state
+        run: |
+          TEMPLATE_INDEX=${{ steps.get-assembly.outputs.next_index }}
+          TEMPLATE_NAMES='["Timeline", "Did You Know", "Fight Night", "Election Map", "Analytics", "Breaking News", "Newspaper", "Bold Classic"]'
+          NEXT_TEMPLATE_INDEX=$(( (TEMPLATE_INDEX + 1) % 8 ))
+          TEMPLATE_NAME=$(echo $TEMPLATE_NAMES | jq -r ".[$TEMPLATE_INDEX]")
+
+          echo "Posted template: $TEMPLATE_NAME (index: $TEMPLATE_INDEX)"
+          echo "Next template index: $NEXT_TEMPLATE_INDEX"
+
+          jq --argjson idx "$NEXT_TEMPLATE_INDEX" '.lastTemplateIndex = $idx' .github/x-post-template-state.json > /tmp/state.json && mv /tmp/state.json .github/x-post-template-state.json
+
       - name: Commit updated state
         if: ${{ steps.get-assembly.outputs.next_index != '-1' }}
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add .github/x-post-state.json
-          git commit -m "chore: posted X card for ${{ steps.get-assembly.outputs.assembly_id }} [skip ci]" || echo "No changes"
+          git add .github/x-post-state.json .github/x-post-template-state.json
+          git commit -m "chore: posted X card for ${{ steps.get-assembly.outputs.assembly_id }} with sequential templates [skip ci]" || echo "No changes"
           git push
 
