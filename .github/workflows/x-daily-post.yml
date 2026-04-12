@@ -31,6 +31,11 @@ on:
 env:
   SITE_URL: https://indiastats.org
 
+# Prevent concurrent runs from racing on the same refresh token
+concurrency:
+  group: x-daily-post
+  cancel-in-progress: false
+
 jobs:
   post-to-x:
     runs-on: ubuntu-latest
@@ -63,12 +68,13 @@ jobs:
           if [ -f .github/x-token.enc ]; then
             echo "Decrypting token from .github/x-token.enc..."
             TOKEN=$(openssl enc -d -aes-256-cbc -pbkdf2 -pass pass:"$PASS" -base64 -in .github/x-token.enc 2>/dev/null | tr -d '\n')
-            if [ -n "$TOKEN" ]; then
+            # Validate the decrypted token looks like a real OAuth2 token (min 20 chars, no null bytes)
+            if [ ${#TOKEN} -ge 20 ]; then
               echo "::add-mask::$TOKEN"
               printf 'REFRESH_TOKEN=%s\n' "$TOKEN" >> $GITHUB_ENV
-              echo "Using token from encrypted file."
+              echo "Using token from encrypted file (length: ${#TOKEN})."
             else
-              echo "Decryption failed, falling back to Secret."
+              echo "Decryption failed or produced invalid token (length: ${#TOKEN}), falling back to Secret."
               printf 'REFRESH_TOKEN=%s\n' "$FALLBACK" >> $GITHUB_ENV
             fi
           else
@@ -319,13 +325,14 @@ jobs:
               client_id: clientId,
             }).toString();
             const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-            const tokenRes = await httpsRequest('api.twitter.com', '/2/oauth2/token', 'POST', refreshBody, {
+            const tokenRes = await httpsRequest('api.x.com', '/2/oauth2/token', 'POST', refreshBody, {
               'Authorization': `Basic ${basicAuth}`,
               'Content-Type': 'application/x-www-form-urlencoded',
             });
             console.log('Token refresh status:', tokenRes.status);
             if (tokenRes.status !== 200) {
-              console.error('Token refresh failed:', JSON.stringify(tokenRes.body));
+              console.error('Token refresh failed (status ' + tokenRes.status + '):', JSON.stringify(tokenRes.body));
+              console.error('Raw response:', tokenRes.rawData.slice(0, 500));
               process.exit(1);
             }
             const { access_token, refresh_token: newRefreshToken } = tokenRes.body;
@@ -391,14 +398,14 @@ jobs:
               tweetPayload.media = { media_ids: mediaIds };
               console.log('📎 Attaching media IDs:', mediaIds);
             }
-            const tweetRes = await httpsRequest('api.twitter.com', '/2/tweets', 'POST', tweetPayload, {
+            const tweetRes = await httpsRequest('api.x.com', '/2/tweets', 'POST', tweetPayload, {
               'Authorization': `Bearer ${access_token}`,
               'Content-Type': 'application/json',
             });
             console.log('Tweet response status:', tweetRes.status);
             console.log('Tweet response body:', JSON.stringify(tweetRes.body, null, 2));
             if (tweetRes.status !== 201) {
-              console.error('❌ Tweet failed!');
+              console.error('❌ Tweet failed! Raw:', tweetRes.rawData.slice(0, 500));
               process.exit(1);
             }
             console.log('✅ Tweet posted! ID:', tweetRes.body.data?.id);
