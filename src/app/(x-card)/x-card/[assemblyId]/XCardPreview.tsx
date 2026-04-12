@@ -2730,7 +2730,19 @@ export function XCardPreview({ data, selectedTemplate }: Props) {
   if (selectedTemplate) {
     const tmpl = templates.find((t) => t.id === selectedTemplate)
     if (tmpl) {
-      return <div style={{ padding: 0, display: 'inline-block' }}>{tmpl.component}</div>
+      return (
+        <div style={{ padding: 0, display: 'inline-block' }}>
+          <div
+            data-assembly-meta
+            data-name={cleanName(data.name)}
+            data-district={cleanName(data.districtName)}
+            data-district-id={data.districtId}
+            data-assembly-id={data.assemblyId}
+            style={{ display: 'none' }}
+          />
+          {tmpl.component}
+        </div>
+      )
     }
   }
 

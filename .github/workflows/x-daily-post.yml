@@ -191,13 +191,26 @@ jobs:
               await page.waitForSelector('[data-card]', { timeout: 10000 });
               console.log('Card element found');
 
-              // Extract assembly name from h1
+              // Extract assembly metadata from hidden data-assembly-meta element
               let assemblyName = ASSEMBLY_ID;
+              let districtName = '';
+              let districtId = getDistrictForAssembly(ASSEMBLY_ID);
               try {
-                assemblyName = await page.$eval('h1', el => el.textContent.trim());
+                const meta = await page.$eval('[data-assembly-meta]', el => ({
+                  name: el.dataset.name,
+                  district: el.dataset.district,
+                  districtId: el.dataset.districtId,
+                }));
+                if (meta.name) assemblyName = meta.name;
+                if (meta.district) districtName = meta.district;
+                if (meta.districtId) districtId = meta.districtId;
+                console.log('Extracted: ' + assemblyName + ' / ' + districtName + ' (' + districtId + ')');
               } catch (e) {
-                console.warn('Could not extract assembly name');
+                console.warn('Could not extract assembly metadata, using fallback');
               }
+
+              // Build the real assembly page URL (not x-card URL)
+              const assemblyPageUrl = SITE_URL + '/tamil-nadu/assembly/' + districtId + '/' + ASSEMBLY_ID;
 
               // Wait for fonts to load
               await page.evaluate(() => document.fonts.ready);
@@ -216,12 +229,14 @@ jobs:
               fs.writeFileSync('assembly-info.json', JSON.stringify({
                 assemblyId: ASSEMBLY_ID,
                 assemblyName: assemblyName,
-                pageUrl: pageUrl,
+                districtName: districtName,
+                districtId: districtId,
+                pageUrl: assemblyPageUrl,
                 template: CARD_TEMPLATE,
                 templateIndex: CURRENT_TEMPLATE_INDEX
               }));
 
-              console.log('Assembly: ' + assemblyName + ', Template: ' + CARD_TEMPLATE);
+              console.log('Assembly: ' + assemblyName + ' | District: ' + districtName + ' | Template: ' + CARD_TEMPLATE);
               
             } catch (error) {
               console.error('Error:', error.message);
@@ -378,17 +393,45 @@ jobs:
             }
 
             // --- 3. Build tweet text ---
-            const assemblyTag = info.assemblyName.replace(/[^a-zA-Z0-9]/g, '').slice(0, 30);
-            const districtTag = (info.districtName || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
-            const dynamicTags = (districtTag ? '#' + districtTag + ' ' : '') + (assemblyTag ? '#' + assemblyTag + ' ' : '');
+            // X allows 280 chars; URLs always count as 23 chars (t.co)
+            const name = info.assemblyName || info.assemblyId;
+            const district = info.districtName || '';
 
-            const text = '📊 Assembly Spotlight: ' + info.assemblyName + '\n\n' +
-              '🗳️ Tamil Nadu Elections Data\n' +
-              'Explore detailed history & voting patterns\n\n' +
-              '🔗 ' + info.pageUrl + '\n\n' +
-              dynamicTags + '#IndiaStats #TamilNadu #ADMK #DMK #BJP';
+            // Clean tags: only ASCII alphanumeric
+            const assemblyTag = name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 25);
+            const districtTag = district.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
 
-            console.log('Tweet (' + text.length + ' chars):\n' + text + '\n---');
+            // Varied opening lines to avoid repetitive content
+            const OPENERS = [
+              '🗳️ ' + name + ' Constituency, Tamil Nadu',
+              '📍 Spotlight: ' + name + ', Tamil Nadu',
+              '🏛️ Know Your Constituency: ' + name,
+              '📊 Election Deep Dive — ' + name + ', TN',
+              '🔍 ' + name + ' Assembly, Tamil Nadu',
+              '📌 Constituency Profile: ' + name + ', TN',
+            ];
+            const opener = OPENERS[parseInt(info.templateIndex || '0') % OPENERS.length];
+
+            const body =
+              'Explore election history, vote shares, winning margins & voter turnout across every election since 1977.';
+
+            const tags = [
+              assemblyTag ? '#' + assemblyTag : '',
+              districtTag && districtTag !== assemblyTag ? '#' + districtTag : '',
+              '#TamilNaduElections',
+              '#IndiaStats',
+              '#TamilNaduPolitics',
+            ].filter(Boolean).join(' ');
+
+            // URL counts as 23 chars; calculate actual budget
+            const URL_COST = 23;
+            const base = opener + '\n\n' + body + '\n\n👉 ' + info.pageUrl + '\n\n' + tags;
+            // Trim body if ever over 280 (safeguard)
+            const budget = 280 - (opener.length + 2 + URL_COST + 2 + tags.length + 6); // 6 = '\n\n👉 \n\n'
+            const trimmedBody = body.length > budget ? body.slice(0, budget - 1) + '…' : body;
+            const text = opener + '\n\n' + trimmedBody + '\n\n👉 ' + info.pageUrl + '\n\n' + tags;
+
+            console.log('Tweet (' + text.length + ' chars, URL counts as ' + URL_COST + '):\n' + text + '\n---');
 
             // --- 4. Post tweet with media ---
             const tweetPayload = { text };
