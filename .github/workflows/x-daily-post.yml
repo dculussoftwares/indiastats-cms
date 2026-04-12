@@ -103,6 +103,15 @@ jobs:
           ASSEMBLY_NUM=$((NEXT_INDEX + 1))
           ASSEMBLY_ID=$(printf "ac%03d" $ASSEMBLY_NUM)
           
+          # Force Timeline (card21) at 7am IST slot (01:xx UTC) every day
+          UTC_HOUR=$(date -u +%H)
+          if [ "$UTC_HOUR" = "01" ]; then
+            echo "force_timeline=true" >> $GITHUB_OUTPUT
+            echo "Forcing Timeline template for 7am IST slot"
+          else
+            echo "force_timeline=false" >> $GITHUB_OUTPUT
+          fi
+
           echo "next_index=$NEXT_INDEX" >> $GITHUB_OUTPUT
           echo "assembly_id=$ASSEMBLY_ID" >> $GITHUB_OUTPUT
           echo "Posting assembly: $ASSEMBLY_ID (index: $NEXT_INDEX)"
@@ -120,7 +129,10 @@ jobs:
           // Timeline, Did You Know, Fight Night, Election Map, Analytics, Breaking News, Newspaper, Bold Classic
           const TEMPLATES = ['card21', 'card18', 'card17', 'card16', 'card13', 'card9', 'card4', 'card1'];
           const CURRENT_TEMPLATE_INDEX = parseInt(process.env.TEMPLATE_INDEX) || 0;
-          const CARD_TEMPLATE = TEMPLATES[CURRENT_TEMPLATE_INDEX % TEMPLATES.length];
+          // Force Timeline (card21) at the 7am IST daily slot so it posts at least once per day
+          const FORCE_TIMELINE = process.env.FORCE_TIMELINE === 'true';
+          const CARD_TEMPLATE = FORCE_TIMELINE ? 'card21' : TEMPLATES[CURRENT_TEMPLATE_INDEX % TEMPLATES.length];
+          if (FORCE_TIMELINE) console.log('Timeline template forced for 7am IST slot');
           
           // Assembly to District mapping
           const DISTRICT_MAP = {
@@ -275,6 +287,7 @@ jobs:
         env:
           ASSEMBLY_ID: ${{ steps.get-assembly.outputs.assembly_id }}
           TEMPLATE_INDEX: ${{ steps.get-assembly.outputs.next_index }}
+          FORCE_TIMELINE: ${{ steps.get-assembly.outputs.force_timeline }}
           SITE_URL: ${{ env.SITE_URL }}
 
       - name: Create post script
