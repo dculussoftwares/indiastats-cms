@@ -165,9 +165,49 @@ jobs:
           }
 
           (async () => {
+            const https = require('https');
+
+            // --- 0. Fetch assembly info from dedicated API endpoint ---
+            function fetchJson(url) {
+              return new Promise((resolve, reject) => {
+                https.get(url, res => {
+                  const chunks = [];
+                  res.on('data', c => chunks.push(c));
+                  res.on('end', () => {
+                    try { resolve(JSON.parse(Buffer.concat(chunks).toString('utf8'))); }
+                    catch(e) { reject(e); }
+                  });
+                }).on('error', reject);
+              });
+            }
+
+            let assemblyName = ASSEMBLY_ID;
+            let districtName = '';
+            let districtId = getDistrictForAssembly(ASSEMBLY_ID);
+            let assemblyPageUrl = SITE_URL + '/tamil-nadu/assembly/' + districtId + '/' + ASSEMBLY_ID;
+            let lastElection = null;
+
+            try {
+              const apiUrl = SITE_URL + '/api/assembly-info/' + ASSEMBLY_ID;
+              console.log('Fetching: ' + apiUrl);
+              const info = await fetchJson(apiUrl);
+              if (info && info.name) {
+                assemblyName = info.name;
+                districtName = info.districtName || '';
+                districtId = info.districtId || districtId;
+                assemblyPageUrl = SITE_URL + info.pageUrl;
+                lastElection = info.lastElection || null;
+                console.log('Got: ' + assemblyName + ' / ' + districtName + ' (' + districtId + ')');
+                if (lastElection) {
+                  console.log('Last election ' + lastElection.year + ': ' + lastElection.winner + ' (' + lastElection.party + ')');
+                }
+              }
+            } catch (e) {
+              console.warn('API fetch failed, using DISTRICT_MAP fallback:', e.message);
+            }
+
             // Use x-card route to render specific template
             const pageUrl = SITE_URL + '/x-card/' + ASSEMBLY_ID + '?template=' + CARD_TEMPLATE;
-
             console.log('Opening: ' + pageUrl);
             console.log('Template: ' + CARD_TEMPLATE + ' (Index: ' + CURRENT_TEMPLATE_INDEX + ')');
             
@@ -191,27 +231,6 @@ jobs:
               await page.waitForSelector('[data-card]', { timeout: 10000 });
               console.log('Card element found');
 
-              // Extract assembly metadata from hidden data-assembly-meta element
-              let assemblyName = ASSEMBLY_ID;
-              let districtName = '';
-              let districtId = getDistrictForAssembly(ASSEMBLY_ID);
-              try {
-                const meta = await page.$eval('[data-assembly-meta]', el => ({
-                  name: el.dataset.name,
-                  district: el.dataset.district,
-                  districtId: el.dataset.districtId,
-                }));
-                if (meta.name) assemblyName = meta.name;
-                if (meta.district) districtName = meta.district;
-                if (meta.districtId) districtId = meta.districtId;
-                console.log('Extracted: ' + assemblyName + ' / ' + districtName + ' (' + districtId + ')');
-              } catch (e) {
-                console.warn('Could not extract assembly metadata, using fallback');
-              }
-
-              // Build the real assembly page URL (not x-card URL)
-              const assemblyPageUrl = SITE_URL + '/tamil-nadu/assembly/' + districtId + '/' + ASSEMBLY_ID;
-
               // Wait for fonts to load
               await page.evaluate(() => document.fonts.ready);
               await new Promise(r => setTimeout(r, 500));
@@ -232,6 +251,7 @@ jobs:
                 districtName: districtName,
                 districtId: districtId,
                 pageUrl: assemblyPageUrl,
+                lastElection: lastElection,
                 template: CARD_TEMPLATE,
                 templateIndex: CURRENT_TEMPLATE_INDEX
               }));
@@ -396,12 +416,13 @@ jobs:
             // X allows 280 chars; URLs always count as 23 chars (t.co)
             const name = info.assemblyName || info.assemblyId;
             const district = info.districtName || '';
+            const le = info.lastElection; // { year, winner, party } | null
 
             // Clean tags: only ASCII alphanumeric
             const assemblyTag = name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 25);
             const districtTag = district.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
 
-            // Varied opening lines to avoid repetitive content
+            // Varied opening lines to avoid repetitive content (cycles through templates)
             const OPENERS = [
               '🗳️ ' + name + ' Constituency, Tamil Nadu',
               '📍 Spotlight: ' + name + ', Tamil Nadu',
@@ -412,8 +433,12 @@ jobs:
             ];
             const opener = OPENERS[parseInt(info.templateIndex || '0') % OPENERS.length];
 
-            const body =
-              'Explore election history, vote shares, winning margins & voter turnout across every election since 1977.';
+            // Body: include last election fact if available
+            const electionFact = le
+              ? 'Last won in ' + le.year + ' by ' + le.winner + ' (' + le.party + ').'
+              : '';
+            const baseBody = 'Explore election history, vote shares, winning margins & voter turnout since 1977.';
+            const body = electionFact ? electionFact + '\n' + baseBody : baseBody;
 
             const tags = [
               assemblyTag ? '#' + assemblyTag : '',
@@ -425,9 +450,7 @@ jobs:
 
             // URL counts as 23 chars; calculate actual budget
             const URL_COST = 23;
-            const base = opener + '\n\n' + body + '\n\n👉 ' + info.pageUrl + '\n\n' + tags;
-            // Trim body if ever over 280 (safeguard)
-            const budget = 280 - (opener.length + 2 + URL_COST + 2 + tags.length + 6); // 6 = '\n\n👉 \n\n'
+            const budget = 280 - (opener.length + 2 + URL_COST + 2 + tags.length + 6);
             const trimmedBody = body.length > budget ? body.slice(0, budget - 1) + '…' : body;
             const text = opener + '\n\n' + trimmedBody + '\n\n👉 ' + info.pageUrl + '\n\n' + tags;
 
