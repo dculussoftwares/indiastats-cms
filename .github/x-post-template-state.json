@@ -1,14 +1,38 @@
 {
-  "lastTemplateIndex": 0,
+  "lastTemplateIndex": 4,
   "templates": [
-    {"id": "card21", "name": "Timeline"},
-    {"id": "card18", "name": "Did You Know"},
-    {"id": "card17", "name": "Fight Night"},
-    {"id": "card16", "name": "Election Map"},
-    {"id": "card13", "name": "Analytics"},
-    {"id": "card9", "name": "Breaking News"},
-    {"id": "card4", "name": "Newspaper"},
-    {"id": "card1", "name": "Bold Classic"}
+    {
+      "id": "card21",
+      "name": "Timeline"
+    },
+    {
+      "id": "card18",
+      "name": "Did You Know"
+    },
+    {
+      "id": "card17",
+      "name": "Fight Night"
+    },
+    {
+      "id": "card16",
+      "name": "Election Map"
+    },
+    {
+      "id": "card13",
+      "name": "Analytics"
+    },
+    {
+      "id": "card9",
+      "name": "Breaking News"
+    },
+    {
+      "id": "card4",
+      "name": "Newspaper"
+    },
+    {
+      "id": "card1",
+      "name": "Bold Classic"
+    }
   ],
   "description": "Cycles through 8 specific templates sequentially"
 }
