@@ -64,7 +64,7 @@ variable "posthog_host" {
   description = "PostHog API Host URL"
   type        = string
   sensitive   = false
-  default     = "https://eu.i.posthog.com"
+  default     = "https://t.indiastats.org"
 }
 
 variable "ga_id" {
