@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { buildFriendShareLink, SHARE_PRESETS } from '@/utilities/utm'
+import { buildFriendShareLink, buildUTMUrl, SHARE_PRESETS } from '@/utilities/utm'
 import {
   Copy,
   Check,
@@ -19,6 +19,7 @@ import {
   Linkedin,
   Mail,
   Youtube,
+  Zap,
 } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -229,6 +230,47 @@ export function SharePageClient() {
               {page.label}
             </button>
           ))}
+        </CardContent>
+      </Card>
+
+      {/* Quick share links (no friend name) */}
+      <Card className="border border-border rounded">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Zap className="h-4 w-4 text-red-600" />
+            Quick share links
+            <span className="text-xs font-normal text-muted-foreground ml-1">— no name needed</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {Object.keys(SHARE_PRESETS).map((channel) => {
+            const meta = CHANNEL_META[channel]
+            if (!meta) return null
+            const url = buildUTMUrl(baseUrl, channel)
+            return (
+              <div key={channel} className="flex items-center gap-2">
+                <div
+                  className={`flex items-center gap-1.5 px-2 py-1 rounded border text-xs font-medium w-32 shrink-0 ${meta.color}`}
+                >
+                  {meta.icon}
+                  {meta.label}
+                </div>
+                <input
+                  readOnly
+                  value={url}
+                  className="flex-1 text-xs bg-muted px-2 py-1 rounded border border-border font-mono truncate"
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
+                <CopyButton
+                  url={url}
+                  friendId="__quick__"
+                  channel={channel}
+                  copied={copied}
+                  onCopy={handleCopy}
+                />
+              </div>
+            )
+          })}
         </CardContent>
       </Card>
 
