@@ -124,6 +124,7 @@ jobs:
 
           const ASSEMBLY_ID = process.env.ASSEMBLY_ID;
           const SITE_URL = process.env.SITE_URL;
+          const PUBLIC_URL = process.env.PUBLIC_URL;
 
           // 8 templates to post sequentially
           // Timeline, Did You Know, Fight Night, Election Map, Analytics, Breaking News, Newspaper, Bold Classic
@@ -196,7 +197,7 @@ jobs:
             let assemblyName = ASSEMBLY_ID;
             let districtName = '';
             let districtId = getDistrictForAssembly(ASSEMBLY_ID);
-            let assemblyPageUrl = SITE_URL + '/tamil-nadu/assembly/' + districtId + '/' + ASSEMBLY_ID;
+            let assemblyPageUrl = PUBLIC_URL + '/tamil-nadu/assembly/' + districtId + '/' + ASSEMBLY_ID;
             let lastElection = null;
 
             try {
@@ -207,7 +208,7 @@ jobs:
                 assemblyName = info.name;
                 districtName = info.districtName || '';
                 districtId = info.districtId || districtId;
-                assemblyPageUrl = SITE_URL + info.pageUrl;
+                assemblyPageUrl = PUBLIC_URL + info.pageUrl;
                 lastElection = info.lastElection || null;
                 console.log('Got: ' + assemblyName + ' / ' + districtName + ' (' + districtId + ')');
                 if (lastElection) {
@@ -289,6 +290,7 @@ jobs:
           TEMPLATE_INDEX: ${{ steps.get-assembly.outputs.next_index }}
           FORCE_TIMELINE: ${{ steps.get-assembly.outputs.force_timeline }}
           SITE_URL: ${{ secrets.AZURE_APP_URL }}
+          PUBLIC_URL: ${{ env.SITE_URL }}
 
       - name: Create post script
         if: ${{ github.event.inputs.dry_run != 'true' }}
