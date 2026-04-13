@@ -463,11 +463,22 @@ jobs:
               '#TamilNaduPolitics',
             ].filter(Boolean).join(' ');
 
-            // URL counts as 23 chars; calculate actual budget
+            // Add UTM tracking (twitter preset, daily-post campaign — matches src/utilities/utm.ts)
+            const pageUrlWithUtm = (() => {
+              try {
+                const u = new URL(info.pageUrl);
+                u.searchParams.set('utm_source', 'twitter');
+                u.searchParams.set('utm_medium', 'social');
+                u.searchParams.set('utm_campaign', 'daily-post');
+                return u.toString();
+              } catch (_) { return info.pageUrl; }
+            })();
+
+            // URL counts as 23 chars (t.co shortens all URLs regardless of length)
             const URL_COST = 23;
             const budget = 280 - (opener.length + 2 + URL_COST + 2 + tags.length + 6);
             const trimmedBody = body.length > budget ? body.slice(0, budget - 1) + '…' : body;
-            const text = opener + '\n\n' + trimmedBody + '\n\n👉 ' + info.pageUrl + '\n\n' + tags;
+            const text = opener + '\n\n' + trimmedBody + '\n\n👉 ' + pageUrlWithUtm + '\n\n' + tags;
 
             console.log('Tweet (' + text.length + ' chars, URL counts as ' + URL_COST + '):\n' + text + '\n---');
 
