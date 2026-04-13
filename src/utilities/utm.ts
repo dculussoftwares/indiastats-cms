@@ -64,6 +64,11 @@ export const SHARE_PRESETS: Record<string, UTMParams> = {
     utm_medium: 'video',
     utm_campaign: 'organic',
   },
+  reddit: {
+    utm_source: 'reddit',
+    utm_medium: 'social',
+    utm_campaign: 'organic',
+  },
 }
 
 // ─── Build a URL with UTM params ────────────────────────────────────────────
