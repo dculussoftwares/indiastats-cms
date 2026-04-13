@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { ui, getPageContext, setPageContext, PAGE_NAMES, pageViews } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface HomePageClientProps {
@@ -97,6 +97,11 @@ export function HomePageClient({ stats }: HomePageClientProps) {
       page_url: window.location.href,
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
+    })
+    pageViews.homePageViewed({
+      page_name: PAGE_NAMES.HOMEPAGE,
+      page_url: window.location.href,
+      page_path: window.location.pathname,
     })
   }, [])
 

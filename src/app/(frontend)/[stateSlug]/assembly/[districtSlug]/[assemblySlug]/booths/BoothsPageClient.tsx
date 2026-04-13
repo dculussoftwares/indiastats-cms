@@ -13,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowLeft, Search, MapPin, FileText, ExternalLink, Building2 } from 'lucide-react'
-import { ui, getPageContext, setPageContext } from '@/analytics'
+import { ui, getPageContext, setPageContext, pageViews } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface Booth {
@@ -53,6 +53,13 @@ export function BoothsPageClient({
       page_url: window.location.href,
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
+    })
+    pageViews.boothsPageViewed({
+      page_name: 'Booths',
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      page_type: 'other',
+      assembly_id: assemblyId,
     })
   }, [])
 

@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CasteComparisonTable } from '@/components/CasteComparisonTable'
 import { ArrowLeft, ChevronRight, Building2, MapPin, Locate } from 'lucide-react'
-import { ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { ui, getPageContext, setPageContext, PAGE_NAMES, pageViews } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface Assembly {
@@ -89,6 +89,15 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
       page_url: window.location.href,
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
+    })
+    pageViews.districtPageViewed({
+      page_name: PAGE_NAMES.DISTRICT_DETAIL,
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      page_type: 'district',
+      district_id: data.districtId,
+      district_name: data.districtName,
+      assembly_count: data.noOfAssemblies,
     })
   }, [])
 

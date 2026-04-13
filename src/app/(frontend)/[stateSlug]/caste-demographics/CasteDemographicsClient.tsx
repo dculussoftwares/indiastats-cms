@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ArrowLeft, Search, Users, TrendingUp, MapPin, Filter } from 'lucide-react'
-import { ui, search, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { ui, search, getPageContext, setPageContext, PAGE_NAMES, pageViews } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface CasteData {
@@ -56,6 +56,12 @@ export function CasteDemographicsClient({
       page_url: window.location.href,
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
+    })
+    pageViews.casteDemographicsPageViewed({
+      page_name: PAGE_NAMES.CASTE_DEMOGRAPHICS,
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      page_type: 'other',
     })
   }, [])
 

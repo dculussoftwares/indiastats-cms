@@ -13,7 +13,7 @@ import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
 import { TwitterCardModal } from '@/components/TwitterCardModal'
-import { ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { ui, getPageContext, setPageContext, PAGE_NAMES, pageViews } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface Candidate {
@@ -104,6 +104,15 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       page_url: window.location.href,
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
+    })
+    pageViews.assemblyPageViewed({
+      page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      assembly_id: data.assemblyId,
+      assembly_name: data.name,
+      district_id: data.districtId,
+      district_name: data.districtName,
     })
   }, [])
 
