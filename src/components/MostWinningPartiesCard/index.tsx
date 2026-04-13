@@ -9,7 +9,7 @@ import {
   getBlocs,
   getStateByCode,
 } from '@/config/states'
-import { ui, getPageContext } from '@/analytics'
+import { trackClicked, getPageContext } from '@/analytics'
 
 interface Candidate {
   name: string
@@ -520,7 +520,7 @@ export function MostWinningPartiesCard({
             <button
               onClick={() => {
                 const pageContext = getPageContext()
-                ui.buttonClicked({
+                trackClicked({ name: 'button',
                   page_name: pageContext.page_name || 'Election Data',
                   button_name: 'view_by_party',
                   button_label: 'By Party',
@@ -538,7 +538,7 @@ export function MostWinningPartiesCard({
             <button
               onClick={() => {
                 const pageContext = getPageContext()
-                ui.buttonClicked({
+                trackClicked({ name: 'button',
                   page_name: pageContext.page_name || 'Election Data',
                   button_name: 'view_by_alliance',
                   button_label: 'By Alliance Bloc',

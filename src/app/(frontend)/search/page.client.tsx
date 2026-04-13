@@ -1,7 +1,7 @@
 'use client'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import React, { useEffect } from 'react'
-import { pageViews, PAGE_NAMES } from '@/analytics'
+import { trackViewed, PAGE_NAMES } from '@/analytics'
 
 const PageClient: React.FC = () => {
   /* Force the header to be dark mode while we have an image behind it */
@@ -12,7 +12,7 @@ const PageClient: React.FC = () => {
   }, [setHeaderTheme])
 
   useEffect(() => {
-    pageViews.searchPageViewed({
+    trackViewed({ name: 'search_page',
       page_name: PAGE_NAMES.SEARCH_RESULTS,
       page_type: 'search',
       page_url: window.location.href,

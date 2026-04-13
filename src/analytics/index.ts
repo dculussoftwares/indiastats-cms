@@ -21,14 +21,9 @@
 // Core tracking
 export { track, setPageContext, getPageContext, clearPageContext, normalizeEventName, normalizeProperties, identify, setUserProperties, registerProvider } from './tracker'
 
-// Events - namespaced exports
-export {
-  assembly,
-  search,
-  ui,
-  errors,
-  pageViews,
-} from './events'
+// Event tracking functions
+export { trackViewed, trackClicked, trackImpression } from './events'
+export type { ViewedEvent, ClickedEvent, ImpressionEvent } from './events'
 
 // Event types
 export type {

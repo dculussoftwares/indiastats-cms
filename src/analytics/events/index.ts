@@ -3,12 +3,12 @@
  * Centralized export for all standardized event tracking functions
  */
 
-// Export namespaces with explicit names to avoid conflicts
-export { assembly } from './assembly'
-export { search } from './search'
-export { ui } from './ui'
-export { errors } from './errors'
-export { pageViews } from './pageViews'
+export { trackViewed } from './viewed'
+export { trackClicked } from './clicked'
+export { trackImpression } from './impression'
+export type { ViewedEvent } from './viewed'
+export type { ClickedEvent } from './clicked'
+export type { ImpressionEvent } from './impression'
 
 // Re-export types
 export type {
@@ -32,24 +32,19 @@ export type {
  * Namespace for all analytics events
  *
  * @example
- * import { assembly, search, ui, errors, pageViews } from '@/analytics/events'
+ * import { viewed, clicked, impression } from '@/analytics'
  *
- * // Assembly events
- * assembly.viewed({ page_name: 'Assembly', assembly_id: 'ac001', ... })
- *
- * @example
- * // Search events
- * search.performed({ page_name: 'Homepage', search_query: 'Chennai', ... })
+ * // Page views
+ * viewed.assemblyPage({ assembly_id: 'ac001', assembly_name: 'Chennai South', ... })
+ * viewed.homePage({ page_url: '...' })
  *
  * @example
- * // UI events
- * ui.buttonClicked({ page_name: 'Assembly', button_name: 'download', ... })
+ * // User interactions
+ * clicked.button({ page_name: 'Assembly', button_name: 'download', ... })
+ * clicked.searchResult({ search_query: 'Chennai', result_id: 'ac001', ... })
+ * clicked.share({ share_platform: 'twitter', content_type: 'assembly', ... })
  *
  * @example
- * // Error events
- * errors.occurred({ page_name: 'Assembly', error_type: 'network', ... })
- *
- * @example
- * // Page view events
- * pageViews.assemblyPageViewed({ page_name: 'Assembly', assembly_id: 'ac001', ... })
+ * // Passive displays
+ * impression.searchResults({ search_query: 'Chennai', results_count: 5, ... })
  */

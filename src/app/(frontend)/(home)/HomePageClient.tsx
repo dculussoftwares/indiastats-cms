@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ui, getPageContext, setPageContext, PAGE_NAMES, pageViews } from '@/analytics'
+import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface HomePageClientProps {
@@ -98,7 +98,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
     })
-    pageViews.homePageViewed({
+    trackViewed({ name: 'home_page',
       page_name: PAGE_NAMES.HOMEPAGE,
       page_url: window.location.href,
       page_path: window.location.pathname,
@@ -156,7 +156,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                     href="/tamil-nadu/dashboard"
                     onClick={() => {
                       const pageContext = getPageContext()
-                      ui.buttonClicked({
+                      trackClicked({ name: 'button',
                         page_name: pageContext.page_name || 'Homepage',
                         button_name: 'explore_data',
                         button_label: 'Explore Data',
@@ -177,7 +177,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                     href="/tamil-nadu/assembly-map"
                     onClick={() => {
                       const pageContext = getPageContext()
-                      ui.buttonClicked({
+                      trackClicked({ name: 'button',
                         page_name: pageContext.page_name || 'Homepage',
                         button_name: 'interactive_map',
                         button_label: 'Interactive Map',
@@ -224,7 +224,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               className="group"
               onClick={() => {
                 const pageContext = getPageContext()
-                ui.linkClicked({
+                trackClicked({ name: 'link',
                   page_name: pageContext.page_name || 'Homepage',
                   link_name: 'interactive_map_card',
                   link_location: 'features_section',
@@ -301,7 +301,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               className="group"
               onClick={() => {
                 const pageContext = getPageContext()
-                ui.linkClicked({
+                trackClicked({ name: 'link',
                   page_name: pageContext.page_name || 'Homepage',
                   link_name: 'election_data_table_card',
                   link_location: 'features_section',
@@ -364,7 +364,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                       href="/tamil-nadu/dashboard"
                       onClick={() => {
                         const pageContext = getPageContext()
-                        ui.buttonClicked({
+                        trackClicked({ name: 'button',
                           page_name: pageContext.page_name || 'Homepage',
                           button_name: 'start_exploring',
                           button_label: 'Start Exploring',

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Trophy, TrendingUp, Target, Flame, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/utilities/ui'
-import { ui, getPageContext } from '@/analytics'
+import { trackClicked, getPageContext } from '@/analytics'
 
 interface Candidate {
   name: string
@@ -122,7 +122,7 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
     const isOpening = expandedYear !== year
     if (isOpening) {
       const pageContext = getPageContext()
-      ui.buttonClicked({
+      trackClicked({ name: 'button',
         page_name: pageContext.page_name || 'Election Data',
         button_name: 'expand_election_year',
         button_label: `Expand ${year}`,

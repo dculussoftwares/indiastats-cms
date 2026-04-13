@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CasteComparisonTable } from '@/components/CasteComparisonTable'
 import { ArrowLeft, ChevronRight, Building2, MapPin, Locate } from 'lucide-react'
-import { ui, getPageContext, setPageContext, PAGE_NAMES, pageViews } from '@/analytics'
+import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface Assembly {
@@ -90,7 +90,7 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
     })
-    pageViews.districtPageViewed({
+    trackViewed({ name: 'district_page',
       page_name: PAGE_NAMES.DISTRICT_DETAIL,
       page_url: window.location.href,
       page_path: window.location.pathname,
@@ -153,7 +153,7 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
                 href={`/${stateSlug}/assembly-map?district=${encodeURIComponent(data.districtName)}`}
                 onClick={() => {
                   const pageContext = getPageContext()
-                  ui.linkClicked({
+                  trackClicked({ name: 'link',
                     page_name: pageContext.page_name || 'District Detail',
                     link_name: 'view_on_map',
                     link_location: 'district_header',
@@ -273,7 +273,7 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
                     className="flex-1"
                     onClick={() => {
                       const pageContext = getPageContext()
-                      ui.linkClicked({
+                      trackClicked({ name: 'link',
                         page_name: pageContext.page_name || 'District Detail',
                         link_name: 'view_assembly',
                         link_location: 'assembly_card',
@@ -289,7 +289,7 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
                     href={`/${stateSlug}/assembly/${data.districtSlug}/${assembly.assemblySlug}/booths`}
                     onClick={() => {
                       const pageContext = getPageContext()
-                      ui.linkClicked({
+                      trackClicked({ name: 'link',
                         page_name: pageContext.page_name || 'District Detail',
                         link_name: 'view_booths',
                         link_location: 'assembly_card',

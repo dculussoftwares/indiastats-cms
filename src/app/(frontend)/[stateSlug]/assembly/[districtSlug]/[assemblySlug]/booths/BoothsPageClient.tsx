@@ -13,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowLeft, Search, MapPin, FileText, ExternalLink, Building2 } from 'lucide-react'
-import { ui, getPageContext, setPageContext, pageViews } from '@/analytics'
+import { trackViewed, trackClicked, getPageContext, setPageContext } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface Booth {
@@ -54,7 +54,7 @@ export function BoothsPageClient({
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
     })
-    pageViews.boothsPageViewed({
+    trackViewed({ name: 'booths_page',
       page_name: 'Booths',
       page_url: window.location.href,
       page_path: window.location.pathname,
@@ -192,7 +192,7 @@ export function BoothsPageClient({
                               className="inline-flex"
                               onClick={() => {
                                 const pageContext = getPageContext()
-                                ui.linkClicked({
+                                trackClicked({ name: 'link',
                                   page_name: pageContext.page_name || 'Booths',
                                   link_name: 'download_booth_pdf',
                                   link_location: 'booths_table',
@@ -209,7 +209,7 @@ export function BoothsPageClient({
                             href={`/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths/${booth.boothId}`}
                             onClick={() => {
                               const pageContext = getPageContext()
-                              ui.linkClicked({
+                              trackClicked({ name: 'link',
                                 page_name: pageContext.page_name || 'Booths',
                                 link_name: 'view_booth_details',
                                 link_location: 'booths_table',

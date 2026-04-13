@@ -13,7 +13,7 @@ import type { Theme } from './types'
 
 import { useTheme } from '..'
 import { themeLocalStorageKey } from './types'
-import { ui, getPageContext } from '@/analytics'
+import { trackClicked, getPageContext } from '@/analytics'
 
 export const ThemeSelector: React.FC = () => {
   const { setTheme } = useTheme()
@@ -29,7 +29,7 @@ export const ThemeSelector: React.FC = () => {
       setValue(themeToSet)
     }
     const pageContext = getPageContext()
-    ui.themeChanged({
+    trackClicked({ name: 'theme',
       page_name: pageContext.page_name || 'Unknown',
       theme,
     })

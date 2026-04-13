@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, MapPin, FileText, Home, Building2 } from 'lucide-react'
-import { pageViews, PAGE_NAMES } from '@/analytics'
+import { trackViewed, PAGE_NAMES } from '@/analytics'
 
 interface Booth {
   id: string
@@ -38,7 +38,7 @@ export function BoothPageClient({
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
-    pageViews.boothDetailPageViewed({
+    trackViewed({ name: 'booth_detail_page',
       booth_id: boothId,
       page_name: PAGE_NAMES.BOOTH_DETAIL,
       page_type: 'other',

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChevronRight, Search } from 'lucide-react'
-import { assembly, search, ui, getPageContext } from '@/analytics'
+import { trackViewed, trackClicked, getPageContext } from '@/analytics'
 
 export interface District {
   districtId: string
@@ -209,7 +209,7 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     setAssemblyQuery(assembly.name)
     setIsAssemblyOpen(false)
     const pageContext = getPageContext()
-    search.resultClicked({
+    trackClicked({ name: 'search_result',
       page_name: pageContext.page_name || 'Search Results',
       search_query: assembly.name,
       result_id: assembly.assemblyId,
@@ -235,13 +235,13 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
     setIsDirectOpen(false)
     // Unified analytics tracking
     const pageContext = getPageContext()
-    search.performed({
+    trackClicked({ name: 'search',
       page_name: pageContext.page_name || 'Search Results',
       search_query: assembly.name,
       search_type: 'direct',
       results_count: 1,
     })
-    search.resultClicked({
+    trackClicked({ name: 'search_result',
       page_name: pageContext.page_name || 'Search Results',
       search_query: assembly.name,
       result_id: assembly.assemblyId,
@@ -255,7 +255,7 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
   const handleSearchClick = () => {
     if (selectedDistrict && selectedAssembly) {
       const pageContext = getPageContext()
-      assembly.viewed({
+      trackViewed({ name: 'assembly',
         page_name: pageContext.page_name || 'Assembly Detail',
         assembly_id: selectedAssembly.assemblyId,
         assembly_name: selectedAssembly.name,

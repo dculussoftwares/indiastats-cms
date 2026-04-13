@@ -13,7 +13,7 @@ import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
 import { TwitterCardModal } from '@/components/TwitterCardModal'
-import { ui, getPageContext, setPageContext, PAGE_NAMES, pageViews } from '@/analytics'
+import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface Candidate {
@@ -105,7 +105,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
     })
-    pageViews.assemblyPageViewed({
+    trackViewed({ name: 'assembly_page',
       page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
       page_url: window.location.href,
       page_path: window.location.pathname,
@@ -170,7 +170,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
               href={`/${stateSlug}/assembly/${data.districtSlug}/${data.assemblySlug}/booths`}
               onClick={() => {
                 const pageContext = getPageContext()
-                ui.linkClicked({
+                trackClicked({ name: 'link',
                   page_name: pageContext.page_name || 'Assembly Detail',
                   link_name: 'view_booths',
                   link_location: 'assembly_overview',
@@ -328,7 +328,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                   variant="outline"
                   onClick={() => {
                     const pageContext = getPageContext()
-                    ui.buttonClicked({
+                    trackClicked({ name: 'button',
                       page_name: pageContext.page_name || 'Assembly Detail',
                       button_name: 'view_all_history',
                       button_label: 'View all',

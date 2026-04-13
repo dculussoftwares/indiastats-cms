@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Download, Loader2, Eye } from 'lucide-react'
-import { assembly, ui, getPageContext } from '@/analytics'
+import { trackClicked, getPageContext } from '@/analytics'
 
 interface TwitterCardData {
   assemblyId: string
@@ -139,7 +139,7 @@ export function TwitterCardModal({
     setIsOpen(open)
     if (open) {
       const pageContext = getPageContext()
-      assembly.quickViewOpened({
+      trackClicked({ name: 'quick_view',
         page_name: pageContext.page_name || 'Assembly Detail',
         assembly_id: assemblyId,
         assembly_name: assemblyName,
@@ -259,7 +259,7 @@ export function TwitterCardModal({
   const handleDownload = async () => {
     if (!cardRef.current || !cardData) return
     const pageContext = getPageContext()
-    assembly.quickViewDownloaded({
+    trackClicked({ name: 'quick_view_download',
       page_name: pageContext.page_name || 'Assembly Detail',
       assembly_id: assemblyId,
       assembly_name: assemblyName,
@@ -287,7 +287,7 @@ export function TwitterCardModal({
 
   const handleShareTwitter = async () => {
     const pageContext = getPageContext()
-    ui.shareInitiated({
+    trackClicked({ name: 'share',
       page_name: pageContext.page_name || 'Assembly Detail',
       share_platform: 'twitter',
       content_type: 'quick_view',

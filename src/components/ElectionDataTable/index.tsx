@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select'
 import { exportToExcel, flattenElectionDataForExcel } from '@/utilities/excelExport'
 import { getPartyColor } from '@/lib/partyColors'
-import { search, ui, pageViews, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import {
   Download,
   ChevronUp,
@@ -131,7 +131,7 @@ export function ElectionDataTable() {
       page_url: typeof window !== 'undefined' ? window.location.href : '',
       page_path: typeof window !== 'undefined' ? window.location.pathname : '',
     })
-    pageViews.electionDataPageViewed({
+    trackViewed({ name: 'election_data_page',
       page_name: PAGE_NAMES.ELECTION_DATA,
       page_type: 'other',
       page_url: typeof window !== 'undefined' ? window.location.href : '',
@@ -178,7 +178,7 @@ export function ElectionDataTable() {
               className="text-primary hover:underline font-medium inline-flex items-center gap-1"
               onClick={() => {
                 const pageContext = getPageContext()
-                ui.linkClicked({
+                trackClicked({ name: 'link',
                   page_name: pageContext.page_name || 'Election Data',
                   link_name: 'view_assembly',
                   link_location: 'data_table',
@@ -203,7 +203,7 @@ export function ElectionDataTable() {
               className="text-primary hover:underline inline-flex items-center gap-1"
               onClick={() => {
                 const pageContext = getPageContext()
-                ui.linkClicked({
+                trackClicked({ name: 'link',
                   page_name: pageContext.page_name || 'Election Data',
                   link_name: 'view_district',
                   link_location: 'data_table',
@@ -379,7 +379,7 @@ export function ElectionDataTable() {
   const handleExport = () => {
     // Track export action
     const pageContext = getPageContext()
-    ui.buttonClicked({
+    trackClicked({ name: 'button',
       page_name: pageContext.page_name || 'Election Data',
       button_name: 'export_to_excel',
       button_label: 'Export',
@@ -397,7 +397,7 @@ export function ElectionDataTable() {
   // Handle filter changes with tracking
   const handleYearChange = (value: string) => {
     const pageContext = getPageContext()
-    search.filterApplied({
+    trackClicked({ name: 'search_filter',
       page_name: pageContext.page_name || 'Election Data',
       filter_name: 'year',
       filter_value: value,
@@ -407,7 +407,7 @@ export function ElectionDataTable() {
 
   const handleDistrictChange = (value: string) => {
     const pageContext = getPageContext()
-    search.filterApplied({
+    trackClicked({ name: 'search_filter',
       page_name: pageContext.page_name || 'Election Data',
       filter_name: 'district',
       filter_value: value,
@@ -417,7 +417,7 @@ export function ElectionDataTable() {
 
   const handlePartyChange = (value: string) => {
     const pageContext = getPageContext()
-    search.filterApplied({
+    trackClicked({ name: 'search_filter',
       page_name: pageContext.page_name || 'Election Data',
       filter_name: 'party',
       filter_value: value,
@@ -428,7 +428,7 @@ export function ElectionDataTable() {
   // Track X contact link click
   const handleXLinkClick = () => {
     const pageContext = getPageContext()
-    ui.linkClicked({
+    trackClicked({ name: 'link',
       page_name: pageContext.page_name || 'Election Data',
       link_name: 'x_contact',
       link_location: 'data_table_footer',

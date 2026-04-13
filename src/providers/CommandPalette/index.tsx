@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { CommandPalette } from '@/components/CommandPalette'
-import { ui, getPageContext } from '@/analytics'
+import { trackClicked, getPageContext } from '@/analytics'
 
 interface CommandPaletteContextType {
   isOpen: boolean
@@ -26,7 +26,7 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
   const open = useCallback(() => {
     setIsOpen(true)
     const pageContext = getPageContext()
-    ui.commandPaletteOpened({
+    trackClicked({ name: 'command_palette',
       page_name: pageContext.page_name || 'Unknown',
       trigger: 'programmatic',
     })
@@ -40,7 +40,7 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
     setIsOpen((prev) => {
       if (!prev) {
         const pageContext = getPageContext()
-        ui.commandPaletteOpened({
+        trackClicked({ name: 'command_palette',
           page_name: pageContext.page_name || 'Unknown',
           trigger: 'keyboard',
         })

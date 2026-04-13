@@ -2,7 +2,7 @@
 import * as React from 'react'
 import { DistrictSearch, District } from '@/components/DistrictSearch'
 import { AssemblySearch, Assembly } from '@/components/AssemblySearch'
-import { pageViews, PAGE_NAMES } from '@/analytics'
+import { trackViewed, PAGE_NAMES } from '@/analytics'
 
 interface AssemblyData {
   assemblyId: string
@@ -27,7 +27,7 @@ interface DashboardClientProps {
 
 export function DashboardClient({ assemblies, districts, stateSlug }: DashboardClientProps) {
   React.useEffect(() => {
-    pageViews.dashboardPageViewed({
+    trackViewed({ name: 'dashboard_page',
       page_name: PAGE_NAMES.DASHBOARD,
       page_type: 'other',
       page_url: window.location.href,

@@ -12,7 +12,7 @@ import { ElectionInsightsPanel } from '@/components/ElectionInsightsPanel'
 import { ClosestRacesPanel } from '@/components/ClosestRacesPanel'
 import { AllianceSummary } from '@/components/AllianceSummary'
 import { CasteInsightsPanel } from '@/components/CasteInsightsPanel'
-import { ui, search, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { buildAssemblyUrl } from '@/lib/assemblyRouting'
 import './leaflet-style-import'
 
@@ -832,7 +832,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
 
         // Track the assembly click
         const pageContext = getPageContext()
-        ui.linkClicked({
+        trackClicked({ name: 'link',
           page_name: pageContext.page_name || 'Assembly Map',
           link_name: 'view_assembly_from_map',
           link_location: 'interactive_map',
@@ -869,7 +869,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
   const handleAssemblySearch = (value: string) => {
     // Track the search selection
     const pageContext = getPageContext()
-    search.resultClicked({
+    trackClicked({ name: 'search_result',
       page_name: pageContext.page_name || 'Assembly Map',
       search_query: value,
       result_id: value,
@@ -1031,7 +1031,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
     // Track the district filter
     if (district) {
       const pageContext = getPageContext()
-      search.filterApplied({
+      trackClicked({ name: 'search_filter',
         page_name: pageContext.page_name || 'Assembly Map',
         filter_name: 'district',
         filter_value: district,

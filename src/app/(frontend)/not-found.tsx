@@ -3,11 +3,11 @@ import Link from 'next/link'
 import React, { useEffect } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { pageViews, PAGE_NAMES } from '@/analytics'
+import { trackViewed, PAGE_NAMES } from '@/analytics'
 
 export default function NotFound() {
   useEffect(() => {
-    pageViews.notFoundPageViewed({
+    trackViewed({ name: 'not_found_page',
       page_name: PAGE_NAMES.NOT_FOUND,
       page_type: 'error',
       page_url: window.location.href,

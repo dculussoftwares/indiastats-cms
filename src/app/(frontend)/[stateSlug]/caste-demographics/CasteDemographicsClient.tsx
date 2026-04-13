@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ArrowLeft, Search, Users, TrendingUp, MapPin, Filter } from 'lucide-react'
-import { ui, search, getPageContext, setPageContext, PAGE_NAMES, pageViews } from '@/analytics'
+import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 
 interface CasteData {
@@ -57,7 +57,7 @@ export function CasteDemographicsClient({
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
     })
-    pageViews.casteDemographicsPageViewed({
+    trackViewed({ name: 'caste_demographics_page',
       page_name: PAGE_NAMES.CASTE_DEMOGRAPHICS,
       page_url: window.location.href,
       page_path: window.location.pathname,
@@ -311,7 +311,7 @@ export function CasteDemographicsClient({
                         <button
                           onClick={() => {
                             const pageContext = getPageContext()
-                            search.filterApplied({
+                            trackClicked({ name: 'search_filter',
                               page_name: pageContext.page_name || 'Caste Demographics',
                               filter_name: 'caste',
                               filter_value: caste.caste,
@@ -365,7 +365,7 @@ export function CasteDemographicsClient({
                 size="sm"
                 onClick={() => {
                   const pageContext = getPageContext()
-                  ui.buttonClicked({
+                  trackClicked({ name: 'button',
                     page_name: pageContext.page_name || 'Caste Demographics',
                     button_name: 'sort_by_assembly',
                     button_label: 'A-Z',
@@ -380,7 +380,7 @@ export function CasteDemographicsClient({
                 size="sm"
                 onClick={() => {
                   const pageContext = getPageContext()
-                  ui.buttonClicked({
+                  trackClicked({ name: 'button',
                     page_name: pageContext.page_name || 'Caste Demographics',
                     button_name: 'sort_by_percentage',
                     button_label: 'By %',
@@ -432,7 +432,7 @@ export function CasteDemographicsClient({
                           className="hover:text-blue-600 hover:underline"
                           onClick={() => {
                             const pageContext = getPageContext()
-                            ui.linkClicked({
+                            trackClicked({ name: 'link',
                               page_name: pageContext.page_name || 'Caste Demographics',
                               link_name: 'view_assembly_on_map',
                               link_location: 'caste_table',

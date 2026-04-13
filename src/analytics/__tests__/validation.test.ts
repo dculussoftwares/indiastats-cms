@@ -4,7 +4,7 @@
  */
 
 import { normalizeEventName, normalizeProperties, getPageContext, setPageContext, clearPageContext } from '../tracker'
-import { assembly, search, ui, errors, pageViews } from '../events'
+import { trackViewed, trackClicked, trackImpression } from '../events'
 import { PAGE_NAMES, BUTTON_NAMES, SHARE_PLATFORMS, SEARCH_TYPES, ERROR_SEVERITY } from '../constants'
 
 describe('Analytics - Naming Normalization', () => {
@@ -91,54 +91,17 @@ describe('Analytics - Page Context', () => {
   })
 })
 
-describe('Analytics - Event Namespaces', () => {
-  test('assembly namespace exists with all methods', () => {
-    expect(assembly.viewed).toBeDefined()
-    expect(assembly.demographicsViewed).toBeDefined()
-    expect(assembly.quickViewOpened).toBeDefined()
-    expect(assembly.quickViewDownloaded).toBeDefined()
-    expect(assembly.electionCompared).toBeDefined()
-    expect(assembly.electionYearSelected).toBeDefined()
+describe('Analytics - Event Functions', () => {
+  test('trackViewed is a function', () => {
+    expect(typeof trackViewed).toBe('function')
   })
 
-  test('search namespace exists with all methods', () => {
-    expect(search.performed).toBeDefined()
-    expect(search.refined).toBeDefined()
-    expect(search.resultClicked).toBeDefined()
-    expect(search.resultsViewed).toBeDefined()
-    expect(search.filterApplied).toBeDefined()
-    expect(search.cleared).toBeDefined()
+  test('trackClicked is a function', () => {
+    expect(typeof trackClicked).toBe('function')
   })
 
-  test('ui namespace exists with all methods', () => {
-    expect(ui.buttonClicked).toBeDefined()
-    expect(ui.commandPaletteOpened).toBeDefined()
-    expect(ui.commandPaletteCommandExecuted).toBeDefined()
-    expect(ui.themeChanged).toBeDefined()
-    expect(ui.navigationOccurred).toBeDefined()
-    expect(ui.linkClicked).toBeDefined()
-    expect(ui.shareInitiated).toBeDefined()
-    expect(ui.shareCompleted).toBeDefined()
-  })
-
-  test('errors namespace exists with all methods', () => {
-    expect(errors.occurred).toBeDefined()
-    expect(errors.networkError).toBeDefined()
-    expect(errors.validationError).toBeDefined()
-    expect(errors.parsingError).toBeDefined()
-    expect(errors.notFound).toBeDefined()
-    expect(errors.boundaryTriggered).toBeDefined()
-    expect(errors.unhandledRejection).toBeDefined()
-  })
-
-  test('pageViews namespace exists with all methods', () => {
-    expect(pageViews.viewed).toBeDefined()
-    expect(pageViews.homePageViewed).toBeDefined()
-    expect(pageViews.assemblyPageViewed).toBeDefined()
-    expect(pageViews.districtPageViewed).toBeDefined()
-    expect(pageViews.searchPageViewed).toBeDefined()
-    expect(pageViews.electionDataPageViewed).toBeDefined()
-    expect(pageViews.notFoundPageViewed).toBeDefined()
+  test('trackImpression is a function', () => {
+    expect(typeof trackImpression).toBe('function')
   })
 })
 
@@ -181,52 +144,44 @@ describe('Analytics - Integration', () => {
     clearPageContext()
   })
 
-  test('complete workflow: set context, track event', () => {
-    // Set context
-    setPageContext({
-      page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
-      page_url: 'https://example.com/assembly/ac001',
-      page_path: '/assembly/ac001',
-    })
-
-    // Track event - should not throw
+  test('complete workflow: trackViewed does not throw', () => {
     expect(() => {
-      assembly.viewed({
+      trackViewed('assembly', {
         page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
+        page_url: 'https://example.com/assembly/ac001',
+        page_path: '/assembly/ac001',
         assembly_id: 'ac001',
         assembly_name: 'Chennai South',
         district_name: 'Chennai',
-        is_reserved: false,
       })
     }).not.toThrow()
+  })
 
-    // Track UI event - should not throw
+  test('complete workflow: trackClicked does not throw', () => {
     expect(() => {
-      ui.buttonClicked({
+      trackClicked('button', {
         page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
         button_name: BUTTON_NAMES.DOWNLOAD_QUICK_VIEW,
         button_label: 'Download PNG',
       })
     }).not.toThrow()
 
-    // Track search event - should not throw
     expect(() => {
-      search.performed({
+      trackClicked('search', {
         page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
         search_query: 'Chennai',
         search_type: SEARCH_TYPES.ASSEMBLY,
         results_count: 5,
       })
     }).not.toThrow()
+  })
 
-    // Track error event - should not throw
+  test('complete workflow: trackImpression does not throw', () => {
     expect(() => {
-      errors.networkError({
-        page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
-        error_message: 'Failed to fetch',
-        endpoint: '/api/assemblies',
-        http_status: 500,
-        error_severity: ERROR_SEVERITY.HIGH,
+      trackImpression('search_results', {
+        page_name: PAGE_NAMES.SEARCH_RESULTS,
+        search_query: 'Chennai',
+        results_count: 5,
       })
     }).not.toThrow()
   })
@@ -234,14 +189,7 @@ describe('Analytics - Integration', () => {
 
 describe('Analytics - Export Validation', () => {
   test('all event functions are callable', () => {
-    const eventFunctions = [
-      assembly.viewed,
-      search.performed,
-      ui.buttonClicked,
-      errors.occurred,
-      pageViews.assemblyPageViewed,
-    ]
-
+    const eventFunctions = [trackViewed, trackClicked, trackImpression]
     eventFunctions.forEach((fn) => {
       expect(typeof fn).toBe('function')
     })

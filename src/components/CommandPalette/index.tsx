@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Search, MapPin, Building2, FileText, Clock, X } from 'lucide-react'
 import { useDebounce } from '@/utilities/useDebounce'
-import { ui, search, getPageContext } from '@/analytics'
+import { trackClicked, getPageContext } from '@/analytics'
 
 // Types for search results
 interface SearchResult {
@@ -141,7 +141,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       addRecentSearch(query)
       const pageContext = getPageContext()
       // Track as search result click
-      search.resultClicked({
+      trackClicked({ name: 'search_result',
         page_name: pageContext.page_name || 'Search',
         search_query: query,
         result_id: result.id,
