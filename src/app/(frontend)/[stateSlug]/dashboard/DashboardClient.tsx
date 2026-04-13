@@ -2,6 +2,7 @@
 import * as React from 'react'
 import { DistrictSearch, District } from '@/components/DistrictSearch'
 import { AssemblySearch, Assembly } from '@/components/AssemblySearch'
+import { pageViews, PAGE_NAMES } from '@/analytics'
 
 interface AssemblyData {
   assemblyId: string
@@ -25,6 +26,15 @@ interface DashboardClientProps {
 }
 
 export function DashboardClient({ assemblies, districts, stateSlug }: DashboardClientProps) {
+  React.useEffect(() => {
+    pageViews.dashboardPageViewed({
+      page_name: PAGE_NAMES.DASHBOARD,
+      page_type: 'other',
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+    })
+  }, [])
+
   const handleAssemblySearch = (district: District, assembly: Assembly) => {
     // CTA action - not implementing redirect per user request
     console.log('Assembly selected:', { district, assembly })

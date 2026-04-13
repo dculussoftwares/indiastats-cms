@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select'
 import { exportToExcel, flattenElectionDataForExcel } from '@/utilities/excelExport'
 import { getPartyColor } from '@/lib/partyColors'
-import { search, ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { search, ui, pageViews, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import {
   Download,
   ChevronUp,
@@ -128,6 +128,12 @@ export function ElectionDataTable() {
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.ELECTION_DATA,
+      page_url: typeof window !== 'undefined' ? window.location.href : '',
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+    pageViews.electionDataPageViewed({
+      page_name: PAGE_NAMES.ELECTION_DATA,
+      page_type: 'other',
       page_url: typeof window !== 'undefined' ? window.location.href : '',
       page_path: typeof window !== 'undefined' ? window.location.pathname : '',
     })

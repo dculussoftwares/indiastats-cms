@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, MapPin, FileText, Home, Building2 } from 'lucide-react'
+import { pageViews, PAGE_NAMES } from '@/analytics'
 
 interface Booth {
   id: string
@@ -35,6 +36,16 @@ export function BoothPageClient({
 }: BoothPageClientProps) {
   const [booth, setBooth] = React.useState<Booth | null>(null)
   const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    pageViews.boothDetailPageViewed({
+      booth_id: boothId,
+      page_name: PAGE_NAMES.BOOTH_DETAIL,
+      page_type: 'other',
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+    })
+  }, [boothId])
 
   React.useEffect(() => {
     async function fetchBooth() {
