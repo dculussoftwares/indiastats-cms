@@ -290,6 +290,8 @@ jobs:
             -H "Authorization: Bearer $CF_API_TOKEN" \
             -H "Content-Type: application/json" \
             --data '{"value":"essentially_off"}' | python3 -c "import json,sys; d=json.load(sys.stdin); print('CF security_level:', d['result']['value'] if d['success'] else d['errors'])"
+          echo "Waiting 10s for CF setting to propagate..."
+          sleep 10
         env:
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
