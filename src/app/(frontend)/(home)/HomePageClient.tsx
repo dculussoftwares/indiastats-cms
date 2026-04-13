@@ -21,6 +21,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { getCurrentUTM } from '@/utilities/utm'
 
 interface HomePageClientProps {
   stats: {
@@ -93,8 +94,9 @@ export function HomePageClient({ stats }: HomePageClientProps) {
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.HOMEPAGE,
-      page_url: typeof window !== 'undefined' ? window.location.href : '',
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      ...getCurrentUTM(window.location.search),
     })
   }, [])
 

@@ -5,6 +5,7 @@ import { CommandPaletteProvider } from './CommandPalette'
 import { GTMProvider } from './GTM'
 import { HeaderThemeProvider } from './HeaderTheme'
 import { ThemeProvider } from './Theme'
+import { UTMCapture } from './UTMCapture'
 
 export const Providers: React.FC<{
   children: React.ReactNode
@@ -15,6 +16,7 @@ export const Providers: React.FC<{
         <ClarityProvider>
           <CommandPaletteProvider>
             <GTMProvider />
+            <UTMCapture />
             {children}
           </CommandPaletteProvider>
         </ClarityProvider>

@@ -14,6 +14,7 @@ import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
 import { TwitterCardModal } from '@/components/TwitterCardModal'
 import { ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { getCurrentUTM } from '@/utilities/utm'
 
 interface Candidate {
   name: string
@@ -100,8 +101,9 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
   React.useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
-      page_url: typeof window !== 'undefined' ? window.location.href : '',
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      ...getCurrentUTM(window.location.search),
     })
   }, [])
 

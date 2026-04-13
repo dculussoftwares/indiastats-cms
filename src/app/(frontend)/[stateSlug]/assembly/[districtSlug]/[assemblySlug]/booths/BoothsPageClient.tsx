@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/table'
 import { ArrowLeft, Search, MapPin, FileText, ExternalLink, Building2 } from 'lucide-react'
 import { ui, getPageContext, setPageContext } from '@/analytics'
+import { getCurrentUTM } from '@/utilities/utm'
 
 interface Booth {
   id: string
@@ -49,8 +50,9 @@ export function BoothsPageClient({
   React.useEffect(() => {
     setPageContext({
       page_name: 'Booths',
-      page_url: typeof window !== 'undefined' ? window.location.href : '',
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      ...getCurrentUTM(window.location.search),
     })
   }, [])
 

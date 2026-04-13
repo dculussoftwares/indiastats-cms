@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ArrowLeft, Search, Users, TrendingUp, MapPin, Filter } from 'lucide-react'
 import { ui, search, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { getCurrentUTM } from '@/utilities/utm'
 
 interface CasteData {
   id: string
@@ -52,8 +53,9 @@ export function CasteDemographicsClient({
   React.useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.CASTE_DEMOGRAPHICS,
-      page_url: typeof window !== 'undefined' ? window.location.href : '',
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      ...getCurrentUTM(window.location.search),
     })
   }, [])
 

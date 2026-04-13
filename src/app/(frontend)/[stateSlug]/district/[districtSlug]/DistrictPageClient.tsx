@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { CasteComparisonTable } from '@/components/CasteComparisonTable'
 import { ArrowLeft, ChevronRight, Building2, MapPin, Locate } from 'lucide-react'
 import { ui, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { getCurrentUTM } from '@/utilities/utm'
 
 interface Assembly {
   assemblyId: string
@@ -85,8 +86,9 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
   React.useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.DISTRICT_DETAIL,
-      page_url: typeof window !== 'undefined' ? window.location.href : '',
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      ...getCurrentUTM(window.location.search),
     })
   }, [])
 
