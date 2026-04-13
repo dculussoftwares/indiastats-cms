@@ -182,7 +182,7 @@ jobs:
             // --- 0. Fetch assembly info from dedicated API endpoint ---
             function fetchJson(url) {
               return new Promise((resolve, reject) => {
-                https.get(url, res => {
+                https.get(url, { headers: { 'X-CF-Bypass': process.env.CF_BYPASS_SECRET } }, res => {
                   const chunks = [];
                   res.on('data', c => chunks.push(c));
                   res.on('end', () => {
@@ -231,6 +231,8 @@ jobs:
             const page = await browser.newPage();
             // Set viewport to match card aspect ratio (1024:512) with 2x scaling for clarity
             await page.setViewport({ width: 1024, height: 512, deviceScaleFactor: 2 });
+            // Bypass Cloudflare bot protection with secret header
+            await page.setExtraHTTPHeaders({ 'X-CF-Bypass': process.env.CF_BYPASS_SECRET });
             
             try {
               await page.goto(pageUrl, { waitUntil: 'networkidle2', timeout: 60000 });
@@ -289,6 +291,7 @@ jobs:
           TEMPLATE_INDEX: ${{ steps.get-assembly.outputs.next_index }}
           FORCE_TIMELINE: ${{ steps.get-assembly.outputs.force_timeline }}
           SITE_URL: ${{ env.SITE_URL }}
+          CF_BYPASS_SECRET: ${{ secrets.CF_BYPASS_SECRET }}
 
       - name: Create post script
         if: ${{ github.event.inputs.dry_run != 'true' }}
