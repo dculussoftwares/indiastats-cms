@@ -1025,6 +1025,14 @@ export interface District {
    * URL-friendly slug (e.g., tiruvallur)
    */
   slug?: string | null;
+  /**
+   * AI-generated district description
+   */
+  description?: string | null;
+  /**
+   * AI-generated SEO meta description (150-160 chars)
+   */
+  metaDescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1845,6 +1853,8 @@ export interface DistrictsSelect<T extends boolean = true> {
   zoneId?: T;
   zoneName?: T;
   slug?: T;
+  description?: T;
+  metaDescription?: T;
   updatedAt?: T;
   createdAt?: T;
 }

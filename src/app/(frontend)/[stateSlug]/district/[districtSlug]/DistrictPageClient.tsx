@@ -9,9 +9,10 @@ import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CasteComparisonTable } from '@/components/CasteComparisonTable'
-import { ArrowLeft, ChevronRight, Building2, MapPin, Locate } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Building2, MapPin, Locate, BookOpen } from 'lucide-react'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
+import { DistrictPageJsonLd } from '@/components/seo/JsonLd'
 
 interface Assembly {
   assemblyId: string
@@ -75,6 +76,8 @@ interface DistrictData {
   electionHistory: ElectionData[]
   allianceData: Record<number, AllianceData[]>
   assemblyCasteData: CasteData[]
+  description: string | null
+  metaDescription: string | null
 }
 
 interface DistrictPageClientProps {
@@ -168,6 +171,37 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
           </CardContent>
         </Card>
       </section>
+
+      {/* District Description */}
+      {data.description && (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            About this District
+          </h2>
+          <Card>
+            <CardContent className="pt-5 pb-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="p-2 bg-red-50 dark:bg-red-950/30 rounded">
+                  <BookOpen className="h-5 w-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  {data.description.split('\n\n').map((paragraph, index) => (
+                    <p
+                      key={index}
+                      className="text-sm text-muted-foreground leading-relaxed mb-3 last:mb-0"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground/60 italic border-t pt-3 mt-3">
+                AI-generated summary based on Wikipedia and election data
+              </p>
+            </CardContent>
+          </Card>
+        </section>
+      )}
 
       {/* District Details Card */}
       <section className="mb-8">
@@ -311,6 +345,14 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
           ))}
         </div>
       </section>
+
+      {/* Structured Data for SEO */}
+      <DistrictPageJsonLd
+        districtName={data.districtName.split(' / ')[1] || data.districtName}
+        description={data.metaDescription || `Election data for ${data.districtName} district, Tamil Nadu.`}
+        url={`https://indiastats.org/${stateSlug}/district/${data.districtSlug}`}
+        assemblyCount={data.noOfAssemblies}
+      />
     </div>
   )
 }

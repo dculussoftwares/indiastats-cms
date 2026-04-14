@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${cleanName} District - Assembly Constituencies & Election Data`,
-    description: `Complete election data for ${cleanName} district, Tamil Nadu. Explore all assembly constituencies, voter statistics, MLA history, and booth-level information.`,
+    description: districtDoc.metaDescription || `Complete election data for ${cleanName} district, Tamil Nadu. Explore all assembly constituencies, voter statistics, MLA history, and booth-level information.`,
     keywords: [
       `${cleanName} district`,
       'Tamil Nadu elections',
@@ -65,14 +65,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     openGraph: {
       title: `${cleanName} District - Tamil Nadu Election Data`,
-      description: `View all assembly constituencies and election history for ${cleanName} district, Tamil Nadu.`,
+      description: districtDoc.metaDescription || `View all assembly constituencies and election history for ${cleanName} district, Tamil Nadu.`,
       type: 'website',
       url: canonicalUrl,
     },
     twitter: {
       card: 'summary_large_image',
       title: `${cleanName} District - Election Data`,
-      description: `Explore election data for ${cleanName} district assembly constituencies.`,
+      description: districtDoc.metaDescription || `Explore election data for ${cleanName} district assembly constituencies.`,
     },
   }
 }
@@ -241,6 +241,8 @@ async function getDistrictData(districtSlug: string) {
     electionHistory,
     allianceData,
     assemblyCasteData,
+    description: (district.description as string) || null,
+    metaDescription: (district.metaDescription as string) || null,
   }
 }
 

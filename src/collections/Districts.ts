@@ -62,5 +62,21 @@ export const Districts: CollectionConfig = {
                 description: 'URL-friendly slug (e.g., tiruvallur)',
             },
         },
+        {
+            name: 'description',
+            type: 'textarea',
+            admin: {
+                description: 'AI-generated district description',
+                readOnly: true,
+            },
+        },
+        {
+            name: 'metaDescription',
+            type: 'textarea',
+            admin: {
+                description: 'AI-generated SEO meta description (150-160 chars)',
+                readOnly: true,
+            },
+        },
     ],
 }
