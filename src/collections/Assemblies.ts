@@ -121,5 +121,13 @@ export const Assemblies: CollectionConfig = {
                 readOnly: true,
             },
         },
+        {
+            name: 'knownBusinesses',
+            type: 'json',
+            admin: {
+                description: 'AI-extracted business, education, healthcare, transport, and landmark data',
+                readOnly: true,
+            },
+        },
     ],
 }

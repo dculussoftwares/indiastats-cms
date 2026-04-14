@@ -11,7 +11,11 @@ import { VotesSharesChart } from '@/components/VotesSharesChart'
 import { PastWinningHistories } from '@/components/PastWinningHistories'
 import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
-import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate, BookOpen } from 'lucide-react'
+import {
+  ArrowLeft, User, UserCircle2, Users, UsersRound, Locate, BookOpen,
+  Factory, Building2, GraduationCap, HeartPulse, Bus, Landmark,
+  Briefcase, Store,
+} from 'lucide-react'
 import { TwitterCardModal } from '@/components/TwitterCardModal'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
@@ -81,6 +85,20 @@ interface AssemblyData {
   allianceData: Record<number, AllianceData[]>
   description: string | null
   metaDescription: string | null
+  knownBusinesses: KnownBusinesses | null
+}
+
+interface KnownBusinesses {
+  economicMix: { category: string; percentage: number }[]
+  majorIndustries: { name: string; percentage?: number }[]
+  topEmployers: { name: string; workers?: number }[]
+  localBusinessTypes: { name: string; percentage?: number }[]
+  commercialLandmarks: string[]
+  education: { name: string; type?: string }[]
+  healthcare: { name: string; type?: string }[]
+  transport: { name: string; type?: string }[]
+  landmarks: { name: string; type?: string }[]
+  businessSummary: string
 }
 
 interface AssemblyPageClientProps {
@@ -161,37 +179,6 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       <div className="mb-8">
         <ViewOnMapCard assemblyId={data.assemblyId} assemblyName={data.name} />
       </div>
-
-      {/* Constituency Description */}
-      {data.description && (
-        <section className="mb-8">
-          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            About this Constituency
-          </h2>
-          <Card>
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="p-2 bg-red-50 dark:bg-red-950/30 rounded">
-                  <BookOpen className="h-5 w-5 text-red-600" />
-                </div>
-                <div className="flex-1">
-                  {data.description.split('\n\n').map((paragraph, index) => (
-                    <p
-                      key={index}
-                      className="text-sm text-muted-foreground leading-relaxed mb-3 last:mb-0"
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground/60 italic border-t pt-3 mt-3">
-                AI-generated summary based on Wikipedia and election data
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-      )}
 
       {/* Assembly Overview */}
       {data.voters && (
@@ -423,6 +410,308 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
             Past Winning Histories
           </h2>
           <PastWinningHistories electionHistory={data.electionHistory} />
+        </section>
+      )}
+
+      {/* Constituency Description */}
+      {data.description && (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            About this Constituency
+          </h2>
+          <Card>
+            <CardContent className="pt-5 pb-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="p-2 bg-red-50 dark:bg-red-950/30 rounded">
+                  <BookOpen className="h-5 w-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  {data.description.split('\n\n').map((paragraph, index) => (
+                    <p
+                      key={index}
+                      className="text-sm text-muted-foreground leading-relaxed mb-3 last:mb-0"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground/60 italic border-t pt-3 mt-3">
+                AI-generated summary based on Wikipedia and election data
+              </p>
+            </CardContent>
+          </Card>
+        </section>
+      )}
+
+      {/* Known Businesses & Local Info */}
+      {data.knownBusinesses && (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Economy & Local Information
+          </h2>
+
+          {/* Business Summary */}
+          {data.knownBusinesses.businessSummary && (
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              {data.knownBusinesses.businessSummary}
+            </p>
+          )}
+
+          {/* Economic Mix - Horizontal Bar */}
+          {data.knownBusinesses.economicMix.length > 0 && (
+            <Card className="mb-4">
+              <CardContent className="pt-4 pb-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">
+                  Economic Composition
+                </p>
+                <div className="flex w-full h-6 rounded overflow-hidden mb-2">
+                  {data.knownBusinesses.economicMix.map((item, i) => {
+                    const colors = [
+                      'bg-red-600', 'bg-blue-600', 'bg-amber-500', 'bg-emerald-600', 'bg-gray-400',
+                    ]
+                    return (
+                      <div
+                        key={item.category}
+                        className={`${colors[i % colors.length]} flex items-center justify-center`}
+                        style={{ width: `${item.percentage}%` }}
+                        title={`${item.category}: ${item.percentage}%`}
+                      >
+                        {item.percentage >= 12 && (
+                          <span className="text-[10px] font-bold text-white truncate px-1">
+                            {item.percentage}%
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  {data.knownBusinesses.economicMix.map((item, i) => {
+                    const dots = [
+                      'bg-red-600', 'bg-blue-600', 'bg-amber-500', 'bg-emerald-600', 'bg-gray-400',
+                    ]
+                    return (
+                      <div key={item.category} className="flex items-center gap-1.5">
+                        <div className={`w-2 h-2 rounded-full ${dots[i % dots.length]}`} />
+                        <span className="text-xs text-muted-foreground">
+                          {item.category} {item.percentage}%
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Industries + Employers Grid */}
+          <div className="grid gap-4 md:grid-cols-2 mb-4">
+            {/* Major Industries */}
+            {data.knownBusinesses.majorIndustries.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Factory className="h-4 w-4 text-red-600" />
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Major Industries
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {data.knownBusinesses.majorIndustries.map((item, idx) => (
+                      <div key={`ind-${idx}`} className="flex items-center justify-between">
+                        <span className="text-sm">{item.name}</span>
+                        {item.percentage && (
+                          <span className="text-xs font-medium text-red-600 bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded">
+                            {item.percentage}%
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Top Employers */}
+            {data.knownBusinesses.topEmployers.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Briefcase className="h-4 w-4 text-red-600" />
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Top Employers
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {data.knownBusinesses.topEmployers.map((item, idx) => (
+                      <div key={`emp-${idx}`} className="flex items-center justify-between">
+                        <span className="text-sm">{item.name}</span>
+                        {item.workers && (
+                          <span className="text-xs text-muted-foreground">
+                            ~{item.workers.toLocaleString()} workers
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Local Business + Commercial Landmarks Grid */}
+          <div className="grid gap-4 md:grid-cols-2 mb-4">
+            {/* Local Business Types */}
+            {data.knownBusinesses.localBusinessTypes.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Store className="h-4 w-4 text-red-600" />
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Local Business Types
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {data.knownBusinesses.localBusinessTypes.map((item, idx) => (
+                      <span
+                        key={`local-${idx}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-muted rounded text-xs"
+                      >
+                        {item.name}
+                        {item.percentage && (
+                          <span className="text-muted-foreground">({item.percentage}%)</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Commercial Landmarks */}
+            {data.knownBusinesses.commercialLandmarks.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Building2 className="h-4 w-4 text-red-600" />
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Commercial Landmarks
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {data.knownBusinesses.commercialLandmarks.map((name, idx) => (
+                      <span
+                        key={`cl-${idx}`}
+                        className="px-2.5 py-1 bg-muted rounded text-xs"
+                      >
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Education, Healthcare, Transport, Landmarks - 4-column grid */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Education */}
+            {data.knownBusinesses.education.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <GraduationCap className="h-4 w-4 text-red-600" />
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Education
+                    </p>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {data.knownBusinesses.education.map((item, idx) => (
+                      <li key={`edu-${idx}`} className="text-xs">
+                        <span className="font-medium">{item.name}</span>
+                        {item.type && (
+                          <span className="text-muted-foreground"> — {item.type}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Healthcare */}
+            {data.knownBusinesses.healthcare.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <HeartPulse className="h-4 w-4 text-red-600" />
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Healthcare
+                    </p>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {data.knownBusinesses.healthcare.map((item, idx) => (
+                      <li key={`health-${idx}`} className="text-xs">
+                        <span className="font-medium">{item.name}</span>
+                        {item.type && (
+                          <span className="text-muted-foreground"> — {item.type}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Transport */}
+            {data.knownBusinesses.transport.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Bus className="h-4 w-4 text-red-600" />
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Transport
+                    </p>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {data.knownBusinesses.transport.map((item, idx) => (
+                      <li key={`transport-${idx}`} className="text-xs">
+                        <span className="font-medium">{item.name}</span>
+                        {item.type && (
+                          <span className="text-muted-foreground"> — {item.type}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Landmarks */}
+            {data.knownBusinesses.landmarks.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Landmark className="h-4 w-4 text-red-600" />
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Landmarks
+                    </p>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {data.knownBusinesses.landmarks.map((item, idx) => (
+                      <li key={`landmark-${idx}`} className="text-xs">
+                        <span className="font-medium">{item.name}</span>
+                        {item.type && (
+                          <span className="text-muted-foreground"> — {item.type}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </section>
       )}
 

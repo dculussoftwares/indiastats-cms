@@ -246,6 +246,7 @@ async function getAssemblyData(districtSlug: string, assemblySlug: string) {
     allianceData,
     description: (assembly.description as string) || null,
     metaDescription: (assembly.metaDescription as string) || null,
+    knownBusinesses: (assembly.knownBusinesses as any) || null,
   }
 }
 
