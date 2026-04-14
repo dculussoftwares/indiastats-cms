@@ -70,6 +70,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
+    push: true,
   }),
   collections: [Pages, Posts, Media, Categories, Users, States, Zones, Assemblies, Districts, Booths, ElectionHistory, Alliances, CasteCensus],
   cors: [getServerSideURL()].filter(Boolean),
