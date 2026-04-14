@@ -50,6 +50,9 @@ ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 ENV NEXT_PUBLIC_ADSENSE_CLIENT_ID=$NEXT_PUBLIC_ADSENSE_CLIENT_ID
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Push schema changes to DB before build (new columns must exist for prerender)
+RUN corepack enable pnpm && pnpm exec tsx scripts/push-db-schema.ts || true
+
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
