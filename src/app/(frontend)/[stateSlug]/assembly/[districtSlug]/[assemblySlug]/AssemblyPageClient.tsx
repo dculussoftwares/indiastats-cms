@@ -11,10 +11,11 @@ import { VotesSharesChart } from '@/components/VotesSharesChart'
 import { PastWinningHistories } from '@/components/PastWinningHistories'
 import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
-import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate } from 'lucide-react'
+import { ArrowLeft, User, UserCircle2, Users, UsersRound, Locate, BookOpen } from 'lucide-react'
 import { TwitterCardModal } from '@/components/TwitterCardModal'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
+import { AssemblyPageJsonLd } from '@/components/seo/JsonLd'
 
 interface Candidate {
   name: string
@@ -78,6 +79,8 @@ interface AssemblyData {
   electionHistory: ElectionYear[]
   casteData: CasteData | null
   allianceData: Record<number, AllianceData[]>
+  description: string | null
+  metaDescription: string | null
 }
 
 interface AssemblyPageClientProps {
@@ -158,6 +161,37 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       <div className="mb-8">
         <ViewOnMapCard assemblyId={data.assemblyId} assemblyName={data.name} />
       </div>
+
+      {/* Constituency Description */}
+      {data.description && (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            About this Constituency
+          </h2>
+          <Card>
+            <CardContent className="pt-5 pb-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="p-2 bg-red-50 dark:bg-red-950/30 rounded">
+                  <BookOpen className="h-5 w-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  {data.description.split('\n\n').map((paragraph, index) => (
+                    <p
+                      key={index}
+                      className="text-sm text-muted-foreground leading-relaxed mb-3 last:mb-0"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground/60 italic border-t pt-3 mt-3">
+                AI-generated summary based on Wikipedia and election data
+              </p>
+            </CardContent>
+          </Card>
+        </section>
+      )}
 
       {/* Assembly Overview */}
       {data.voters && (
@@ -391,6 +425,14 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
           <PastWinningHistories electionHistory={data.electionHistory} />
         </section>
       )}
+
+      {/* Structured Data for SEO */}
+      <AssemblyPageJsonLd
+        assemblyName={data.name.split(' / ')[1] || data.name}
+        districtName={data.districtName.split(' / ')[1] || data.districtName}
+        description={data.metaDescription || `Election data for ${data.name} assembly constituency, Tamil Nadu.`}
+        url={`https://indiastats.org/${stateSlug}/assembly/${data.districtSlug}/${data.assemblySlug}`}
+      />
     </div>
   )
 }

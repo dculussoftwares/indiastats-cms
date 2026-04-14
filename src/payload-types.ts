@@ -984,6 +984,14 @@ export interface Assembly {
     | number
     | boolean
     | null;
+  /**
+   * AI-generated constituency description
+   */
+  description?: string | null;
+  /**
+   * AI-generated SEO meta description (150-160 chars)
+   */
+  metaDescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1821,6 +1829,8 @@ export interface AssembliesSelect<T extends boolean = true> {
   electedMla?: T;
   voters?: T;
   lastElectionVoters?: T;
+  description?: T;
+  metaDescription?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${cleanName} Assembly - Voter Data & Election History`,
-    description: `Complete election data for ${cleanName} assembly constituency, Tamil Nadu. Includes ${assemblyDoc.noOfBooths || 'multiple'} polling booths, voter statistics, MLA history since 1972, and demographic insights.`,
+    description: assemblyDoc.metaDescription || `Complete election data for ${cleanName} assembly constituency, Tamil Nadu. Includes ${assemblyDoc.noOfBooths || 'multiple'} polling booths, voter statistics, MLA history since 1972, and demographic insights.`,
     keywords: [
       `${cleanName} assembly`,
       `${cleanName} MLA`,
@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     openGraph: {
       title: `${cleanName} Assembly - Election Data & Statistics`,
-      description: `View election history, voter stats, and political insights for ${cleanName} Assembly, ${assemblyDoc.districtName} District, Tamil Nadu.`,
+      description: assemblyDoc.metaDescription || `View election history, voter stats, and political insights for ${cleanName} Assembly, ${assemblyDoc.districtName} District, Tamil Nadu.`,
       type: 'website',
       url: canonicalUrl,
       images: [
@@ -99,7 +99,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: 'summary_large_image',
       title: `${cleanName} Assembly - Election Data`,
-      description: `View election history, voter stats, and political insights for ${cleanName} Assembly, Tamil Nadu.`,
+      description: assemblyDoc.metaDescription || `View election history, voter stats, and political insights for ${cleanName} Assembly, Tamil Nadu.`,
       images: [ogImageUrl],
     },
   }
@@ -244,6 +244,8 @@ async function getAssemblyData(districtSlug: string, assemblySlug: string) {
     electionHistory,
     casteData,
     allianceData,
+    description: (assembly.description as string) || null,
+    metaDescription: (assembly.metaDescription as string) || null,
   }
 }
 

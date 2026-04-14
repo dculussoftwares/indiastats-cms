@@ -105,5 +105,21 @@ export const Assemblies: CollectionConfig = {
                 description: '2019 voter data',
             },
         },
+        {
+            name: 'description',
+            type: 'textarea',
+            admin: {
+                description: 'AI-generated constituency description',
+                readOnly: true,
+            },
+        },
+        {
+            name: 'metaDescription',
+            type: 'textarea',
+            admin: {
+                description: 'AI-generated SEO meta description (150-160 chars)',
+                readOnly: true,
+            },
+        },
     ],
 }
