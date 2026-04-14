@@ -1045,6 +1045,18 @@ export interface District {
    * AI-generated SEO meta description (150-160 chars)
    */
   metaDescription?: string | null;
+  /**
+   * AI-extracted business, education, healthcare, transport, and landmark data
+   */
+  knownBusinesses?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1868,6 +1880,7 @@ export interface DistrictsSelect<T extends boolean = true> {
   slug?: T;
   description?: T;
   metaDescription?: T;
+  knownBusinesses?: T;
   updatedAt?: T;
   createdAt?: T;
 }

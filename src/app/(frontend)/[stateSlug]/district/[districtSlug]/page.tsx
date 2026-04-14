@@ -243,6 +243,7 @@ async function getDistrictData(districtSlug: string) {
     assemblyCasteData,
     description: (district.description as string) || null,
     metaDescription: (district.metaDescription as string) || null,
+    knownBusinesses: (district.knownBusinesses as any) || null,
   }
 }
 
