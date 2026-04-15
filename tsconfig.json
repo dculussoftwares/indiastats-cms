@@ -46,6 +46,7 @@
     "next-sitemap.config.cjs"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "scripts"
   ],
 }
