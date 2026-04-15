@@ -189,36 +189,6 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
         </Card>
       </section>
 
-      {/* District Description */}
-      {data.description && (
-        <section className="mb-8">
-          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            About this District
-          </h2>
-          <Card>
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="p-2 bg-red-50 dark:bg-red-950/30 rounded">
-                  <BookOpen className="h-5 w-5 text-red-600" />
-                </div>
-                <div className="flex-1">
-                  {data.description.split('\n\n').map((paragraph, index) => (
-                    <p
-                      key={index}
-                      className="text-sm text-muted-foreground leading-relaxed mb-3 last:mb-0"
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground/60 italic border-t pt-3 mt-3">
-                AI-generated summary based on Wikipedia and election data
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-      )}
 
       {/* District Details Card */}
       <section className="mb-8">
@@ -297,6 +267,37 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
             Year-wise Party Performance
           </h2>
           <PartyWinsChart historicData={data.electionHistory} />
+        </section>
+      )}
+
+      {/* District Description */}
+      {data.description && (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            About this District
+          </h2>
+          <Card>
+            <CardContent className="pt-5 pb-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="p-2 bg-red-50 dark:bg-red-950/30 rounded">
+                  <BookOpen className="h-5 w-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  {data.description.split('\n\n').map((paragraph, index) => (
+                    <p
+                      key={index}
+                      className="text-sm text-muted-foreground leading-relaxed mb-3 last:mb-0"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground/60 italic border-t pt-3 mt-3">
+                AI-generated summary based on Wikipedia and election data
+              </p>
+            </CardContent>
+          </Card>
         </section>
       )}
 
