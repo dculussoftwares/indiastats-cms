@@ -9,7 +9,27 @@ const getDistrictsSitemap = unstable_cache(
         const SITE_URL =
             process.env.NEXT_PUBLIC_SERVER_URL ||
             process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-            'https://example.com'
+            'https://indiastats.org'
+
+        // Get all states to map stateCode to stateSlug
+        const statesResult = await payload.find({
+            collection: 'states',
+            overrideAccess: false,
+            depth: 0,
+            limit: 100,
+            pagination: false,
+            select: {
+                stateCode: true,
+                slug: true,
+            },
+        })
+
+        const stateCodeToSlugMap: Record<string, string> = {}
+        statesResult.docs.forEach((s: any) => {
+            if (s.stateCode && s.slug) {
+                stateCodeToSlugMap[s.stateCode] = s.slug
+            }
+        })
 
         const results = await payload.find({
             collection: 'districts',
@@ -21,6 +41,7 @@ const getDistrictsSitemap = unstable_cache(
                 districtId: true,
                 districtName: true,
                 slug: true,
+                stateCode: true,
                 updatedAt: true,
             },
         })
@@ -31,8 +52,9 @@ const getDistrictsSitemap = unstable_cache(
             ? results.docs
                 .filter((district: any) => Boolean(district?.slug))
                 .map((district: any) => {
+                    const stateSlug = stateCodeToSlugMap[district.stateCode] || 'tamil-nadu'
                     return {
-                        loc: `${SITE_URL}/tamil-nadu/district/${district.slug}`,
+                        loc: `${SITE_URL}/${stateSlug}/district/${district.slug}`,
                         lastmod: district.updatedAt || dateFallback,
                         priority: 0.8,
                         changefreq: 'monthly' as const,

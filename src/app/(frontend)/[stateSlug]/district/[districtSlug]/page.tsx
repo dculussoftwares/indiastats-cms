@@ -3,6 +3,7 @@ import config from '@payload-config'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { DistrictPageClient } from './DistrictPageClient'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -31,7 +32,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { districtSlug } = await params
+  const { districtSlug, stateSlug } = await params
   const payload = await getPayload({ config })
 
   const district = await payload.find({
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const districtName = districtDoc.districtName
   const cleanName = districtName.split(' / ')[1] || districtName
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
-  const canonicalUrl = `${baseUrl}/tamil-nadu/district/${districtSlug}`
+  const canonicalUrl = `${baseUrl}/${stateSlug}/district/${districtSlug}`
 
   return {
     title: `${cleanName} District - Assembly Constituencies & Election Data`,
@@ -255,5 +256,21 @@ export default async function DistrictPage({ params }: PageProps) {
     notFound()
   }
 
-  return <DistrictPageClient data={data} stateSlug={stateSlug} />
+  return (
+    <div className="container py-6">
+      <Breadcrumbs
+        items={[
+          {
+            name: stateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+            url: `/${stateSlug}/dashboard`,
+          },
+          {
+            name: data.districtName.split(' / ')[1] || data.districtName,
+            url: `/${stateSlug}/district/${districtSlug}`,
+          },
+        ]}
+      />
+      <DistrictPageClient data={data} stateSlug={stateSlug} />
+    </div>
+  )
 }

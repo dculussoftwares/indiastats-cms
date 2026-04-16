@@ -3,6 +3,7 @@ import config from '@payload-config'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { AssemblyPageClient } from './AssemblyPageClient'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -46,7 +47,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { assemblySlug, districtSlug } = await params
+  const { assemblySlug, districtSlug, stateSlug } = await params
   const payload = await getPayload({ config })
 
   const assembly = await payload.find({
@@ -66,7 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Generate OG image URL
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const ogImageUrl = `${baseUrl}/api/og/${assemblyDoc.assemblyId}`
-  const canonicalUrl = `${baseUrl}/tamil-nadu/assembly/${districtSlug}/${assemblySlug}`
+  const canonicalUrl = `${baseUrl}/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`
 
   return {
     title: `${cleanName} Assembly - Voter Data & Election History`,
@@ -258,5 +259,25 @@ export default async function AssemblyPage({ params }: PageProps) {
     notFound()
   }
 
-  return <AssemblyPageClient data={data} stateSlug={stateSlug} />
+  return (
+    <div className="container py-6">
+      <Breadcrumbs
+        items={[
+          {
+            name: stateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+            url: `/${stateSlug}/dashboard`,
+          },
+          {
+            name: data.districtName.split(' / ')[1] || data.districtName,
+            url: `/${stateSlug}/district/${districtSlug}`,
+          },
+          {
+            name: data.name.split(' / ')[1] || data.name,
+            url: `/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`,
+          },
+        ]}
+      />
+      <AssemblyPageClient data={data} stateSlug={stateSlug} />
+    </div>
+  )
 }

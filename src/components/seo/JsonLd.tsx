@@ -1,6 +1,3 @@
-'use client'
-
-import { useEffect } from 'react'
 
 // Types for structured data
 interface OrganizationSchema {
@@ -87,32 +84,17 @@ const WEBSITE_DATA: WebsiteSchema = {
  * Component to inject JSON-LD structured data into the page
  */
 export function JsonLd({ data }: { data: object }) {
-  useEffect(() => {
-    const typeValue = (data as { '@type'?: string })['@type'] || 'unknown'
-    // Create a safe ID for the data-id attribute (no special characters)
-    const safeId = typeValue.replace(/[^a-zA-Z0-9]/g, '-')
+  const typeValue = (data as { '@type'?: string })['@type'] || 'unknown'
+  // Create a safe ID for the data-id attribute (no special characters)
+  const safeId = typeValue.replace(/[^a-zA-Z0-9]/g, '-')
 
-    // Check if script already exists
-    const existingScript = document.querySelector(
-      `script[type="application/ld+json"][data-id="${safeId}"]`,
-    )
-    if (existingScript) {
-      existingScript.innerHTML = JSON.stringify(data)
-      return
-    }
-
-    const script = document.createElement('script')
-    script.type = 'application/ld+json'
-    script.setAttribute('data-id', safeId)
-    script.innerHTML = JSON.stringify(data)
-    document.head.appendChild(script)
-
-    return () => {
-      script.remove()
-    }
-  }, [data])
-
-  return null
+  return (
+    <script
+      type="application/ld+json"
+      data-id={safeId}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  )
 }
 
 /**

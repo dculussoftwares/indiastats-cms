@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import BoothPageClient from './BoothPageClient'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 interface Props {
   params: Promise<{
@@ -14,11 +15,33 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { boothId } = await params
+  const { boothId, assemblySlug, districtSlug, stateSlug } = await params
+  const payload = await getPayload({ config })
+
+  const assemblies = await payload.find({
+    collection: 'assemblies',
+    where: { slug: { equals: assemblySlug } },
+    limit: 1,
+  })
+
+  const assembly = assemblies.docs[0] as any
+  const assemblyName = assembly?.name || 'Assembly'
+  const cleanName = assemblyName.split(' / ')[1] || assemblyName
+
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const canonicalUrl = `${baseUrl}/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths/${boothId}`
 
   return {
-    title: `Booth ${boothId} | IndiaStats`,
-    description: `View details and voter list for polling booth ${boothId}.`,
+    title: `Polling Booth ${boothId} - ${cleanName} Assembly | IndiaStats`,
+    description: `Detailed voter information and statistics for polling booth ${boothId} in ${cleanName} assembly constituency, ${assembly?.districtName || ''}.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `Booth ${boothId} - ${cleanName} Assembly`,
+      description: `View details for polling booth ${boothId} in ${cleanName} constituency.`,
+      url: canonicalUrl,
+    },
   }
 }
 
@@ -41,14 +64,42 @@ export default async function BoothPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const voters = assembly.voters as any
 
+  const assemblyName = assembly.name || 'Assembly'
+
   return (
-    <BoothPageClient
-      districtSlug={districtSlug}
-      assemblySlug={assemblySlug}
-      boothId={boothId}
-      assemblyName={assembly.name || 'Assembly'}
-      isReservedAc={voters?.isReservedAc || false}
-      stateSlug={stateSlug}
-    />
+    <div className="container py-6">
+      <Breadcrumbs
+        items={[
+          {
+            name: stateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+            url: `/${stateSlug}/dashboard`,
+          },
+          {
+            name: (assembly as any).districtName?.split(' / ')[1] || (assembly as any).districtName || 'District',
+            url: `/${stateSlug}/district/${districtSlug}`,
+          },
+          {
+            name: assemblyName.split(' / ')[1] || assemblyName,
+            url: `/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`,
+          },
+          {
+            name: 'Booths',
+            url: `/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths`,
+          },
+          {
+            name: `Booth ${boothId}`,
+            url: `/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths/${boothId}`,
+          },
+        ]}
+      />
+      <BoothPageClient
+        districtSlug={districtSlug}
+        assemblySlug={assemblySlug}
+        boothId={boothId}
+        assemblyName={assemblyName}
+        isReservedAc={voters?.isReservedAc || false}
+        stateSlug={stateSlug}
+      />
+    </div>
   )
 }

@@ -9,7 +9,7 @@ const getAssembliesSitemap = unstable_cache(
         const SITE_URL =
             process.env.NEXT_PUBLIC_SERVER_URL ||
             process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-            'https://example.com'
+            'https://indiastats.org'
 
         // First get all districts to map districtName to districtId
         const districtsResult = await payload.find({
@@ -32,6 +32,26 @@ const getAssembliesSitemap = unstable_cache(
             }
         })
 
+        // Get all states to map stateCode to stateSlug
+        const statesResult = await payload.find({
+            collection: 'states',
+            overrideAccess: false,
+            depth: 0,
+            limit: 100,
+            pagination: false,
+            select: {
+                stateCode: true,
+                slug: true,
+            },
+        })
+
+        const stateCodeToSlugMap: Record<string, string> = {}
+        statesResult.docs.forEach((s: any) => {
+            if (s.stateCode && s.slug) {
+                stateCodeToSlugMap[s.stateCode] = s.slug
+            }
+        })
+
         // Get all assemblies
         const results = await payload.find({
             collection: 'assemblies',
@@ -44,6 +64,7 @@ const getAssembliesSitemap = unstable_cache(
                 name: true,
                 districtName: true,
                 slug: true,
+                stateCode: true,
                 updatedAt: true,
             },
         })
@@ -55,8 +76,9 @@ const getAssembliesSitemap = unstable_cache(
                 .filter((assembly: any) => Boolean(assembly?.slug))
                 .map((assembly: any) => {
                     const districtSlug = districtNameToSlugMap[assembly.districtName] || ''
+                    const stateSlug = stateCodeToSlugMap[assembly.stateCode] || 'tamil-nadu'
                     return {
-                        loc: `${SITE_URL}/tamil-nadu/assembly/${districtSlug}/${assembly.slug}`,
+                        loc: `${SITE_URL}/${stateSlug}/assembly/${districtSlug}/${assembly.slug}`,
                         lastmod: assembly.updatedAt || dateFallback,
                         priority: 0.7,
                         changefreq: 'monthly' as const,
