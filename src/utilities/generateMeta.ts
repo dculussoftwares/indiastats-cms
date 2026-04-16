@@ -24,17 +24,24 @@ export const generateMeta = async (args: {
 }): Promise<Metadata> => {
   const { doc } = args
 
-  const ogImage = getImageURL(doc?.meta?.image)
+  const docMeta = doc?.meta as
+    | {
+        title?: string | null
+        image?: (number | null) | Media
+        description?: string | null
+        keywords?: string | null
+      }
+    | undefined
 
-  const title = doc?.meta?.title
-    ? doc?.meta?.title + ' | IndiaStats.org'
-    : 'IndiaStats.org'
+  const ogImage = getImageURL(docMeta?.image)
+
+  const title = docMeta?.title ? docMeta?.title + ' | IndiaStats.org' : 'IndiaStats.org'
 
   return {
-    description: doc?.meta?.description,
-    keywords: doc?.meta?.keywords,
+    description: docMeta?.description,
+    keywords: docMeta?.keywords,
     openGraph: mergeOpenGraph({
-      description: doc?.meta?.description || '',
+      description: docMeta?.description || '',
       images: ogImage
         ? [
             {
