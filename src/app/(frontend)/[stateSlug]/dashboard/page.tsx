@@ -5,10 +5,39 @@ import { Map, MapPinned, Locate, UsersRound } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { DashboardClient } from './DashboardClient'
 
-export const metadata: Metadata = {
-  title: 'Dashboard | Tamil Nadu Election Data',
-  description:
-    'Comprehensive Tamil Nadu election data, assembly constituency analysis, and electoral insights',
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { stateSlug } = await params
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
+  const canonicalUrl = `${baseUrl}/${stateSlug}/dashboard`
+
+  return {
+    title: 'Dashboard | IndiaStats.org',
+    description: 'Comprehensive Tamil Nadu election data, assembly constituency analysis, and electoral insights.',
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: 'Tamil Nadu Election Dashboard - IndiaStats.org',
+      description: 'Explore state-wide election statistics, district-wise assembly constituencies, and voter data.',
+      type: 'website',
+      url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'Tamil Nadu Election Data Dashboard',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Tamil Nadu Election Data Dashboard',
+      description: 'Explore state-wide election statistics and voter data on IndiaStats.org.',
+      images: [ogImageUrl],
+    },
+  }
 }
 
 async function getDashboardData() {

@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cleanName = name.split(' / ')[1] || name
 
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const ogImageUrl = `${baseUrl}/api/og/${assembly.assemblyId}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths`
 
   return {
@@ -40,6 +41,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `Polling Booths in ${cleanName} Assembly`,
       description: `Explore all polling booths in ${cleanName} assembly constituency.`,
       url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${cleanName} Assembly Profile`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Polling Booths in ${cleanName} Assembly`,
+      description: `Complete list of polling booths in ${cleanName} assembly constituency.`,
+      images: [ogImageUrl],
     },
   }
 }

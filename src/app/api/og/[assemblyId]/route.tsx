@@ -1,6 +1,8 @@
 import { ImageResponse } from 'next/og'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { getStateByCode } from '@/config/states'
+import { identifyBloc } from '@/utilities/blocs'
 
 export const runtime = 'nodejs'
 export const revalidate = 86400 // Cache for 24 hours
@@ -8,11 +10,6 @@ export const revalidate = 86400 // Cache for 24 hours
 // OG Image dimensions (Twitter large card)
 const WIDTH = 1200
 const HEIGHT = 630
-
-// DMK Alliance parties
-const DMK_BLOC = ['DMK', 'INC', 'CPI', 'CPM', 'MDMK', 'VCK', 'MMK', 'IUML', 'PMK']
-// AIADMK Alliance parties
-const AIADMK_BLOC = ['AIADMK', 'ADMK', 'BJP', 'DMDK', 'PMK', 'TMC(M)', 'PT']
 
 export async function GET(
   request: Request,
@@ -35,6 +32,34 @@ export async function GET(
 
     const assembly = assemblyResult.docs[0] as any
     const assemblyName = assembly.name?.split(' / ')[1] || assembly.name || 'Assembly'
+    const stateCode = assembly.stateCode || 'TN'
+
+    // Get State configuration (priority: Database > Static Config)
+    const stateResult = await payload.find({
+      collection: 'states',
+      where: { stateCode: { equals: stateCode } },
+      limit: 1,
+    })
+
+    const stateDoc = stateResult.docs[0] as any
+    const staticConfig = getStateByCode(stateCode)
+
+    // Bloc definitions (e.g., DMK Bloc, AIADMK Bloc)
+    const blocConfigs = stateDoc?.blocs || staticConfig?.blocs || []
+
+    // Get all alliances for this state to map historical winners to blocs
+    const alliancesResult = await payload.find({
+      collection: 'alliances',
+      where: { stateCode: { equals: stateCode } },
+      limit: 1000,
+    })
+
+    // Group alliances by year for faster lookup
+    const allianceMap: Record<number, any[]> = {}
+    alliancesResult.docs.forEach((a: any) => {
+      if (!allianceMap[a.electionYear]) allianceMap[a.electionYear] = []
+      allianceMap[a.electionYear].push(a)
+    })
 
     // Get election history
     const historyResult = await payload.find({
@@ -63,14 +88,15 @@ export async function GET(
       }
     })
 
-    historyByYear.forEach((candidates) => {
+    historyByYear.forEach((candidates, year) => {
       candidates.sort((a, b) => b.votes - a.votes)
       const winnerParty = candidates[0]?.party || 'IND'
       partyWins[winnerParty] = (partyWins[winnerParty] || 0) + 1
 
-      if (DMK_BLOC.includes(winnerParty)) {
+      const blocType = identifyBloc(winnerParty, year, stateCode, allianceMap, stateDoc)
+      if (blocType === 'dmk') {
         dmkBlocWins++
-      } else if (AIADMK_BLOC.includes(winnerParty)) {
+      } else if (blocType === 'aiadmk') {
         aiadmkBlocWins++
       }
     })

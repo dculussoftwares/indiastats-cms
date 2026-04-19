@@ -1,14 +1,44 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { Metadata } from 'next'
 import { CasteDemographicsClient } from './CasteDemographicsClient'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
 
-export const metadata = {
-  title: 'Caste Demographics - Tamil Nadu Assembly Constituencies | IndiaStats',
-  description:
-    'Explore caste composition data across all 234 assembly constituencies in Tamil Nadu. Search, filter, and analyze demographic patterns.',
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { stateSlug } = await params
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
+  const canonicalUrl = `${baseUrl}/${stateSlug}/caste-demographics`
+
+  return {
+    title: 'Caste Demographics - Tamil Nadu Assembly Constituencies | IndiaStats',
+    description: 'Explore caste composition data across all 234 assembly constituencies in Tamil Nadu. Search, filter, and analyze demographic patterns.',
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: 'Tamil Nadu Caste Demographics - IndiaStats.org',
+      description: 'Explore caste composition data across all 234 assembly constituencies in Tamil Nadu.',
+      type: 'website',
+      url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'Tamil Nadu Caste Demographics Profile',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Tamil Nadu Caste Demographics',
+      description: 'Detailed caste composition data for Tamil Nadu assembly constituencies.',
+      images: [ogImageUrl],
+    },
+  }
 }
 
 interface CasteData {

@@ -10,6 +10,7 @@ import {
   getStateByCode,
 } from '@/config/states'
 import { trackClicked, getPageContext } from '@/analytics'
+import { identifyBloc } from '@/utilities/blocs'
 
 interface Candidate {
   name: string
@@ -76,48 +77,6 @@ const getLeaderImage = (stateCode: string, name: string, isAlliance?: boolean): 
   return getLeaderImageFromConfig(stateCode, name)
 }
 
-// Determine bloc type based on parties/alliance name
-// Priority: 1) Direct party name match (DMK/AIADMK only), 2) Alliance mapping from database
-// No hardcoded party lists - strictly use alliance data
-const getBlocType = (
-  party: string,
-  partyToAlliance?: Record<string, string>,
-): 'dmk' | 'aiadmk' | 'other' => {
-  // FIRST: Direct party check - only DMK and AIADMK variants
-  if (party === 'DMK') return 'dmk'
-  if (party === 'AIADMK' || party === 'ADMK' || party === 'AIADMK(J)' || party === 'AIADMK(JA)') {
-    return 'aiadmk'
-  }
-
-  // SECOND: Check alliance mapping from database for other parties
-  if (partyToAlliance && partyToAlliance[party]) {
-    const alliance = partyToAlliance[party]
-
-    // Check if alliance is DMK-led
-    if (
-      (alliance.includes('DMK') && !alliance.includes('AIADMK') && !alliance.includes('NDA')) ||
-      alliance.includes('Secular Progressive') ||
-      alliance.includes('DPA') ||
-      alliance.includes('Democratic Progressive') ||
-      alliance.includes('National Front')
-    ) {
-      return 'dmk'
-    }
-
-    // Check if alliance is AIADMK-led
-    if (
-      alliance.includes('AIADMK') ||
-      alliance.includes('NDA') ||
-      alliance.includes('SDPA') ||
-      alliance.includes('Secular Democratic Progressive')
-    ) {
-      return 'aiadmk'
-    }
-  }
-
-  // No hardcoded fallbacks - if not in alliance data, classify as 'other'
-  return 'other'
-}
 
 export function MostWinningPartiesCard({
   historicData,
@@ -189,18 +148,7 @@ export function MostWinningPartiesCard({
         const party = winner.party
         const year = data.year
 
-        // Get alliance mapping for this year
-        const yearAlliances = (allianceData && allianceData[year]) || []
-
-        // Find which alliance this party belongs to
-        const partyToAlliance: Record<string, string> = {}
-        yearAlliances.forEach((alliance) => {
-          alliance.parties?.forEach((p) => {
-            partyToAlliance[p.partyName] = alliance.allianceName
-          })
-        })
-
-        const blocType = getBlocType(party, partyToAlliance)
+        const blocType = identifyBloc(party, year, stateCode, allianceData)
 
         if (blocType === 'dmk') {
           dmkBloc.wins++

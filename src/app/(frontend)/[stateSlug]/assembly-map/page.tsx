@@ -8,12 +8,44 @@ import { TamilNaduGeoJson } from '@/components/AssemblyMap/staticData'
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
 
-export const metadata: Metadata = {
-  title: 'Tamil Nadu Assembly Map - Interactive Constituency Visualization | IndiaStats',
-  description:
-    'Interactive map of Tamil Nadu assembly constituencies with detailed electoral data, geographical boundaries, and constituency information.',
-  keywords:
-    'Tamil Nadu assembly map, constituency map, electoral boundaries, assembly seats, district map',
+interface Props {
+  params: Promise<{ stateSlug: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { stateSlug } = await params
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
+  const canonicalUrl = `${baseUrl}/${stateSlug}/assembly-map`
+
+  return {
+    title: 'Tamil Nadu Assembly Map - Interactive Constituency Visualization | IndiaStats',
+    description: 'Interactive map of Tamil Nadu assembly constituencies with detailed electoral data, geographical boundaries, and constituency information.',
+    keywords: 'Tamil Nadu assembly map, constituency map, electoral boundaries, assembly seats, district map',
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: 'Interactive Tamil Nadu Assembly Map - IndiaStats.org',
+      description: 'Explore the Tamil Nadu assembly constituencies with our interactive map and detailed election data.',
+      type: 'website',
+      url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'Tamil Nadu Assembly Map Visualization',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Interactive Tamil Nadu Assembly Map',
+      description: 'Explore assembly constituencies and election data through our interactive map.',
+      images: [ogImageUrl],
+    },
+  }
 }
 
 // Fetch map stats at build time
@@ -150,8 +182,9 @@ async function getCasteData() {
   return casteDataMap
 }
 
-export default async function AssemblyMapPage() {
+export default async function AssemblyMapPage({ params }: Props) {
   // Fetch data at build time (server-side)
+  const { stateSlug } = await params
   const [mapStats, casteDataMap] = await Promise.all([getMapStats(), getCasteData()])
 
   return (

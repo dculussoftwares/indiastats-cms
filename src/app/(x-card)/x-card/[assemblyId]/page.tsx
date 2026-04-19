@@ -99,6 +99,7 @@ async function getAssemblyCardData(assemblyId: string) {
 
   return {
     assemblyId: assembly.assemblyId,
+    stateCode: assembly.stateCode || 'TN',
     name: assembly.name,
     districtName: assembly.districtName,
     districtId: assembly.districtId,

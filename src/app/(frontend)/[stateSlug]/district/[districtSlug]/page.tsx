@@ -49,6 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const districtName = districtDoc.districtName
   const cleanName = districtName.split(' / ')[1] || districtName
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const ogImageUrl = `${baseUrl}/api/og/district/${districtDoc.districtId}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/district/${districtSlug}`
 
   return {
@@ -69,11 +70,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: districtDoc.metaDescription || `View all assembly constituencies and election history for ${cleanName} district, Tamil Nadu.`,
       type: 'website',
       url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${cleanName} District Election Profile`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: `${cleanName} District - Election Data`,
       description: districtDoc.metaDescription || `Explore election data for ${cleanName} district assembly constituencies.`,
+      images: [ogImageUrl],
     },
   }
 }
