@@ -35,6 +35,10 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
+  experimental: {
+    cpus: 1,
+    workerThreads: false,
+  },
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })
