@@ -128,14 +128,14 @@ export function ElectionDataTable() {
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.ELECTION_DATA,
-      page_url: typeof window !== 'undefined' ? window.location.href : '',
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      page_url: typeof window !== 'undefined' ? window.location.href : undefined,
+      page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
     })
     trackViewed({ name: 'election_data_page',
       page_name: PAGE_NAMES.ELECTION_DATA,
       page_type: 'other',
-      page_url: typeof window !== 'undefined' ? window.location.href : '',
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      page_url: typeof window !== 'undefined' ? window.location.href : undefined,
+      page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
     })
   }, [])
 

@@ -20,9 +20,14 @@ const isDev = typeof window !== 'undefined' && process.env.NODE_ENV === 'develop
 let currentPageContext: Partial<UniversalEventProperties> = {}
 
 export const setPageContext = (context: Partial<UniversalEventProperties>) => {
+  // Filter out undefined/null values from context before merging
+  const cleanContext = Object.fromEntries(
+    Object.entries(context).filter(([_, value]) => value !== undefined && value !== null),
+  ) as Partial<UniversalEventProperties>
+
   currentPageContext = {
     ...currentPageContext,
-    ...context,
+    ...cleanContext,
   }
 
   if (isDev) {
@@ -63,8 +68,15 @@ export const normalizeEventName = (eventName: string): string => {
 export const normalizeProperties = (properties?: Record<string, unknown>): Record<string, unknown> => {
   if (!properties) return {}
 
+  // Base universal properties from window if available
+  const baseProperties: Record<string, unknown> = {
+    page_url: typeof window !== 'undefined' ? window.location.href : undefined,
+    page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+  }
+
   // Ensure universal properties are included
   const normalized: Record<string, unknown> = {
+    ...baseProperties,
     ...currentPageContext,
     ...properties,
   }
@@ -77,15 +89,9 @@ export const normalizeProperties = (properties?: Record<string, unknown>): Recor
   }
 
   // Filter out undefined/null values
-  return Object.entries(normalized).reduce(
-    (acc, [key, value]) => {
-      if (value !== undefined && value !== null) {
-        acc[key] = value
-      }
-      return acc
-    },
-    {} as Record<string, unknown>,
-  )
+  return Object.fromEntries(
+    Object.entries(normalized).filter(([_, value]) => value !== undefined && value !== null),
+  ) as Record<string, unknown>
 }
 
 // ============================================

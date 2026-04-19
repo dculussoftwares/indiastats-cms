@@ -350,8 +350,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.ASSEMBLY_MAP,
-      page_url: typeof window !== 'undefined' ? window.location.href : '',
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      page_url: typeof window !== 'undefined' ? window.location.href : undefined,
+      page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
     })
   }, [])
 

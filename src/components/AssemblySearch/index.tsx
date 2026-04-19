@@ -257,6 +257,8 @@ export const AssemblySearch: React.FC<AssemblySearchProps> = ({
       const pageContext = getPageContext()
       trackViewed({ name: 'assembly',
         page_name: pageContext.page_name || 'Assembly Detail',
+        page_url: typeof window !== 'undefined' ? window.location.href : undefined,
+        page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
         assembly_id: selectedAssembly.assemblyId,
         assembly_name: selectedAssembly.name,
         district_id: selectedDistrict.districtId,

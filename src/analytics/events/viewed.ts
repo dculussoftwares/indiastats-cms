@@ -18,10 +18,19 @@ export type ViewedEvent =
 export function trackViewed(
   properties: { name: ViewedEvent; page_name: string; page_url?: string; page_path?: string } & Record<string, unknown>,
 ) {
+  // Fallback to window.location if not provided
+  const page_url = properties.page_url || (typeof window !== 'undefined' ? window.location.href : undefined)
+  const page_path = properties.page_path || (typeof window !== 'undefined' ? window.location.pathname : undefined)
+
   setPageContext({
     page_name: properties.page_name,
-    page_url: properties.page_url,
-    page_path: properties.page_path,
+    page_url,
+    page_path,
   })
-  track('viewed', properties)
+
+  track('viewed', {
+    ...properties,
+    page_url,
+    page_path,
+  })
 }
