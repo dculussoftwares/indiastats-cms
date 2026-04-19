@@ -54,6 +54,7 @@ export async function GET(
           collection: 'assemblies',
           where: { stateCode: { equals: stateCode } },
           limit: 1000,
+          depth: 0,
           select: { voters: true, noOfBooths: true },
         }),
       ])

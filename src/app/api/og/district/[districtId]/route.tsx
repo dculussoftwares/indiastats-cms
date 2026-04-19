@@ -24,6 +24,7 @@ export async function GET(
       collection: 'districts',
       where: { districtId: { equals: districtId } },
       limit: 1,
+      depth: 0,
     })
 
     if (!districtResult.docs[0]) {
@@ -45,6 +46,7 @@ export async function GET(
       collection: 'states',
       where: { stateCode: { equals: stateCode } },
       limit: 1,
+      depth: 0,
     })
     const rawStateName = (stateResult.docs[0] as any)?.name || 'Tamil Nadu'
     const cleanStateName = rawStateName.includes(' / ')
@@ -56,6 +58,8 @@ export async function GET(
       collection: 'assemblies',
       where: { districtName: { equals: district.districtName } },
       limit: 100,
+      depth: 0,
+      select: { voters: true, noOfBooths: true },
     })
 
     const assemblies = assembliesResult.docs

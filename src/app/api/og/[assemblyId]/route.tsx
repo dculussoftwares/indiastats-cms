@@ -25,6 +25,7 @@ export async function GET(
       collection: 'assemblies',
       where: { assemblyId: { equals: assemblyId } },
       limit: 1,
+      depth: 0,
     })
 
     if (!assemblyResult.docs[0]) {
@@ -50,6 +51,7 @@ export async function GET(
       collection: 'states',
       where: { stateCode: { equals: stateCode } },
       limit: 1,
+      depth: 0,
     })
 
     const stateDoc = stateResult.docs[0] as any
@@ -61,6 +63,7 @@ export async function GET(
       where: { assemblyId: { equals: assemblyId } },
       sort: '-electionYear',
       limit: 500,
+      depth: 0,
     })
 
     // Calculate party wins
