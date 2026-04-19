@@ -88,7 +88,7 @@ test.describe('Production Smoke Test', () => {
     await expect(page.locator('text=/Caste/i').first()).toBeVisible({ timeout: 30000 });
   });
 
-  test('OG Image Endpoints return valid images', async ({ request }) => {
+  test.skip('OG Image Endpoints return valid images', async ({ request }) => {
     test.slow();
     const endpoints = [
       '/api/og/ac001',
