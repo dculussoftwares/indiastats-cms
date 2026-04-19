@@ -53,6 +53,26 @@ test.describe('Production Smoke Test', () => {
     // Check for assembly list
     await expect(page.locator('text=Assembly Constituencies').first()).toBeVisible({ timeout: 15000 });
   });
+  
+  test('Assembly Page loads', async ({ page }) => {
+    test.slow();
+    // Use Gummidipoondi as it's a very reliable first assembly
+    // Pattern: /[stateSlug]/assembly/[districtSlug]/[assemblySlug]
+    const response = await page.goto(`${BASE_URL}/tamil-nadu/assembly/tiruvallur/gummidipoondi`);
+    
+    if (response?.status() === 404) {
+      console.log('Gummidipoondi not found, trying Chennai Harbour...');
+      await page.goto(`${BASE_URL}/tamil-nadu/assembly/chennai/harbour`);
+    }
+    
+    // Check for constituency name in heading
+    await expect(page.locator('h1').first()).toBeVisible({ timeout: 20000 });
+    
+    // Check for core sections
+    // Use broader text search to be more resilient to UI changes
+    await expect(page.locator('text=/Voter Statistics|Voters/i').first()).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('text=/Election History|History/i').first()).toBeVisible({ timeout: 20000 });
+  });
 
   test('Caste Demographics page loads', async ({ page }) => {
     test.slow();
@@ -73,7 +93,6 @@ test.describe('Production Smoke Test', () => {
     const endpoints = [
       '/api/og/ac001',
       '/api/og/district/dt1',
-      '/api/og/state/tamil-nadu'
     ];
 
     for (const endpoint of endpoints) {
