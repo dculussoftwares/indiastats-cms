@@ -44,18 +44,10 @@ export async function GET(
     const stateCode = stateDoc?.stateCode || staticConfig?.code || 'TN'
 
     // Get aggregate stats filtered by state
-    const [assembliesCount, districtsCount, boothsCount, assembliesData] =
+    const [districtsResult, assembliesResult] =
       await Promise.all([
         payload.count({
-          collection: 'assemblies',
-          where: { stateCode: { equals: stateCode } },
-        }),
-        payload.count({
           collection: 'districts',
-          where: { stateCode: { equals: stateCode } },
-        }),
-        payload.count({
-          collection: 'booths',
           where: { stateCode: { equals: stateCode } },
         }),
         payload.find({
@@ -67,12 +59,14 @@ export async function GET(
       ])
 
     // Calculate aggregate stats
+    const districtsCount = districtsResult.totalDocs
+    const assembliesCount = assembliesResult.totalDocs
     let totalVoters = 0
     let totalMale = 0
     let totalFemale = 0
     let totalBooths = 0
 
-    assembliesData.docs.forEach((a: any) => {
+    assembliesResult.docs.forEach((a: any) => {
       if (a.voters?.total) {
         totalVoters += Number(a.voters.total)
       }
@@ -180,8 +174,8 @@ export async function GET(
             }}
           >
             {[
-              { label: 'Districts', value: districtsCount.totalDocs, color: '#3b82f6' },
-              { label: 'Constituencies', value: assembliesCount.totalDocs, color: '#ef4444' },
+              { label: 'Districts', value: districtsCount, color: '#3b82f6' },
+              { label: 'Constituencies', value: assembliesCount, color: '#ef4444' },
               { label: 'Polling Booths', value: totalBooths.toLocaleString('en-IN'), color: '#10b981' },
             ].map((stat, i) => (
               <div
