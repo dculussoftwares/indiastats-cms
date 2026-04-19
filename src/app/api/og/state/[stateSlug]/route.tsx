@@ -1,6 +1,9 @@
 import { ImageResponse } from 'next/og'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { readFileSync } from 'fs'
+import { join } from 'path'
+import { getStateBySlug } from '@/config/states'
 
 export const runtime = 'nodejs'
 export const revalidate = 86400 // Cache for 24 hours
@@ -24,13 +27,21 @@ export async function GET(
       limit: 1,
     })
 
-    if (!stateResult.docs[0]) {
+    const stateDoc = stateResult.docs[0] as any
+    const staticConfig = getStateBySlug(stateSlug)
+
+    if (!stateDoc && !staticConfig) {
       return new Response('State not found', { status: 404 })
     }
 
-    const state = stateResult.docs[0] as any
-    const stateName = state.name || 'State'
-    const stateCode = state.stateCode
+    const rawName = stateDoc?.name || staticConfig?.name || 'State'
+    
+    // Extract English name (remove Tamil part if present in bilingual format)
+    const enName = rawName.includes(' / ')
+      ? rawName.split(' / ').find((s: string) => !/[\u0B80-\u0BFF]/.test(s))?.trim() || rawName
+      : rawName
+
+    const stateCode = stateDoc?.stateCode || staticConfig?.code || 'TN'
 
     // Get aggregate stats filtered by state
     const [assembliesCount, districtsCount, boothsCount, assembliesData] =
@@ -51,17 +62,39 @@ export async function GET(
           collection: 'assemblies',
           where: { stateCode: { equals: stateCode } },
           limit: 1000,
-          select: { voters: true },
+          select: { voters: true, noOfBooths: true },
         }),
       ])
 
-    // Calculate total voters
+    // Calculate aggregate stats
     let totalVoters = 0
+    let totalMale = 0
+    let totalFemale = 0
+    let totalBooths = 0
+
     assembliesData.docs.forEach((a: any) => {
       if (a.voters?.total) {
         totalVoters += Number(a.voters.total)
       }
+      if (a.voters?.male) {
+        totalMale += Number(a.voters.male)
+      }
+      if (a.voters?.female) {
+        totalFemale += Number(a.voters.female)
+      }
+      if (a.noOfBooths) {
+        totalBooths += Number(a.noOfBooths)
+      }
     })
+
+    // Get Logo
+    const logoPath = join(process.cwd(), 'public/indiastats-logo-1024.png')
+    const logoBuffer = readFileSync(logoPath)
+    const logoBase64 = `data:image/jpeg;base64,${logoBuffer.toString('base64')}`
+
+    // Load fonts
+    const fontRegular = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Regular.ttf'))
+    const fontBold = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Bold.ttf'))
 
     // Generate the OG image
     return new ImageResponse(
@@ -71,8 +104,10 @@ export async function GET(
           height: HEIGHT,
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#ffffff',
-          fontFamily: 'system-ui, sans-serif',
+          backgroundColor: '#0f172a',
+          color: '#f8fafc',
+          fontFamily: 'Noto Sans, sans-serif',
+          backgroundImage: 'radial-gradient(circle at top right, #1e293b, #0f172a)',
         }}
       >
         {/* Header */}
@@ -80,23 +115,50 @@ export async function GET(
           style={{
             display: 'flex',
             alignItems: 'center',
-            padding: '24px 32px',
-            borderBottom: '4px solid #10b981', // Green for state
+            justifyContent: 'space-between',
+            padding: '24px 60px',
+            borderBottom: '1px solid #334155',
           }}
         >
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
+              flex: 1,
+              marginRight: 20,
             }}
           >
-            <span style={{ fontSize: 56, fontWeight: 700, color: '#111827' }}>
-              {stateName} Dashboard
+            <span
+              style={{
+                fontSize: 54,
+                fontWeight: 900,
+                color: '#f8fafc',
+                letterSpacing: '-0.025em',
+                lineHeight: 1.1,
+              }}
+            >
+              {enName}
             </span>
-            <span style={{ fontSize: 24, color: '#6b7280', marginTop: 4 }}>
-              Comprehensive Electoral & Demographic Data
+            <span
+              style={{
+                fontSize: 20,
+                fontWeight: 500,
+                color: '#64748b',
+                marginTop: 8,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+              }}
+            >
+              State Dashboard • Comprehensive Electoral Data
             </span>
           </div>
+          <img
+            src={logoBase64}
+            alt="IndiaStats Logo"
+            width={180}
+            height={48}
+            style={{ objectFit: 'contain' }}
+          />
         </div>
 
         {/* Main Content */}
@@ -104,8 +166,8 @@ export async function GET(
           style={{
             display: 'flex',
             flex: 1,
-            padding: '32px',
-            gap: 24,
+            padding: '24px 60px',
+            gap: 32,
           }}
         >
           {/* Stats Grid */}
@@ -113,104 +175,191 @@ export async function GET(
             style={{
               display: 'flex',
               flexWrap: 'wrap',
-              flex: 1,
-              gap: 24,
+              flex: 1.2,
+              gap: 16,
             }}
           >
             {[
-              { label: 'Districts', value: districtsCount.totalDocs, color: '#3b82f6' },
-              { label: 'Constituencies', value: assembliesCount.totalDocs, color: '#dc2626' },
-              { label: 'Polling Booths', value: boothsCount.totalDocs, color: '#8b5cf6' },
-              {
-                label: 'Total Voters',
-                value: totalVoters.toLocaleString('en-IN'),
-                color: '#111827',
-                fullWidth: true,
-              },
+              { label: 'Districts', value: districtsCount, color: '#3b82f6' },
+              { label: 'Constituencies', value: assembliesCount, color: '#ef4444' },
+              { label: 'Polling Booths', value: totalBooths.toLocaleString('en-IN'), color: '#10b981' },
             ].map((stat, i) => (
               <div
                 key={i}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  width: stat.fullWidth ? '100%' : 'calc(33.33% - 16px)',
-                  backgroundColor: '#f9fafb',
-                  padding: 24,
-                  borderRadius: 16,
-                  border: '1px solid #e5e7eb',
+                  width: 'calc(50% - 8px)',
+                  backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                  padding: '20px',
+                  borderRadius: 24,
+                  border: '1px solid #334155',
                 }}
               >
-                <span style={{ fontSize: 18, color: '#6b7280', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: stat.color, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   {stat.label}
                 </span>
                 <span
                   style={{
-                    fontSize: stat.fullWidth ? 56 : 42,
-                    fontWeight: 700,
-                    color: stat.color,
-                    marginTop: 8,
+                    fontSize: 40,
+                    fontWeight: 800,
+                    color: '#f8fafc',
+                    marginTop: 6,
                   }}
                 >
                   {stat.value}
                 </span>
               </div>
             ))}
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: 'calc(50% - 8px)',
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                padding: '16px',
+                borderRadius: 24,
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ fontSize: 16, color: '#ef4444', fontWeight: 700, textAlign: 'center', textTransform: 'uppercase' }}>
+                Visit IndiaStats.org
+              </span>
+              <span style={{ fontSize: 12, color: '#94a3b8', marginTop: 4, textAlign: 'center' }}>
+                For live results & trends
+              </span>
+            </div>
           </div>
 
-          {/* Sidebar */}
+          {/* Voter Stats Section */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              width: 300,
-              gap: 24,
+              flex: 1,
+              gap: 20,
             }}
           >
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
-                backgroundColor: '#1f2937',
-                borderRadius: 16,
-                padding: 24,
-                color: 'white',
+                backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                borderRadius: 24,
+                padding: '20px 24px',
+                border: '1px solid #334155',
               }}
             >
-              <span style={{ fontSize: 16, color: '#9ca3af', textTransform: 'uppercase' }}>
-                Platform
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
+                Total Voters
               </span>
-              <span style={{ fontSize: 24, fontWeight: 700, marginTop: 8 }}>IndiaStats.org</span>
-              <span style={{ fontSize: 16, color: '#d1d5db', marginTop: 12 }}>
-                Real-time election insights, MLA history, and caste demographics.
+              <span style={{ fontSize: 44, fontWeight: 800, color: '#f8fafc' }}>
+                {totalVoters.toLocaleString('en-IN')}
               </span>
             </div>
 
             <div
               style={{
                 display: 'flex',
-                flex: 1,
-                alignItems: 'flex-end',
-                justifyContent: 'center',
+                gap: 16,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    backgroundColor: '#dc2626',
-                    borderRadius: 8,
-                  }}
-                />
-                <span style={{ fontSize: 24, fontWeight: 700, color: '#111827' }}>IndiaStats</span>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: 1,
+                  backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                  borderRadius: 24,
+                  padding: 16,
+                  border: '1px solid #334155',
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 6 }}>
+                  Male
+                </span>
+                <span style={{ fontSize: 22, fontWeight: 700, color: '#f8fafc' }}>
+                  {totalMale.toLocaleString('en-IN')}
+                </span>
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: 1,
+                  backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                  borderRadius: 24,
+                  padding: 16,
+                  border: '1px solid #334155',
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 6 }}>
+                  Female
+                </span>
+                <span style={{ fontSize: 22, fontWeight: 700, color: '#f8fafc' }}>
+                  {totalFemale.toLocaleString('en-IN')}
+                </span>
               </div>
             </div>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                borderRadius: 24,
+                padding: '12px 16px',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Visit IndiaStats.org
+              </span>
+              <span style={{ fontSize: 12, color: '#94a3b8', marginTop: 4, textAlign: 'center' }}>
+                For live results & trends
+              </span>
+            </div>
           </div>
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            padding: '20px',
+            backgroundColor: '#0f172a',
+            borderTop: '1px solid #334155',
+          }}
+        >
+          <span style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>
+            Source: Election Commission of India • Data visualized by IndiaStats.org
+          </span>
         </div>
       </div>,
       {
         width: WIDTH,
         height: HEIGHT,
+        fonts: [
+          {
+            name: 'Noto Sans',
+            data: fontRegular,
+            weight: 400,
+            style: 'normal',
+          },
+          {
+            name: 'Noto Sans',
+            data: fontBold,
+            weight: 700,
+            style: 'normal',
+          },
+        ],
       },
     )
   } catch (error) {

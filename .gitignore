@@ -33,3 +33,5 @@ infra/.terraform.lock.hcl
 .oauth2-refresh-token.txt
 .new-refresh-token.txt
 /.idea/
+/.junie/
+/.claude/

@@ -2,7 +2,8 @@ import { ImageResponse } from 'next/og'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getStateByCode } from '@/config/states'
-import { identifyBloc } from '@/utilities/blocs'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 export const runtime = 'nodejs'
 export const revalidate = 86400 // Cache for 24 hours
@@ -31,8 +32,18 @@ export async function GET(
     }
 
     const assembly = assemblyResult.docs[0] as any
-    const assemblyName = assembly.name?.split(' / ')[1] || assembly.name || 'Assembly'
+    const rawName = assembly.name || 'Assembly'
+    
+    // Extract English name (remove Tamil part if present in bilingual format)
+    const enName = rawName.includes(' / ')
+      ? rawName.split(' / ').find((s: string) => !/[\u0B80-\u0BFF]/.test(s))?.trim() || rawName
+      : rawName
+
     const stateCode = assembly.stateCode || 'TN'
+    const districtName = assembly.districtName || ''
+    const cleanDistrictName = districtName.includes(' / ')
+      ? districtName.split(' / ').find((s) => !/[\u0B80-\u0BFF]/.test(s))?.trim() || districtName
+      : districtName
 
     // Get State configuration (priority: Database > Static Config)
     const stateResult = await payload.find({
@@ -44,23 +55,6 @@ export async function GET(
     const stateDoc = stateResult.docs[0] as any
     const staticConfig = getStateByCode(stateCode)
 
-    // Bloc definitions (e.g., DMK Bloc, AIADMK Bloc)
-    const blocConfigs = stateDoc?.blocs || staticConfig?.blocs || []
-
-    // Get all alliances for this state to map historical winners to blocs
-    const alliancesResult = await payload.find({
-      collection: 'alliances',
-      where: { stateCode: { equals: stateCode } },
-      limit: 1000,
-    })
-
-    // Group alliances by year for faster lookup
-    const allianceMap: Record<number, any[]> = {}
-    alliancesResult.docs.forEach((a: any) => {
-      if (!allianceMap[a.electionYear]) allianceMap[a.electionYear] = []
-      allianceMap[a.electionYear].push(a)
-    })
-
     // Get election history
     const historyResult = await payload.find({
       collection: 'election-history',
@@ -69,10 +63,8 @@ export async function GET(
       limit: 500,
     })
 
-    // Calculate party wins and bloc wins
+    // Calculate party wins
     const partyWins: Record<string, number> = {}
-    let dmkBlocWins = 0
-    let aiadmkBlocWins = 0
 
     const historyByYear = new Map<number, any[]>()
     historyResult.docs.forEach((record: any) => {
@@ -88,35 +80,37 @@ export async function GET(
       }
     })
 
-    historyByYear.forEach((candidates, year) => {
+    historyByYear.forEach((candidates) => {
       candidates.sort((a, b) => b.votes - a.votes)
       const winnerParty = candidates[0]?.party || 'IND'
       partyWins[winnerParty] = (partyWins[winnerParty] || 0) + 1
-
-      const blocType = identifyBloc(winnerParty, year, stateCode, allianceMap, stateDoc)
-      if (blocType === 'dmk') {
-        dmkBlocWins++
-      } else if (blocType === 'aiadmk') {
-        aiadmkBlocWins++
-      }
     })
 
-    // Get top 2 parties
+    // Get top winning parties
     const sortedParties = Object.entries(partyWins)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 2)
-
-    const party1 = sortedParties[0]
-      ? { name: sortedParties[0][0], wins: sortedParties[0][1] }
-      : null
-    const party2 = sortedParties[1]
-      ? { name: sortedParties[1][0], wins: sortedParties[1][1] }
-      : null
+      .map(([name, wins]) => ({ name, wins }))
 
     // Get voter data
     const totalVoters = assembly.voters?.total
       ? Number(assembly.voters.total).toLocaleString('en-IN')
       : 'N/A'
+    const maleVoters = assembly.voters?.male
+      ? Number(assembly.voters.male).toLocaleString('en-IN')
+      : 'N/A'
+    const femaleVoters = assembly.voters?.female
+      ? Number(assembly.voters.female).toLocaleString('en-IN')
+      : 'N/A'
+    const booths = assembly.noOfBooths?.toLocaleString('en-IN') || 'N/A'
+
+    // Get Logo
+    const logoPath = join(process.cwd(), 'public/indiastats-logo-1024.png')
+    const logoBuffer = readFileSync(logoPath)
+    const logoBase64 = `data:image/jpeg;base64,${logoBuffer.toString('base64')}`
+
+    // Load fonts
+    const fontRegular = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Regular.ttf'))
+    const fontBold = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Bold.ttf'))
 
     // Generate the OG image
     return new ImageResponse(
@@ -126,8 +120,10 @@ export async function GET(
           height: HEIGHT,
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#ffffff',
-          fontFamily: 'system-ui, sans-serif',
+          backgroundColor: '#0f172a',
+          color: '#f8fafc',
+          fontFamily: 'Noto Sans, sans-serif',
+          backgroundImage: 'radial-gradient(circle at top right, #1e293b, #0f172a)',
         }}
       >
         {/* Header */}
@@ -135,23 +131,49 @@ export async function GET(
           style={{
             display: 'flex',
             alignItems: 'center',
-            padding: '24px 32px',
-            borderBottom: '4px solid #dc2626',
+            justifyContent: 'space-between',
+            padding: '24px 60px',
+            borderBottom: '1px solid #334155',
           }}
         >
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
+              flex: 1,
+              marginRight: 20,
             }}
           >
-            <span style={{ fontSize: 48, fontWeight: 700, color: '#111827' }}>
-              {assemblyName} Assembly
+            <span
+              style={{
+                fontSize: 54,
+                fontWeight: 900,
+                color: '#f8fafc',
+                letterSpacing: '-0.025em',
+                lineHeight: 1.1,
+              }}
+            >
+              {enName}
             </span>
-            <span style={{ fontSize: 24, color: '#6b7280', marginTop: 4 }}>
-              {assembly.districtName} District, Tamil Nadu
+            <span
+              style={{
+                fontSize: 20,
+                fontWeight: 500,
+                color: '#64748b',
+                marginTop: 8,
+                letterSpacing: '0.1em',
+              }}
+            >
+              <span style={{ textTransform: 'uppercase' }}>Assembly Constituency •</span> {cleanDistrictName}
             </span>
           </div>
+          <img
+            src={logoBase64}
+            alt="IndiaStats Logo"
+            width={180}
+            height={48}
+            style={{ objectFit: 'contain' }}
+          />
         </div>
 
         {/* Main Content */}
@@ -159,8 +181,8 @@ export async function GET(
           style={{
             display: 'flex',
             flex: 1,
-            padding: '24px 32px',
-            gap: 24,
+            padding: '24px 60px',
+            gap: 32,
           }}
         >
           {/* Political Section */}
@@ -168,152 +190,207 @@ export async function GET(
             style={{
               display: 'flex',
               flexDirection: 'column',
-              flex: 1,
-              backgroundColor: '#1f2937',
-              borderRadius: 16,
+              flex: 1.4,
+              backgroundColor: 'rgba(30, 41, 59, 0.5)',
+              borderRadius: 24,
               padding: 24,
+              border: '1px solid #334155',
             }}
           >
             <span
               style={{
-                fontSize: 18,
-                color: '#9ca3af',
+                fontSize: 14,
+                fontWeight: 700,
+                color: '#ef4444',
                 textTransform: 'uppercase',
-                letterSpacing: 2,
-                textAlign: 'center',
-                marginBottom: 20,
+                letterSpacing: '0.1em',
+                marginBottom: 24,
               }}
             >
-              🏆 MOST WINNING PARTIES (1977-2021)
+              Election History (Since 1977)
             </span>
 
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 40,
+                flexDirection: 'column',
+                gap: 8,
               }}
             >
-              {party1 && (
+              {sortedParties.slice(0, 5).map((party, index) => (
                 <div
+                  key={index}
                   style={{
                     display: 'flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    backgroundColor: index === 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: 12,
+                    border: index === 0 ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid transparent',
                   }}
                 >
-                  <span style={{ fontSize: 72, fontWeight: 700, color: '#ef4444' }}>
-                    {party1.wins}
-                  </span>
-                  <span style={{ fontSize: 24, fontWeight: 600, color: 'white' }}>
-                    {party1.name}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <span
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 700,
+                        color: index === 0 ? '#ef4444' : '#f1f5f9',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: 300,
+                      }}
+                    >
+                      {party.name}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 28, fontWeight: 800, color: index === 0 ? '#ef4444' : '#f8fafc' }}>
+                      {party.wins}
+                    </span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8' }}>WINS</span>
+                  </div>
                 </div>
-              )}
-
-              <span style={{ fontSize: 28, fontWeight: 700, color: '#6b7280' }}>VS</span>
-
-              {party2 && (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                  }}
-                >
-                  <span style={{ fontSize: 72, fontWeight: 700, color: '#9ca3af' }}>
-                    {party2.wins}
-                  </span>
-                  <span style={{ fontSize: 24, fontWeight: 600, color: '#9ca3af' }}>
-                    {party2.name}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Bloc Wins */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: 32,
-                marginTop: 24,
-                paddingTop: 20,
-                borderTop: '1px solid #374151',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  backgroundColor: '#7f1d1d',
-                  padding: '8px 16px',
-                  borderRadius: 20,
-                }}
-              >
-                <span style={{ fontSize: 18, color: '#fca5a5' }}>DMK Bloc</span>
-                <span style={{ fontSize: 24, fontWeight: 700, color: 'white' }}>{dmkBlocWins}</span>
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  backgroundColor: '#14532d',
-                  padding: '8px 16px',
-                  borderRadius: 20,
-                }}
-              >
-                <span style={{ fontSize: 18, color: '#86efac' }}>AIADMK Bloc</span>
-                <span style={{ fontSize: 24, fontWeight: 700, color: 'white' }}>
-                  {aiadmkBlocWins}
-                </span>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Stats Section */}
+          {/* Voter Stats Section */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              width: 280,
-              gap: 16,
+              flex: 1,
+              gap: 12,
             }}
           >
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
-                backgroundColor: '#f9fafb',
-                borderRadius: 12,
-                padding: 20,
+                backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                borderRadius: 24,
+                padding: '16px 20px',
+                border: '1px solid #334155',
               }}
             >
-              <span style={{ fontSize: 16, color: '#6b7280', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
                 Total Voters
               </span>
-              <span style={{ fontSize: 36, fontWeight: 700, color: '#111827' }}>{totalVoters}</span>
+              <span style={{ fontSize: 40, fontWeight: 800, color: '#f8fafc' }}>{totalVoters}</span>
             </div>
 
             <div
               style={{
                 display: 'flex',
-                flex: 1,
-                alignItems: 'flex-end',
+                gap: 16,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: 1,
+                  backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                  borderRadius: 24,
+                  padding: 16,
+                  border: '1px solid #334155',
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 6 }}>
+                  Male
+                </span>
+                <span style={{ fontSize: 22, fontWeight: 700, color: '#f8fafc' }}>{maleVoters}</span>
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: 1,
+                  backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                  borderRadius: 24,
+                  padding: 16,
+                  border: '1px solid #334155',
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 6 }}>
+                  Female
+                </span>
+                <span style={{ fontSize: 22, fontWeight: 700, color: '#f8fafc' }}>{femaleVoters}</span>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                borderRadius: 24,
+                padding: '12px 16px',
+                border: '1px solid #334155',
+              }}
+            >
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+                Polling Booths
+              </span>
+              <span style={{ fontSize: 24, fontWeight: 800, color: '#f8fafc' }}>{booths}</span>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                borderRadius: 24,
+                padding: '12px 16px',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <span style={{ fontSize: 20, color: '#9ca3af' }}>IndiaStats.org</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Visit IndiaStats.org
+              </span>
+              <span style={{ fontSize: 10, color: '#94a3b8', marginTop: 2, textAlign: 'center' }}>
+                For detailed maps and trends
+              </span>
             </div>
           </div>
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            padding: '16px',
+            backgroundColor: '#0f172a',
+            borderTop: '1px solid #334155',
+          }}
+        >
+          <span style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>
+            Source: Election Commission of India • Data visualized by IndiaStats.org
+          </span>
         </div>
       </div>,
       {
         width: WIDTH,
         height: HEIGHT,
+        fonts: [
+          {
+            name: 'Noto Sans',
+            data: fontRegular,
+            weight: 400,
+            style: 'normal',
+          },
+          {
+            name: 'Noto Sans',
+            data: fontBold,
+            weight: 700,
+            style: 'normal',
+          },
+        ],
       },
     )
   } catch (error) {
