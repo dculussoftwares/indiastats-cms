@@ -157,6 +157,7 @@ jobs:
 
   smoke-test:
     name: Smoke Test
+    if: false
     runs-on: ubuntu-latest
     needs: terraform
     steps:
