@@ -8,6 +8,7 @@ on:
       - 'src/**'
       - 'infra/**'
       - 'Dockerfile'
+      - 'tests/**'
       - '.github/workflows/terraform-deploy.yml'
   workflow_dispatch:
 
