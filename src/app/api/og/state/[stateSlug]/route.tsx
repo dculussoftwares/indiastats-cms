@@ -180,8 +180,8 @@ export async function GET(
             }}
           >
             {[
-              { label: 'Districts', value: districtsCount, color: '#3b82f6' },
-              { label: 'Constituencies', value: assembliesCount, color: '#ef4444' },
+              { label: 'Districts', value: districtsCount.totalDocs, color: '#3b82f6' },
+              { label: 'Constituencies', value: assembliesCount.totalDocs, color: '#ef4444' },
               { label: 'Polling Booths', value: totalBooths.toLocaleString('en-IN'), color: '#10b981' },
             ].map((stat, i) => (
               <div

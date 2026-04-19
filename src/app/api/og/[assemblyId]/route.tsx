@@ -42,7 +42,7 @@ export async function GET(
     const stateCode = assembly.stateCode || 'TN'
     const districtName = assembly.districtName || ''
     const cleanDistrictName = districtName.includes(' / ')
-      ? districtName.split(' / ').find((s) => !/[\u0B80-\u0BFF]/.test(s))?.trim() || districtName
+      ? districtName.split(' / ').find((s: string) => !/[\u0B80-\u0BFF]/.test(s))?.trim() || districtName
       : districtName
 
     // Get State configuration (priority: Database > Static Config)
