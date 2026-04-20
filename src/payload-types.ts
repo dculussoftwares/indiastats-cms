@@ -74,10 +74,12 @@ export interface Config {
     users: User;
     states: State;
     zones: Zone;
+    predictors: Predictor;
     assemblies: Assembly;
     districts: District;
     booths: Booth;
     'election-history': ElectionHistory;
+    'election-predictions': ElectionPrediction;
     alliances: Alliance;
     'caste-census': CasteCensus;
     redirects: Redirect;
@@ -104,10 +106,12 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     states: StatesSelect<false> | StatesSelect<true>;
     zones: ZonesSelect<false> | ZonesSelect<true>;
+    predictors: PredictorsSelect<false> | PredictorsSelect<true>;
     assemblies: AssembliesSelect<false> | AssembliesSelect<true>;
     districts: DistrictsSelect<false> | DistrictsSelect<true>;
     booths: BoothsSelect<false> | BoothsSelect<true>;
     'election-history': ElectionHistorySelect<false> | ElectionHistorySelect<true>;
+    'election-predictions': ElectionPredictionsSelect<false> | ElectionPredictionsSelect<true>;
     alliances: AlliancesSelect<false> | AlliancesSelect<true>;
     'caste-census': CasteCensusSelect<false> | CasteCensusSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -911,6 +915,22 @@ export interface Zone {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "predictors".
+ */
+export interface Predictor {
+  id: number;
+  name: string;
+  /**
+   * Public image path (for example /images/JVC.png)
+   */
+  imagePath: string;
+  bio?: string | null;
+  isActive: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "assemblies".
  */
 export interface Assembly {
@@ -1116,6 +1136,43 @@ export interface ElectionHistory {
   candidateName: string;
   candidateParty?: string | null;
   candidateVotes: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "election-predictions".
+ */
+export interface ElectionPrediction {
+  id: number;
+  /**
+   * State code (for example TN)
+   */
+  stateCode: string;
+  electionYear: number;
+  predictor: number | Predictor;
+  assemblyDoc: number | Assembly;
+  /**
+   * Stable public assembly identifier (for example ac001)
+   */
+  assemblyId: string;
+  /**
+   * Leave empty when the predictor only names close parties.
+   */
+  predictedWinningParty?: string | null;
+  predictionType: string;
+  isCloseContest: boolean;
+  closeParties?:
+    | {
+        partyCode: string;
+        id?: string | null;
+      }[]
+    | null;
+  additionalNotes?: string | null;
+  /**
+   * Internal unique key derived from predictor, assemblyId, and electionYear.
+   */
+  predictionKey: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -1407,6 +1464,10 @@ export interface PayloadLockedDocument {
         value: number | Zone;
       } | null)
     | ({
+        relationTo: 'predictors';
+        value: number | Predictor;
+      } | null)
+    | ({
         relationTo: 'assemblies';
         value: number | Assembly;
       } | null)
@@ -1421,6 +1482,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'election-history';
         value: number | ElectionHistory;
+      } | null)
+    | ({
+        relationTo: 'election-predictions';
+        value: number | ElectionPrediction;
       } | null)
     | ({
         relationTo: 'alliances';
@@ -1846,6 +1911,18 @@ export interface ZonesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "predictors_select".
+ */
+export interface PredictorsSelect<T extends boolean = true> {
+  name?: T;
+  imagePath?: T;
+  bio?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "assemblies_select".
  */
 export interface AssembliesSelect<T extends boolean = true> {
@@ -1914,6 +1991,30 @@ export interface ElectionHistorySelect<T extends boolean = true> {
   candidateName?: T;
   candidateParty?: T;
   candidateVotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "election-predictions_select".
+ */
+export interface ElectionPredictionsSelect<T extends boolean = true> {
+  stateCode?: T;
+  electionYear?: T;
+  predictor?: T;
+  assemblyDoc?: T;
+  assemblyId?: T;
+  predictedWinningParty?: T;
+  predictionType?: T;
+  isCloseContest?: T;
+  closeParties?:
+    | T
+    | {
+        partyCode?: T;
+        id?: T;
+      };
+  additionalNotes?: T;
+  predictionKey?: T;
   updatedAt?: T;
   createdAt?: T;
 }

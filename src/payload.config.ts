@@ -13,8 +13,10 @@ import { Assemblies } from './collections/Assemblies'
 import { Districts } from './collections/Districts'
 import { Booths } from './collections/Booths'
 import { ElectionHistory } from './collections/ElectionHistory'
+import { ElectionPredictions } from './collections/ElectionPredictions'
 import { Alliances } from './collections/Alliances'
 import { CasteCensus } from './collections/CasteCensus'
+import { Predictors } from './collections/Predictors'
 import { States } from './collections/States'
 import { Zones } from './collections/Zones'
 import { Footer } from './Footer/config'
@@ -72,7 +74,23 @@ export default buildConfig({
     },
     push: true,
   }),
-  collections: [Pages, Posts, Media, Categories, Users, States, Zones, Assemblies, Districts, Booths, ElectionHistory, Alliances, CasteCensus],
+  collections: [
+    Pages,
+    Posts,
+    Media,
+    Categories,
+    Users,
+    States,
+    Zones,
+    Predictors,
+    Assemblies,
+    Districts,
+    Booths,
+    ElectionHistory,
+    ElectionPredictions,
+    Alliances,
+    CasteCensus,
+  ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteSettings],
   plugins,
