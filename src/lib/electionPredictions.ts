@@ -76,6 +76,104 @@ const toPredictorOption = (doc: {
   bio: normalizeText(doc.bio),
 })
 
+export interface PredictorSummary {
+  id: string
+  name: string
+  imagePath: string | null
+  bio: string | null
+  totalPredictions: number
+  calledSeats: number
+  tooCloseToCall: number
+  closeContests: number
+  leadingParty: string | null
+  leadingPartySeats: number
+  latestYear: number | null
+}
+
+export async function getPredictorsWithSummaries({
+  stateCode = 'TN',
+}: {
+  stateCode?: string
+}): Promise<PredictorSummary[]> {
+  const payload = await getPayload({ config })
+
+  const predictorsResult = await payload.find({
+    collection: 'predictors',
+    where: { isActive: { equals: true } },
+    limit: 100,
+    pagination: false,
+    sort: 'name',
+  })
+
+  const predictorDocs = predictorsResult.docs as Array<{
+    bio?: unknown
+    id: string | number
+    imagePath?: unknown
+    name: string
+  }>
+
+  const summaries: PredictorSummary[] = []
+
+  for (const doc of predictorDocs) {
+    const predictionsResult = await payload.find({
+      collection: 'election-predictions',
+      where: {
+        and: [
+          { predictor: { equals: doc.id } },
+          { stateCode: { equals: stateCode } },
+        ],
+      },
+      depth: 0,
+      limit: 5000,
+      pagination: false,
+    })
+
+    const predictions = predictionsResult.docs as Array<{
+      electionYear: number
+      isCloseContest?: unknown
+      predictedWinningParty?: unknown
+    }>
+
+    const years = Array.from(new Set(predictions.map((p) => p.electionYear))).sort((a, b) => b - a)
+    const latestYear = years[0] ?? null
+    const latestDocs = latestYear ? predictions.filter((p) => p.electionYear === latestYear) : []
+
+    let calledSeats = 0
+    let tooCloseToCall = 0
+    let closeContests = 0
+    const partyCounts = new Map<string, number>()
+
+    for (const p of latestDocs) {
+      const winner = normalizeText(p.predictedWinningParty)
+      if (winner) {
+        calledSeats++
+        partyCounts.set(winner, (partyCounts.get(winner) ?? 0) + 1)
+      } else {
+        tooCloseToCall++
+      }
+      if (p.isCloseContest) closeContests++
+    }
+
+    const topParty = Array.from(partyCounts.entries()).sort((a, b) => b[1] - a[1])[0] ?? null
+
+    summaries.push({
+      id: String(doc.id),
+      name: doc.name,
+      imagePath: normalizeText(doc.imagePath),
+      bio: normalizeText(doc.bio),
+      totalPredictions: latestDocs.length,
+      calledSeats,
+      tooCloseToCall,
+      closeContests,
+      leadingParty: topParty?.[0] ?? null,
+      leadingPartySeats: topParty?.[1] ?? 0,
+      latestYear,
+    })
+  }
+
+  return summaries
+}
+
 export async function getElectionPredictionsData({
   electionYear,
   predictorId,
