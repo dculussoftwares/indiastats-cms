@@ -53,6 +53,13 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Push schema changes to DB before build (new columns must exist for prerender)
 RUN corepack enable pnpm && pnpm exec tsx scripts/push-db-schema.ts || true
 
+# Regenerate Payload import map so all plugin components (e.g. AzureClientUploadHandler)
+# are included regardless of which env vars are set at build time.
+# Uses placeholder Azure creds — real creds are injected at runtime via Container App secrets.
+RUN AZURE_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=placeholder;AccountKey=cGxhY2Vob2xkZXI=;EndpointSuffix=core.windows.net" \
+    AZURE_STORAGE_ACCOUNT_BASEURL="https://placeholder.blob.core.windows.net/" \
+    corepack enable pnpm && pnpm generate:importmap
+
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
