@@ -13,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import type { ElectionPredictionDataset, PredictionMapEntry } from '@/lib/electionPredictions'
 import { buildAssemblyUrl } from '@/lib/assemblyRouting'
 import { getPartyColor } from '@/lib/partyColors'
+import { trackClicked, trackViewed, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
   ssr: false,
@@ -207,6 +208,23 @@ export function ElectionPredictionMap({
   const [highlightFilter, setHighlightFilter] = useState<HighlightFilter>(null)
   const mapRef = useRef<any>(null)
 
+  useEffect(() => {
+    setPageContext({
+      page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+      page_url: typeof window !== 'undefined' ? window.location.href : undefined,
+      page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+    })
+
+    trackViewed({
+      name: 'election_prediction_page',
+      page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+      predictor_name: initialData.selectedPredictor?.name ?? '',
+      election_year: initialData.electionYear,
+      state_code: stateCode,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const assemblyOptions = useMemo(() => {
     if (!Array.isArray(map?.features)) return []
 
@@ -261,15 +279,26 @@ export function ElectionPredictionMap({
   }, [dataset.predictionTypeCounts])
 
   const toggleHighlight = (next: HighlightFilter) => {
-    if (
+    const isClearing =
       highlightFilter &&
       next &&
       highlightFilter.type === next.type &&
       highlightFilter.value === next.value
-    ) {
+
+    if (isClearing) {
       setHighlightFilter(null)
     } else {
       setHighlightFilter(next)
+    }
+
+    if (next && !isClearing) {
+      const pageContext = getPageContext()
+      trackClicked({
+        name: 'prediction_highlight',
+        page_name: pageContext.page_name || PAGE_NAMES.ELECTION_PREDICTIONS,
+        highlight_type: next.type,
+        highlight_value: next.value,
+      })
     }
   }
 
@@ -338,6 +367,16 @@ export function ElectionPredictionMap({
     setSelectedDistrict(district)
     setDistrictSearchQuery(district ?? '')
     setShowDistrictDropdown(false)
+
+    if (district) {
+      const pageContext = getPageContext()
+      trackClicked({
+        name: 'search_filter',
+        page_name: pageContext.page_name || PAGE_NAMES.ELECTION_PREDICTIONS,
+        filter_name: 'district',
+        filter_value: district,
+      })
+    }
 
     if (!district) {
       if (mapRef.current) {
@@ -440,6 +479,16 @@ export function ElectionPredictionMap({
           pc_name: feature?.properties?.pc_name,
         })
         setPopupPosition([event.latlng.lat, event.latlng.lng])
+
+        const pageContext = getPageContext()
+        trackClicked({
+          name: 'link',
+          page_name: pageContext.page_name || PAGE_NAMES.ELECTION_PREDICTIONS,
+          link_name: 'view_prediction_for_assembly',
+          link_location: 'prediction_map',
+          assembly_id: assemblyId,
+          assembly_name: feature?.properties?.ac_name ?? '',
+        })
       },
       mouseover: (event: any) => {
         event.target.bringToFront()
@@ -598,6 +647,15 @@ export function ElectionPredictionMap({
                       onClick={() => {
                         setShowDropdown(false)
                         focusAssemblyById(assembly.assemblyId)
+                        const pageContext = getPageContext()
+                        trackClicked({
+                          name: 'search_result',
+                          page_name: pageContext.page_name || PAGE_NAMES.ELECTION_PREDICTIONS,
+                          search_query: searchQuery,
+                          result_id: assembly.assemblyId,
+                          result_name: assembly.name,
+                          result_type: 'assembly',
+                        })
                       }}
                     >
                       <MapPin className="h-3.5 w-3.5 text-gray-400" />
@@ -661,6 +719,14 @@ export function ElectionPredictionMap({
                   const nextPredictorId = event.target.value
                   setSelectedPredictorId(nextPredictorId)
                   void loadDataset(nextPredictorId, selectedYear)
+                  const predictor = dataset.predictors.find((p) => p.id === nextPredictorId)
+                  const pageContext = getPageContext()
+                  trackClicked({
+                    name: 'prediction_predictor',
+                    page_name: pageContext.page_name || PAGE_NAMES.ELECTION_PREDICTIONS,
+                    predictor_id: nextPredictorId,
+                    predictor_name: predictor?.name ?? '',
+                  })
                 }}
                 className="h-9 rounded border border-gray-200 bg-white px-3 text-sm focus:border-red-600 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
               >
@@ -677,6 +743,13 @@ export function ElectionPredictionMap({
                   const nextYear = Number(event.target.value)
                   setSelectedYear(nextYear)
                   void loadDataset(selectedPredictorId, nextYear)
+                  const pageContext = getPageContext()
+                  trackClicked({
+                    name: 'election_year',
+                    page_name: pageContext.page_name || PAGE_NAMES.ELECTION_PREDICTIONS,
+                    selected_year: nextYear,
+                    mode: 'prediction',
+                  })
                 }}
                 className="h-9 rounded border border-gray-200 bg-white px-3 text-sm focus:border-red-600 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
               >
@@ -695,7 +768,15 @@ export function ElectionPredictionMap({
                 ].map((mode) => (
                   <button
                     key={mode.value}
-                    onClick={() => setViewMode(mode.value)}
+                    onClick={() => {
+                      setViewMode(mode.value)
+                      const pageContext = getPageContext()
+                      trackClicked({
+                        name: 'prediction_view_mode',
+                        page_name: pageContext.page_name || PAGE_NAMES.ELECTION_PREDICTIONS,
+                        view_mode: mode.value,
+                      })
+                    }}
                     className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
                       viewMode === mode.value
                         ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900'
@@ -842,7 +923,18 @@ export function ElectionPredictionMap({
                     className="flex w-full items-center justify-center gap-1.5 rounded bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700"
                     onClick={() => {
                       const url = buildAssemblyUrl(popupContent.ac)
-                      if (url) router.push(url)
+                      if (url) {
+                        const pageContext = getPageContext()
+                        trackClicked({
+                          name: 'link',
+                          page_name: pageContext.page_name || PAGE_NAMES.ELECTION_PREDICTIONS,
+                          link_name: 'view_assembly_from_prediction',
+                          link_location: 'prediction_popup',
+                          assembly_id: popupContent.assemblyId,
+                          assembly_name: popupContent.ac_name,
+                        })
+                        router.push(url)
+                      }
                     }}
                   >
                     View Assembly

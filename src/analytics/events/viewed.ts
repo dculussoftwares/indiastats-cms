@@ -14,6 +14,7 @@ export type ViewedEvent =
   | 'custom_page'
   | 'assembly'
   | 'assembly_demographics'
+  | 'election_prediction_page'
 
 export function trackViewed(
   properties: { name: ViewedEvent; page_name: string; page_url?: string; page_path?: string } & Record<string, unknown>,

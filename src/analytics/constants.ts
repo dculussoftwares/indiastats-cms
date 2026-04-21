@@ -23,6 +23,7 @@ export const PAGE_NAMES = {
   PAGES: 'Custom Pages',
   PRIVACY_POLICY: 'Privacy Policy',
   NOT_FOUND: '404 Not Found',
+  ELECTION_PREDICTIONS: 'Election Predictions',
 } as const
 
 // ============================================
@@ -72,6 +73,12 @@ export const EVENT_NAMES = {
   SHARE_COMPLETED: 'share_completed',
   FORM_SUBMITTED: 'form_submitted',
   FORM_FIELD_CHANGED: 'form_field_changed',
+
+  // Prediction events
+  PREDICTION_PAGE_VIEWED: 'prediction_page_viewed',
+  PREDICTION_HIGHLIGHT_CLICKED: 'prediction_highlight_clicked',
+  PREDICTION_VIEW_MODE_CHANGED: 'prediction_view_mode_changed',
+  PREDICTION_PREDICTOR_CHANGED: 'prediction_predictor_changed',
 
   // Error events
   ERROR_OCCURRED: 'error_occurred',
