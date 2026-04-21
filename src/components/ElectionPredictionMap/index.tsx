@@ -243,7 +243,7 @@ export function ElectionPredictionMap({
   const districtOptions = useMemo(() => {
     if (!Array.isArray(map?.features)) return []
 
-    return Array.from(
+    return Array.from<string>(
       new Set(
         map.features
           .map((feature: any) => feature?.properties?.pc_name)
@@ -256,7 +256,7 @@ export function ElectionPredictionMap({
     if (!searchQuery) return assemblyOptions.slice(0, 8)
 
     return assemblyOptions
-      .filter((entry) => entry.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      .filter((entry: { assemblyId: string; name: string }) => entry.name.toLowerCase().includes(searchQuery.toLowerCase()))
       .slice(0, 8)
   }, [assemblyOptions, searchQuery])
 
@@ -640,7 +640,7 @@ export function ElectionPredictionMap({
               />
               {showDropdown && filteredAssemblies.length > 0 && (
                 <div className="absolute z-[1100] mt-1 max-h-56 w-full overflow-y-auto rounded border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
-                  {filteredAssemblies.map((assembly) => (
+                  {filteredAssemblies.map((assembly: { assemblyId: string; name: string }) => (
                     <button
                       key={assembly.assemblyId}
                       className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
