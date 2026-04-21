@@ -493,18 +493,18 @@ export function ElectionPredictionMap({
         <CardContent className="p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="flex items-start gap-4">
-              <div className="relative h-16 w-16 overflow-hidden rounded-full border border-red-200 bg-white">
+              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-2 border-red-200 bg-white">
                 {dataset.selectedPredictor?.imagePath ? (
                   <Image
                     src={dataset.selectedPredictor.imagePath}
                     alt={dataset.selectedPredictor.name}
                     fill
                     className="object-cover"
-                    sizes="64px"
+                    sizes="96px"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-red-100 text-red-700">
-                    <User className="h-7 w-7" />
+                    <User className="h-10 w-10" />
                   </div>
                 )}
               </div>
