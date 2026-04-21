@@ -27,6 +27,12 @@ if (typeof window !== 'undefined') {
 
 type ViewMode = 'winner' | 'heat' | 'type'
 
+type HighlightFilter =
+  | { type: 'party'; value: string }
+  | { type: 'predictionType'; value: string }
+  | { type: 'heatLevel'; value: 'stable' | 'close' | 'tooClose' }
+  | null
+
 type ElectionPredictionMapProps = {
   initialData: ElectionPredictionDataset
   map: any
@@ -47,12 +53,29 @@ const TYPE_COLORS = [
   '#ea580c',
   '#be123c',
   '#7c3aed',
-  '#0f766e',
+  '#059669',
   '#0369a1',
   '#b45309',
   '#0891b2',
   '#4f46e5',
 ]
+
+const matchesHighlight = (
+  entry: PredictionMapEntry | undefined,
+  highlight: HighlightFilter,
+): boolean => {
+  if (!highlight || !entry) return false
+  switch (highlight.type) {
+    case 'party':
+      return entry.predictedWinningParty === highlight.value
+    case 'predictionType':
+      return entry.predictionType === highlight.value
+    case 'heatLevel':
+      if (highlight.value === 'tooClose') return entry.predictedWinningParty === null
+      if (highlight.value === 'close') return entry.isCloseContest && entry.predictedWinningParty !== null
+      return !entry.isCloseContest && entry.predictedWinningParty !== null
+  }
+}
 
 const getFeatureAssemblyId = (feature: any): string | null =>
   feature?.properties?.ac ? `ac${String(feature.properties.ac).padStart(3, '0')}` : null
@@ -181,6 +204,7 @@ export function ElectionPredictionMap({
   const [popupContent, setPopupContent] = useState<PopupContent | null>(null)
   const [popupPosition, setPopupPosition] = useState<[number, number] | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [highlightFilter, setHighlightFilter] = useState<HighlightFilter>(null)
   const mapRef = useRef<any>(null)
 
   const assemblyOptions = useMemo(() => {
@@ -236,6 +260,19 @@ export function ElectionPredictionMap({
     return mapping
   }, [dataset.predictionTypeCounts])
 
+  const toggleHighlight = (next: HighlightFilter) => {
+    if (
+      highlightFilter &&
+      next &&
+      highlightFilter.type === next.type &&
+      highlightFilter.value === next.value
+    ) {
+      setHighlightFilter(null)
+    } else {
+      setHighlightFilter(next)
+    }
+  }
+
   const loadDataset = async (nextPredictorId: string, nextYear?: number) => {
     setIsLoading(true)
 
@@ -264,6 +301,7 @@ export function ElectionPredictionMap({
       setSearchQuery('')
       setPopupContent(null)
       setPopupPosition(null)
+      setHighlightFilter(null)
     } catch (error) {
       console.error('Failed to fetch election predictions:', error)
     } finally {
@@ -363,22 +401,25 @@ export function ElectionPredictionMap({
     const entry = assemblyId ? dataset.results[assemblyId] : undefined
     const isSelected = assemblyId === selectedAssemblyId
     const isWithinDistrict = !selectedDistrict || feature?.properties?.pc_name === selectedDistrict
-    const isDimmed = !isWithinDistrict
+    const isHighlighted = highlightFilter ? matchesHighlight(entry, highlightFilter) : true
+    const isDimmed = !isWithinDistrict || !isHighlighted
 
     const borderColor = isSelected
       ? '#111827'
-      : entry?.predictedWinningParty === null
-        ? '#7c2d12'
-        : entry?.isCloseContest
-          ? '#9a3412'
-          : '#ffffff'
+      : !isHighlighted
+        ? '#cbd5e1'
+        : entry?.predictedWinningParty === null
+          ? '#7c2d12'
+          : entry?.isCloseContest
+            ? '#9a3412'
+            : '#ffffff'
 
     return {
       color: isDimmed ? '#cbd5e1' : borderColor,
       fillColor: getPredictionFill(entry),
-      fillOpacity: isSelected ? 0.96 : isDimmed ? 0.18 : 0.86,
+      fillOpacity: isSelected ? 0.96 : isDimmed ? 0.15 : 0.88,
       opacity: 1,
-      weight: isSelected ? 2.8 : entry?.isCloseContest || entry?.predictedWinningParty === null ? 1.8 : 1,
+      weight: isSelected ? 2.8 : !isHighlighted ? 0.5 : entry?.isCloseContest || entry?.predictedWinningParty === null ? 1.8 : 1,
     }
   }
 
@@ -420,6 +461,7 @@ export function ElectionPredictionMap({
     viewMode,
     selectedAssemblyId ?? 'none',
     selectedDistrict ?? 'all',
+    highlightFilter ? `${highlightFilter.type}:${highlightFilter.value}` : 'nofilter',
   ].join('-')
 
   const winnerLegendItems = useMemo(() => {
@@ -665,6 +707,23 @@ export function ElectionPredictionMap({
                 ))}
               </div>
 
+              {highlightFilter && (
+                <button
+                  onClick={() => setHighlightFilter(null)}
+                  className="flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/60"
+                >
+                  <X className="h-3 w-3" />
+                  {highlightFilter.type === 'party' && highlightFilter.value}
+                  {highlightFilter.type === 'predictionType' && highlightFilter.value}
+                  {highlightFilter.type === 'heatLevel' &&
+                    (highlightFilter.value === 'stable'
+                      ? 'Stable calls'
+                      : highlightFilter.value === 'close'
+                        ? 'Close contests'
+                        : 'Too close to call')}
+                </button>
+              )}
+
               {selectedAssemblyId && (
                 <Button
                   variant="ghost"
@@ -804,64 +863,100 @@ export function ElectionPredictionMap({
                 : 'Prediction Types'}
           </p>
 
-          <div className="space-y-1.5 max-h-[210px] overflow-y-auto">
+          <div className="space-y-1 max-h-[210px] overflow-y-auto">
             {viewMode === 'winner' &&
-              winnerLegendItems.map((item) => (
-                <div key={item.label} className="flex items-center justify-between gap-2 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-3 w-3 rounded-sm border border-white/60" style={{ backgroundColor: item.color }} />
-                    <span className="font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
-                  </div>
-                  <span className="text-gray-500 dark:text-gray-400">{item.count}</span>
-                </div>
-              ))}
+              winnerLegendItems.map((item) => {
+                const isTooClose = item.label === 'Too close to call'
+                const filter: HighlightFilter = isTooClose
+                  ? { type: 'heatLevel', value: 'tooClose' }
+                  : { type: 'party', value: item.label }
+                const isActive = highlightFilter?.type === filter?.type && highlightFilter?.value === filter?.value
+
+                return (
+                  <button
+                    key={item.label}
+                    onClick={() => toggleHighlight(filter)}
+                    className={`flex w-full items-center justify-between gap-2 rounded px-1 py-0.5 text-xs transition-all ${
+                      isActive ? 'bg-red-100 dark:bg-red-900/40' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-3 w-3 rounded-sm border border-white/60" style={{ backgroundColor: item.color }} />
+                      <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}>{item.label}</span>
+                    </div>
+                    <span className={isActive ? 'font-semibold text-red-600' : 'text-gray-500 dark:text-gray-400'}>{item.count}</span>
+                  </button>
+                )
+              })}
 
             {viewMode === 'heat' && (
               <>
-                {[
+                {([
                   {
                     color: '#0f766e',
-                    count: dataset.summary.calledSeats - dataset.summary.closeContests + dataset.summary.tooCloseToCall,
+                    count: dataset.summary.calledSeats - dataset.summary.closeContests,
+                    heatValue: 'stable' as const,
                     label: 'Stable calls',
                   },
                   {
                     color: '#f97316',
-                    count:
-                      dataset.summary.closeContests - dataset.summary.tooCloseToCall > 0
-                        ? dataset.summary.closeContests - dataset.summary.tooCloseToCall
-                        : 0,
+                    count: dataset.summary.closeContests,
+                    heatValue: 'close' as const,
                     label: 'Close contests',
                   },
                   {
                     color: '#b45309',
                     count: dataset.summary.tooCloseToCall,
+                    heatValue: 'tooClose' as const,
                     label: 'Too close to call',
                   },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-3 w-3 rounded-sm border border-white/60" style={{ backgroundColor: item.color }} />
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
-                    </div>
-                    <span className="text-gray-500 dark:text-gray-400">{item.count}</span>
-                  </div>
-                ))}
+                ]).map((item) => {
+                  const isActive =
+                    highlightFilter?.type === 'heatLevel' && highlightFilter.value === item.heatValue
+
+                  return (
+                    <button
+                      key={item.label}
+                      onClick={() => toggleHighlight({ type: 'heatLevel', value: item.heatValue })}
+                      className={`flex w-full items-center justify-between gap-2 rounded px-1 py-0.5 text-xs transition-all ${
+                        isActive ? 'bg-red-100 dark:bg-red-900/40' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-3 w-3 rounded-sm border border-white/60" style={{ backgroundColor: item.color }} />
+                        <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}>{item.label}</span>
+                      </div>
+                      <span className={isActive ? 'font-semibold text-red-600' : 'text-gray-500 dark:text-gray-400'}>{item.count}</span>
+                    </button>
+                  )
+                })}
               </>
             )}
 
             {viewMode === 'type' &&
-              dataset.predictionTypeCounts.slice(0, 10).map((item) => (
-                <div key={item.key} className="flex items-center justify-between gap-2 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className="h-3 w-3 rounded-sm border border-white/60"
-                      style={{ backgroundColor: typeColorMap[item.key] || '#475569' }}
-                    />
-                    <span className="font-medium text-gray-700 dark:text-gray-300">{item.key}</span>
-                  </div>
-                  <span className="text-gray-500 dark:text-gray-400">{item.count}</span>
-                </div>
-              ))}
+              dataset.predictionTypeCounts.slice(0, 10).map((item) => {
+                const isActive =
+                  highlightFilter?.type === 'predictionType' && highlightFilter.value === item.key
+
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => toggleHighlight({ type: 'predictionType', value: item.key })}
+                    className={`flex w-full items-center justify-between gap-2 rounded px-1 py-0.5 text-xs transition-all ${
+                      isActive ? 'bg-red-100 dark:bg-red-900/40' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className="h-3 w-3 rounded-sm border border-white/60"
+                        style={{ backgroundColor: typeColorMap[item.key] || '#475569' }}
+                      />
+                      <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}>{item.key}</span>
+                    </div>
+                    <span className={isActive ? 'font-semibold text-red-600' : 'text-gray-500 dark:text-gray-400'}>{item.count}</span>
+                  </button>
+                )
+              })}
           </div>
         </div>
       </div>
@@ -874,33 +969,47 @@ export function ElectionPredictionMap({
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Seat Forecast</h3>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               {dataset.topParties.length > 0 ? (
                 dataset.topParties.slice(0, 8).map((party) => {
                   const width = (party.count / Math.max(dataset.summary.totalAssemblies, 1)) * 100
+                  const isActive =
+                    highlightFilter?.type === 'party' && highlightFilter.value === party.key
 
                   return (
-                    <div key={party.key}>
+                    <button
+                      key={party.key}
+                      onClick={() => toggleHighlight({ type: 'party', value: party.key })}
+                      className={`w-full rounded-lg p-2 text-left transition-all ${
+                        isActive
+                          ? 'bg-red-50 ring-2 ring-red-500 dark:bg-red-950'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
+                    >
                       <div className="mb-1 flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
                           <div
                             className="h-3 w-3 rounded-sm"
                             style={{ backgroundColor: getPartyColor(party.key) }}
                           />
-                          <span className="font-medium text-gray-800 dark:text-gray-200">{party.key}</span>
+                          <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-800 dark:text-gray-200'}`}>
+                            {party.key}
+                          </span>
                         </div>
-                        <span className="text-muted-foreground">{party.count}</span>
+                        <span className={`text-xs font-semibold ${isActive ? 'text-red-600' : 'text-muted-foreground'}`}>
+                          {party.count}
+                        </span>
                       </div>
                       <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800">
                         <div
-                          className="h-2 rounded-full"
+                          className="h-2 rounded-full transition-all"
                           style={{
                             backgroundColor: getPartyColor(party.key),
                             width: `${Math.max(width, 2)}%`,
                           }}
                         />
                       </div>
-                    </div>
+                    </button>
                   )
                 })
               ) : (
@@ -908,23 +1017,38 @@ export function ElectionPredictionMap({
               )}
 
               {dataset.summary.tooCloseToCall > 0 && (
-                <div className="pt-2">
+                <button
+                  onClick={() => toggleHighlight({ type: 'heatLevel', value: 'tooClose' })}
+                  className={`w-full rounded-lg p-2 text-left transition-all ${
+                    highlightFilter?.type === 'heatLevel' && highlightFilter.value === 'tooClose'
+                      ? 'bg-red-50 ring-2 ring-red-500 dark:bg-red-950'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
                   <div className="mb-1 flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className="h-3 w-3 rounded-sm bg-amber-600" />
-                      <span className="font-medium text-gray-800 dark:text-gray-200">Too close to call</span>
+                      <span className={`font-medium ${
+                        highlightFilter?.type === 'heatLevel' && highlightFilter.value === 'tooClose'
+                          ? 'text-red-700 dark:text-red-300'
+                          : 'text-gray-800 dark:text-gray-200'
+                      }`}>Too close to call</span>
                     </div>
-                    <span className="text-muted-foreground">{dataset.summary.tooCloseToCall}</span>
+                    <span className={`text-xs font-semibold ${
+                      highlightFilter?.type === 'heatLevel' && highlightFilter.value === 'tooClose'
+                        ? 'text-red-600'
+                        : 'text-muted-foreground'
+                    }`}>{dataset.summary.tooCloseToCall}</span>
                   </div>
                   <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800">
                     <div
-                      className="h-2 rounded-full bg-amber-600"
+                      className="h-2 rounded-full bg-amber-600 transition-all"
                       style={{
                         width: `${Math.max((dataset.summary.tooCloseToCall / Math.max(dataset.summary.totalAssemblies, 1)) * 100, 2)}%`,
                       }}
                     />
                   </div>
-                </div>
+                </button>
               )}
             </div>
           </CardContent>
@@ -937,32 +1061,46 @@ export function ElectionPredictionMap({
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Prediction Type Mix</h3>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               {dataset.predictionTypeCounts.slice(0, 10).map((item) => {
                 const width = (item.count / Math.max(dataset.summary.totalAssemblies, 1)) * 100
+                const isActive =
+                  highlightFilter?.type === 'predictionType' && highlightFilter.value === item.key
 
                 return (
-                  <div key={item.key}>
+                  <button
+                    key={item.key}
+                    onClick={() => toggleHighlight({ type: 'predictionType', value: item.key })}
+                    className={`w-full rounded-lg p-2 text-left transition-all ${
+                      isActive
+                        ? 'bg-red-50 ring-2 ring-red-500 dark:bg-red-950'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
                     <div className="mb-1 flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <div
                           className="h-3 w-3 rounded-sm"
                           style={{ backgroundColor: typeColorMap[item.key] || '#475569' }}
                         />
-                        <span className="font-medium text-gray-800 dark:text-gray-200">{item.key}</span>
+                        <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-800 dark:text-gray-200'}`}>
+                          {item.key}
+                        </span>
                       </div>
-                      <span className="text-muted-foreground">{item.count}</span>
+                      <span className={`text-xs font-semibold ${isActive ? 'text-red-600' : 'text-muted-foreground'}`}>
+                        {item.count}
+                      </span>
                     </div>
                     <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800">
                       <div
-                        className="h-2 rounded-full"
+                        className="h-2 rounded-full transition-all"
                         style={{
                           backgroundColor: typeColorMap[item.key] || '#475569',
                           width: `${Math.max(width, 2)}%`,
                         }}
                       />
                     </div>
-                  </div>
+                  </button>
                 )
               })}
             </div>
@@ -1025,7 +1163,7 @@ export function ElectionPredictionMap({
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Click any constituency to inspect the forecast • Use Winner, Heat, and Type modes to read the map differently
+        Click any constituency to inspect • Click parties, types, or legend items to highlight on the map • Click again to clear
       </p>
     </div>
   )
