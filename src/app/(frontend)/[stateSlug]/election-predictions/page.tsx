@@ -17,28 +17,46 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
+  const stateConfig = getStateBySlug(stateSlug)
+  const stateName = stateConfig?.name ?? 'Tamil Nadu'
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-predictions`
+  const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
 
   return {
-    title: 'Election Predictions | IndiaStats',
-    description:
-      'Browse election prediction maps from multiple predictors for Tamil Nadu assembly constituencies.',
+    title: `${stateName} Election Predictions 2026 | IndiaStats`,
+    description: `Browse 2026 ${stateName} assembly election prediction maps from multiple expert predictors. Compare seat forecasts, close contests, and party-wise call distributions across all 234 constituencies.`,
+    keywords: [
+      `${stateName} election predictions 2026`,
+      `${stateName} assembly election forecast`,
+      'Tamil Nadu election 2026',
+      'election predictor',
+      'assembly constituency forecast',
+      'seat prediction',
+      'close contest',
+    ],
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: 'Election Predictions - Tamil Nadu',
-      description:
-        'Explore assembly-level forecasts from multiple predictors with seat calls, close contests, and party distributions.',
+      title: `${stateName} Election Predictions 2026 | IndiaStats`,
+      description: `Explore assembly-level 2026 election forecasts from multiple predictors — seat calls, close contests, and party distributions across all 234 ${stateName} constituencies.`,
       type: 'website',
       url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${stateName} Election Predictions 2026`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Election Predictions - Tamil Nadu',
-      description:
-        'Browse interactive prediction maps from multiple predictors for all 234 Tamil Nadu assemblies.',
+      title: `${stateName} Election Predictions 2026 | IndiaStats`,
+      description: `Browse interactive prediction maps from multiple expert predictors for all 234 ${stateName} assembly constituencies.`,
+      images: [ogImageUrl],
     },
   }
 }

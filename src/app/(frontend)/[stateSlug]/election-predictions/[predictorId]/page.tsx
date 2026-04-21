@@ -26,26 +26,56 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     predictorId,
   })
 
-  const predictorName = initialData.selectedPredictor?.name ?? 'Predictor'
+  const predictor = initialData.selectedPredictor
+  if (!predictor) return { title: 'Not Found' }
+
+  const predictorName = predictor.name
+  const stateName = stateConfig.name
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-predictions/${predictorId}`
 
+  // Use predictor's own photo as OG image if available, otherwise fall back to state OG
+  const ogImageUrl = predictor.imagePath
+    ? `${baseUrl}${predictor.imagePath}`
+    : `${baseUrl}/api/og/state/${stateSlug}`
+
+  const { calledSeats, tooCloseToCall } = initialData.summary
+  const description = `${predictorName}'s 2026 ${stateName} election forecast — ${calledSeats} seats called, ${tooCloseToCall} too close to call. Interactive assembly-level prediction map with party distributions and watchlist constituencies.`
+
   return {
-    title: `${predictorName} - Tamil Nadu Election Prediction Map | IndiaStats`,
-    description: `Interactive Tamil Nadu assembly prediction map by ${predictorName} with seat calls, close contests, and predictor-led insights.`,
+    title: `${predictorName} - ${stateName} 2026 Election Prediction Map | IndiaStats`,
+    description,
+    keywords: [
+      `${predictorName} election prediction`,
+      `${stateName} election 2026 forecast`,
+      `${stateName} assembly prediction map`,
+      'Tamil Nadu election predictor',
+      'seat forecast 2026',
+      'assembly constituency prediction',
+      predictorName,
+    ],
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: `${predictorName} - Tamil Nadu Election Prediction Map`,
-      description: `Explore assembly-level forecasts by ${predictorName} with watchlist constituencies and party call distributions.`,
+      title: `${predictorName} - ${stateName} 2026 Election Prediction Map`,
+      description,
       type: 'website',
       url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${predictorName} - ${stateName} Election Prediction 2026`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${predictorName} - Tamil Nadu Election Prediction Map`,
-      description: `Interactive assembly-level forecast map by ${predictorName} with close contests, type mix, and party calls.`,
+      title: `${predictorName} - ${stateName} 2026 Election Prediction Map`,
+      description,
+      images: [ogImageUrl],
     },
   }
 }
