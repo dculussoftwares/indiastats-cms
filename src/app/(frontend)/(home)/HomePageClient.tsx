@@ -24,7 +24,17 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
-import type { PredictorSummary } from '@/lib/electionPredictions'
+interface PredictorSummary {
+  id: string
+  name: string
+  imagePath: string | null
+  bio: string | null
+  totalPredictions: number
+  calledSeats: number
+  tooCloseToCall: number
+  leadingParty: string | null
+  latestYear: number | null
+}
 
 interface HomePageClientProps {
   stats: {
@@ -33,7 +43,6 @@ interface HomePageClientProps {
     totalBooths: number
     totalVoters: number
   }
-  predictors: PredictorSummary[]
 }
 
 // Animated counter hook
@@ -94,7 +103,16 @@ function StatCounter({ value, label }: { value: number; label: string }) {
   )
 }
 
-export function HomePageClient({ stats, predictors }: HomePageClientProps) {
+export function HomePageClient({ stats }: HomePageClientProps) {
+  const [predictors, setPredictors] = useState<PredictorSummary[]>([])
+
+  useEffect(() => {
+    fetch('/next/predictor-summaries')
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setPredictors(data) })
+      .catch(() => {})
+  }, [])
+
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.HOMEPAGE,
