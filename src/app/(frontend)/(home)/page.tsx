@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
 import { HomePageClient } from './HomePageClient'
+import { getPredictorsWithSummaries, type PredictorSummary } from '@/lib/electionPredictions'
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
 
@@ -68,7 +69,10 @@ async function getHomePageData() {
 }
 
 export default async function HomePage() {
-  const { stats } = await getHomePageData()
+  const [{ stats }, predictors] = await Promise.all([
+    getHomePageData(),
+    getPredictorsWithSummaries({ stateCode: 'TN' }),
+  ])
 
-  return <HomePageClient stats={stats} />
+  return <HomePageClient stats={stats} predictors={predictors} />
 }

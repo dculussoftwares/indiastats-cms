@@ -2,6 +2,7 @@
 import * as React from 'react'
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Map,
   MapPinned,
@@ -17,11 +18,13 @@ import {
   Search,
   ExternalLink,
   Download,
+  User,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
+import type { PredictorSummary } from '@/lib/electionPredictions'
 
 interface HomePageClientProps {
   stats: {
@@ -30,6 +33,7 @@ interface HomePageClientProps {
     totalBooths: number
     totalVoters: number
   }
+  predictors: PredictorSummary[]
 }
 
 // Animated counter hook
@@ -90,7 +94,7 @@ function StatCounter({ value, label }: { value: number; label: string }) {
   )
 }
 
-export function HomePageClient({ stats }: HomePageClientProps) {
+export function HomePageClient({ stats, predictors }: HomePageClientProps) {
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.HOMEPAGE,
@@ -217,7 +221,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
             {/* Interactive Map */}
             <Link
               href="/tamil-nadu/assembly-map"
@@ -295,7 +299,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               </div>
             </Link>
 
-            {/* Election Data Table - NEW */}
+            {/* Election Data Table */}
             <Link
               href="/election-data"
               className="group"
@@ -317,6 +321,35 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 </h3>
                 <p className="text-white/50 text-sm mb-4">Filter, sort & export to Excel</p>
                 <div className="flex items-center text-green-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  Explore <ChevronRight className="h-4 w-4 ml-1" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Election Predictions */}
+            <Link
+              href="/tamil-nadu/election-predictions"
+              className="group"
+              onClick={() => {
+                const pageContext = getPageContext()
+                trackClicked({ name: 'link',
+                  page_name: pageContext.page_name || 'Homepage',
+                  link_name: 'election_predictions_card',
+                  link_location: 'features_section',
+                })
+              }}
+            >
+              <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/50 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-purple-600/20 flex items-center justify-center mb-4 group-hover:bg-purple-600/30 transition-colors">
+                  <TrendingUp className="h-6 w-6 text-purple-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-purple-400 transition-colors">
+                  Election Predictions
+                </h3>
+                <p className="text-white/50 text-sm mb-4">
+                  2026 assembly-level seat forecasts
+                </p>
+                <div className="flex items-center text-purple-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Explore <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
               </div>
@@ -393,6 +426,126 @@ export function HomePageClient({ stats }: HomePageClientProps) {
           </div>
         </div>
       </section>
+
+      {/* Election Predictions Section */}
+      {predictors.length > 0 && (
+        <section className="bg-[#1a1a2e] py-16">
+          <div className="container">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <div className="inline-flex items-center gap-2 bg-purple-500/10 rounded-full px-3 py-1 mb-3">
+                  <TrendingUp className="h-4 w-4 text-purple-400" />
+                  <span className="text-sm font-medium text-purple-400">2026 Forecasts</span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold text-white">Election Predictions</h2>
+                <p className="text-white/50 mt-1 text-sm">
+                  Assembly-level seat forecasts from independent analysts
+                </p>
+              </div>
+              <Link
+                href="/tamil-nadu/election-predictions"
+                className="hidden md:flex items-center gap-1 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                onClick={() => {
+                  const pageContext = getPageContext()
+                  trackClicked({ name: 'link',
+                    page_name: pageContext.page_name || 'Homepage',
+                    link_name: 'view_all_predictions',
+                    link_location: 'predictions_section',
+                  })
+                }}
+              >
+                View all <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {predictors.map((predictor) => (
+                <Link
+                  key={predictor.id}
+                  href={`/tamil-nadu/election-predictions/${predictor.id}`}
+                  className="group"
+                  onClick={() => {
+                    const pageContext = getPageContext()
+                    trackClicked({ name: 'link',
+                      page_name: pageContext.page_name || 'Homepage',
+                      link_name: 'predictor_card',
+                      link_location: 'predictions_section',
+                    })
+                  }}
+                >
+                  <div className="h-full rounded-xl bg-white/5 border border-white/10 p-5 hover:bg-white/8 hover:border-purple-500/40 transition-all duration-300">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-purple-500/40">
+                        {predictor.imagePath ? (
+                          <Image
+                            src={predictor.imagePath}
+                            alt={predictor.name}
+                            fill
+                            className="object-cover"
+                            sizes="48px"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-purple-900/40 text-purple-400">
+                            <User className="h-5 w-5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-white truncate group-hover:text-purple-300 transition-colors">
+                          {predictor.name}
+                        </p>
+                        {predictor.latestYear && (
+                          <p className="text-xs text-white/40">{predictor.latestYear} Forecast</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {predictor.totalPredictions > 0 && (
+                      <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">Called</p>
+                          <p className="text-xl font-bold text-white">
+                            {predictor.calledSeats}
+                            <span className="text-xs font-normal text-white/40">/{predictor.totalPredictions}</span>
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">Close</p>
+                          <p className="text-xl font-bold text-white">{predictor.tooCloseToCall}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">Leading</p>
+                          {predictor.leadingParty ? (
+                            <span className="inline-block rounded px-1.5 py-0.5 text-[11px] font-bold text-white bg-red-600">
+                              {predictor.leadingParty}
+                            </span>
+                          ) : (
+                            <p className="text-sm text-white/40">&mdash;</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-4 flex items-center gap-1 text-xs font-medium text-purple-400 group-hover:text-purple-300 transition-colors">
+                      <TrendingUp className="h-3 w-3" />
+                      View prediction map
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-6 text-center md:hidden">
+              <Link
+                href="/tamil-nadu/election-predictions"
+                className="inline-flex items-center gap-1 text-sm font-medium text-purple-400 hover:text-purple-300"
+              >
+                View all predictions <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Coming Soon */}
       <section className="container py-16">
