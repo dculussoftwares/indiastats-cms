@@ -1,0 +1,155 @@
+@import '~@payloadcms/ui/scss';
+
+.importPredictions {
+  margin-top: base(1);
+  padding: base(1);
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 4px;
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 base(0.75);
+  }
+
+  &__row {
+    display: flex;
+    gap: base(0.5);
+    margin-bottom: base(0.5);
+    flex-wrap: wrap;
+
+    & > * {
+      flex: 1;
+      min-width: 180px;
+    }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: base(0.5);
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--theme-elevation-500);
+  }
+
+  &__input,
+  &__select,
+  &__textarea {
+    padding: 8px 10px;
+    border: 1px solid var(--theme-elevation-150);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    background: var(--theme-input-bg);
+    color: var(--theme-text);
+    width: 100%;
+
+    &:focus {
+      outline: none;
+      border-color: var(--theme-elevation-400);
+    }
+  }
+
+  &__textarea {
+    min-height: 60px;
+    resize: vertical;
+  }
+
+  &__radioGroup {
+    display: flex;
+    gap: base(0.75);
+    margin-bottom: base(0.5);
+  }
+
+  &__radioLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  &__fileInfo {
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: var(--theme-elevation-500);
+  }
+
+  &__fileCount {
+    color: var(--theme-success-500);
+    font-weight: 600;
+  }
+
+  &__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: base(0.5);
+    padding: 8px 18px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--theme-success-500);
+    color: white;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__result {
+    margin-top: base(0.75);
+    padding: base(0.5);
+    border: 1px solid var(--theme-elevation-150);
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  &__resultRow {
+    display: flex;
+    gap: base(0.5);
+    margin-bottom: 4px;
+  }
+
+  &__resultLabel {
+    font-weight: 600;
+    min-width: 80px;
+  }
+
+  &__errors {
+    margin-top: base(0.5);
+  }
+
+  &__errorToggle {
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.8rem;
+    color: var(--theme-error-500);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  &__errorList {
+    margin-top: 4px;
+    padding-left: base(1);
+    font-size: 0.8rem;
+    color: var(--theme-error-500);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}

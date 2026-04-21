@@ -35,3 +35,7 @@ infra/.terraform.lock.hcl
 /.idea/
 /.junie/
 /.claude/
+
+# Prediction data files (local only)
+prdiction/
+prediction2/
