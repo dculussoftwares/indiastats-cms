@@ -46,6 +46,7 @@ const DESTINATION_PAGES = [
   { label: 'Election Data', path: '/election-data' },
   { label: 'Caste Demographics', path: '/tamil-nadu/caste-demographics' },
   { label: 'Dashboard', path: '/tamil-nadu/dashboard' },
+  { label: 'Election Predictions', path: '/tamil-nadu/election-predictions' },
 ]
 
 const CHANNEL_META: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
