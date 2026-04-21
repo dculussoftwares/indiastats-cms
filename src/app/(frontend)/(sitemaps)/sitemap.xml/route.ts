@@ -11,6 +11,7 @@ export async function GET() {
     `${SITE_URL}/posts-sitemap.xml`,
     `${SITE_URL}/districts-sitemap.xml`,
     `${SITE_URL}/assemblies-sitemap.xml`,
+    `${SITE_URL}/predictions-sitemap.xml`,
   ]
 
   return getServerSideSitemapIndex(sitemaps)
