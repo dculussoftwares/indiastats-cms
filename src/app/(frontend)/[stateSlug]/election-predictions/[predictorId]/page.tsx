@@ -34,10 +34,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-predictions/${predictorId}`
 
-  // Use predictor's own photo as OG image if available, otherwise fall back to state OG
-  const ogImageUrl = predictor.imagePath
-    ? `${baseUrl}${predictor.imagePath}`
-    : `${baseUrl}/api/og/state/${stateSlug}`
+  // Use dedicated prediction OG image
+  const ogImageUrl = `${baseUrl}/api/og/prediction/${predictorId}`
 
   const { calledSeats, tooCloseToCall } = initialData.summary
   const description = `${predictorName}'s 2026 ${stateName} election forecast — ${calledSeats} seats called, ${tooCloseToCall} too close to call. Interactive assembly-level prediction map with party distributions and watchlist constituencies.`
