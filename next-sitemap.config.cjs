@@ -12,6 +12,7 @@ module.exports = {
     '/pages-sitemap.xml',
     '/districts-sitemap.xml',
     '/assemblies-sitemap.xml',
+    '/predictions-sitemap.xml',
     '/admin/*',
     '/api/*',
     '/*',
@@ -32,6 +33,7 @@ module.exports = {
       `${SITE_URL}/posts-sitemap.xml`,
       `${SITE_URL}/districts-sitemap.xml`,
       `${SITE_URL}/assemblies-sitemap.xml`,
+      `${SITE_URL}/predictions-sitemap.xml`,
     ],
   },
 }
