@@ -538,11 +538,11 @@ export function ElectionPredictionMap({
 
   return (
     <div className="space-y-4">
-      <Card className="overflow-hidden border-red-100 bg-gradient-to-r from-white via-red-50/40 to-white">
+      <Card className="overflow-hidden border-red-100 bg-gradient-to-r from-white via-red-50/40 to-white dark:border-red-950 dark:from-gray-950 dark:via-red-950/20 dark:to-gray-950">
         <CardContent className="p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="flex items-start gap-4">
-              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-2 border-red-200 bg-white">
+              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-2 border-red-200 bg-white dark:border-red-800 dark:bg-gray-900">
                 {dataset.selectedPredictor?.imagePath ? (
                   <Image
                     src={dataset.selectedPredictor.imagePath}
@@ -563,7 +563,7 @@ export function ElectionPredictionMap({
                   <span className="rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
                     Prediction Map
                   </span>
-                  <span className="rounded-full border border-red-200 bg-white px-2.5 py-1 text-[11px] font-medium text-red-700">
+                  <span className="rounded-full border border-red-200 bg-white px-2.5 py-1 text-[11px] font-medium text-red-700 dark:border-red-800 dark:bg-gray-900 dark:text-red-400">
                     {stateName} {dataset.electionYear}
                   </span>
                 </div>
@@ -578,7 +578,7 @@ export function ElectionPredictionMap({
             </div>
 
             <div className="grid gap-2 text-sm sm:grid-cols-2 md:min-w-[280px]">
-              <div className="rounded-lg border border-red-100 bg-white p-3">
+              <div className="rounded-lg border border-red-100 bg-white p-3 dark:border-red-950 dark:bg-gray-900">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-red-600">
                   Visualization
                 </p>
@@ -586,7 +586,7 @@ export function ElectionPredictionMap({
                   Party forecast, contest heat, and prediction type lenses
                 </p>
               </div>
-              <div className="rounded-lg border border-red-100 bg-white p-3">
+              <div className="rounded-lg border border-red-100 bg-white p-3 dark:border-red-950 dark:bg-gray-900">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-red-600">
                   Read the map
                 </p>
@@ -860,17 +860,17 @@ export function ElectionPredictionMap({
             {popupPosition && popupContent && (
               <Popup position={popupPosition}>
                 <div className="min-w-[260px] p-1">
-                  <p className="text-sm font-bold text-gray-900">{popupContent.ac_name}</p>
-                  <p className="mb-2 text-xs text-gray-500">{popupContent.pc_name}</p>
+                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{popupContent.ac_name}</p>
+                  <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">{popupContent.pc_name}</p>
 
                   {popupEntry ? (
                     <>
-                      <div className="mb-3 rounded border border-gray-200 bg-gray-50 p-2">
+                      <div className="mb-3 rounded border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
                             {popupEntry.predictedWinningParty ? 'Predicted winner' : 'Too close to call'}
                           </p>
-                          <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-gray-700 border">
+                          <span className="rounded-full border bg-white px-2 py-0.5 text-[10px] font-semibold text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
                             {popupEntry.predictionType}
                           </span>
                         </div>
@@ -884,7 +884,7 @@ export function ElectionPredictionMap({
                               {popupEntry.predictedWinningParty}
                             </span>
                             {popupEntry.isCloseContest && (
-                              <span className="rounded bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800">
+                              <span className="rounded bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
                                 Close fight
                               </span>
                             )}
@@ -905,11 +905,11 @@ export function ElectionPredictionMap({
                       </div>
 
                       {popupEntry.additionalNotes && (
-                        <div className="mb-3 rounded border border-gray-200 bg-white p-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                        <div className="mb-3 rounded border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-800">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
                             Note
                           </p>
-                          <p className="mt-1 text-xs leading-5 text-gray-700">
+                          <p className="mt-1 text-xs leading-5 text-gray-700 dark:text-gray-300">
                             {popupEntry.additionalNotes}
                           </p>
                         </div>
