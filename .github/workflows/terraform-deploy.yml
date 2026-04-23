@@ -9,6 +9,11 @@ on:
       - 'infra/**'
       - 'Dockerfile'
       - 'tests/**'
+      - 'next.config.js'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'tailwind.config.mjs'
+      - 'postcss.config.js'
       - '.github/workflows/terraform-deploy.yml'
   workflow_dispatch:
 
