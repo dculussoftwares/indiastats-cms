@@ -8,6 +8,13 @@ import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
 import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
 
+const POLICY_LINKS = [
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+  { label: 'Terms', href: '/terms' },
+  { label: 'Privacy Policy', href: '/privacy-policy' },
+]
+
 export async function Footer() {
   const footerData: Footer = await getCachedGlobal('footer', 1)()
 
@@ -26,6 +33,27 @@ export async function Footer() {
             {navItems.map(({ link }, i) => {
               return <CMSLink className="text-white" key={i} {...link} />
             })}
+          </nav>
+        </div>
+      </div>
+
+      {/* Policy links — always present regardless of CMS nav */}
+      <div className="border-t border-white/10">
+        <div className="container py-4 flex flex-wrap gap-x-6 gap-y-2 justify-between items-center">
+          <p className="text-white/50 text-xs">
+            © {new Date().getFullYear()} IndiaStats.org. Data sourced from the Election Commission
+            of India.
+          </p>
+          <nav className="flex flex-wrap gap-x-5 gap-y-1">
+            {POLICY_LINKS.map(({ label, href }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-white/60 hover:text-white text-xs transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
           </nav>
         </div>
       </div>
