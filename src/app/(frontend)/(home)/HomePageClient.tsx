@@ -376,6 +376,62 @@ export function HomePageClient({ stats }: HomePageClientProps) {
         </div>
       </section>
 
+      {/* About IndiaStats — editorial section for SEO / AdSense content value */}
+      <section className="bg-white dark:bg-background py-16 border-t border-border">
+        <div className="container max-w-4xl">
+          <div className="border-l-4 border-red-600 pl-3 mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold">What is IndiaStats.org?</h2>
+          </div>
+
+          <div className="prose prose-lg dark:prose-invert max-w-none space-y-6 text-muted-foreground">
+            <p>
+              IndiaStats.org is a free, open-source election data platform that brings together
+              constituency-level electoral records from across India's state assembly elections.
+              Our mission is to make political data transparent, searchable, and accessible to
+              every citizen — journalists, researchers, students, and curious voters alike.
+            </p>
+
+            <p>
+              The platform currently covers all <strong className="text-foreground">234 assembly constituencies in Tamil Nadu</strong>,
+              with detailed records spanning elections from 1967 to 2021. Each constituency page
+              shows vote counts, winning margins, candidate lists, voter turnout, and demographic
+              breakdowns — all sourced from official Election Commission of India data.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-6 not-prose my-8">
+              <div className="border border-border rounded p-5">
+                <div className="text-2xl font-bold text-red-600 mb-1">15+ Elections</div>
+                <p className="text-sm text-muted-foreground">Historical data from 1967 to 2021 across all 234 Tamil Nadu constituencies</p>
+              </div>
+              <div className="border border-border rounded p-5">
+                <div className="text-2xl font-bold text-red-600 mb-1">50,000+ Booths</div>
+                <p className="text-sm text-muted-foreground">Polling booth-level voter data including male, female, and third-gender counts</p>
+              </div>
+              <div className="border border-border rounded p-5">
+                <div className="text-2xl font-bold text-red-600 mb-1">Free & Open</div>
+                <p className="text-sm text-muted-foreground">All data is publicly accessible via our REST API and web interface at no cost</p>
+              </div>
+            </div>
+
+            <p>
+              Tamil Nadu's political landscape is one of the most studied in India. Since 1967, the
+              state has been governed exclusively by Dravidian parties — first the DMK under
+              M. Karunanidhi, then the AIADMK under M. G. Ramachandran and J. Jayalalithaa, and
+              back to the DMK under M. K. Stalin in 2021. IndiaStats.org lets you trace this
+              50-year story ward by ward, district by district, election by election.
+            </p>
+
+            <p>
+              Beyond vote counts, the platform provides caste-demographic overlays, SC/ST reserved
+              constituency flags, alliance breakdowns by electoral zone, and 2026 assembly election
+              predictions from independent analysts. Whether you're verifying a statistic for an
+              article, building a research model, or simply trying to understand why a particular
+              constituency swings the way it does — IndiaStats.org has the data you need.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Tamil Nadu Highlight */}
       <section className="bg-muted/50 py-16">
         <div className="container">
