@@ -101,7 +101,7 @@ export default async function PredictorPredictionMapPage({ params }: Props) {
   }
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative h-[100dvh] overflow-hidden">
       <ElectionPredictionMap
         initialData={initialData}
         map={TamilNaduGeoJson}

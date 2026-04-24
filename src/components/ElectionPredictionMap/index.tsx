@@ -28,6 +28,28 @@ const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.Map
 })
 const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), { ssr: false })
 
+// ── Compact custom zoom control ───────────────────────────────────────────────
+function ZoomControl({ mapRef }: { mapRef: React.RefObject<any> }) {
+  return (
+    <div className="absolute left-3 top-1/2 -translate-y-1/2 z-[1000] flex flex-col overflow-hidden rounded-lg border border-white/10 bg-gray-950/90 shadow-xl backdrop-blur-sm">
+      <button
+        aria-label="Zoom in"
+        onClick={() => mapRef.current?.zoomIn()}
+        className="flex h-8 w-8 items-center justify-center border-b border-white/10 text-gray-300 transition-colors hover:bg-white/10 hover:text-white active:bg-white/20 text-lg font-light leading-none"
+      >
+        +
+      </button>
+      <button
+        aria-label="Zoom out"
+        onClick={() => mapRef.current?.zoomOut()}
+        className="flex h-8 w-8 items-center justify-center text-gray-300 transition-colors hover:bg-white/10 hover:text-white active:bg-white/20 text-lg font-light leading-none"
+      >
+        −
+      </button>
+    </div>
+  )
+}
+
 let L: any = null
 if (typeof window !== 'undefined') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -504,7 +526,7 @@ function ForecastBar({
   const majorityPct = (majority / totalAssemblies) * 100
 
   return (
-    <div className="shrink-0 border-b border-gray-800 bg-gray-900/70 px-6 py-3">
+    <div className="shrink-0 border-b border-gray-800 bg-gray-900/70 px-3 py-2 md:px-6 md:py-3">
       <div className="mb-2 flex items-center justify-between text-[11px]">
         <span className="flex items-center gap-2 font-semibold text-white">
           {topParty && (
@@ -520,12 +542,12 @@ function ForecastBar({
             {topCount}
           </span>
           {topCount >= majority && (
-            <span className="animate-pulse rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+            <span className="hidden sm:inline-flex animate-pulse items-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
               MAJORITY ✓
             </span>
           )}
         </span>
-        <span className="text-gray-500">
+        <span className="hidden sm:block text-gray-500">
           Majority: <strong className="text-white">{majority}</strong> / {totalAssemblies}
         </span>
       </div>
@@ -657,6 +679,7 @@ export function ElectionPredictionMap({
   const [highlightFilter, setHighlightFilter] = useState<HighlightFilter>(null)
   const [timeStr, setTimeStr] = useState('')
   const [showMapHint, setShowMapHint] = useState(true)
+  const [mobileTab, setMobileTab] = useState<'map' | 'forecast' | 'stats'>('map')
 
   useEffect(() => {
     const tick = () =>
@@ -679,6 +702,14 @@ export function ElectionPredictionMap({
     const id = setTimeout(() => setShowMapHint(false), 8000)
     return () => clearTimeout(id)
   }, [])
+
+  // Re-render map when switching back to map tab on mobile
+  useEffect(() => {
+    if (mobileTab === 'map' && mapRef.current) {
+      const id = setTimeout(() => mapRef.current?.invalidateSize?.(), 150)
+      return () => clearTimeout(id)
+    }
+  }, [mobileTab])
 
   useEffect(() => {
     setPageContext({
@@ -934,7 +965,7 @@ export function ElectionPredictionMap({
   const watchlist = dataset.watchlist.slice(0, 8)
 
   return (
-    <div className="flex h-screen flex-col bg-gray-950 text-white overflow-hidden">
+    <div className="flex h-[100dvh] flex-col bg-gray-950 text-white overflow-hidden">
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <header className="relative shrink-0 overflow-hidden border-b border-gray-800 bg-gray-950 px-4 py-0">
         <div
@@ -1035,7 +1066,19 @@ export function ElectionPredictionMap({
           </div>
 
           {/* Right — stat pills + clock */}
-          <div className="flex items-center divide-x divide-gray-800 overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shrink-0">
+          {/* Mobile: compact called count only */}
+          <div className="flex md:hidden items-center overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shrink-0">
+            <div className="px-3 py-1.5 text-center">
+              <p className="text-[9px] uppercase tracking-widest text-gray-600">Called</p>
+              <p
+                className={`text-xl font-extrabold tabular-nums transition-colors duration-300 text-emerald-400 ${calledFlash ? 'brightness-[1.6]' : ''}`}
+              >
+                {calledCount}
+              </p>
+            </div>
+          </div>
+          {/* Desktop: full stat pills + clock */}
+          <div className="hidden md:flex items-center divide-x divide-gray-800 overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shrink-0">
             {[
               {
                 label: 'Called',
@@ -1069,6 +1112,34 @@ export function ElectionPredictionMap({
         </div>
       </header>
 
+      {/* ── Mobile top tab bar (always visible, no scroll required) ──────── */}
+      <nav className="md:hidden shrink-0 flex border-b border-gray-800 bg-gray-950">
+        {(
+          [
+            { id: 'map', label: 'Map', Icon: MapPin },
+            { id: 'forecast', label: 'Forecast', Icon: BarChart3 },
+            { id: 'stats', label: 'Stats', Icon: Activity },
+          ] as const
+        ).map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            onClick={() => setMobileTab(id)}
+            className={`flex flex-1 flex-col items-center gap-0.5 py-2 transition-colors ${
+              mobileTab === id
+                ? 'border-b-2 border-red-500 text-red-500'
+                : 'border-b-2 border-transparent text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            <Icon
+              className={`h-4 w-4 transition-transform duration-150 ${
+                mobileTab === id ? 'scale-110' : ''
+              }`}
+            />
+            <span className="text-[10px] font-medium">{label}</span>
+          </button>
+        ))}
+      </nav>
+
       {/* ── Forecast majority bar ────────────────────────────────────────── */}
       <ForecastBar
         topParties={dataset.topParties}
@@ -1078,8 +1149,8 @@ export function ElectionPredictionMap({
 
       {/* ── Body ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left: party tally */}
-        <aside className="flex w-64 shrink-0 flex-col overflow-y-auto border-r border-gray-800 bg-gray-950">
+        {/* Left: party tally — desktop only; mobile shows Forecast overlay tab */}
+        <aside className="hidden md:flex w-64 shrink-0 flex-col overflow-y-auto border-r border-gray-800 bg-gray-950">
           <div className="px-3 pt-3">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-[10px] uppercase tracking-widest text-gray-500">Seat Forecast</p>
@@ -1171,6 +1242,7 @@ export function ElectionPredictionMap({
             center={[11.1271, 78.6569]}
             zoom={7}
             scrollWheelZoom
+            zoomControl={false}
             ref={mapRef}
             attributionControl={false}
           >
@@ -1209,10 +1281,13 @@ export function ElectionPredictionMap({
             )}
           </MapContainer>
 
+          {/* Custom compact zoom — bottom-left, clear of legend */}
+          <ZoomControl mapRef={mapRef} />
+
           {/* Map hint */}
           {showMapHint && (
             <div
-              className="pointer-events-none absolute bottom-14 left-1/2 z-[1001] -translate-x-1/2"
+              className="pointer-events-none absolute bottom-4 left-1/2 z-[1001] -translate-x-1/2"
               style={{
                 transition: 'opacity 0.4s ease, transform 0.4s ease',
                 opacity: 1,
@@ -1230,8 +1305,8 @@ export function ElectionPredictionMap({
             </div>
           )}
 
-          {/* Search bar overlay + highlight chip (right side) */}
-          <div className="absolute right-4 top-4 z-[1001] w-72">
+          {/* Search bar overlay + highlight chip — full-width on mobile, fixed right on desktop */}
+          <div className="absolute left-2 right-2 top-3 z-[1001] md:left-auto md:right-4 md:top-4 md:w-72">
             <div className="relative">
               <Search
                 className="absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-red-400"
@@ -1310,11 +1385,11 @@ export function ElectionPredictionMap({
           </div>
 
           {/* Legend */}
-          <div className="absolute bottom-4 right-4 z-[1000] rounded-xl border border-white/10 bg-gray-950/90 px-3 py-2.5 shadow-xl backdrop-blur-sm">
+          <div className="absolute bottom-4 right-2 z-[1000] rounded-xl border border-white/10 bg-gray-950/90 px-3 py-2.5 shadow-xl backdrop-blur-sm md:right-4">
             <p className="mb-2 text-[10px] uppercase tracking-widest text-gray-500">
               {viewMode === 'winner' ? 'Party' : viewMode === 'heat' ? 'Intensity' : 'Type'}
             </p>
-            <div className="space-y-1 max-h-[220px] overflow-y-auto">
+            <div className="space-y-1 max-h-[140px] overflow-y-auto md:max-h-[220px]">
               {viewMode === 'winner' &&
                 winnerLegendItems.map((item) => {
                   const isTooClose = item.label === 'Too close to call'
@@ -1423,17 +1498,341 @@ export function ElectionPredictionMap({
             </div>
           </div>
 
-          {/* Loading spinner overlay */}
+          {/* District filter status */}
           {!isLoading && (
             <div className="absolute left-3 bottom-4 z-[1000] flex items-center gap-1.5 rounded-full border border-white/5 bg-gray-950/80 px-3 py-1 text-[11px] text-gray-500 backdrop-blur-sm">
               <RefreshCw className="h-3 w-3" style={{ animation: 'none' }} />
               {selectedDistrict ? `${selectedDistrict} · filtered` : 'All districts'}
             </div>
           )}
+
+          {/* ── Mobile: Forecast overlay (slide up from bottom) ──────────── */}
+          <div
+            className={`md:hidden absolute inset-0 z-[1100] flex flex-col bg-gray-950 transition-transform duration-300 ease-in-out ${
+              mobileTab === 'forecast' ? 'translate-y-0' : 'translate-y-full pointer-events-none'
+            }`}
+          >
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-800 bg-gray-950 px-4 py-3">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                Seat Forecast
+              </p>
+              <button
+                onClick={() => setMobileTab('map')}
+                className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-3 py-3">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-[10px] uppercase tracking-widest text-gray-500">Party Tally</p>
+                {highlightFilter && (
+                  <button
+                    onClick={() => setHighlightFilter(null)}
+                    className="flex items-center gap-1 rounded bg-gray-800 px-2 py-0.5 text-[10px] text-gray-400 hover:text-white"
+                  >
+                    <X className="h-3 w-3" /> clear
+                  </button>
+                )}
+              </div>
+              <div className="space-y-1">
+                {dataset.topParties.slice(0, 10).map((t, i) => (
+                  <PartyRow
+                    key={t.key}
+                    party={t.key}
+                    count={t.count}
+                    total={dataset.summary.totalAssemblies}
+                    maxSeats={dataset.topParties[0]?.count ?? 1}
+                    isActive={highlightFilter?.type === 'party' && highlightFilter.value === t.key}
+                    onClick={() => {
+                      toggleHighlight({ type: 'party', value: t.key })
+                      setMobileTab('map')
+                    }}
+                    rank={i + 1}
+                    delay={i * 55}
+                  />
+                ))}
+                {dataset.summary.tooCloseToCall > 0 && (
+                  <button
+                    onClick={() => {
+                      toggleHighlight({ type: 'heatLevel', value: 'tooClose' })
+                      setMobileTab('map')
+                    }}
+                    className={`group w-full rounded-lg px-3 py-2.5 text-left ${
+                      highlightFilter?.type === 'heatLevel' && highlightFilter.value === 'tooClose'
+                        ? 'bg-white/10'
+                        : 'hover:bg-white/5'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-sm bg-amber-600" />
+                        <span className="text-sm font-semibold text-amber-400">Too Close</span>
+                      </div>
+                      <span className="text-xl font-extrabold tabular-nums text-amber-400">
+                        {dataset.summary.tooCloseToCall}
+                      </span>
+                    </div>
+                  </button>
+                )}
+              </div>
+              {watchlist.length > 0 && (
+                <div className="mt-4 border-t border-gray-800 pt-3">
+                  <div className="mb-2 flex items-center gap-1.5">
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+                    <p className="text-[10px] uppercase tracking-widest text-gray-500">Watchlist</p>
+                  </div>
+                  <div className="space-y-1">
+                    {watchlist.map((entry, i) => (
+                      <WatchlistButton
+                        key={entry.assemblyId}
+                        entry={entry}
+                        delay={350 + i * 60}
+                        onFocus={(id) => {
+                          focusAssemblyById(id)
+                          setMobileTab('map')
+                          trackClicked({
+                            name: 'watchlist_seat',
+                            page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                            assembly_id: id,
+                            assembly_name: entry.assemblyName ?? '',
+                          })
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── Mobile: Stats & Settings overlay ─────────────────────────── */}
+          <div
+            className={`md:hidden absolute inset-0 z-[1100] flex flex-col bg-gray-950 transition-transform duration-300 ease-in-out ${
+              mobileTab === 'stats' ? 'translate-y-0' : 'translate-y-full pointer-events-none'
+            }`}
+          >
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-800 bg-gray-950 px-4 py-3">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                Stats &amp; Settings
+              </p>
+              <button
+                onClick={() => setMobileTab('map')}
+                className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5">
+              {/* Predictor + Year + View mode (mobile controls hidden in header) */}
+              <div className="space-y-2">
+                <p className="text-[10px] uppercase tracking-widest text-gray-500">Settings</p>
+                <select
+                  value={selectedPredictorId}
+                  onChange={(e) => {
+                    const id = e.target.value
+                    setSelectedPredictorId(id)
+                    void loadDataset(id, selectedYear)
+                  }}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-sm text-gray-300 focus:border-red-600 focus:outline-none"
+                >
+                  {dataset.predictors.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => {
+                    const y = Number(e.target.value)
+                    setSelectedYear(y)
+                    void loadDataset(selectedPredictorId, y)
+                  }}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-sm text-gray-300 focus:border-red-600 focus:outline-none"
+                >
+                  {dataset.availableYears.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex rounded-lg bg-gray-800 p-0.5">
+                  {(
+                    [
+                      ['winner', 'Party'],
+                      ['heat', 'Heat'],
+                      ['type', 'Type'],
+                    ] as const
+                  ).map(([v, l]) => (
+                    <button
+                      key={v}
+                      onClick={() => setViewMode(v)}
+                      className={`flex-1 rounded-md py-2 text-sm font-medium transition-all ${
+                        viewMode === v ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Forecast progress */}
+              <div>
+                <p className="mb-3 text-[10px] uppercase tracking-widest text-gray-500">
+                  Forecast Progress
+                </p>
+                <div className="flex items-center gap-4">
+                  <div className="relative shrink-0">
+                    <DonutProgress pct={calledPct} color="#10b981" size={64} />
+                    <span className="absolute inset-0 flex items-center justify-center text-[11px] font-extrabold text-emerald-400">
+                      {calledPct}%
+                    </span>
+                  </div>
+                  <div className="grid flex-1 grid-cols-3 gap-2">
+                    {[
+                      { label: 'Called', value: calledCount, color: 'text-emerald-400' },
+                      { label: 'Close', value: closeCount, color: 'text-amber-400' },
+                      { label: 'Toss-up', value: tossCount, color: 'text-orange-500' },
+                    ].map(({ label, value, color }) => (
+                      <div key={label} className="rounded-lg bg-gray-900 p-2 text-center">
+                        <p className="text-[9px] uppercase tracking-widest text-gray-600">
+                          {label}
+                        </p>
+                        <p className={`text-lg font-extrabold tabular-nums ${color}`}>{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {[
+                    {
+                      label: 'Close contests',
+                      count: dataset.summary.closeContests,
+                      color: '#f97316',
+                    },
+                    { label: 'Too close', count: dataset.summary.tooCloseToCall, color: '#d97706' },
+                  ].map((item, i) => (
+                    <StatusBarRow
+                      key={item.label}
+                      label={item.label}
+                      count={item.count}
+                      total={dataset.summary.totalAssemblies}
+                      color={item.color}
+                      delay={220 + i * 100}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Leading party */}
+              {dataset.summary.leadingParty &&
+                (() => {
+                  const c = getPartyColor(dataset.summary.leadingParty)
+                  return (
+                    <div
+                      className="rounded-xl p-4"
+                      style={{
+                        background: `linear-gradient(135deg, ${c}18 0%, transparent 80%)`,
+                        border: `1px solid ${c}40`,
+                      }}
+                    >
+                      <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                        Front Runner
+                      </p>
+                      <div className="mt-1 flex items-end justify-between">
+                        <p className="text-lg font-extrabold text-white">
+                          {dataset.summary.leadingParty}
+                        </p>
+                        <p className="text-4xl font-extrabold tabular-nums" style={{ color: c }}>
+                          {dataset.summary.leadingPartySeats}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })()}
+
+              {/* District filter — selecting auto-returns to map */}
+              <div>
+                <p className="mb-1.5 text-[10px] uppercase tracking-widest text-gray-500">
+                  District Filter
+                </p>
+                <select
+                  value={selectedDistrict ?? ''}
+                  onChange={(e) => {
+                    handleDistrictSelect(e.target.value || null)
+                    setMobileTab('map')
+                  }}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-sm text-white focus:border-red-600 focus:outline-none"
+                >
+                  <option value="">All districts</option>
+                  {Array.from(
+                    new Set(map?.features?.map((f: any) => f?.properties?.pc_name).filter(Boolean)),
+                  )
+                    .sort()
+                    .map((d: any) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* Type mix */}
+              {dataset.predictionTypeCounts.length > 0 && (
+                <div>
+                  <div className="mb-2 flex items-center gap-1.5">
+                    <BarChart3 className="h-3.5 w-3.5 text-red-600" />
+                    <p className="text-[10px] uppercase tracking-widest text-gray-500">Type Mix</p>
+                  </div>
+                  <div className="space-y-1">
+                    {dataset.predictionTypeCounts.slice(0, 5).map((item) => {
+                      const pct = (item.count / Math.max(dataset.summary.totalAssemblies, 1)) * 100
+                      const isActive =
+                        highlightFilter?.type === 'predictionType' &&
+                        highlightFilter.value === item.key
+                      return (
+                        <button
+                          key={item.key}
+                          onClick={() => {
+                            toggleHighlight({ type: 'predictionType', value: item.key })
+                            setMobileTab('map')
+                          }}
+                          className={`w-full text-left rounded px-1.5 py-1 transition-colors ${
+                            isActive ? 'bg-white/10' : 'hover:bg-white/5'
+                          }`}
+                        >
+                          <div className="mb-0.5 flex items-center justify-between text-[10px]">
+                            <span className="text-gray-400">{item.key}</span>
+                            <span
+                              className={isActive ? 'text-red-400 font-semibold' : 'text-gray-600'}
+                            >
+                              {item.count}
+                            </span>
+                          </div>
+                          <div className="h-1 overflow-hidden rounded-full bg-gray-800">
+                            <div
+                              className="h-1 rounded-full"
+                              style={{
+                                width: `${Math.max(pct, 2)}%`,
+                                backgroundColor: typeColorMap[item.key] || '#475569',
+                                transition: 'width 0.8s ease',
+                              }}
+                            />
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </main>
 
-        {/* Right: stats panel */}
-        <aside className="flex w-52 shrink-0 flex-col overflow-y-auto border-l border-gray-800 bg-gray-950">
+        {/* Right: stats panel — desktop only; mobile shows Stats overlay tab */}
+        <aside className="hidden md:flex w-52 shrink-0 flex-col overflow-y-auto border-l border-gray-800 bg-gray-950">
           <div className="px-4 pt-4">
             <p className="mb-3 text-[10px] uppercase tracking-widest text-gray-500">
               Forecast Progress
@@ -1587,8 +1986,10 @@ export function ElectionPredictionMap({
         </aside>
       </div>
 
-      {/* ── Ticker ─────────────────────────────────────────────────────────── */}
-      <Ticker items={tickerItems} />
+      {/* ── Ticker (desktop only) ──────────────────────────────────────────── */}
+      <div className="hidden md:block">
+        <Ticker items={tickerItems} />
+      </div>
     </div>
   )
 }
