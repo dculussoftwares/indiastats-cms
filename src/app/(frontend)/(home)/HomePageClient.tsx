@@ -19,6 +19,7 @@ import {
   ExternalLink,
   Download,
   User,
+  Activity,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -109,7 +110,9 @@ export function HomePageClient({ stats }: HomePageClientProps) {
   useEffect(() => {
     fetch('/next/predictor-summaries')
       .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setPredictors(data) })
+      .then((data) => {
+        if (Array.isArray(data)) setPredictors(data)
+      })
       .catch(() => {})
   }, [])
 
@@ -120,7 +123,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
     })
-    trackViewed({ name: 'home_page',
+    trackViewed({
+      name: 'home_page',
       page_name: PAGE_NAMES.HOMEPAGE,
       page_url: window.location.href,
       page_path: window.location.pathname,
@@ -178,7 +182,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                     href="/tamil-nadu/dashboard"
                     onClick={() => {
                       const pageContext = getPageContext()
-                      trackClicked({ name: 'button',
+                      trackClicked({
+                        name: 'button',
                         page_name: pageContext.page_name || 'Homepage',
                         button_name: 'explore_data',
                         button_label: 'Explore Data',
@@ -199,7 +204,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                     href="/tamil-nadu/assembly-map"
                     onClick={() => {
                       const pageContext = getPageContext()
-                      trackClicked({ name: 'button',
+                      trackClicked({
+                        name: 'button',
                         page_name: pageContext.page_name || 'Homepage',
                         button_name: 'interactive_map',
                         button_label: 'Interactive Map',
@@ -246,7 +252,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               className="group"
               onClick={() => {
                 const pageContext = getPageContext()
-                trackClicked({ name: 'link',
+                trackClicked({
+                  name: 'link',
                   page_name: pageContext.page_name || 'Homepage',
                   link_name: 'interactive_map_card',
                   link_location: 'features_section',
@@ -323,7 +330,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               className="group"
               onClick={() => {
                 const pageContext = getPageContext()
-                trackClicked({ name: 'link',
+                trackClicked({
+                  name: 'link',
                   page_name: pageContext.page_name || 'Homepage',
                   link_name: 'election_data_table_card',
                   link_location: 'features_section',
@@ -350,7 +358,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               className="group"
               onClick={() => {
                 const pageContext = getPageContext()
-                trackClicked({ name: 'link',
+                trackClicked({
+                  name: 'link',
                   page_name: pageContext.page_name || 'Homepage',
                   link_name: 'election_predictions_card',
                   link_location: 'features_section',
@@ -364,11 +373,41 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-purple-400 transition-colors">
                   Election Predictions
                 </h3>
-                <p className="text-white/50 text-sm mb-4">
-                  2026 assembly-level seat forecasts
-                </p>
+                <p className="text-white/50 text-sm mb-4">2026 assembly-level seat forecasts</p>
                 <div className="flex items-center text-purple-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Explore <ChevronRight className="h-4 w-4 ml-1" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Election Results */}
+            <Link
+              href="/tamil-nadu/election-results"
+              className="group"
+              onClick={() => {
+                const pageContext = getPageContext()
+                trackClicked({
+                  name: 'link',
+                  page_name: pageContext.page_name || 'Homepage',
+                  link_name: 'election_results_card',
+                  link_location: 'features_section',
+                })
+              }}
+            >
+              <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-red-500/50 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-red-600/20 flex items-center justify-center mb-4 group-hover:bg-red-600/30 transition-colors relative">
+                  <Activity className="h-6 w-6 text-red-400" />
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-red-400 transition-colors">
+                  Live Election Results
+                </h3>
+                <p className="text-white/50 text-sm mb-4">TV-mode live count map for 2026</p>
+                <div className="flex items-center text-red-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  Watch Live <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
               </div>
             </Link>
@@ -386,14 +425,15 @@ export function HomePageClient({ stats }: HomePageClientProps) {
           <div className="prose prose-lg dark:prose-invert max-w-none space-y-6 text-muted-foreground">
             <p>
               IndiaStats.org is a free, open-source election data platform that brings together
-              constituency-level electoral records from across India's state assembly elections.
-              Our mission is to make political data transparent, searchable, and accessible to
-              every citizen — journalists, researchers, students, and curious voters alike.
+              constituency-level electoral records from across India's state assembly elections. Our
+              mission is to make political data transparent, searchable, and accessible to every
+              citizen — journalists, researchers, students, and curious voters alike.
             </p>
 
             <p>
-              The platform currently covers all <strong className="text-foreground">234 assembly constituencies in Tamil Nadu</strong>,
-              with detailed records spanning elections from 1967 to 2021. Each constituency page
+              The platform currently covers all{' '}
+              <strong className="text-foreground">234 assembly constituencies in Tamil Nadu</strong>
+              , with detailed records spanning elections from 1967 to 2021. Each constituency page
               shows vote counts, winning margins, candidate lists, voter turnout, and demographic
               breakdowns — all sourced from official Election Commission of India data.
             </p>
@@ -401,24 +441,30 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             <div className="grid md:grid-cols-3 gap-6 not-prose my-8">
               <div className="border border-border rounded p-5">
                 <div className="text-2xl font-bold text-red-600 mb-1">15+ Elections</div>
-                <p className="text-sm text-muted-foreground">Historical data from 1967 to 2021 across all 234 Tamil Nadu constituencies</p>
+                <p className="text-sm text-muted-foreground">
+                  Historical data from 1967 to 2021 across all 234 Tamil Nadu constituencies
+                </p>
               </div>
               <div className="border border-border rounded p-5">
                 <div className="text-2xl font-bold text-red-600 mb-1">50,000+ Booths</div>
-                <p className="text-sm text-muted-foreground">Polling booth-level voter data including male, female, and third-gender counts</p>
+                <p className="text-sm text-muted-foreground">
+                  Polling booth-level voter data including male, female, and third-gender counts
+                </p>
               </div>
               <div className="border border-border rounded p-5">
                 <div className="text-2xl font-bold text-red-600 mb-1">Free & Open</div>
-                <p className="text-sm text-muted-foreground">All data is publicly accessible via our REST API and web interface at no cost</p>
+                <p className="text-sm text-muted-foreground">
+                  All data is publicly accessible via our REST API and web interface at no cost
+                </p>
               </div>
             </div>
 
             <p>
               Tamil Nadu's political landscape is one of the most studied in India. Since 1967, the
-              state has been governed exclusively by Dravidian parties — first the DMK under
-              M. Karunanidhi, then the AIADMK under M. G. Ramachandran and J. Jayalalithaa, and
-              back to the DMK under M. K. Stalin in 2021. IndiaStats.org lets you trace this
-              50-year story ward by ward, district by district, election by election.
+              state has been governed exclusively by Dravidian parties — first the DMK under M.
+              Karunanidhi, then the AIADMK under M. G. Ramachandran and J. Jayalalithaa, and back to
+              the DMK under M. K. Stalin in 2021. IndiaStats.org lets you trace this 50-year story
+              ward by ward, district by district, election by election.
             </p>
 
             <p>
@@ -471,7 +517,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                       href="/tamil-nadu/dashboard"
                       onClick={() => {
                         const pageContext = getPageContext()
-                        trackClicked({ name: 'button',
+                        trackClicked({
+                          name: 'button',
                           page_name: pageContext.page_name || 'Homepage',
                           button_name: 'start_exploring',
                           button_label: 'Start Exploring',
@@ -521,7 +568,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 className="hidden md:flex items-center gap-1 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
                 onClick={() => {
                   const pageContext = getPageContext()
-                  trackClicked({ name: 'link',
+                  trackClicked({
+                    name: 'link',
                     page_name: pageContext.page_name || 'Homepage',
                     link_name: 'view_all_predictions',
                     link_location: 'predictions_section',
@@ -540,7 +588,8 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                   className="group"
                   onClick={() => {
                     const pageContext = getPageContext()
-                    trackClicked({ name: 'link',
+                    trackClicked({
+                      name: 'link',
                       page_name: pageContext.page_name || 'Homepage',
                       link_name: 'predictor_card',
                       link_location: 'predictions_section',
@@ -577,18 +626,26 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                     {predictor.totalPredictions > 0 && (
                       <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">Called</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">
+                            Called
+                          </p>
                           <p className="text-xl font-bold text-white">
                             {predictor.calledSeats}
-                            <span className="text-xs font-normal text-white/40">/{predictor.totalPredictions}</span>
+                            <span className="text-xs font-normal text-white/40">
+                              /{predictor.totalPredictions}
+                            </span>
                           </p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">Close</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">
+                            Close
+                          </p>
                           <p className="text-xl font-bold text-white">{predictor.tooCloseToCall}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">Leading</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">
+                            Leading
+                          </p>
                           {predictor.leadingParty ? (
                             <span className="inline-block rounded px-1.5 py-0.5 text-[11px] font-bold text-white bg-red-600">
                               {predictor.leadingParty}

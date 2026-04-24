@@ -24,6 +24,7 @@ export const PAGE_NAMES = {
   PRIVACY_POLICY: 'Privacy Policy',
   NOT_FOUND: '404 Not Found',
   ELECTION_PREDICTIONS: 'Election Predictions',
+  ELECTION_RESULTS: 'Election Results',
 } as const
 
 // ============================================

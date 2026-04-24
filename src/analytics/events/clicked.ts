@@ -26,6 +26,9 @@ export type ClickedEvent =
   | 'prediction_view_mode'
   | 'prediction_predictor'
   | 'watchlist_seat'
+  | 'election_results_map'
+  | 'election_results_party_filter'
+  | 'election_results_seat_click'
 
 export function trackClicked(
   properties: { name: ClickedEvent; page_name: string } & Record<string, unknown>,
