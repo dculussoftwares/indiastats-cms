@@ -96,7 +96,7 @@ export default async function PredictorPredictionMapPage({ params }: Props) {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="relative h-screen overflow-hidden">
       <ElectionPredictionMap
         initialData={initialData}
         map={TamilNaduGeoJson}

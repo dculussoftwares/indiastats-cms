@@ -832,7 +832,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
 
         // Track the assembly click
         const pageContext = getPageContext()
-        trackClicked({ name: 'link',
+        trackClicked({
+          name: 'link',
           page_name: pageContext.page_name || 'Assembly Map',
           link_name: 'view_assembly_from_map',
           link_location: 'interactive_map',
@@ -869,7 +870,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
   const handleAssemblySearch = (value: string) => {
     // Track the search selection
     const pageContext = getPageContext()
-    trackClicked({ name: 'search_result',
+    trackClicked({
+      name: 'search_result',
       page_name: pageContext.page_name || 'Assembly Map',
       search_query: value,
       result_id: value,
@@ -1031,7 +1033,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
     // Track the district filter
     if (district) {
       const pageContext = getPageContext()
-      trackClicked({ name: 'search_filter',
+      trackClicked({
+        name: 'search_filter',
         page_name: pageContext.page_name || 'Assembly Map',
         filter_name: 'district',
         filter_value: district,
@@ -1106,33 +1109,50 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
       {!isFullscreen && <MapStatsDashboard stats={mapStats} isLoading={isLoadingStats} />}
 
       {/* Search and District Filter - BBC Style */}
-      <Card className={isFullscreen ? 'mb-4' : ''}>
-        <CardContent className="py-3">
-          <div className="flex gap-3 items-center flex-wrap">
+      <Card className={`border-l-4 border-l-red-600 ${isFullscreen ? 'mb-4' : ''}`}>
+        <CardContent className="py-4 px-4">
+          <div className="flex gap-3 items-end flex-wrap">
             {/* Constituency Search */}
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search constituency..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value)
-                  setShowDropdown(true)
-                }}
-                onFocus={() => setShowDropdown(true)}
-                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded bg-white dark:bg-gray-900 dark:border-gray-700 focus:outline-none focus:border-red-600"
-              />
+            <div className="relative flex-1 min-w-[220px]">
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Constituency
+              </p>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                <input
+                  type="text"
+                  placeholder="Search constituency…"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                    setShowDropdown(true)
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                  className="w-full pl-10 pr-9 h-11 text-sm border-2 border-gray-200 rounded-lg bg-white dark:bg-gray-900 dark:border-gray-600 focus:outline-none focus:border-red-600 dark:focus:border-red-500 placeholder:text-gray-400 font-medium shadow-sm transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('')
+                      setShowDropdown(false)
+                    }}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
               {showDropdown && filteredOptions.length > 0 && (
-                <div className="absolute z-[1100] w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-56 overflow-y-auto">
+                <div className="absolute z-[1100] w-full mt-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                   {filteredOptions.map((name) => (
                     <button
                       key={name}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2"
+                      className="w-full px-4 py-2.5 text-sm text-left hover:bg-red-50 dark:hover:bg-gray-800 flex items-center gap-2.5 border-b border-gray-100 dark:border-gray-800 last:border-0 transition-colors"
                       onClick={() => handleAssemblySearch(name)}
                     >
-                      <MapPin className="h-3 w-3 text-gray-400" />
-                      {name}
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                      <span className="font-medium text-gray-800 dark:text-gray-200">{name}</span>
                     </button>
                   ))}
                 </div>
@@ -1140,32 +1160,38 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
             </div>
 
             {/* District Dropdown - Searchable */}
-            <div className="relative min-w-[180px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Filter by district..."
-                value={districtSearchQuery}
-                onChange={(e) => {
-                  setDistrictSearchQuery(e.target.value)
-                  setShowDistrictDropdown(true)
-                }}
-                onFocus={() => setShowDistrictDropdown(true)}
-                className="w-full pl-10 pr-8 py-2 text-sm border border-gray-200 rounded bg-white dark:bg-gray-900 dark:border-gray-700 focus:outline-none focus:border-red-600"
-              />
-              {selectedDistrict && (
-                <button
-                  onClick={() => handleDistrictSelect(null)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2"
-                >
-                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                </button>
-              )}
+            <div className="relative min-w-[200px]">
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                District
+              </p>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                <input
+                  type="text"
+                  placeholder="Filter by district…"
+                  value={districtSearchQuery}
+                  onChange={(e) => {
+                    setDistrictSearchQuery(e.target.value)
+                    setShowDistrictDropdown(true)
+                  }}
+                  onFocus={() => setShowDistrictDropdown(true)}
+                  className="w-full pl-10 pr-9 h-11 text-sm border-2 border-gray-200 rounded-lg bg-white dark:bg-gray-900 dark:border-gray-600 focus:outline-none focus:border-red-600 dark:focus:border-red-500 placeholder:text-gray-400 font-medium shadow-sm transition-colors"
+                />
+                {selectedDistrict && (
+                  <button
+                    onClick={() => handleDistrictSelect(null)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    aria-label="Clear district filter"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
               {showDistrictDropdown && filteredDistrictOptions.length > 0 && (
-                <div className="absolute z-[1100] w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-56 overflow-y-auto">
+                <div className="absolute z-[1100] w-full mt-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                   {!districtSearchQuery && (
                     <button
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 text-red-600 font-medium"
+                      className="w-full px-4 py-2.5 text-sm text-left hover:bg-red-50 dark:hover:bg-gray-800 text-red-600 font-semibold border-b border-gray-100 dark:border-gray-800 transition-colors"
                       onClick={() => handleDistrictSelect(null)}
                     >
                       All Districts
@@ -1174,7 +1200,11 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                   {filteredDistrictOptions.map((district) => (
                     <button
                       key={district}
-                      className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 ${selectedDistrict === district ? 'bg-red-50 text-red-600' : ''}`}
+                      className={`w-full px-4 py-2.5 text-sm text-left border-b border-gray-100 dark:border-gray-800 last:border-0 transition-colors ${
+                        selectedDistrict === district
+                          ? 'bg-red-50 text-red-700 font-semibold dark:bg-red-950/40 dark:text-red-400'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                      }`}
                       onClick={() => handleDistrictSelect(district)}
                     >
                       {district}
@@ -1183,6 +1213,35 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                 </div>
               )}
             </div>
+
+            {/* Active filter pills */}
+            {(searchQuery || selectedDistrict) && (
+              <div className="flex items-center gap-2 pb-0.5">
+                {searchQuery && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 dark:bg-red-950/40 px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-400">
+                    <MapPin className="h-3 w-3" />
+                    {searchQuery}
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="ml-0.5 hover:text-red-900 dark:hover:text-red-200"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                {selectedDistrict && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 dark:bg-red-950/40 px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-400">
+                    {selectedDistrict}
+                    <button
+                      onClick={() => handleDistrictSelect(null)}
+                      className="ml-0.5 hover:text-red-900 dark:hover:text-red-200"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Control Buttons */}
             <div className="flex gap-1 flex-wrap">
