@@ -944,22 +944,22 @@ export function ElectionPredictionMap({
               'repeating-linear-gradient(0deg, transparent, transparent 2px, white 2px, white 3px)',
           }}
         />
-        <div className="relative flex h-14 items-center justify-between gap-4">
+        <div className="relative flex h-16 items-center justify-between gap-4">
           {/* Left — predictor identity */}
           <div className="flex items-center gap-3 min-w-0">
             {/* Predictor avatar */}
-            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border-2 border-red-600 bg-gray-800">
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-red-600 bg-gray-800 shadow-[0_0_12px_rgba(185,28,28,0.45)]">
               {dataset.selectedPredictor?.imagePath ? (
                 <Image
                   src={dataset.selectedPredictor.imagePath}
                   alt={dataset.selectedPredictor.name}
                   fill
                   className="object-cover"
-                  sizes="36px"
+                  sizes="48px"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <Activity className="h-4 w-4 text-red-500" />
+                  <Activity className="h-5 w-5 text-red-500" />
                 </div>
               )}
             </div>
@@ -967,7 +967,7 @@ export function ElectionPredictionMap({
             {/* Title + subtitle */}
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="truncate text-sm font-extrabold leading-none tracking-tight text-white">
+                <h1 className="truncate text-base font-extrabold leading-none tracking-tight text-white">
                   {dataset.selectedPredictor?.name ?? 'Election Predictions'}
                 </h1>
                 <span className="shrink-0 rounded bg-red-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white">

@@ -25,6 +25,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
+import { predictorHref } from '@/utilities/predictorUrl'
 interface PredictorSummary {
   id: string
   name: string
@@ -584,7 +585,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               {predictors.map((predictor) => (
                 <Link
                   key={predictor.id}
-                  href={`/tamil-nadu/election-predictions/${predictor.id}`}
+                  href={predictorHref('tamil-nadu', predictor.id, predictor.name)}
                   className="group"
                   onClick={() => {
                     const pageContext = getPageContext()

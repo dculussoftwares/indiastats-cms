@@ -2,6 +2,8 @@ import { getPayload } from 'payload'
 
 import config from '@payload-config'
 
+export { predictorNameSlug, predictorHref } from '@/utilities/predictorUrl'
+
 export interface PredictorOption {
   id: string
   name: string
@@ -118,10 +120,7 @@ export async function getPredictorsWithSummaries({
     const predictionsResult = await payload.find({
       collection: 'election-predictions',
       where: {
-        and: [
-          { predictor: { equals: doc.id } },
-          { stateCode: { equals: stateCode } },
-        ],
+        and: [{ predictor: { equals: doc.id } }, { stateCode: { equals: stateCode } }],
       },
       depth: 0,
       limit: 5000,
@@ -279,7 +278,7 @@ export async function getElectionPredictionsData({
   const selectedYear =
     electionYear && availableYears.includes(electionYear)
       ? electionYear
-      : availableYears[0] ?? electionYear ?? new Date().getFullYear()
+      : (availableYears[0] ?? electionYear ?? new Date().getFullYear())
 
   const docsForYear = predictionDocs.filter((doc) => doc.electionYear === selectedYear)
 

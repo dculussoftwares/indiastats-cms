@@ -1,11 +1,8 @@
 import * as React from 'react'
-import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
 
-import ElectionPredictionMap from '@/components/ElectionPredictionMap'
-import { TamilNaduGeoJson } from '@/components/AssemblyMap/staticData'
 import { getStateBySlug } from '@/config/states'
-import { getElectionPredictionsData } from '@/lib/electionPredictions'
+import { getElectionPredictionsData, predictorHref } from '@/lib/electionPredictions'
 
 export const revalidate = 3600
 
@@ -13,72 +10,12 @@ interface Props {
   params: Promise<{ stateSlug: string; predictorId: string }>
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { stateSlug, predictorId } = await params
-  const stateConfig = getStateBySlug(stateSlug)
-
-  if (!stateConfig || stateConfig.code !== 'TN') {
-    return { title: 'Not Found' }
-  }
-
-  const initialData = await getElectionPredictionsData({
-    stateCode: stateConfig.code,
-    predictorId,
-  })
-
-  const predictor = initialData.selectedPredictor
-  if (!predictor) return { title: 'Not Found' }
-
-  const predictorName = predictor.name
-  const stateName = stateConfig.name
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
-  const canonicalUrl = `${baseUrl}/${stateSlug}/election-predictions/${predictorId}`
-
-  // Use dedicated prediction OG image
-  const ogImageUrl = `${baseUrl}/api/og/prediction/${predictorId}`
-
-  const { calledSeats, tooCloseToCall } = initialData.summary
-  const description = `${predictorName}'s 2026 ${stateName} election forecast — ${calledSeats} seats called, ${tooCloseToCall} too close to call. Interactive assembly-level prediction map with party distributions and watchlist constituencies.`
-
-  return {
-    title: `${predictorName} - ${stateName} 2026 Election Prediction Map | IndiaStats`,
-    description,
-    keywords: [
-      `${predictorName} election prediction`,
-      `${stateName} election 2026 forecast`,
-      `${stateName} assembly prediction map`,
-      'Tamil Nadu election predictor',
-      'seat forecast 2026',
-      'assembly constituency prediction',
-      predictorName,
-    ],
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title: `${predictorName} - ${stateName} 2026 Election Prediction Map`,
-      description,
-      type: 'website',
-      url: canonicalUrl,
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${predictorName} - ${stateName} Election Prediction 2026`,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${predictorName} - ${stateName} 2026 Election Prediction Map`,
-      description,
-      images: [ogImageUrl],
-    },
-  }
-}
-
-export default async function PredictorPredictionMapPage({ params }: Props) {
+/**
+ * Permanently redirects `/election-predictions/[predictorId]`
+ * → `/election-predictions/[predictorId]/[predictor-name-slug]`
+ * so the SEO-friendly URL is always the canonical one.
+ */
+export default async function PredictorRedirectPage({ params }: Props) {
   const { stateSlug, predictorId } = await params
   const stateConfig = getStateBySlug(stateSlug)
 
@@ -95,14 +32,5 @@ export default async function PredictorPredictionMapPage({ params }: Props) {
     notFound()
   }
 
-  return (
-    <div className="relative h-screen overflow-hidden">
-      <ElectionPredictionMap
-        initialData={initialData}
-        map={TamilNaduGeoJson}
-        stateCode={stateConfig.code}
-        stateName={stateConfig.name}
-      />
-    </div>
-  )
+  redirect(predictorHref(stateSlug, predictorId, initialData.selectedPredictor.name))
 }

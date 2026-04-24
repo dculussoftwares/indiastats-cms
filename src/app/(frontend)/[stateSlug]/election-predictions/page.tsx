@@ -7,6 +7,7 @@ import { ChevronRight, MapPin, TrendingUp, User } from 'lucide-react'
 
 import { getStateBySlug } from '@/config/states'
 import { getPredictorsWithSummaries } from '@/lib/electionPredictions'
+import { predictorHref } from '@/utilities/predictorUrl'
 import { getPartyColor } from '@/lib/partyColors'
 
 export const revalidate = 3600
@@ -79,7 +80,8 @@ export default async function ElectionPredictionsListingPage({ params }: Props) 
         <div className="border-l-4 border-red-600 pl-4 py-2">
           <h1 className="text-2xl font-bold md:text-3xl">Election Predictions</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {stateConfig.name} {new Date().getFullYear()} &middot; Assembly-level forecasts from independent predictors
+            {stateConfig.name} {new Date().getFullYear()} &middot; Assembly-level forecasts from
+            independent predictors
           </p>
         </div>
       </div>
@@ -99,7 +101,7 @@ export default async function ElectionPredictionsListingPage({ params }: Props) 
           {predictors.map((predictor) => (
             <Link
               key={predictor.id}
-              href={`/${stateSlug}/election-predictions/${predictor.id}`}
+              href={predictorHref(stateSlug, predictor.id, predictor.name)}
               className="group"
             >
               <div className="h-full rounded border border-gray-200 bg-white p-5 transition-all hover:border-red-200 hover:shadow-md dark:border-gray-800 dark:bg-gray-950 dark:hover:border-red-900">

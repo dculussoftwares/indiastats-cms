@@ -2,6 +2,7 @@ import { getServerSideSitemap } from 'next-sitemap'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
+import { predictorHref } from '@/utilities/predictorUrl'
 
 const getPredictionsSitemap = unstable_cache(
   async () => {
@@ -11,7 +12,7 @@ const getPredictionsSitemap = unstable_cache(
       process.env.VERCEL_PROJECT_PRODUCTION_URL ||
       'https://indiastats.org'
 
-    // Get all active predictors that have at least one prediction
+    // Get all active predictors — include name so we can build the slug URL
     const predictorsResult = await payload.find({
       collection: 'predictors',
       where: { isActive: { equals: true } },
@@ -19,7 +20,7 @@ const getPredictionsSitemap = unstable_cache(
       depth: 0,
       limit: 200,
       pagination: false,
-      select: { id: true, updatedAt: true },
+      select: { id: true, name: true, updatedAt: true },
     })
 
     const dateFallback = new Date().toISOString()
@@ -34,10 +35,10 @@ const getPredictionsSitemap = unstable_cache(
       },
     ]
 
-    // One page per predictor
+    // One page per predictor using the SEO-friendly slug URL
     predictorsResult.docs.forEach((predictor: any) => {
       entries.push({
-        loc: `${SITE_URL}/tamil-nadu/election-predictions/${predictor.id}`,
+        loc: `${SITE_URL}` + predictorHref('tamil-nadu', predictor.id, predictor.name ?? ''),
         lastmod: predictor.updatedAt || dateFallback,
         priority: 0.7,
         changefreq: 'weekly' as const,

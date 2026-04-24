@@ -8,6 +8,7 @@ import { AssemblySearch, Assembly } from '@/components/AssemblySearch'
 import { trackViewed, trackClicked, getPageContext, PAGE_NAMES } from '@/analytics'
 import { getPartyColor } from '@/lib/partyColors'
 import type { PredictorSummary } from '@/lib/electionPredictions'
+import { predictorHref } from '@/utilities/predictorUrl'
 
 interface AssemblyData {
   assemblyId: string
@@ -31,7 +32,12 @@ interface DashboardClientProps {
   predictors: PredictorSummary[]
 }
 
-export function DashboardClient({ assemblies, districts, stateSlug, predictors }: DashboardClientProps) {
+export function DashboardClient({
+  assemblies,
+  districts,
+  stateSlug,
+  predictors,
+}: DashboardClientProps) {
   React.useEffect(() => {
     trackViewed({
       name: 'dashboard_page',
@@ -76,7 +82,7 @@ export function DashboardClient({ assemblies, districts, stateSlug, predictors }
             {predictors.map((predictor) => (
               <Link
                 key={predictor.id}
-                href={`/${stateSlug}/election-predictions/${predictor.id}`}
+                href={predictorHref(stateSlug, predictor.id, predictor.name)}
                 className="group rounded border border-gray-200 bg-white p-4 transition-all hover:border-red-200 hover:shadow-md dark:border-gray-800 dark:bg-gray-950 dark:hover:border-red-900"
                 onClick={() => {
                   const ctx = getPageContext()
@@ -109,7 +115,9 @@ export function DashboardClient({ assemblies, districts, stateSlug, predictors }
                       {predictor.name}
                     </p>
                     {predictor.latestYear && (
-                      <p className="text-xs text-muted-foreground">{predictor.latestYear} Forecast</p>
+                      <p className="text-xs text-muted-foreground">
+                        {predictor.latestYear} Forecast
+                      </p>
                     )}
                   </div>
                 </div>
@@ -117,20 +125,28 @@ export function DashboardClient({ assemblies, districts, stateSlug, predictors }
                 {predictor.totalPredictions > 0 && (
                   <div className="mt-3 grid grid-cols-3 gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-red-600">Called</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-red-600">
+                        Called
+                      </p>
                       <p className="mt-0.5 text-base font-bold text-gray-900 dark:text-gray-100">
                         {predictor.calledSeats}
-                        <span className="text-xs font-normal text-muted-foreground">/{predictor.totalPredictions}</span>
+                        <span className="text-xs font-normal text-muted-foreground">
+                          /{predictor.totalPredictions}
+                        </span>
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-red-600">Close</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-red-600">
+                        Close
+                      </p>
                       <p className="mt-0.5 text-base font-bold text-gray-900 dark:text-gray-100">
                         {predictor.tooCloseToCall}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-red-600">Leading</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-red-600">
+                        Leading
+                      </p>
                       {predictor.leadingParty ? (
                         <span
                           className="mt-1 inline-block rounded px-1.5 py-0.5 text-[11px] font-bold text-white"
