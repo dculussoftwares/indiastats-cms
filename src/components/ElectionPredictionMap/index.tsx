@@ -1021,6 +1021,13 @@ export function ElectionPredictionMap({
                   const id = e.target.value
                   setSelectedPredictorId(id)
                   void loadDataset(id, selectedYear)
+                  trackClicked({
+                    name: 'prediction_predictor_changed',
+                    page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                    predictor_id: id,
+                    predictor_name: dataset.predictors.find((p) => p.id === id)?.name ?? '',
+                    location: 'header',
+                  })
                 }}
                 className="h-7 rounded-md border border-gray-700 bg-gray-900 px-2 text-[11px] text-gray-300 focus:border-red-600 focus:outline-none"
               >
@@ -1036,6 +1043,12 @@ export function ElectionPredictionMap({
                   const y = Number(e.target.value)
                   setSelectedYear(y)
                   void loadDataset(selectedPredictorId, y)
+                  trackClicked({
+                    name: 'prediction_year_changed',
+                    page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                    election_year: y,
+                    location: 'header',
+                  })
                 }}
                 className="h-7 rounded-md border border-gray-700 bg-gray-900 px-2 text-[11px] text-gray-300 focus:border-red-600 focus:outline-none"
               >
@@ -1055,7 +1068,15 @@ export function ElectionPredictionMap({
                 ).map(([v, l]) => (
                   <button
                     key={v}
-                    onClick={() => setViewMode(v)}
+                    onClick={() => {
+                      setViewMode(v)
+                      trackClicked({
+                        name: 'prediction_view_mode_changed',
+                        page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                        view_mode: v,
+                        location: 'header',
+                      })
+                    }}
                     className={`rounded px-2.5 py-1 text-[11px] font-medium transition-all ${viewMode === v ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white'}`}
                   >
                     {l}
@@ -1123,7 +1144,14 @@ export function ElectionPredictionMap({
         ).map(({ id, label, Icon }) => (
           <button
             key={id}
-            onClick={() => setMobileTab(id)}
+            onClick={() => {
+              setMobileTab(id)
+              trackClicked({
+                name: 'prediction_mobile_tab_changed',
+                page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                tab: id,
+              })
+            }}
             className={`flex flex-1 flex-col items-center gap-0.5 py-2 transition-colors ${
               mobileTab === id
                 ? 'border-b-2 border-red-500 text-red-500'
@@ -1331,6 +1359,10 @@ export function ElectionPredictionMap({
                     setSelectedAssemblyId(null)
                     setPopupContent(null)
                     setPopupPosition(null)
+                    trackClicked({
+                      name: 'prediction_search_cleared',
+                      page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                    })
                   }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
                 >
@@ -1348,6 +1380,13 @@ export function ElectionPredictionMap({
                       onClick={() => {
                         setShowDropdown(false)
                         focusAssemblyById(a.assemblyId)
+                        trackClicked({
+                          name: 'prediction_search_result_clicked',
+                          page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                          assembly_id: a.assemblyId,
+                          assembly_name: a.name,
+                          search_query: searchQuery,
+                        })
                       }}
                     >
                       <MapPin className="h-3.5 w-3.5 shrink-0 text-red-400" />
@@ -1375,7 +1414,13 @@ export function ElectionPredictionMap({
                       : 'Stable'
                   : highlightFilter.value}
                 <button
-                  onClick={() => setHighlightFilter(null)}
+                  onClick={() => {
+                    setHighlightFilter(null)
+                    trackClicked({
+                      name: 'prediction_highlight_cleared',
+                      page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                    })
+                  }}
                   className="ml-0.5 opacity-70 hover:opacity-100"
                 >
                   <X className="h-3 w-3" />
@@ -1633,6 +1678,13 @@ export function ElectionPredictionMap({
                     const id = e.target.value
                     setSelectedPredictorId(id)
                     void loadDataset(id, selectedYear)
+                    trackClicked({
+                      name: 'prediction_predictor_changed',
+                      page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                      predictor_id: id,
+                      predictor_name: dataset.predictors.find((p) => p.id === id)?.name ?? '',
+                      location: 'mobile_stats',
+                    })
                   }}
                   className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-sm text-gray-300 focus:border-red-600 focus:outline-none"
                 >
@@ -1648,6 +1700,12 @@ export function ElectionPredictionMap({
                     const y = Number(e.target.value)
                     setSelectedYear(y)
                     void loadDataset(selectedPredictorId, y)
+                    trackClicked({
+                      name: 'prediction_year_changed',
+                      page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                      election_year: y,
+                      location: 'mobile_stats',
+                    })
                   }}
                   className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-sm text-gray-300 focus:border-red-600 focus:outline-none"
                 >
@@ -1667,7 +1725,15 @@ export function ElectionPredictionMap({
                   ).map(([v, l]) => (
                     <button
                       key={v}
-                      onClick={() => setViewMode(v)}
+                      onClick={() => {
+                        setViewMode(v)
+                        trackClicked({
+                          name: 'prediction_view_mode_changed',
+                          page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                          view_mode: v,
+                          location: 'mobile_stats',
+                        })
+                      }}
                       className={`flex-1 rounded-md py-2 text-sm font-medium transition-all ${
                         viewMode === v ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white'
                       }`}
@@ -1763,6 +1829,12 @@ export function ElectionPredictionMap({
                   onChange={(e) => {
                     handleDistrictSelect(e.target.value || null)
                     setMobileTab('map')
+                    trackClicked({
+                      name: 'prediction_district_filter_changed',
+                      page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                      district: e.target.value || null,
+                      location: 'mobile_stats',
+                    })
                   }}
                   className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-sm text-white focus:border-red-600 focus:outline-none"
                 >
@@ -1942,7 +2014,15 @@ export function ElectionPredictionMap({
               <div className="relative">
                 <select
                   value={selectedDistrict ?? ''}
-                  onChange={(e) => handleDistrictSelect(e.target.value || null)}
+                  onChange={(e) => {
+                    handleDistrictSelect(e.target.value || null)
+                    trackClicked({
+                      name: 'prediction_district_filter_changed',
+                      page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
+                      district: e.target.value || null,
+                      location: 'sidebar',
+                    })
+                  }}
                   className="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1.5 text-xs text-white focus:border-red-600 focus:outline-none"
                 >
                   <option value="">All districts</option>
