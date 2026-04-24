@@ -5,7 +5,18 @@ import React, { useMemo, useRef, useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, BarChart3, ExternalLink, Flame, MapPin, Search, User, X } from 'lucide-react'
+import {
+  AlertTriangle,
+  BarChart3,
+  ExternalLink,
+  Flame,
+  Hand,
+  MapPin,
+  MousePointer2,
+  Search,
+  User,
+  X,
+} from 'lucide-react'
 
 import '@/components/AssemblyMap/leaflet-style-import'
 import { Button } from '@/components/ui/button'
@@ -73,7 +84,8 @@ const matchesHighlight = (
       return entry.predictionType === highlight.value
     case 'heatLevel':
       if (highlight.value === 'tooClose') return entry.predictedWinningParty === null
-      if (highlight.value === 'close') return entry.isCloseContest && entry.predictedWinningParty !== null
+      if (highlight.value === 'close')
+        return entry.isCloseContest && entry.predictedWinningParty !== null
       return !entry.isCloseContest && entry.predictedWinningParty !== null
   }
 }
@@ -99,7 +111,12 @@ const getPolygonCentroid = (coords: any): [number, number] => {
     let validPoints = 0
 
     for (const point of points) {
-      if (Array.isArray(point) && point.length >= 2 && !Number.isNaN(point[0]) && !Number.isNaN(point[1])) {
+      if (
+        Array.isArray(point) &&
+        point.length >= 2 &&
+        !Number.isNaN(point[0]) &&
+        !Number.isNaN(point[1])
+      ) {
         lng += point[0]
         lat += point[1]
         validPoints++
@@ -166,19 +183,143 @@ function SummaryCard({
   caption,
   helper,
   value,
+  onClick,
+  isActive,
 }: {
   caption: string
   helper: string
   value: string
+  onClick?: () => void
+  isActive?: boolean
 }) {
+  const content = (
+    <CardContent className="p-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-red-600">
+        {caption}
+      </p>
+      <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+      <div className="mt-1 flex items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">{helper}</p>
+        {onClick && (
+          <span
+            className={`shrink-0 text-[10px] font-medium ${isActive ? 'text-red-600' : 'text-gray-400'}`}
+          >
+            {isActive ? 'active ×' : 'filter'}
+          </span>
+        )}
+      </div>
+    </CardContent>
+  )
+
+  if (onClick) {
+    return (
+      <Card
+        className={`cursor-pointer transition-all ${
+          isActive
+            ? 'bg-red-50/60 ring-2 ring-red-500 dark:bg-red-950/30'
+            : 'hover:border-red-200 dark:hover:border-red-800'
+        }`}
+        onClick={onClick}
+      >
+        {content}
+      </Card>
+    )
+  }
+
+  return <Card>{content}</Card>
+}
+
+const ONBOARDING_KEY = 'ep_onboarding_dismissed'
+
+function useOnboardingHint() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(ONBOARDING_KEY)) {
+        setVisible(true)
+      }
+    } catch {
+      // private browsing — ignore
+    }
+  }, [])
+
+  const dismiss = () => {
+    setVisible(false)
+    try {
+      localStorage.setItem(ONBOARDING_KEY, '1')
+    } catch {
+      // ignore
+    }
+  }
+
+  return { visible, dismiss }
+}
+
+const ONBOARDING_STEPS = [
+  {
+    icon: '🗺️',
+    title: 'Tap any seat on the map',
+    desc: 'Opens an instant popup with the predicted winner, contest heat, and party breakdown for that constituency.',
+  },
+  {
+    icon: '📊',
+    title: 'Click rows in Seat Forecast or Prediction Type Mix',
+    desc: 'Highlights matching seats on the map. Click again to clear the filter.',
+  },
+  {
+    icon: '⚠️',
+    title: 'Click any Watchlist seat',
+    desc: 'Zooms the map directly to that constituency so you can inspect the surrounding area.',
+  },
+]
+
+function OnboardingHint({ onDismiss }: { onDismiss: () => void }) {
   return (
-    <Card>
-      <CardContent className="p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-red-600">{caption}</p>
-        <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{helper}</p>
-      </CardContent>
-    </Card>
+    <div className="relative overflow-hidden rounded-lg border border-red-200 bg-gradient-to-r from-red-50 via-white to-red-50 p-4 shadow-sm dark:border-red-900 dark:from-red-950/40 dark:via-gray-950 dark:to-red-950/40">
+      {/* animated hand in top-right corner */}
+      <div className="pointer-events-none absolute right-12 top-3 animate-bounce opacity-60">
+        <Hand className="h-6 w-6 text-red-500" />
+      </div>
+
+      <div className="mb-3 flex items-center gap-2">
+        <span className="rounded bg-red-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white">
+          Interactive guide
+        </span>
+        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+          Here&apos;s what you can do on this page
+        </span>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        {ONBOARDING_STEPS.map((step, i) => (
+          <div
+            key={i}
+            className="flex items-start gap-3 rounded-md border border-red-100 bg-white p-3 dark:border-red-900/50 dark:bg-gray-900"
+          >
+            <span className="mt-0.5 text-xl leading-none">{step.icon}</span>
+            <div>
+              <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">{step.title}</p>
+              <p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">{step.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between">
+        <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <MousePointer2 className="h-3 w-3" />
+          This guide only appears once
+        </p>
+        <button
+          onClick={onDismiss}
+          className="flex items-center gap-1.5 rounded bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700"
+        >
+          Got it
+          <X className="h-3 w-3" />
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -207,6 +348,7 @@ export function ElectionPredictionMap({
   const [isLoading, setIsLoading] = useState(false)
   const [highlightFilter, setHighlightFilter] = useState<HighlightFilter>(null)
   const mapRef = useRef<any>(null)
+  const { visible: showOnboarding, dismiss: dismissOnboarding } = useOnboardingHint()
 
   useEffect(() => {
     setPageContext({
@@ -237,7 +379,11 @@ export function ElectionPredictionMap({
 
         return { assemblyId, name }
       })
-      .filter((entry: { assemblyId: string; name: string } | null): entry is { assemblyId: string; name: string } => entry !== null)
+      .filter(
+        (
+          entry: { assemblyId: string; name: string } | null,
+        ): entry is { assemblyId: string; name: string } => entry !== null,
+      )
   }, [map])
 
   const districtOptions = useMemo(() => {
@@ -256,7 +402,9 @@ export function ElectionPredictionMap({
     if (!searchQuery) return assemblyOptions.slice(0, 8)
 
     return assemblyOptions
-      .filter((entry: { assemblyId: string; name: string }) => entry.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      .filter((entry: { assemblyId: string; name: string }) =>
+        entry.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
       .slice(0, 8)
   }, [assemblyOptions, searchQuery])
 
@@ -458,7 +606,13 @@ export function ElectionPredictionMap({
       fillColor: getPredictionFill(entry),
       fillOpacity: isSelected ? 0.96 : isDimmed ? 0.15 : 0.88,
       opacity: 1,
-      weight: isSelected ? 2.8 : !isHighlighted ? 0.5 : entry?.isCloseContest || entry?.predictedWinningParty === null ? 1.8 : 1,
+      weight: isSelected
+        ? 2.8
+        : !isHighlighted
+          ? 0.5
+          : entry?.isCloseContest || entry?.predictedWinningParty === null
+            ? 1.8
+            : 1,
     }
   }
 
@@ -599,6 +753,8 @@ export function ElectionPredictionMap({
         </CardContent>
       </Card>
 
+      {showOnboarding && <OnboardingHint onDismiss={dismissOnboarding} />}
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           caption="Leading Forecast"
@@ -614,11 +770,15 @@ export function ElectionPredictionMap({
           caption="Too Close To Call"
           helper="No explicit winning party forecast"
           value={String(dataset.summary.tooCloseToCall)}
+          onClick={() => toggleHighlight({ type: 'heatLevel', value: 'tooClose' })}
+          isActive={highlightFilter?.type === 'heatLevel' && highlightFilter.value === 'tooClose'}
         />
         <SummaryCard
           caption="Close Contests"
           helper="Seats flagged as tight fights"
           value={String(dataset.summary.closeContests)}
+          onClick={() => toggleHighlight({ type: 'heatLevel', value: 'close' })}
+          isActive={highlightFilter?.type === 'heatLevel' && highlightFilter.value === 'close'}
         />
       </div>
 
@@ -638,6 +798,21 @@ export function ElectionPredictionMap({
                 onFocus={() => setShowDropdown(true)}
                 className="w-full rounded border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm focus:border-red-600 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setShowDropdown(false)
+                    setSelectedAssemblyId(null)
+                    setPopupContent(null)
+                    setPopupPosition(null)
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
               {showDropdown && filteredAssemblies.length > 0 && (
                 <div className="absolute z-[1100] mt-1 max-h-56 w-full overflow-y-auto rounded border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
                   {filteredAssemblies.map((assembly: { assemblyId: string; name: string }) => (
@@ -762,12 +937,25 @@ export function ElectionPredictionMap({
 
               <div className="flex items-center rounded-lg bg-gray-100 p-0.5 dark:bg-gray-800">
                 {[
-                  { label: 'Winner', value: 'winner' as const },
-                  { label: 'Heat', value: 'heat' as const },
-                  { label: 'Type', value: 'type' as const },
+                  {
+                    label: 'Winner',
+                    value: 'winner' as const,
+                    title: 'Colour map by predicted winning party',
+                  },
+                  {
+                    label: 'Heat',
+                    value: 'heat' as const,
+                    title: 'Colour map by contest intensity — stable, close, or toss-up',
+                  },
+                  {
+                    label: 'Type',
+                    value: 'type' as const,
+                    title: 'Colour map by prediction methodology type',
+                  },
                 ].map((mode) => (
                   <button
                     key={mode.value}
+                    title={mode.title}
                     onClick={() => {
                       setViewMode(mode.value)
                       const pageContext = getPageContext()
@@ -860,15 +1048,21 @@ export function ElectionPredictionMap({
             {popupPosition && popupContent && (
               <Popup position={popupPosition}>
                 <div className="min-w-[260px] p-1">
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{popupContent.ac_name}</p>
-                  <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">{popupContent.pc_name}</p>
+                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                    {popupContent.ac_name}
+                  </p>
+                  <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+                    {popupContent.pc_name}
+                  </p>
 
                   {popupEntry ? (
                     <>
                       <div className="mb-3 rounded border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
-                            {popupEntry.predictedWinningParty ? 'Predicted winner' : 'Too close to call'}
+                            {popupEntry.predictedWinningParty
+                              ? 'Predicted winner'
+                              : 'Too close to call'}
                           </p>
                           <span className="rounded-full border bg-white px-2 py-0.5 text-[10px] font-semibold text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
                             {popupEntry.predictionType}
@@ -879,7 +1073,9 @@ export function ElectionPredictionMap({
                           <div className="mt-2 flex items-center gap-2">
                             <span
                               className="rounded px-2 py-1 text-[11px] font-bold text-white"
-                              style={{ backgroundColor: getPartyColor(popupEntry.predictedWinningParty) }}
+                              style={{
+                                backgroundColor: getPartyColor(popupEntry.predictedWinningParty),
+                              }}
                             >
                               {popupEntry.predictedWinningParty}
                             </span>
@@ -916,7 +1112,9 @@ export function ElectionPredictionMap({
                       )}
                     </>
                   ) : (
-                    <p className="mb-3 text-xs text-gray-500">No prediction data available for this seat.</p>
+                    <p className="mb-3 text-xs text-gray-500">
+                      No prediction data available for this seat.
+                    </p>
                   )}
 
                   <button
@@ -947,13 +1145,16 @@ export function ElectionPredictionMap({
         </div>
 
         <div className="absolute bottom-3 right-3 z-[1000] max-w-[220px] rounded border border-gray-200 bg-white/95 px-3 py-2 shadow-sm dark:border-gray-700 dark:bg-gray-900/95">
-          <p className="mb-2 text-xs font-bold text-gray-700 dark:text-gray-300">
-            {viewMode === 'winner'
-              ? `${dataset.electionYear} Forecast`
-              : viewMode === 'heat'
-                ? 'Contest Intensity'
-                : 'Prediction Types'}
-          </p>
+          <div className="mb-2 flex items-baseline justify-between gap-2">
+            <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
+              {viewMode === 'winner'
+                ? `${dataset.electionYear} Forecast`
+                : viewMode === 'heat'
+                  ? 'Contest Intensity'
+                  : 'Prediction Types'}
+            </p>
+            <span className="text-[9px] font-medium text-gray-400">tap to highlight</span>
+          </div>
 
           <div className="space-y-1 max-h-[210px] overflow-y-auto">
             {viewMode === 'winner' &&
@@ -962,28 +1163,44 @@ export function ElectionPredictionMap({
                 const filter: HighlightFilter = isTooClose
                   ? { type: 'heatLevel', value: 'tooClose' }
                   : { type: 'party', value: item.label }
-                const isActive = highlightFilter?.type === filter?.type && highlightFilter?.value === filter?.value
+                const isActive =
+                  highlightFilter?.type === filter?.type && highlightFilter?.value === filter?.value
 
                 return (
                   <button
                     key={item.label}
                     onClick={() => toggleHighlight(filter)}
                     className={`flex w-full items-center justify-between gap-2 rounded px-1 py-0.5 text-xs transition-all ${
-                      isActive ? 'bg-red-100 dark:bg-red-900/40' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                      isActive
+                        ? 'bg-red-100 dark:bg-red-900/40'
+                        : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
                     <div className="flex items-center gap-1.5">
-                      <div className="h-3 w-3 rounded-sm border border-white/60" style={{ backgroundColor: item.color }} />
-                      <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}>{item.label}</span>
+                      <div
+                        className="h-3 w-3 rounded-sm border border-white/60"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span
+                        className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}
+                      >
+                        {item.label}
+                      </span>
                     </div>
-                    <span className={isActive ? 'font-semibold text-red-600' : 'text-gray-500 dark:text-gray-400'}>{item.count}</span>
+                    <span
+                      className={
+                        isActive ? 'font-semibold text-red-600' : 'text-gray-500 dark:text-gray-400'
+                      }
+                    >
+                      {item.count}
+                    </span>
                   </button>
                 )
               })}
 
             {viewMode === 'heat' && (
               <>
-                {([
+                {[
                   {
                     color: '#0f766e',
                     count: dataset.summary.calledSeats - dataset.summary.closeContests,
@@ -1002,23 +1219,41 @@ export function ElectionPredictionMap({
                     heatValue: 'tooClose' as const,
                     label: 'Too close to call',
                   },
-                ]).map((item) => {
+                ].map((item) => {
                   const isActive =
-                    highlightFilter?.type === 'heatLevel' && highlightFilter.value === item.heatValue
+                    highlightFilter?.type === 'heatLevel' &&
+                    highlightFilter.value === item.heatValue
 
                   return (
                     <button
                       key={item.label}
                       onClick={() => toggleHighlight({ type: 'heatLevel', value: item.heatValue })}
                       className={`flex w-full items-center justify-between gap-2 rounded px-1 py-0.5 text-xs transition-all ${
-                        isActive ? 'bg-red-100 dark:bg-red-900/40' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                        isActive
+                          ? 'bg-red-100 dark:bg-red-900/40'
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
-                        <div className="h-3 w-3 rounded-sm border border-white/60" style={{ backgroundColor: item.color }} />
-                        <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}>{item.label}</span>
+                        <div
+                          className="h-3 w-3 rounded-sm border border-white/60"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <span
+                          className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}
+                        >
+                          {item.label}
+                        </span>
                       </div>
-                      <span className={isActive ? 'font-semibold text-red-600' : 'text-gray-500 dark:text-gray-400'}>{item.count}</span>
+                      <span
+                        className={
+                          isActive
+                            ? 'font-semibold text-red-600'
+                            : 'text-gray-500 dark:text-gray-400'
+                        }
+                      >
+                        {item.count}
+                      </span>
                     </button>
                   )
                 })}
@@ -1035,7 +1270,9 @@ export function ElectionPredictionMap({
                     key={item.key}
                     onClick={() => toggleHighlight({ type: 'predictionType', value: item.key })}
                     className={`flex w-full items-center justify-between gap-2 rounded px-1 py-0.5 text-xs transition-all ${
-                      isActive ? 'bg-red-100 dark:bg-red-900/40' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                      isActive
+                        ? 'bg-red-100 dark:bg-red-900/40'
+                        : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
                     <div className="flex items-center gap-1.5">
@@ -1043,9 +1280,19 @@ export function ElectionPredictionMap({
                         className="h-3 w-3 rounded-sm border border-white/60"
                         style={{ backgroundColor: typeColorMap[item.key] || '#475569' }}
                       />
-                      <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}>{item.key}</span>
+                      <span
+                        className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}
+                      >
+                        {item.key}
+                      </span>
                     </div>
-                    <span className={isActive ? 'font-semibold text-red-600' : 'text-gray-500 dark:text-gray-400'}>{item.count}</span>
+                    <span
+                      className={
+                        isActive ? 'font-semibold text-red-600' : 'text-gray-500 dark:text-gray-400'
+                      }
+                    >
+                      {item.count}
+                    </span>
                   </button>
                 )
               })}
@@ -1056,9 +1303,23 @@ export function ElectionPredictionMap({
       <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr_1fr]">
         <Card>
           <CardContent className="p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Seat Forecast</h3>
+            <div className="mb-4 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-red-600" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Seat Forecast
+                </h3>
+              </div>
+              <span
+                className={`flex items-center gap-1 rounded px-2 py-1 text-[10px] font-medium transition-all ${
+                  showOnboarding
+                    ? 'animate-pulse bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400'
+                    : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                }`}
+              >
+                <MousePointer2 className="h-3 w-3" />
+                Click to filter
+              </span>
             </div>
 
             <div className="space-y-1.5">
@@ -1084,11 +1345,15 @@ export function ElectionPredictionMap({
                             className="h-3 w-3 rounded-sm"
                             style={{ backgroundColor: getPartyColor(party.key) }}
                           />
-                          <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-800 dark:text-gray-200'}`}>
+                          <span
+                            className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-800 dark:text-gray-200'}`}
+                          >
                             {party.key}
                           </span>
                         </div>
-                        <span className={`text-xs font-semibold ${isActive ? 'text-red-600' : 'text-muted-foreground'}`}>
+                        <span
+                          className={`text-xs font-semibold ${isActive ? 'text-red-600' : 'text-muted-foreground'}`}
+                        >
                           {party.count}
                         </span>
                       </div>
@@ -1105,7 +1370,9 @@ export function ElectionPredictionMap({
                   )
                 })
               ) : (
-                <p className="text-sm text-muted-foreground">No called seats in this forecast yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No called seats in this forecast yet.
+                </p>
               )}
 
               {dataset.summary.tooCloseToCall > 0 && (
@@ -1120,17 +1387,27 @@ export function ElectionPredictionMap({
                   <div className="mb-1 flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className="h-3 w-3 rounded-sm bg-amber-600" />
-                      <span className={`font-medium ${
-                        highlightFilter?.type === 'heatLevel' && highlightFilter.value === 'tooClose'
-                          ? 'text-red-700 dark:text-red-300'
-                          : 'text-gray-800 dark:text-gray-200'
-                      }`}>Too close to call</span>
+                      <span
+                        className={`font-medium ${
+                          highlightFilter?.type === 'heatLevel' &&
+                          highlightFilter.value === 'tooClose'
+                            ? 'text-red-700 dark:text-red-300'
+                            : 'text-gray-800 dark:text-gray-200'
+                        }`}
+                      >
+                        Too close to call
+                      </span>
                     </div>
-                    <span className={`text-xs font-semibold ${
-                      highlightFilter?.type === 'heatLevel' && highlightFilter.value === 'tooClose'
-                        ? 'text-red-600'
-                        : 'text-muted-foreground'
-                    }`}>{dataset.summary.tooCloseToCall}</span>
+                    <span
+                      className={`text-xs font-semibold ${
+                        highlightFilter?.type === 'heatLevel' &&
+                        highlightFilter.value === 'tooClose'
+                          ? 'text-red-600'
+                          : 'text-muted-foreground'
+                      }`}
+                    >
+                      {dataset.summary.tooCloseToCall}
+                    </span>
                   </div>
                   <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800">
                     <div
@@ -1148,9 +1425,23 @@ export function ElectionPredictionMap({
 
         <Card>
           <CardContent className="p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <Flame className="h-4 w-4 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Prediction Type Mix</h3>
+            <div className="mb-4 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Flame className="h-4 w-4 text-red-600" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Prediction Type Mix
+                </h3>
+              </div>
+              <span
+                className={`flex items-center gap-1 rounded px-2 py-1 text-[10px] font-medium transition-all ${
+                  showOnboarding
+                    ? 'animate-pulse bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400'
+                    : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                }`}
+              >
+                <MousePointer2 className="h-3 w-3" />
+                Click to filter
+              </span>
             </div>
 
             <div className="space-y-1.5">
@@ -1175,11 +1466,15 @@ export function ElectionPredictionMap({
                           className="h-3 w-3 rounded-sm"
                           style={{ backgroundColor: typeColorMap[item.key] || '#475569' }}
                         />
-                        <span className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-800 dark:text-gray-200'}`}>
+                        <span
+                          className={`font-medium ${isActive ? 'text-red-700 dark:text-red-300' : 'text-gray-800 dark:text-gray-200'}`}
+                        >
                           {item.key}
                         </span>
                       </div>
-                      <span className={`text-xs font-semibold ${isActive ? 'text-red-600' : 'text-muted-foreground'}`}>
+                      <span
+                        className={`text-xs font-semibold ${isActive ? 'text-red-600' : 'text-muted-foreground'}`}
+                      >
                         {item.count}
                       </span>
                     </div>
@@ -1201,17 +1496,41 @@ export function ElectionPredictionMap({
 
         <Card>
           <CardContent className="p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Watchlist Seats</h3>
+            <div className="mb-4 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Watchlist Seats
+                </h3>
+              </div>
+              <span
+                className={`flex items-center gap-1 rounded px-2 py-1 text-[10px] font-medium transition-all ${
+                  showOnboarding
+                    ? 'animate-pulse bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400'
+                    : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                }`}
+              >
+                <MousePointer2 className="h-3 w-3" />
+                Click to locate
+              </span>
             </div>
 
             <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
               {dataset.watchlist.slice(0, 18).map((entry) => (
                 <button
                   key={entry.assemblyId}
-                  onClick={() => focusAssemblyById(entry.assemblyId)}
-                  className="w-full rounded-lg border border-gray-200 bg-white p-3 text-left transition-colors hover:border-red-200 hover:bg-red-50/40 dark:border-gray-800 dark:bg-gray-950 dark:hover:border-red-900"
+                  onClick={() => {
+                    focusAssemblyById(entry.assemblyId)
+                    const pageContext = getPageContext()
+                    trackClicked({
+                      name: 'watchlist_seat',
+                      page_name: pageContext.page_name || PAGE_NAMES.ELECTION_PREDICTIONS,
+                      assembly_id: entry.assemblyId,
+                      assembly_name:
+                        typeof entry.assemblyName === 'string' ? entry.assemblyName : '',
+                    })
+                  }}
+                  className="w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-3 text-left transition-colors hover:border-red-200 hover:bg-red-50/40 dark:border-gray-800 dark:bg-gray-950 dark:hover:border-red-900"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -1254,9 +1573,15 @@ export function ElectionPredictionMap({
         </Card>
       </div>
 
-      <p className="text-center text-xs text-muted-foreground">
-        Click any constituency to inspect • Click parties, types, or legend items to highlight on the map • Click again to clear
-      </p>
+      <div className="flex items-center justify-center gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs text-muted-foreground dark:border-gray-800 dark:bg-gray-900">
+        <MousePointer2 className="h-3.5 w-3.5 shrink-0 text-red-500" />
+        <span>
+          <span className="font-medium text-gray-700 dark:text-gray-300">Interactive:</span> click
+          any constituency on the map to inspect &bull; click rows in Seat Forecast or Prediction
+          Type Mix to highlight on the map &bull; click Watchlist seats to zoom &bull; click again
+          to clear
+        </span>
+      </div>
     </div>
   )
 }

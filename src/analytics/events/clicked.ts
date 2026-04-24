@@ -25,6 +25,7 @@ export type ClickedEvent =
   | 'prediction_highlight'
   | 'prediction_view_mode'
   | 'prediction_predictor'
+  | 'watchlist_seat'
 
 export function trackClicked(
   properties: { name: ClickedEvent; page_name: string } & Record<string, unknown>,
