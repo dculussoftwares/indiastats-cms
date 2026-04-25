@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
   useReactTable,
   getCoreRowModel,
@@ -125,13 +126,18 @@ function SortableHeader({ column, children }: { column: any; children: React.Rea
 }
 
 export function ElectionDataTable() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.ELECTION_DATA,
       page_url: typeof window !== 'undefined' ? window.location.href : undefined,
       page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
     })
-    trackViewed({ name: 'election_data_page',
+    trackViewed({
+      name: 'election_data_page',
       page_name: PAGE_NAMES.ELECTION_DATA,
       page_type: 'other',
       page_url: typeof window !== 'undefined' ? window.location.href : undefined,
@@ -150,14 +156,56 @@ export function ElectionDataTable() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Filter state - default to latest election year (2021)
-  const [selectedYear, setSelectedYear] = useState<string>('2021')
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('all')
-  const [selectedParty, setSelectedParty] = useState<string>('all')
+  // Filter state — initialised from URL search params
+  const [selectedYear, setSelectedYear] = useState<string>(() => searchParams.get('year') ?? '2021')
+  const [selectedDistrict, setSelectedDistrict] = useState<string>(
+    () => searchParams.get('district') ?? 'all',
+  )
+  const [selectedParty, setSelectedParty] = useState<string>(
+    () => searchParams.get('party') ?? 'all',
+  )
 
-  // TanStack Table State
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'acNo', desc: false }])
+  // Helper: push filter changes to URL without adding history entries
+  const updateURL = useCallback(
+    (updates: Record<string, string>) => {
+      const params = new URLSearchParams(searchParams.toString())
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === 'all') {
+          params.delete(key)
+        } else {
+          params.set(key, value)
+        }
+      }
+      const qs = params.toString()
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+    },
+    [router, pathname, searchParams],
+  )
+
+  // TanStack Table State — initialised from URL search params
+  const [sorting, setSorting] = useState<SortingState>(() => {
+    const sortBy = searchParams.get('sortBy')
+    const sortDir = searchParams.get('sortDir')
+    if (sortBy) return [{ id: sortBy, desc: sortDir === 'desc' }]
+    return [{ id: 'acNo', desc: false }]
+  })
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+
+  // Sync sorting changes to URL
+  const handleSortingChange: React.Dispatch<React.SetStateAction<SortingState>> = useCallback(
+    (updaterOrValue) => {
+      setSorting((prev) => {
+        const next = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue
+        if (next.length === 0) {
+          updateURL({ sortBy: 'all', sortDir: 'all' })
+        } else {
+          updateURL({ sortBy: next[0].id, sortDir: next[0].desc ? 'desc' : 'asc' })
+        }
+        return next
+      })
+    },
+    [updateURL],
+  )
 
   // Define columns
   const columns = useMemo(
@@ -178,7 +226,8 @@ export function ElectionDataTable() {
               className="text-primary hover:underline font-medium inline-flex items-center gap-1"
               onClick={() => {
                 const pageContext = getPageContext()
-                trackClicked({ name: 'link',
+                trackClicked({
+                  name: 'link',
                   page_name: pageContext.page_name || 'Election Data',
                   link_name: 'view_assembly',
                   link_location: 'data_table',
@@ -203,7 +252,8 @@ export function ElectionDataTable() {
               className="text-primary hover:underline inline-flex items-center gap-1"
               onClick={() => {
                 const pageContext = getPageContext()
-                trackClicked({ name: 'link',
+                trackClicked({
+                  name: 'link',
                   page_name: pageContext.page_name || 'Election Data',
                   link_name: 'view_district',
                   link_location: 'data_table',
@@ -362,7 +412,7 @@ export function ElectionDataTable() {
       sorting,
       columnFilters,
     },
-    onSortingChange: setSorting,
+    onSortingChange: handleSortingChange,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -379,7 +429,8 @@ export function ElectionDataTable() {
   const handleExport = () => {
     // Track export action
     const pageContext = getPageContext()
-    trackClicked({ name: 'button',
+    trackClicked({
+      name: 'button',
       page_name: pageContext.page_name || 'Election Data',
       button_name: 'export_to_excel',
       button_label: 'Export',
@@ -397,38 +448,45 @@ export function ElectionDataTable() {
   // Handle filter changes with tracking
   const handleYearChange = (value: string) => {
     const pageContext = getPageContext()
-    trackClicked({ name: 'search_filter',
+    trackClicked({
+      name: 'search_filter',
       page_name: pageContext.page_name || 'Election Data',
       filter_name: 'year',
       filter_value: value,
     })
     setSelectedYear(value)
+    updateURL({ year: value })
   }
 
   const handleDistrictChange = (value: string) => {
     const pageContext = getPageContext()
-    trackClicked({ name: 'search_filter',
+    trackClicked({
+      name: 'search_filter',
       page_name: pageContext.page_name || 'Election Data',
       filter_name: 'district',
       filter_value: value,
     })
     setSelectedDistrict(value)
+    updateURL({ district: value })
   }
 
   const handlePartyChange = (value: string) => {
     const pageContext = getPageContext()
-    trackClicked({ name: 'search_filter',
+    trackClicked({
+      name: 'search_filter',
       page_name: pageContext.page_name || 'Election Data',
       filter_name: 'party',
       filter_value: value,
     })
     setSelectedParty(value)
+    updateURL({ party: value })
   }
 
   // Track X contact link click
   const handleXLinkClick = () => {
     const pageContext = getPageContext()
-    trackClicked({ name: 'link',
+    trackClicked({
+      name: 'link',
       page_name: pageContext.page_name || 'Election Data',
       link_name: 'x_contact',
       link_location: 'data_table_footer',

@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
+import { Loader2 } from 'lucide-react'
 import { ElectionDataTable } from '@/components/ElectionDataTable'
 
 export const metadata: Metadata = {
@@ -24,7 +26,16 @@ export default function ElectionDataPage() {
           </p>
         </div>
 
-        <ElectionDataTable />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <span className="ml-2 text-muted-foreground">Loading election data...</span>
+            </div>
+          }
+        >
+          <ElectionDataTable />
+        </Suspense>
       </div>
     </main>
   )
