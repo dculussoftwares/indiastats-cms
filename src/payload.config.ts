@@ -71,8 +71,12 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
+      max: 2, // PgBouncer handles real pooling; keep app-side pool small
     },
-    push: true,
+    // Drizzle advisory locks (used by push) are session-scoped — incompatible with PgBouncer
+    // transaction mode. push is disabled at runtime; CI enables it via PAYLOAD_SCHEMA_PUSH=true
+    // using a direct DB connection (not PgBouncer) before each deployment.
+    push: process.env.PAYLOAD_SCHEMA_PUSH === 'true',
   }),
   collections: [
     Pages,
