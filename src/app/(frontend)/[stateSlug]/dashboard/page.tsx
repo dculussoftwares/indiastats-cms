@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
+import { unstable_cache } from 'next/cache'
 import { Map, MapPinned, Locate, UsersRound } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { DashboardClient } from './DashboardClient'
@@ -14,13 +15,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: 'Dashboard | IndiaStats.org',
-    description: 'Comprehensive Tamil Nadu election data, assembly constituency analysis, and electoral insights.',
+    description:
+      'Comprehensive Tamil Nadu election data, assembly constituency analysis, and electoral insights.',
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
       title: 'Tamil Nadu Election Dashboard - IndiaStats.org',
-      description: 'Explore state-wide election statistics, district-wise assembly constituencies, and voter data.',
+      description:
+        'Explore state-wide election statistics, district-wise assembly constituencies, and voter data.',
       type: 'website',
       url: canonicalUrl,
       images: [
@@ -41,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function getDashboardData() {
+async function _getDashboardData() {
   const payload = await getPayload({ config })
 
   const [assembliesCount, districtsCount, boothsCount, assembliesData, districtsData] =
@@ -114,6 +117,11 @@ async function getDashboardData() {
   }
 }
 
+const getDashboardData = unstable_cache(_getDashboardData, ['dashboard-data'], {
+  tags: ['dashboard', 'assemblies', 'districts'],
+  revalidate: 86400, // 24 hours
+})
+
 interface Props {
   params: Promise<{ stateSlug: string }>
 }
@@ -164,7 +172,12 @@ export default async function DashboardPage({ params }: Props) {
       </section>
 
       {/* Search + Predictions - Client Component */}
-      <DashboardClient assemblies={assemblies} districts={districts} stateSlug={stateSlug} predictors={predictors} />
+      <DashboardClient
+        assemblies={assemblies}
+        districts={districts}
+        stateSlug={stateSlug}
+        predictors={predictors}
+      />
     </div>
   )
 }

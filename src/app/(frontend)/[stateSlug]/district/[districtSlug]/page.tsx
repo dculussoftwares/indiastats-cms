@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { unstable_cache } from 'next/cache'
 import { DistrictPageClient } from './DistrictPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 
@@ -54,7 +55,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${cleanName} District - Assembly Constituencies & Election Data`,
-    description: districtDoc.metaDescription || `Complete election data for ${cleanName} district, Tamil Nadu. Explore all assembly constituencies, voter statistics, MLA history, and booth-level information.`,
+    description:
+      districtDoc.metaDescription ||
+      `Complete election data for ${cleanName} district, Tamil Nadu. Explore all assembly constituencies, voter statistics, MLA history, and booth-level information.`,
     keywords: [
       `${cleanName} district`,
       'Tamil Nadu elections',
@@ -67,7 +70,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     openGraph: {
       title: `${cleanName} District - Tamil Nadu Election Data`,
-      description: districtDoc.metaDescription || `View all assembly constituencies and election history for ${cleanName} district, Tamil Nadu.`,
+      description:
+        districtDoc.metaDescription ||
+        `View all assembly constituencies and election history for ${cleanName} district, Tamil Nadu.`,
       type: 'website',
       url: canonicalUrl,
       images: [
@@ -82,13 +87,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: 'summary_large_image',
       title: `${cleanName} District - Election Data`,
-      description: districtDoc.metaDescription || `Explore election data for ${cleanName} district assembly constituencies.`,
+      description:
+        districtDoc.metaDescription ||
+        `Explore election data for ${cleanName} district assembly constituencies.`,
       images: [ogImageUrl],
     },
   }
 }
 
-async function getDistrictData(districtSlug: string) {
+async function _getDistrictData(districtSlug: string) {
   const payload = await getPayload({ config })
 
   // Get district info by slug
@@ -258,6 +265,12 @@ async function getDistrictData(districtSlug: string) {
   }
 }
 
+const getDistrictData = (districtSlug: string) =>
+  unstable_cache(() => _getDistrictData(districtSlug), ['district-data', districtSlug], {
+    tags: [`district_${districtSlug}`],
+    revalidate: 86400, // 24 hours
+  })()
+
 export default async function DistrictPage({ params }: PageProps) {
   const { districtSlug, stateSlug } = await params
   const data = await getDistrictData(districtSlug)
@@ -271,7 +284,10 @@ export default async function DistrictPage({ params }: PageProps) {
       <Breadcrumbs
         items={[
           {
-            name: stateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+            name: stateSlug
+              .split('-')
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' '),
             url: `/${stateSlug}/dashboard`,
           },
           {

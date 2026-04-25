@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
+import { unstable_cache } from 'next/cache'
 import { HomePageClient } from './HomePageClient'
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
   },
 }
 
-async function getHomePageData() {
+async function _getHomePageData() {
   const payload = await getPayload({ config })
 
   const [assembliesCount, districtsCount, boothsCount, assembliesData] = await Promise.all([
@@ -66,6 +67,11 @@ async function getHomePageData() {
     },
   }
 }
+
+const getHomePageData = unstable_cache(_getHomePageData, ['home-page-data'], {
+  tags: ['home', 'assemblies'],
+  revalidate: 86400, // 24 hours
+})
 
 export default async function HomePage() {
   const { stats } = await getHomePageData()

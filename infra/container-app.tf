@@ -77,8 +77,8 @@ resource "azurerm_container_app" "main" {
     container {
       name   = "indiastats-cms"
       image  = var.container_image # Pull from GHCR (public, no auth needed)
-      cpu    = 2.0
-      memory = "4Gi"
+      cpu    = 1.0
+      memory = "2Gi"
 
       env {
         name        = "DATABASE_URI"

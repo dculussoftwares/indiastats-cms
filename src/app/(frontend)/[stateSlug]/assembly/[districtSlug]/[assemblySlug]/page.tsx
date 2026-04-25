@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { unstable_cache } from 'next/cache'
 import { AssemblyPageClient } from './AssemblyPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 
@@ -71,7 +72,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${cleanName} Assembly - Voter Data & Election History`,
-    description: assemblyDoc.metaDescription || `Complete election data for ${cleanName} assembly constituency, Tamil Nadu. Includes ${assemblyDoc.noOfBooths || 'multiple'} polling booths, voter statistics, MLA history since 1972, and demographic insights.`,
+    description:
+      assemblyDoc.metaDescription ||
+      `Complete election data for ${cleanName} assembly constituency, Tamil Nadu. Includes ${assemblyDoc.noOfBooths || 'multiple'} polling booths, voter statistics, MLA history since 1972, and demographic insights.`,
     keywords: [
       `${cleanName} assembly`,
       `${cleanName} MLA`,
@@ -85,7 +88,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     openGraph: {
       title: `${cleanName} Assembly - Election Data & Statistics`,
-      description: assemblyDoc.metaDescription || `View election history, voter stats, and political insights for ${cleanName} Assembly, ${assemblyDoc.districtName} District, Tamil Nadu.`,
+      description:
+        assemblyDoc.metaDescription ||
+        `View election history, voter stats, and political insights for ${cleanName} Assembly, ${assemblyDoc.districtName} District, Tamil Nadu.`,
       type: 'website',
       url: canonicalUrl,
       images: [
@@ -100,13 +105,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: 'summary_large_image',
       title: `${cleanName} Assembly - Election Data`,
-      description: assemblyDoc.metaDescription || `View election history, voter stats, and political insights for ${cleanName} Assembly, Tamil Nadu.`,
+      description:
+        assemblyDoc.metaDescription ||
+        `View election history, voter stats, and political insights for ${cleanName} Assembly, Tamil Nadu.`,
       images: [ogImageUrl],
     },
   }
 }
 
-async function getAssemblyData(districtSlug: string, assemblySlug: string) {
+async function _getAssemblyData(districtSlug: string, assemblySlug: string) {
   const payload = await getPayload({ config })
 
   // Get assembly info by slug
@@ -251,6 +258,16 @@ async function getAssemblyData(districtSlug: string, assemblySlug: string) {
   }
 }
 
+const getAssemblyData = (districtSlug: string, assemblySlug: string) =>
+  unstable_cache(
+    () => _getAssemblyData(districtSlug, assemblySlug),
+    ['assembly-data', districtSlug, assemblySlug],
+    {
+      tags: [`assembly_${assemblySlug}`],
+      revalidate: 86400, // 24 hours
+    },
+  )()
+
 export default async function AssemblyPage({ params }: PageProps) {
   const { districtSlug, assemblySlug, stateSlug } = await params
   const data = await getAssemblyData(districtSlug, assemblySlug)
@@ -264,7 +281,10 @@ export default async function AssemblyPage({ params }: PageProps) {
       <Breadcrumbs
         items={[
           {
-            name: stateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+            name: stateSlug
+              .split('-')
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' '),
             url: `/${stateSlug}/dashboard`,
           },
           {
