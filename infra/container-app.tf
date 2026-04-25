@@ -60,6 +60,20 @@ resource "azurerm_container_app" "main" {
     min_replicas = 1 # Always 1 replica running
     max_replicas = 5
 
+    http_scale_rule {
+      name                = "http-scaling"
+      concurrent_requests = "20" # Add a replica for every 20 concurrent requests
+    }
+
+    custom_scale_rule {
+      name             = "cpu-scaling"
+      custom_rule_type = "cpu"
+      metadata = {
+        type  = "Utilization"
+        value = "70" # Scale up when CPU usage exceeds 70%
+      }
+    }
+
     container {
       name   = "indiastats-cms"
       image  = var.container_image # Pull from GHCR (public, no auth needed)
