@@ -4,7 +4,7 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import {
   Activity,
   AlertTriangle,
@@ -662,24 +662,89 @@ export function ElectionPredictionMap({
   stateName,
 }: ElectionPredictionMapProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const mapRef = useRef<any>(null)
+
+  // ── Parse initial state from URL ────────────────────────────────────────
+  const initPredictorId = searchParams.get('predictor') ?? initialData.selectedPredictor?.id ?? ''
+  const initYear = searchParams.get('year')
+    ? Number(searchParams.get('year'))
+    : initialData.electionYear
+  const initViewMode = (searchParams.get('view') as ViewMode | null) ?? 'winner'
+  const initDistrict = searchParams.get('district') ?? null
+  const initAssembly = searchParams.get('assembly') ?? null
+  const initHighlight = (() => {
+    const raw = searchParams.get('highlight')
+    if (!raw) return null
+    const [type, ...rest] = raw.split(':')
+    const value = rest.join(':')
+    if (!type || !value) return null
+    if (type === 'party') return { type: 'party' as const, value }
+    if (type === 'predictionType') return { type: 'predictionType' as const, value }
+    if (type === 'heatLevel' && (value === 'stable' || value === 'close' || value === 'tooClose'))
+      return { type: 'heatLevel' as const, value: value as 'stable' | 'close' | 'tooClose' }
+    return null
+  })()
+
   const [dataset, setDataset] = useState(initialData)
-  const [selectedPredictorId, setSelectedPredictorId] = useState(
-    initialData.selectedPredictor?.id ?? '',
-  )
-  const [selectedYear, setSelectedYear] = useState(initialData.electionYear)
-  const [viewMode, setViewMode] = useState<ViewMode>('winner')
-  const [selectedAssemblyId, setSelectedAssemblyId] = useState<string | null>(null)
-  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null)
+  const [selectedPredictorId, setSelectedPredictorId] = useState(initPredictorId)
+  const [selectedYear, setSelectedYear] = useState(initYear)
+  const [viewMode, setViewMode] = useState<ViewMode>(initViewMode)
+  const [selectedAssemblyId, setSelectedAssemblyId] = useState<string | null>(initAssembly)
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(initDistrict)
   const [searchQuery, setSearchQuery] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
   const [popupContent, setPopupContent] = useState<PopupContent | null>(null)
   const [popupPosition, setPopupPosition] = useState<[number, number] | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [highlightFilter, setHighlightFilter] = useState<HighlightFilter>(null)
+  const [highlightFilter, setHighlightFilter] = useState<HighlightFilter>(initHighlight)
   const [timeStr, setTimeStr] = useState('')
   const [showMapHint, setShowMapHint] = useState(true)
   const [mobileTab, setMobileTab] = useState<'map' | 'forecast' | 'stats'>('map')
+
+  // ── Sync state → URL (shallow replace, no reload) ──────────────────────
+  const updateUrl = useCallback(
+    (
+      overrides: Partial<{
+        predictor: string
+        year: number
+        view: ViewMode
+        highlight: HighlightFilter
+        district: string | null
+        assembly: string | null
+      }>,
+    ) => {
+      const params = new URLSearchParams()
+      const p = {
+        predictor: selectedPredictorId,
+        year: selectedYear,
+        view: viewMode,
+        highlight: highlightFilter,
+        district: selectedDistrict,
+        assembly: selectedAssemblyId,
+        ...overrides,
+      }
+      if (p.predictor) params.set('predictor', p.predictor)
+      if (p.year) params.set('year', String(p.year))
+      if (p.view && p.view !== 'winner') params.set('view', p.view)
+      if (p.highlight) params.set('highlight', `${p.highlight.type}:${p.highlight.value}`)
+      if (p.district) params.set('district', p.district)
+      if (p.assembly) params.set('assembly', p.assembly)
+      const qs = params.toString()
+      router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { scroll: false })
+    },
+    [
+      selectedPredictorId,
+      selectedYear,
+      viewMode,
+      highlightFilter,
+      selectedDistrict,
+      selectedAssemblyId,
+      pathname,
+      router,
+    ],
+  )
 
   useEffect(() => {
     const tick = () =>
@@ -770,7 +835,9 @@ export function ElectionPredictionMap({
       next &&
       highlightFilter.type === next.type &&
       highlightFilter.value === next.value
-    setHighlightFilter(clearing ? null : next)
+    const resolved = clearing ? null : next
+    setHighlightFilter(resolved)
+    updateUrl({ highlight: resolved })
     if (next && !clearing) {
       trackClicked({
         name: 'prediction_highlight',
@@ -797,6 +864,12 @@ export function ElectionPredictionMap({
       setPopupContent(null)
       setPopupPosition(null)
       setHighlightFilter(null)
+      updateUrl({
+        predictor: nextData.selectedPredictor?.id ?? '',
+        year: nextData.electionYear,
+        highlight: null,
+        assembly: null,
+      })
     } catch (e) {
       console.error(e)
     } finally {
@@ -819,13 +892,15 @@ export function ElectionPredictionMap({
         pc_name: feature.properties?.pc_name,
       })
       setPopupPosition(centroid)
+      updateUrl({ assembly: assemblyId })
       if (mapRef.current) mapRef.current.flyTo(centroid, 9, { duration: 0.9, easeLinearity: 0.3 })
     },
-    [map],
+    [map, updateUrl],
   )
 
   const handleDistrictSelect = (district: string | null) => {
     setSelectedDistrict(district)
+    updateUrl({ district: district })
     if (!district) {
       if (mapRef.current) mapRef.current.setView([11.1271, 78.6569], 7)
       return
@@ -910,6 +985,7 @@ export function ElectionPredictionMap({
             pc_name: feature?.properties?.pc_name,
           })
           setPopupPosition([e.latlng.lat, e.latlng.lng])
+          updateUrl({ assembly: aid })
           trackClicked({
             name: 'link',
             page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
@@ -928,7 +1004,7 @@ export function ElectionPredictionMap({
         },
       })
     },
-    [styleFeature],
+    [styleFeature, updateUrl],
   )
 
   const refreshKey = [
@@ -1070,6 +1146,7 @@ export function ElectionPredictionMap({
                     key={v}
                     onClick={() => {
                       setViewMode(v)
+                      updateUrl({ view: v })
                       trackClicked({
                         name: 'prediction_view_mode_changed',
                         page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
@@ -1184,7 +1261,10 @@ export function ElectionPredictionMap({
               <p className="text-[10px] uppercase tracking-widest text-gray-500">Seat Forecast</p>
               {highlightFilter && (
                 <button
-                  onClick={() => setHighlightFilter(null)}
+                  onClick={() => {
+                    setHighlightFilter(null)
+                    updateUrl({ highlight: null })
+                  }}
                   className="flex items-center gap-1 rounded bg-gray-800 px-2 py-0.5 text-[10px] text-gray-400 hover:text-white"
                 >
                   <X className="h-3 w-3" />
@@ -1289,6 +1369,7 @@ export function ElectionPredictionMap({
                     setSelectedAssemblyId(null)
                     setPopupContent(null)
                     setPopupPosition(null)
+                    updateUrl({ assembly: null })
                   }}
                   onNavigate={() => {
                     const url = buildAssemblyUrl(popupContent.ac)
@@ -1359,6 +1440,7 @@ export function ElectionPredictionMap({
                     setSelectedAssemblyId(null)
                     setPopupContent(null)
                     setPopupPosition(null)
+                    updateUrl({ assembly: null })
                     trackClicked({
                       name: 'prediction_search_cleared',
                       page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
@@ -1416,6 +1498,7 @@ export function ElectionPredictionMap({
                 <button
                   onClick={() => {
                     setHighlightFilter(null)
+                    updateUrl({ highlight: null })
                     trackClicked({
                       name: 'prediction_highlight_cleared',
                       page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
@@ -1573,7 +1656,10 @@ export function ElectionPredictionMap({
                 <p className="text-[10px] uppercase tracking-widest text-gray-500">Party Tally</p>
                 {highlightFilter && (
                   <button
-                    onClick={() => setHighlightFilter(null)}
+                    onClick={() => {
+                      setHighlightFilter(null)
+                      updateUrl({ highlight: null })
+                    }}
                     className="flex items-center gap-1 rounded bg-gray-800 px-2 py-0.5 text-[10px] text-gray-400 hover:text-white"
                   >
                     <X className="h-3 w-3" /> clear
@@ -1727,6 +1813,7 @@ export function ElectionPredictionMap({
                       key={v}
                       onClick={() => {
                         setViewMode(v)
+                        updateUrl({ view: v })
                         trackClicked({
                           name: 'prediction_view_mode_changed',
                           page_name: PAGE_NAMES.ELECTION_PREDICTIONS,
@@ -2077,7 +2164,10 @@ export function ElectionPredictionMap({
                 ).map(([v, l]) => (
                   <button
                     key={v}
-                    onClick={() => setViewMode(v)}
+                    onClick={() => {
+                      setViewMode(v)
+                      updateUrl({ view: v })
+                    }}
                     className={`flex-1 rounded-md py-1 text-[10px] font-medium transition-all ${viewMode === v ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white'}`}
                   >
                     {l}
