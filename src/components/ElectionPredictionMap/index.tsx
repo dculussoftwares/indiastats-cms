@@ -1904,7 +1904,7 @@ export function ElectionPredictionMap({
         </main>
 
         {/* Right: stats panel — desktop only; mobile shows Stats overlay tab */}
-        <aside className="hidden md:flex w-52 shrink-0 flex-col overflow-y-auto border-l border-gray-800 bg-gray-950">
+        <aside className="hidden md:flex w-64 shrink-0 flex-col overflow-y-auto border-l border-gray-800 bg-gray-950">
           <div className="px-4 pt-4">
             <p className="mb-3 text-[10px] uppercase tracking-widest text-gray-500">
               Forecast Progress
@@ -1966,12 +1966,19 @@ export function ElectionPredictionMap({
 
             {/* Prediction type distribution */}
             {dataset.predictionTypeCounts.length > 0 && (
-              <div className="mb-4">
-                <div className="mb-2 flex items-center gap-1.5">
-                  <BarChart3 className="h-3.5 w-3.5 text-red-600" />
-                  <p className="text-[10px] uppercase tracking-widest text-gray-500">Type Mix</p>
+              <div className="mb-4 rounded-xl border border-red-600/30 bg-red-950/20 px-3 py-3">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <BarChart3 className="h-3.5 w-3.5 text-red-500" />
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-red-400">
+                      Type Mix
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-red-600/20 px-2 py-0.5 text-[10px] font-semibold text-red-400">
+                    {dataset.predictionTypeCounts.length}
+                  </span>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {dataset.predictionTypeCounts.slice(0, 5).map((item) => {
                     const pct = (item.count / Math.max(dataset.summary.totalAssemblies, 1)) * 100
                     const isActive =
@@ -1981,19 +1988,35 @@ export function ElectionPredictionMap({
                       <button
                         key={item.key}
                         onClick={() => toggleHighlight({ type: 'predictionType', value: item.key })}
-                        className={`w-full text-left rounded px-1.5 py-1 transition-colors ${isActive ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                        className={`w-full text-left rounded-lg px-2 py-1.5 transition-colors ${
+                          isActive ? 'bg-red-600/20 ring-1 ring-red-500/40' : 'hover:bg-white/5'
+                        }`}
                       >
-                        <div className="mb-0.5 flex items-center justify-between text-[10px]">
-                          <span className="text-gray-400">{item.key}</span>
+                        <div className="mb-1 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <div
+                              className="h-2.5 w-2.5 rounded-sm"
+                              style={{ backgroundColor: typeColorMap[item.key] || '#475569' }}
+                            />
+                            <span
+                              className={`text-xs font-medium ${
+                                isActive ? 'text-red-300' : 'text-gray-300'
+                              }`}
+                            >
+                              {item.key}
+                            </span>
+                          </div>
                           <span
-                            className={isActive ? 'text-red-400 font-semibold' : 'text-gray-600'}
+                            className={`text-xs font-bold tabular-nums ${
+                              isActive ? 'text-red-400' : 'text-gray-400'
+                            }`}
                           >
                             {item.count}
                           </span>
                         </div>
-                        <div className="h-1 overflow-hidden rounded-full bg-gray-800">
+                        <div className="h-1.5 overflow-hidden rounded-full bg-gray-800">
                           <div
-                            className="h-1 rounded-full"
+                            className="h-1.5 rounded-full"
                             style={{
                               width: `${Math.max(pct, 2)}%`,
                               backgroundColor: typeColorMap[item.key] || '#475569',
