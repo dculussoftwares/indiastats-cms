@@ -37,6 +37,7 @@ export type ClickedEvent =
   | 'election_results_map'
   | 'election_results_party_filter'
   | 'election_results_seat_click'
+  | 'table_sort'
 
 export function trackClicked(
   properties: { name: ClickedEvent; page_name: string } & Record<string, unknown>,

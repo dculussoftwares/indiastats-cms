@@ -200,6 +200,13 @@ export function ElectionDataTable() {
           updateURL({ sortBy: 'all', sortDir: 'all' })
         } else {
           updateURL({ sortBy: next[0].id, sortDir: next[0].desc ? 'desc' : 'asc' })
+          const pageContext = getPageContext()
+          trackClicked({
+            name: 'table_sort',
+            page_name: pageContext.page_name || 'Election Data',
+            sort_column: next[0].id,
+            sort_direction: next[0].desc ? 'desc' : 'asc',
+          })
         }
         return next
       })
