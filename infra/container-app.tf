@@ -63,8 +63,8 @@ resource "azurerm_container_app" "main" {
     container {
       name   = "indiastats-cms"
       image  = var.container_image # Pull from GHCR (public, no auth needed)
-      cpu    = 0.25                # Absolute minimum
-      memory = "0.5Gi"             # Absolute minimum
+      cpu    = 2.0
+      memory = "4Gi"
 
       env {
         name        = "DATABASE_URI"
