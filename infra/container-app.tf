@@ -58,7 +58,7 @@ resource "azurerm_container_app" "main" {
 
   template {
     min_replicas = 1 # Always 1 replica running
-    max_replicas = 1 # Fixed single replica
+    max_replicas = 5
 
     container {
       name   = "indiastats-cms"
