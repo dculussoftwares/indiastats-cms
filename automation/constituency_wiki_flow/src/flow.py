@@ -100,7 +100,10 @@ def _parse_constituency_data(name: str, wikitext: str) -> "ConstituencyRecord":
         if election_years:
             confidence = 0.2
 
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
     return ConstituencyRecord(
+        id=slug,
         name=name,
         district=district,
         reserved_status=reserved_status,
@@ -270,16 +273,50 @@ class ConstituencyWikiFlow(Flow[WikiFlowState]):
     # ── Helpers ───────────────────────────────────────────────────────────────
 
     def _build_output(self) -> dict:
+        # ── Build deduplicated districts list ─────────────────────────────────
+        # Some records have multiple districts: "North Delhi, Central Delhi"
+        seen_districts: dict[str, str] = {}  # slug → display name
+        for record in self.state.structured_data.values():
+            for raw in record.district.split(","):
+                name = raw.strip()
+                if not name:
+                    continue
+                slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+                seen_districts[slug] = name
+
+        districts = [
+            {"id": slug, "name": name}
+            for slug, name in sorted(seen_districts.items(), key=lambda x: x[1])
+        ]
+
+        # ── Build constituency objects with district_ids ───────────────────────
+        constituencies = []
+        for record in self.state.structured_data.values():
+            district_ids = []
+            for raw in record.district.split(","):
+                name = raw.strip()
+                if name:
+                    district_ids.append(
+                        re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+                    )
+
+            constituencies.append({
+                "id": record.id,
+                "name": record.name,
+                "wikipedia_title": record.wikipedia_title,
+                "district_ids": district_ids,
+                "reserved_status": record.reserved_status,
+                "election_years": record.election_years,
+            })
+
         return {
             "state_name": self.state.state_name,
             "state_slug": self.state.state_slug,
             "total_constituencies": len(self.state.assembly_names),
             "extracted_count": len(self.state.structured_data),
             "failed_pages": self.state.failed_pages,
-            "constituencies": {
-                name: record.model_dump()
-                for name, record in self.state.structured_data.items()
-            },
+            "districts": districts,
+            "constituencies": constituencies,
         }
 
     def _write_output(self, filename: str, data: dict) -> None:
@@ -299,6 +336,7 @@ app = typer.Typer()
 def main(
     state: str = typer.Option(..., "--state", "-s", help="State slug, e.g. 'tamil-nadu'"),
     state_name: str = typer.Option("", "--name", "-n", help="Human-readable state name (auto-inferred if omitted)"),
+    plot: bool = typer.Option(False, "--plot", "-p", help="Open the flow diagram in the browser after running"),
 ) -> None:
     """Run the constituency Wikipedia extraction flow for a given Indian state."""
     if not state_name:
@@ -310,6 +348,14 @@ def main(
     flow.state.state_name = state_name
     flow.state.state_slug = state
     flow.kickoff()
+
+    if plot:
+        import subprocess
+        console.print("[dim]Generating flow diagram...")
+        # plot() creates the HTML in a temp dir and returns the absolute path
+        html_path = flow.plot("crewai_flow.html", show=False)
+        console.print(f"[dim]Opening: {html_path}")
+        subprocess.run(["open", html_path], check=False)
 
 
 if __name__ == "__main__":

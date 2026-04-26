@@ -23,6 +23,7 @@ class ElectionResult(BaseModel):
 
 
 class ConstituencyRecord(BaseModel):
+    id: str = ""          # URL-safe slug derived from name (e.g. "chandni-chowk")
     name: str
     wikipedia_title: str = ""
     wikipedia_url: str = ""
