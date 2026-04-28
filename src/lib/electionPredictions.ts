@@ -4,6 +4,7 @@ import config from '@payload-config'
 
 export { predictorNameSlug, predictorHref } from '@/utilities/predictorUrl'
 
+
 export interface PredictorOption {
   id: string
   name: string
