@@ -14,7 +14,8 @@ interface ImportRequestBody {
   newPredictor?: {
     name: string
     bio?: string
-    imagePath: string
+    imagePath?: string
+    imageMediaId?: string
   }
   predictions?: RawPredictionRecord[]
 }

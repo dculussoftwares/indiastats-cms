@@ -18,7 +18,8 @@ export interface ImportPredictionsInput {
   newPredictor?: {
     name: string
     bio?: string
-    imagePath: string
+    imagePath?: string
+    imageMediaId?: string
   }
   predictions: RawPredictionRecord[]
 }
@@ -68,11 +69,16 @@ export async function importPredictions(
       pagination: false,
     })
 
-    const predictorData = {
+    const predictorData: Record<string, unknown> = {
       name: input.newPredictor.name,
       bio: input.newPredictor.bio ?? '',
-      imagePath: normalizeImagePath(input.newPredictor.imagePath),
       isActive: true,
+    }
+
+    if (input.newPredictor.imageMediaId) {
+      predictorData.image = input.newPredictor.imageMediaId
+    } else if (input.newPredictor.imagePath) {
+      predictorData.imagePath = normalizeImagePath(input.newPredictor.imagePath)
     }
 
     if (existingResult.docs.length > 0) {
@@ -126,9 +132,7 @@ export async function importPredictions(
     select: { id: true, predictionKey: true },
   })
 
-  const existingByKey = new Map(
-    existingPredictions.docs.map((doc) => [doc.predictionKey, doc.id]),
-  )
+  const existingByKey = new Map(existingPredictions.docs.map((doc) => [doc.predictionKey, doc.id]))
 
   // 4. Process each prediction row
   const errors: Array<{ assemblyId: string; message: string }> = []

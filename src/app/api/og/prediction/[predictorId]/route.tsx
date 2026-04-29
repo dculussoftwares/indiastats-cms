@@ -18,12 +18,12 @@ export async function GET(
     const { predictorId } = await params
     const payload = await getPayload({ config })
 
-    // Fetch predictor
+    // Fetch predictor (depth:1 to populate image media)
     const predictorResult = await payload.find({
       collection: 'predictors',
       where: { id: { equals: predictorId } },
       limit: 1,
-      depth: 0,
+      depth: 1,
     })
 
     const predictor = predictorResult.docs[0] as any
@@ -33,10 +33,7 @@ export async function GET(
     const predictionsResult = await payload.find({
       collection: 'election-predictions',
       where: {
-        and: [
-          { predictor: { equals: predictor.id } },
-          { stateCode: { equals: 'TN' } },
-        ],
+        and: [{ predictor: { equals: predictor.id } }, { stateCode: { equals: 'TN' } }],
       },
       limit: 5000,
       pagination: false,
@@ -62,7 +59,8 @@ export async function GET(
     const partyCounts = new Map<string, number>()
 
     for (const p of latestPredictions) {
-      const party = typeof p.predictedWinningParty === 'string' ? p.predictedWinningParty.trim() : null
+      const party =
+        typeof p.predictedWinningParty === 'string' ? p.predictedWinningParty.trim() : null
       if (party) {
         calledSeats++
         partyCounts.set(party, (partyCounts.get(party) ?? 0) + 1)
@@ -103,16 +101,49 @@ export async function GET(
 
     // Load predictor image if available
     let predictorImgBase64: string | null = null
-    const imagePath = typeof predictor.imagePath === 'string' ? predictor.imagePath.trim() : null
-    if (imagePath) {
+
+    // Prefer uploaded media image over legacy imagePath
+    const mediaUrl: string | null =
+      predictor.image &&
+      typeof predictor.image === 'object' &&
+      typeof predictor.image.url === 'string'
+        ? predictor.image.url.trim()
+        : null
+
+    if (mediaUrl) {
       try {
-        const filePath = join(process.cwd(), 'public', imagePath.replace(/^\//, ''))
-        const buf = readFileSync(filePath)
-        const ext = imagePath.split('.').pop()?.toLowerCase() ?? 'png'
-        const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png'
-        predictorImgBase64 = `data:${mime};base64,${buf.toString('base64')}`
+        if (mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://')) {
+          // Azure Blob or remote URL — fetch it
+          const res = await fetch(mediaUrl)
+          if (res.ok) {
+            const buf = Buffer.from(await res.arrayBuffer())
+            const ext = mediaUrl.split('.').pop()?.toLowerCase() ?? 'png'
+            const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png'
+            predictorImgBase64 = `data:${mime};base64,${buf.toString('base64')}`
+          }
+        } else {
+          // Local media path (e.g. /media/JVC.png)
+          const filePath = join(process.cwd(), 'public', mediaUrl.replace(/^\//, ''))
+          const buf = readFileSync(filePath)
+          const ext = mediaUrl.split('.').pop()?.toLowerCase() ?? 'png'
+          const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png'
+          predictorImgBase64 = `data:${mime};base64,${buf.toString('base64')}`
+        }
       } catch {
-        // Image not on disk (e.g. remote URL) — skip
+        // Image unavailable — skip
+      }
+    } else {
+      const imagePath = typeof predictor.imagePath === 'string' ? predictor.imagePath.trim() : null
+      if (imagePath) {
+        try {
+          const filePath = join(process.cwd(), 'public', imagePath.replace(/^\//, ''))
+          const buf = readFileSync(filePath)
+          const ext = imagePath.split('.').pop()?.toLowerCase() ?? 'png'
+          const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png'
+          predictorImgBase64 = `data:${mime};base64,${buf.toString('base64')}`
+        } catch {
+          // Image not on disk — skip
+        }
       }
     }
 
@@ -172,7 +203,15 @@ export async function GET(
               <span style={{ fontSize: 36, fontWeight: 900, color: '#f8fafc', lineHeight: 1.1 }}>
                 {predictorName}
               </span>
-              <span style={{ fontSize: 16, color: '#64748b', marginTop: 4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              <span
+                style={{
+                  fontSize: 16,
+                  color: '#64748b',
+                  marginTop: 4,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                }}
+              >
                 Tamil Nadu {latestYear ?? ''} Election Forecast
               </span>
             </div>
@@ -194,10 +233,26 @@ export async function GET(
                 border: '1px solid rgba(239,68,68,0.25)',
               }}
             >
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#ef4444',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                }}
+              >
                 Seats Called
               </span>
-              <span style={{ fontSize: 52, fontWeight: 900, color: '#f8fafc', lineHeight: 1.1, marginTop: 4 }}>
+              <span
+                style={{
+                  fontSize: 52,
+                  fontWeight: 900,
+                  color: '#f8fafc',
+                  lineHeight: 1.1,
+                  marginTop: 4,
+                }}
+              >
                 {calledSeats}
               </span>
               <span style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>out of {total}</span>
@@ -213,10 +268,26 @@ export async function GET(
                 border: '1px solid #334155',
               }}
             >
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#94a3b8',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                }}
+              >
                 Too Close to Call
               </span>
-              <span style={{ fontSize: 40, fontWeight: 900, color: '#f8fafc', lineHeight: 1.1, marginTop: 4 }}>
+              <span
+                style={{
+                  fontSize: 40,
+                  fontWeight: 900,
+                  color: '#f8fafc',
+                  lineHeight: 1.1,
+                  marginTop: 4,
+                }}
+              >
                 {tooCloseToCall}
               </span>
             </div>
@@ -285,7 +356,15 @@ export async function GET(
                         }}
                       />
                     </div>
-                    <span style={{ fontSize: 20, fontWeight: 800, color: '#f8fafc', width: 44, textAlign: 'right' }}>
+                    <span
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 800,
+                        color: '#f8fafc',
+                        width: 44,
+                        textAlign: 'right',
+                      }}
+                    >
                       {seats}
                     </span>
                   </div>

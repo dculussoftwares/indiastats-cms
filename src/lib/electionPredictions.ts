@@ -4,7 +4,6 @@ import config from '@payload-config'
 
 export { predictorNameSlug, predictorHref } from '@/utilities/predictorUrl'
 
-
 export interface PredictorOption {
   id: string
   name: string
@@ -67,15 +66,24 @@ const normalizeCloseParties = (value: unknown): string[] => {
     .filter((party): party is string => party !== null)
 }
 
+const resolveImagePath = (doc: { image?: unknown; imagePath?: unknown }): string | null => {
+  if (doc.image && typeof doc.image === 'object') {
+    const mediaUrl = normalizeText((doc.image as { url?: unknown }).url)
+    if (mediaUrl) return mediaUrl
+  }
+  return normalizeText(doc.imagePath)
+}
+
 const toPredictorOption = (doc: {
   bio?: unknown
   id: string | number
+  image?: unknown
   imagePath?: unknown
   name: string
 }): PredictorOption => ({
   id: String(doc.id),
   name: doc.name,
-  imagePath: normalizeText(doc.imagePath),
+  imagePath: resolveImagePath(doc),
   bio: normalizeText(doc.bio),
 })
 
@@ -111,6 +119,7 @@ export async function getPredictorsWithSummaries({
   const predictorDocs = predictorsResult.docs as Array<{
     bio?: unknown
     id: string | number
+    image?: unknown
     imagePath?: unknown
     name: string
   }>
@@ -159,7 +168,7 @@ export async function getPredictorsWithSummaries({
     summaries.push({
       id: String(doc.id),
       name: doc.name,
-      imagePath: normalizeText(doc.imagePath),
+      imagePath: resolveImagePath(doc),
       bio: normalizeText(doc.bio),
       totalPredictions: latestDocs.length,
       calledSeats,
@@ -200,6 +209,7 @@ export async function getElectionPredictionsData({
   const predictorDocs = predictorsResult.docs as Array<{
     bio?: unknown
     id: string | number
+    image?: unknown
     imagePath?: unknown
     name: string
   }>

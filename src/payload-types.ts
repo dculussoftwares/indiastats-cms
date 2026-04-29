@@ -921,9 +921,13 @@ export interface Predictor {
   id: number;
   name: string;
   /**
-   * Public image path (for example /images/JVC.png)
+   * Upload a predictor photo (preferred). Drag & drop or click to upload.
    */
-  imagePath: string;
+  image?: (number | null) | Media;
+  /**
+   * Legacy: public image path (e.g. /images/JVC.png). Use the "image" field above instead.
+   */
+  imagePath?: string | null;
   bio?: string | null;
   isActive: boolean;
   updatedAt: string;
@@ -1915,6 +1919,7 @@ export interface ZonesSelect<T extends boolean = true> {
  */
 export interface PredictorsSelect<T extends boolean = true> {
   name?: T;
+  image?: T;
   imagePath?: T;
   bio?: T;
   isActive?: T;
