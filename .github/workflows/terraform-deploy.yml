@@ -15,6 +15,7 @@ on:
       - 'tailwind.config.mjs'
       - 'postcss.config.js'
       - '.github/workflows/terraform-deploy.yml'
+      - 'public/**'
   workflow_dispatch:
 
 env:
