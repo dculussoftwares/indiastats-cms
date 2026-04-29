@@ -69,14 +69,20 @@ export async function importPredictions(
       pagination: false,
     })
 
-    const predictorData: Record<string, unknown> = {
+    const predictorData: {
+      name: string
+      bio: string
+      isActive: boolean
+      image?: number | null
+      imagePath?: string | null
+    } = {
       name: input.newPredictor.name,
       bio: input.newPredictor.bio ?? '',
       isActive: true,
     }
 
     if (input.newPredictor.imageMediaId) {
-      predictorData.image = input.newPredictor.imageMediaId
+      predictorData.image = Number(input.newPredictor.imageMediaId)
     } else if (input.newPredictor.imagePath) {
       predictorData.imagePath = normalizeImagePath(input.newPredictor.imagePath)
     }
