@@ -15,6 +15,11 @@ export interface ImportPredictionsInput {
   stateCode: string
   electionYear: number
   predictorId?: string
+  updatePredictor?: {
+    name?: string
+    bio?: string
+    imagePath?: string
+  }
   newPredictor?: {
     name: string
     bio?: string
@@ -59,8 +64,30 @@ export async function importPredictions(
     if (!existing) {
       throw new Error(`Predictor with ID "${input.predictorId}" not found.`)
     }
-    predictorDocId = existing.id
-    predictorName = existing.name
+
+    if (input.updatePredictor) {
+      const updateData: Record<string, unknown> = {}
+      if (input.updatePredictor.name) updateData.name = input.updatePredictor.name
+      if (input.updatePredictor.bio !== undefined) updateData.bio = input.updatePredictor.bio
+      if (input.updatePredictor.imagePath !== undefined)
+        updateData.imagePath = normalizeImagePath(input.updatePredictor.imagePath)
+
+      if (Object.keys(updateData).length > 0) {
+        const updated = await payload.update({
+          collection: 'predictors',
+          id: existing.id,
+          data: updateData,
+        })
+        predictorDocId = updated.id
+        predictorName = updated.name
+      } else {
+        predictorDocId = existing.id
+        predictorName = existing.name
+      }
+    } else {
+      predictorDocId = existing.id
+      predictorName = existing.name
+    }
   } else if (input.newPredictor) {
     const existingResult = await payload.find({
       collection: 'predictors',

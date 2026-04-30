@@ -11,6 +11,11 @@ interface ImportRequestBody {
   stateCode?: string
   electionYear?: number
   predictorId?: string
+  updatePredictor?: {
+    name?: string
+    bio?: string
+    imagePath?: string
+  }
   newPredictor?: {
     name: string
     bio?: string
@@ -59,6 +64,7 @@ export async function POST(request: Request): Promise<Response> {
       stateCode: body.stateCode,
       electionYear: body.electionYear,
       predictorId: body.predictorId,
+      updatePredictor: body.updatePredictor,
       newPredictor: body.newPredictor,
       predictions: body.predictions,
     })

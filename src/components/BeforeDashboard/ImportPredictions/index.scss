@@ -31,6 +31,40 @@
     margin-bottom: base(0.5);
   }
 
+  &__fieldRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .importPredictions__input,
+    .importPredictions__textarea {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__saveBtn {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: 1px solid var(--theme-elevation-300);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--theme-elevation-100);
+    color: var(--theme-text);
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background: var(--theme-elevation-200);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
   &__label {
     font-size: 0.75rem;
     font-weight: 600;

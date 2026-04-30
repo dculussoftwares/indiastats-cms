@@ -12,6 +12,8 @@ const baseClass = 'importPredictions'
 interface PredictorOption {
   id: string
   name: string
+  bio?: string
+  imagePath?: string
 }
 
 interface ParsedFile {
@@ -23,6 +25,9 @@ export const ImportPredictions: React.FC = () => {
   const [predictorMode, setPredictorMode] = useState<'existing' | 'new'>('existing')
   const [predictors, setPredictors] = useState<PredictorOption[]>([])
   const [selectedPredictorId, setSelectedPredictorId] = useState('')
+  const [editPredictorName, setEditPredictorName] = useState('')
+  const [editPredictorBio, setEditPredictorBio] = useState('')
+  const [editPredictorImage, setEditPredictorImage] = useState('')
   const [newPredictorName, setNewPredictorName] = useState('')
   const [newPredictorBio, setNewPredictorBio] = useState('')
   const [newPredictorImage, setNewPredictorImage] = useState('')
@@ -31,6 +36,7 @@ export const ImportPredictions: React.FC = () => {
   const [parsedFile, setParsedFile] = useState<ParsedFile | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [savingField, setSavingField] = useState<'name' | 'bio' | 'imagePath' | null>(null)
   const [result, setResult] = useState<ImportPredictionsResult | null>(null)
   const [showErrors, setShowErrors] = useState(false)
 
@@ -40,11 +46,24 @@ export const ImportPredictions: React.FC = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        const docs = (data?.docs ?? []) as Array<{ id: string | number; name: string }>
-        const options = docs.map((doc) => ({ id: String(doc.id), name: doc.name }))
+        const docs = (data?.docs ?? []) as Array<{
+          id: string | number
+          name: string
+          bio?: string
+          imagePath?: string
+        }>
+        const options = docs.map((doc) => ({
+          id: String(doc.id),
+          name: doc.name,
+          bio: doc.bio ?? '',
+          imagePath: doc.imagePath ?? '',
+        }))
         setPredictors(options)
         if (options.length > 0 && !selectedPredictorId) {
           setSelectedPredictorId(options[0].id)
+          setEditPredictorName(options[0].name)
+          setEditPredictorBio(options[0].bio ?? '')
+          setEditPredictorImage(options[0].imagePath ?? '')
         }
       })
       .catch(() => {
@@ -52,6 +71,48 @@ export const ImportPredictions: React.FC = () => {
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const handleFieldSave = useCallback(
+    async (field: 'name' | 'bio' | 'imagePath', value: string) => {
+      if (!selectedPredictorId) return
+      setSavingField(field)
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 20000)
+      try {
+        const res = await fetch('/next/update-predictor', {
+          method: 'POST',
+          credentials: 'include',
+          signal: controller.signal,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ predictorId: selectedPredictorId, field, value }),
+        })
+        clearTimeout(timeout)
+        const data = await res.json()
+        if (res.ok && data.success && data.doc) {
+          setPredictors((prev) =>
+            prev.map((p) =>
+              p.id === selectedPredictorId
+                ? { ...p, name: data.doc.name, bio: data.doc.bio ?? '', imagePath: data.doc.imagePath ?? '' }
+                : p,
+            ),
+          )
+          if (field === 'name') setEditPredictorName(data.doc.name)
+          if (field === 'bio') setEditPredictorBio(data.doc.bio ?? '')
+          if (field === 'imagePath') setEditPredictorImage(data.doc.imagePath ?? '')
+          toast.success(`${field === 'imagePath' ? 'Image Path' : field.charAt(0).toUpperCase() + field.slice(1)} saved.`)
+        } else {
+          toast.error(data?.error ?? `Save failed (${res.status}).`)
+        }
+      } catch (err) {
+        clearTimeout(timeout)
+        const isAbort = err instanceof Error && err.name === 'AbortError'
+        toast.error(isAbort ? 'Save timed out.' : 'Save failed — server may be unreachable.')
+      } finally {
+        setSavingField(null)
+      }
+    },
+    [selectedPredictorId],
+  )
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -184,21 +245,91 @@ export const ImportPredictions: React.FC = () => {
         </div>
 
         {predictorMode === 'existing' ? (
-          <div className={`${baseClass}__field`}>
-            <label className={`${baseClass}__label`}>Predictor</label>
-            <select
-              className={`${baseClass}__select`}
-              value={selectedPredictorId}
-              onChange={(e) => setSelectedPredictorId(e.target.value)}
-            >
-              {predictors.length === 0 && <option value="">No predictors found</option>}
-              {predictors.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <>
+            <div className={`${baseClass}__field`}>
+              <label className={`${baseClass}__label`}>Predictor</label>
+              <select
+                className={`${baseClass}__select`}
+                value={selectedPredictorId}
+                onChange={(e) => {
+                  const id = e.target.value
+                  setSelectedPredictorId(id)
+                  const predictor = predictors.find((p) => p.id === id)
+                  if (predictor) {
+                    setEditPredictorName(predictor.name)
+                    setEditPredictorBio(predictor.bio ?? '')
+                    setEditPredictorImage(predictor.imagePath ?? '')
+                  }
+                }}
+              >
+                {predictors.length === 0 && <option value="">No predictors found</option>}
+                {predictors.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className={`${baseClass}__field`}>
+              <label className={`${baseClass}__label`}>Predictor Name</label>
+              <div className={`${baseClass}__fieldRow`}>
+                <input
+                  className={`${baseClass}__input`}
+                  type="text"
+                  value={editPredictorName}
+                  onChange={(e) => setEditPredictorName(e.target.value)}
+                  placeholder="Predictor name"
+                />
+                <button
+                  className={`${baseClass}__saveBtn`}
+                  type="button"
+                  disabled={savingField !== null || !editPredictorName}
+                  onClick={() => handleFieldSave('name', editPredictorName)}
+                >
+                  {savingField === 'name' ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </div>
+            <div className={`${baseClass}__field`}>
+              <label className={`${baseClass}__label`}>Bio</label>
+              <div className={`${baseClass}__fieldRow`} style={{ alignItems: 'flex-start' }}>
+                <textarea
+                  className={`${baseClass}__textarea`}
+                  value={editPredictorBio}
+                  onChange={(e) => setEditPredictorBio(e.target.value)}
+                  placeholder="Short bio for the predictor"
+                />
+                <button
+                  className={`${baseClass}__saveBtn`}
+                  type="button"
+                  disabled={savingField !== null}
+                  onClick={() => handleFieldSave('bio', editPredictorBio)}
+                >
+                  {savingField === 'bio' ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </div>
+            <div className={`${baseClass}__field`}>
+              <label className={`${baseClass}__label`}>Image Path</label>
+              <div className={`${baseClass}__fieldRow`}>
+                <input
+                  className={`${baseClass}__input`}
+                  type="text"
+                  value={editPredictorImage}
+                  onChange={(e) => setEditPredictorImage(e.target.value)}
+                  placeholder="/images/predictor.png"
+                />
+                <button
+                  className={`${baseClass}__saveBtn`}
+                  type="button"
+                  disabled={savingField !== null}
+                  onClick={() => handleFieldSave('imagePath', editPredictorImage)}
+                >
+                  {savingField === 'imagePath' ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </div>
+          </>
         ) : (
           <>
             <div className={`${baseClass}__field`}>
