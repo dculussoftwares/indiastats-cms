@@ -58,7 +58,7 @@ resource "azurerm_container_app" "main" {
 
   template {
     min_replicas = 1 # Always 1 replica running
-    max_replicas = 5
+      max_replicas = 15
 
     http_scale_rule {
       name                = "http-scaling"
