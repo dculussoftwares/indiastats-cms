@@ -8,11 +8,7 @@
  * As data arrives, parties[], currentRound, totalRounds drive the live view.
  */
 
-import type {
-  ElectionResultsDataset,
-  PartyTally,
-  SeatResult,
-} from '@/lib/electionResults'
+import type { ElectionResultsDataset, PartyTally, SeatResult } from '@/lib/electionResults'
 
 // ── Raw shape coming out of Payload (election-results-2026 collection) ────────
 export interface LiveResultDoc {
@@ -133,9 +129,7 @@ function buildTickerItems(
     .filter((r) => r.isTrending)
     .slice(0, 3)
   for (const t of trending) {
-    items.push(
-      `Close contest: ${t.assemblyName} — margin ${t.margin.toLocaleString()} votes`,
-    )
+    items.push(`Close contest: ${t.assemblyName} — margin ${t.margin.toLocaleString()} votes`)
   }
 
   items.push(`${declared} of ${totalSeats} seats counted`)
@@ -159,9 +153,7 @@ export function buildLiveResultsDataset(docs: LiveResultDoc[]): ElectionResultsD
 
   const allSeats = Object.values(results)
   const declared = allSeats.filter((r) => r.status === 'declared').length
-  const counting = allSeats.filter(
-    (r) => r.status === 'counting' || r.status === 'leading',
-  ).length
+  const counting = allSeats.filter((r) => r.status === 'counting' || r.status === 'leading').length
   const pending = allSeats.filter((r) => r.status === 'pending').length
 
   const partyTallies = buildPartyTallies(results)
