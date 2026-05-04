@@ -285,17 +285,12 @@ jobs:
           zip ../function.zip host.json package.json dist/bundle.js
 
       - name: Deploy to Azure Function App
-        run: |
-          az webapp deploy \
-            --name func-indiastats-eci-scraper \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --src-path function.zip \
-            --type zip \
-            --async true
-
-      - name: Verify function deployment
-        run: |
-          echo "✅ ECI Scraper Function deployed successfully"
+        uses: Azure/functions-action@v1
+        with:
+          app-name: func-indiastats-eci-scraper
+          package: function.zip
+          scm-do-build-during-deployment: false
+          enable-oryx-build: false
 
   smoke-test:
     name: Smoke Test
