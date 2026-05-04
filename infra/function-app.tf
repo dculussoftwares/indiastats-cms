@@ -49,8 +49,8 @@ resource "azurerm_linux_function_app" "scraper" {
     FUNCTIONS_WORKER_RUNTIME     = "node"
     WEBSITE_RUN_FROM_PACKAGE     = "1"
 
-    # Scraper config
-    PAYLOAD_API_URL = "https://indiastats.org"
+    # Scraper config — uses direct Container App URL to bypass Cloudflare bot protection
+    PAYLOAD_API_URL = "https://indiastats-cms.lemonpebble-15b93aac.centralindia.azurecontainerapps.io"
     CRON_SECRET     = var.cron_secret
   }
 
