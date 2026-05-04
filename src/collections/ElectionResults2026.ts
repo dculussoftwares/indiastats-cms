@@ -25,6 +25,14 @@ export const ElectionResults2026: CollectionConfig = {
   },
   access: {
     read: () => true,
+    update: ({ req }) => {
+      // Allow Payload admin users
+      if (req.user) return true
+      // Allow the ECI scraper function via CRON_SECRET bearer token
+      const auth = (req.headers as Record<string, string>)['authorization'] ?? ''
+      const token = auth.replace(/^Bearer\s+/i, '').trim()
+      return !!token && token === process.env.CRON_SECRET
+    },
   },
   fields: [
     {
