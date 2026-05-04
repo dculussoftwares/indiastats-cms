@@ -232,19 +232,18 @@ jobs:
 
       - name: Install function dependencies
         working-directory: functions
-        run: pnpm install --frozen-lockfile --prod=false
+        run: pnpm install --frozen-lockfile
 
-      - name: Build function TypeScript
-        working-directory: functions
-        run: pnpm exec tsc
-
-      - name: Zip function app
+      - name: Build & bundle function
         working-directory: functions
         run: |
-          zip -r ../function.zip . \
-            --exclude "*.ts" \
-            --exclude "tsconfig.json" \
-            --exclude "node_modules/.cache/*"
+          pnpm exec tsc --noEmit
+          node esbuild.config.mjs
+
+      - name: Zip function app (bundle only — no node_modules)
+        working-directory: functions
+        run: |
+          zip ../function.zip host.json package.json dist/bundle.js
 
       - name: Deploy to Azure Function App
         run: |
