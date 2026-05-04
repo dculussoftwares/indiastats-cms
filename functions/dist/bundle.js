@@ -48056,7 +48056,7 @@ async function scrapeConstituency(assemblyNumber) {
     let totalRounds = 0;
     $2("*").each((_, el) => {
       const text3 = $2(el).text().trim();
-      const match = text3.match(/Status as on Round[,\s]+(\d+)\s*\/\s*(\d+)/i);
+      const match = text3.match(/Status (?:as on|of EVM) Round[:\s,]+(\d+)\s*\/\s*(\d+)/i);
       if (match) {
         currentRound = parseInt(match[1], 10);
         totalRounds = parseInt(match[2], 10);
