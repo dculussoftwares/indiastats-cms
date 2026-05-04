@@ -53144,8 +53144,12 @@ async function scrapeConstituency(assemblyNumber) {
   try {
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; IndiaStats/1.0; +https://indiastats.org)",
-        Accept: "text/html"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-IN,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        Referer: "https://results.eci.gov.in/",
+        Connection: "keep-alive"
       },
       signal: AbortSignal.timeout(15e3)
     });
