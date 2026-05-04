@@ -82,6 +82,7 @@ export interface Config {
     'election-predictions': ElectionPrediction;
     alliances: Alliance;
     'caste-census': CasteCensus;
+    'election-results-2026': ElectionResults2026;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -114,6 +115,7 @@ export interface Config {
     'election-predictions': ElectionPredictionsSelect<false> | ElectionPredictionsSelect<true>;
     alliances: AlliancesSelect<false> | AlliancesSelect<true>;
     'caste-census': CasteCensusSelect<false> | CasteCensusSelect<true>;
+    'election-results-2026': ElectionResults2026Select<false> | ElectionResults2026Select<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -1250,6 +1252,74 @@ export interface CasteCensus {
   createdAt: string;
 }
 /**
+ * Live 2026 TN election counting data — one record per assembly. assemblyId is the unique key (e.g. ac001).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "election-results-2026".
+ */
+export interface ElectionResults2026 {
+  id: number;
+  /**
+   * State code (e.g. TN)
+   */
+  stateCode: string;
+  /**
+   * Stable public ID — e.g. ac001
+   */
+  assemblyId: string;
+  /**
+   * English name of the constituency
+   */
+  assemblyName: string;
+  /**
+   * District the assembly belongs to
+   */
+  districtName?: string | null;
+  /**
+   * Total registered electors (2026 roll)
+   */
+  electors?: number | null;
+  /**
+   * Total votes polled
+   */
+  votes?: number | null;
+  /**
+   * Voter turnout % (e.g. 85.15)
+   */
+  turnoutPercent?: number | null;
+  /**
+   * Total counting rounds for this constituency
+   */
+  totalRounds?: number | null;
+  /**
+   * Rounds completed so far (0 = not started)
+   */
+  currentRound?: number | null;
+  /**
+   * Current result status. Can also be derived from round data.
+   */
+  status: 'pending' | 'counting' | 'leading' | 'declared';
+  /**
+   * Party-wise vote tally from counting rounds so far
+   */
+  parties?:
+    | {
+        /**
+         * Party abbreviation — e.g. DMK, ADMK
+         */
+        name: string;
+        /**
+         * Candidate name (optional)
+         */
+        candidateName?: string | null;
+        votes: number;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -1498,6 +1568,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'caste-census';
         value: number | CasteCensus;
+      } | null)
+    | ({
+        relationTo: 'election-results-2026';
+        value: number | ElectionResults2026;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2059,6 +2133,32 @@ export interface CasteCensusSelect<T extends boolean = true> {
   rank4Percentage?: T;
   rank5Caste?: T;
   rank5Percentage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "election-results-2026_select".
+ */
+export interface ElectionResults2026Select<T extends boolean = true> {
+  stateCode?: T;
+  assemblyId?: T;
+  assemblyName?: T;
+  districtName?: T;
+  electors?: T;
+  votes?: T;
+  turnoutPercent?: T;
+  totalRounds?: T;
+  currentRound?: T;
+  status?: T;
+  parties?:
+    | T
+    | {
+        name?: T;
+        candidateName?: T;
+        votes?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

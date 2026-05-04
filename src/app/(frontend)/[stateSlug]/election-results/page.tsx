@@ -1,12 +1,13 @@
 import * as React from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 
 import { TamilNaduGeoJson } from '@/components/AssemblyMap/staticData'
 import { getStateBySlug } from '@/config/states'
-import { DUMMY_RESULTS } from '@/lib/electionResults'
 import { ElectionResultsMap } from '@/components/ElectionResultsMap'
-import { UnderConstructionBanner } from './UnderConstructionBanner'
+import { buildLiveResultsDataset, type LiveResultDoc } from '@/lib/liveResults'
 
 // Full-screen TV page — always fresh (no ISR cache)
 export const revalidate = 0
@@ -51,14 +52,19 @@ export default async function ElectionResultsPage({ params }: Props) {
     notFound()
   }
 
-  // TODO: replace DUMMY_RESULTS with a live Payload query when real data is available:
-  // const payload = await getPayload({ config })
-  // const results = await buildElectionResultsDataset(payload, stateConfig.code)
-  const data = DUMMY_RESULTS
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'election-results-2026',
+    where: { stateCode: { equals: stateConfig.code } },
+    limit: 300,
+    pagination: false,
+    depth: 0,
+  })
+
+  const data = buildLiveResultsDataset(docs as unknown as LiveResultDoc[])
 
   return (
     <div className="relative h-screen overflow-hidden">
-      <UnderConstructionBanner />
       <ElectionResultsMap data={data} geoJson={TamilNaduGeoJson} />
     </div>
   )

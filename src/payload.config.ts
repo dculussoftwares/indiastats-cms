@@ -19,6 +19,7 @@ import { CasteCensus } from './collections/CasteCensus'
 import { Predictors } from './collections/Predictors'
 import { States } from './collections/States'
 import { Zones } from './collections/Zones'
+import { ElectionResults2026 } from './collections/ElectionResults2026'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { SiteSettings } from './globals/SiteSettings'
@@ -94,6 +95,7 @@ export default buildConfig({
     ElectionPredictions,
     Alliances,
     CasteCensus,
+    ElectionResults2026,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteSettings],
