@@ -48124,7 +48124,7 @@ function authHeaders() {
   };
 }
 async function findDocId(assemblyId) {
-  const url = `${PAYLOAD_API_URL}/api/${COLLECTION}?where[assemblyId][equals]=${assemblyId}&limit=1`;
+  const url = `${PAYLOAD_API_URL}/api/${COLLECTION}?where%5BassemblyId%5D%5Bequals%5D=${assemblyId}&limit=1`;
   const res = await fetch(url, { headers: authHeaders(), signal: AbortSignal.timeout(1e4) });
   if (!res.ok) return null;
   const data2 = await res.json();

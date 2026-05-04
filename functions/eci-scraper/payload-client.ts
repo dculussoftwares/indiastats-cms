@@ -26,7 +26,7 @@ function authHeaders(): Record<string, string> {
 
 /** Find the Payload document ID for an assemblyId */
 async function findDocId(assemblyId: string): Promise<string | number | null> {
-  const url = `${PAYLOAD_API_URL}/api/${COLLECTION}?where[assemblyId][equals]=${assemblyId}&limit=1`
+  const url = `${PAYLOAD_API_URL}/api/${COLLECTION}?where%5BassemblyId%5D%5Bequals%5D=${assemblyId}&limit=1`
   const res = await fetch(url, { headers: authHeaders(), signal: AbortSignal.timeout(10_000) })
   if (!res.ok) return null
   const data = (await res.json()) as FindResponse
