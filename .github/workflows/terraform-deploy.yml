@@ -247,10 +247,12 @@ jobs:
 
       - name: Deploy to Azure Function App
         run: |
-          az functionapp deployment source config-zip \
+          az webapp deploy \
             --name func-indiastats-eci-scraper \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --src function.zip
+            --src-path function.zip \
+            --type zip \
+            --async true
 
       - name: Verify function deployment
         run: |
