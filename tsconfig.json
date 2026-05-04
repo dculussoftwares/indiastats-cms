@@ -47,6 +47,8 @@
   ],
   "exclude": [
     "node_modules",
-    "functions"
+    "functions",
+    "cf-worker",
+    "scripts"
   ],
 }
