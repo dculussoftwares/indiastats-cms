@@ -16,6 +16,7 @@ on:
       - 'postcss.config.js'
       - '.github/workflows/terraform-deploy.yml'
       - 'public/**'
+      - 'functions/**'
   workflow_dispatch:
 
 env:
