@@ -1305,7 +1305,7 @@ export interface ElectionResults2026 {
   parties?:
     | {
         /**
-         * Party abbreviation — e.g. DMK, ADMK
+         * Full party name from ECI — e.g. Dravida Munnetra Kazhagam
          */
         name: string;
         /**
@@ -1316,6 +1316,22 @@ export interface ElectionResults2026 {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Vote gap between #1 and #2 candidate
+   */
+  margin?: number | null;
+  /**
+   * NOTA (None of the Above) votes
+   */
+  notaVotes?: number | null;
+  /**
+   * Last updated timestamp shown on ECI page — e.g. "09:15 AM On 04/05/2026"
+   */
+  eciLastUpdatedAt?: string | null;
+  /**
+   * When the Azure Function last successfully scraped this constituency
+   */
+  lastScrapedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2159,6 +2175,10 @@ export interface ElectionResults2026Select<T extends boolean = true> {
         votes?: T;
         id?: T;
       };
+  margin?: T;
+  notaVotes?: T;
+  eciLastUpdatedAt?: T;
+  lastScrapedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

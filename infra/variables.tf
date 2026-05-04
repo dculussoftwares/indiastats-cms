@@ -80,3 +80,9 @@ variable "adsense_client_id" {
   sensitive   = false
   default     = ""
 }
+
+variable "cron_secret" {
+  description = "Secret used to authenticate the ECI scraper Azure Function against Payload REST API"
+  type        = string
+  sensitive   = true
+}

@@ -1,0 +1,1874 @@
+[
+  {
+    "assemblyId": "ac001",
+    "acNumber": 1,
+    "assemblyName": "Gummidipoondi",
+    "electors": 254129,
+    "votes": 231156,
+    "turnoutPercent": 90.96
+  },
+  {
+    "assemblyId": "ac002",
+    "acNumber": 2,
+    "assemblyName": "Ponneri",
+    "electors": 251397,
+    "votes": 225679,
+    "turnoutPercent": 89.77
+  },
+  {
+    "assemblyId": "ac003",
+    "acNumber": 3,
+    "assemblyName": "Tiruttani",
+    "electors": 261857,
+    "votes": 236274,
+    "turnoutPercent": 90.23
+  },
+  {
+    "assemblyId": "ac004",
+    "acNumber": 4,
+    "assemblyName": "Thiruvallur",
+    "electors": 251018,
+    "votes": 224686,
+    "turnoutPercent": 89.51
+  },
+  {
+    "assemblyId": "ac005",
+    "acNumber": 5,
+    "assemblyName": "Poonamallee",
+    "electors": 368634,
+    "votes": 307478,
+    "turnoutPercent": 83.41
+  },
+  {
+    "assemblyId": "ac006",
+    "acNumber": 6,
+    "assemblyName": "Avadi",
+    "electors": 436177,
+    "votes": 343751,
+    "turnoutPercent": 78.81
+  },
+  {
+    "assemblyId": "ac007",
+    "acNumber": 7,
+    "assemblyName": "Maduravoyal",
+    "electors": 373283,
+    "votes": 293214,
+    "turnoutPercent": 78.55
+  },
+  {
+    "assemblyId": "ac008",
+    "acNumber": 8,
+    "assemblyName": "Ambattur",
+    "electors": 337019,
+    "votes": 259639,
+    "turnoutPercent": 77.04
+  },
+  {
+    "assemblyId": "ac009",
+    "acNumber": 9,
+    "assemblyName": "Madavaram",
+    "electors": 431796,
+    "votes": 360420,
+    "turnoutPercent": 83.47
+  },
+  {
+    "assemblyId": "ac010",
+    "acNumber": 10,
+    "assemblyName": "Thiruvottiyur",
+    "electors": 244903,
+    "votes": 206723,
+    "turnoutPercent": 84.41
+  },
+  {
+    "assemblyId": "ac011",
+    "acNumber": 11,
+    "assemblyName": "RK Nagar",
+    "electors": 199359,
+    "votes": 180619,
+    "turnoutPercent": 90.6
+  },
+  {
+    "assemblyId": "ac012",
+    "acNumber": 12,
+    "assemblyName": "Perambur",
+    "electors": 226296,
+    "votes": 203055,
+    "turnoutPercent": 89.73
+  },
+  {
+    "assemblyId": "ac013",
+    "acNumber": 13,
+    "assemblyName": "Kolathur",
+    "electors": 211772,
+    "votes": 182357,
+    "turnoutPercent": 86.11
+  },
+  {
+    "assemblyId": "ac014",
+    "acNumber": 14,
+    "assemblyName": "Villivakkam",
+    "electors": 163372,
+    "votes": 140500,
+    "turnoutPercent": 86
+  },
+  {
+    "assemblyId": "ac015",
+    "acNumber": 15,
+    "assemblyName": "Thiru-Vi-Ka-Nagar",
+    "electors": 181621,
+    "votes": 142936,
+    "turnoutPercent": 78.7
+  },
+  {
+    "assemblyId": "ac016",
+    "acNumber": 16,
+    "assemblyName": "Egmore",
+    "electors": 138775,
+    "votes": 118722,
+    "turnoutPercent": 85.55
+  },
+  {
+    "assemblyId": "ac017",
+    "acNumber": 17,
+    "assemblyName": "Royapuram",
+    "electors": 159654,
+    "votes": 126685,
+    "turnoutPercent": 79.35
+  },
+  {
+    "assemblyId": "ac018",
+    "acNumber": 18,
+    "assemblyName": "Harbour",
+    "electors": 120126,
+    "votes": 99404,
+    "turnoutPercent": 82.75
+  },
+  {
+    "assemblyId": "ac019",
+    "acNumber": 19,
+    "assemblyName": "Chepauk-Thiruvallikeni",
+    "electors": 166023,
+    "votes": 140024,
+    "turnoutPercent": 84.34
+  },
+  {
+    "assemblyId": "ac020",
+    "acNumber": 20,
+    "assemblyName": "Thousand Lights",
+    "electors": 157529,
+    "votes": 130891,
+    "turnoutPercent": 83.09
+  },
+  {
+    "assemblyId": "ac021",
+    "acNumber": 21,
+    "assemblyName": "Anna Nagar",
+    "electors": 188861,
+    "votes": 161759,
+    "turnoutPercent": 85.65
+  },
+  {
+    "assemblyId": "ac022",
+    "acNumber": 22,
+    "assemblyName": "Virugampakkam",
+    "electors": 200578,
+    "votes": 171494,
+    "turnoutPercent": 85.5
+  },
+  {
+    "assemblyId": "ac023",
+    "acNumber": 23,
+    "assemblyName": "Saidapet",
+    "electors": 204146,
+    "votes": 158928,
+    "turnoutPercent": 77.85
+  },
+  {
+    "assemblyId": "ac024",
+    "acNumber": 24,
+    "assemblyName": "T Nagar",
+    "electors": 158757,
+    "votes": 132641,
+    "turnoutPercent": 83.55
+  },
+  {
+    "assemblyId": "ac025",
+    "acNumber": 25,
+    "assemblyName": "Mylapore",
+    "electors": 199465,
+    "votes": 149379,
+    "turnoutPercent": 74.89
+  },
+  {
+    "assemblyId": "ac026",
+    "acNumber": 26,
+    "assemblyName": "Velachery",
+    "electors": 217171,
+    "votes": 183509,
+    "turnoutPercent": 84.5
+  },
+  {
+    "assemblyId": "ac027",
+    "acNumber": 27,
+    "assemblyName": "Shozhinganallur",
+    "electors": 553905,
+    "votes": 445672,
+    "turnoutPercent": 80.46
+  },
+  {
+    "assemblyId": "ac028",
+    "acNumber": 28,
+    "assemblyName": "Alandur",
+    "electors": 301055,
+    "votes": 259359,
+    "turnoutPercent": 86.15
+  },
+  {
+    "assemblyId": "ac029",
+    "acNumber": 29,
+    "assemblyName": "Sriperumbudur",
+    "electors": 381750,
+    "votes": 328763,
+    "turnoutPercent": 86.12
+  },
+  {
+    "assemblyId": "ac030",
+    "acNumber": 30,
+    "assemblyName": "Pallavaram",
+    "electors": 336963,
+    "votes": 281802,
+    "turnoutPercent": 83.63
+  },
+  {
+    "assemblyId": "ac031",
+    "acNumber": 31,
+    "assemblyName": "Tambaram",
+    "electors": 330060,
+    "votes": 277052,
+    "turnoutPercent": 83.94
+  },
+  {
+    "assemblyId": "ac032",
+    "acNumber": 32,
+    "assemblyName": "Chengalpattu",
+    "electors": 372839,
+    "votes": 322207,
+    "turnoutPercent": 86.42
+  },
+  {
+    "assemblyId": "ac033",
+    "acNumber": 33,
+    "assemblyName": "Thiruporur",
+    "electors": 294410,
+    "votes": 261171,
+    "turnoutPercent": 88.71
+  },
+  {
+    "assemblyId": "ac034",
+    "acNumber": 34,
+    "assemblyName": "Cheyyur",
+    "electors": 203998,
+    "votes": 185679,
+    "turnoutPercent": 91.02
+  },
+  {
+    "assemblyId": "ac035",
+    "acNumber": 35,
+    "assemblyName": "Madurantakam",
+    "electors": 212639,
+    "votes": 196223,
+    "turnoutPercent": 92.28
+  },
+  {
+    "assemblyId": "ac036",
+    "acNumber": 36,
+    "assemblyName": "Uthiramerur",
+    "electors": 246177,
+    "votes": 224390,
+    "turnoutPercent": 91.15
+  },
+  {
+    "assemblyId": "ac037",
+    "acNumber": 37,
+    "assemblyName": "Kancheepuram",
+    "electors": 278775,
+    "votes": 242952,
+    "turnoutPercent": 87.15
+  },
+  {
+    "assemblyId": "ac038",
+    "acNumber": 38,
+    "assemblyName": "Arakkonam",
+    "electors": 200773,
+    "votes": 180937,
+    "turnoutPercent": 90.12
+  },
+  {
+    "assemblyId": "ac039",
+    "acNumber": 39,
+    "assemblyName": "Sholinghur",
+    "electors": 257522,
+    "votes": 231667,
+    "turnoutPercent": 89.96
+  },
+  {
+    "assemblyId": "ac040",
+    "acNumber": 40,
+    "assemblyName": "Katpadi",
+    "electors": 228736,
+    "votes": 201425,
+    "turnoutPercent": 88.06
+  },
+  {
+    "assemblyId": "ac041",
+    "acNumber": 41,
+    "assemblyName": "Ranipet",
+    "electors": 248244,
+    "votes": 219721,
+    "turnoutPercent": 88.51
+  },
+  {
+    "assemblyId": "ac042",
+    "acNumber": 42,
+    "assemblyName": "Arcot",
+    "electors": 245319,
+    "votes": 223314,
+    "turnoutPercent": 91.03
+  },
+  {
+    "assemblyId": "ac043",
+    "acNumber": 43,
+    "assemblyName": "Vellore",
+    "electors": 214504,
+    "votes": 188721,
+    "turnoutPercent": 87.98
+  },
+  {
+    "assemblyId": "ac044",
+    "acNumber": 44,
+    "assemblyName": "Anaikattu",
+    "electors": 238715,
+    "votes": 214103,
+    "turnoutPercent": 89.69
+  },
+  {
+    "assemblyId": "ac045",
+    "acNumber": 45,
+    "assemblyName": "Kilvaithinankuppam",
+    "electors": 215304,
+    "votes": 187853,
+    "turnoutPercent": 87.25
+  },
+  {
+    "assemblyId": "ac046",
+    "acNumber": 46,
+    "assemblyName": "Gudiyattam",
+    "electors": 251588,
+    "votes": 227612,
+    "turnoutPercent": 90.47
+  },
+  {
+    "assemblyId": "ac047",
+    "acNumber": 47,
+    "assemblyName": "Vaniyambadi",
+    "electors": 242540,
+    "votes": 211034,
+    "turnoutPercent": 87.01
+  },
+  {
+    "assemblyId": "ac048",
+    "acNumber": 48,
+    "assemblyName": "Ambur",
+    "electors": 214469,
+    "votes": 194459,
+    "turnoutPercent": 90.67
+  },
+  {
+    "assemblyId": "ac049",
+    "acNumber": 49,
+    "assemblyName": "Jolarpet",
+    "electors": 236127,
+    "votes": 211216,
+    "turnoutPercent": 89.45
+  },
+  {
+    "assemblyId": "ac050",
+    "acNumber": 50,
+    "assemblyName": "Tirupattur",
+    "electors": 226691,
+    "votes": 201052,
+    "turnoutPercent": 88.69
+  },
+  {
+    "assemblyId": "ac051",
+    "acNumber": 51,
+    "assemblyName": "Uthangarai",
+    "electors": 235451,
+    "votes": 202841,
+    "turnoutPercent": 86.15
+  },
+  {
+    "assemblyId": "ac052",
+    "acNumber": 52,
+    "assemblyName": "Bargur",
+    "electors": 239318,
+    "votes": 210624,
+    "turnoutPercent": 88.01
+  },
+  {
+    "assemblyId": "ac053",
+    "acNumber": 53,
+    "assemblyName": "Krishnagiri",
+    "electors": 267366,
+    "votes": 226860,
+    "turnoutPercent": 84.85
+  },
+  {
+    "assemblyId": "ac054",
+    "acNumber": 54,
+    "assemblyName": "Veppanahalli",
+    "electors": 246093,
+    "votes": 221090,
+    "turnoutPercent": 89.84
+  },
+  {
+    "assemblyId": "ac055",
+    "acNumber": 55,
+    "assemblyName": "Hosur",
+    "electors": 342989,
+    "votes": 275592,
+    "turnoutPercent": 80.35
+  },
+  {
+    "assemblyId": "ac056",
+    "acNumber": 56,
+    "assemblyName": "Thalli",
+    "electors": 237924,
+    "votes": 204353,
+    "turnoutPercent": 85.89
+  },
+  {
+    "assemblyId": "ac057",
+    "acNumber": 57,
+    "assemblyName": "Palacodu",
+    "electors": 240322,
+    "votes": 222466,
+    "turnoutPercent": 92.57
+  },
+  {
+    "assemblyId": "ac058",
+    "acNumber": 58,
+    "assemblyName": "Pennagaram",
+    "electors": 248614,
+    "votes": 225518,
+    "turnoutPercent": 90.71
+  },
+  {
+    "assemblyId": "ac059",
+    "acNumber": 59,
+    "assemblyName": "Dharmapuri",
+    "electors": 260751,
+    "votes": 233216,
+    "turnoutPercent": 89.44
+  },
+  {
+    "assemblyId": "ac060",
+    "acNumber": 60,
+    "assemblyName": "Pappireddipatti",
+    "electors": 256640,
+    "votes": 231900,
+    "turnoutPercent": 90.36
+  },
+  {
+    "assemblyId": "ac061",
+    "acNumber": 61,
+    "assemblyName": "Harur",
+    "electors": 245692,
+    "votes": 215374,
+    "turnoutPercent": 87.66
+  },
+  {
+    "assemblyId": "ac062",
+    "acNumber": 62,
+    "assemblyName": "Chengam",
+    "electors": 268997,
+    "votes": 240645,
+    "turnoutPercent": 89.46
+  },
+  {
+    "assemblyId": "ac063",
+    "acNumber": 63,
+    "assemblyName": "Tiruvannamalai",
+    "electors": 249848,
+    "votes": 218167,
+    "turnoutPercent": 87.32
+  },
+  {
+    "assemblyId": "ac064",
+    "acNumber": 64,
+    "assemblyName": "Kilpennathur",
+    "electors": 240823,
+    "votes": 217463,
+    "turnoutPercent": 90.3
+  },
+  {
+    "assemblyId": "ac065",
+    "acNumber": 65,
+    "assemblyName": "Kalasapakkam",
+    "electors": 232847,
+    "votes": 211961,
+    "turnoutPercent": 91.03
+  },
+  {
+    "assemblyId": "ac066",
+    "acNumber": 66,
+    "assemblyName": "Polur",
+    "electors": 233774,
+    "votes": 208924,
+    "turnoutPercent": 89.37
+  },
+  {
+    "assemblyId": "ac067",
+    "acNumber": 67,
+    "assemblyName": "Arani",
+    "electors": 254963,
+    "votes": 227707,
+    "turnoutPercent": 89.31
+  },
+  {
+    "assemblyId": "ac068",
+    "acNumber": 68,
+    "assemblyName": "Cheyyar",
+    "electors": 239856,
+    "votes": 220596,
+    "turnoutPercent": 91.97
+  },
+  {
+    "assemblyId": "ac069",
+    "acNumber": 69,
+    "assemblyName": "Vandavasi",
+    "electors": 213474,
+    "votes": 189181,
+    "turnoutPercent": 88.62
+  },
+  {
+    "assemblyId": "ac070",
+    "acNumber": 70,
+    "assemblyName": "Gingee",
+    "electors": 242667,
+    "votes": 214785,
+    "turnoutPercent": 88.51
+  },
+  {
+    "assemblyId": "ac071",
+    "acNumber": 71,
+    "assemblyName": "Mailam",
+    "electors": 209016,
+    "votes": 187383,
+    "turnoutPercent": 89.65
+  },
+  {
+    "assemblyId": "ac072",
+    "acNumber": 72,
+    "assemblyName": "Tindivanam",
+    "electors": 219256,
+    "votes": 194173,
+    "turnoutPercent": 88.56
+  },
+  {
+    "assemblyId": "ac073",
+    "acNumber": 73,
+    "assemblyName": "Vanur",
+    "electors": 209824,
+    "votes": 191108,
+    "turnoutPercent": 91.08
+  },
+  {
+    "assemblyId": "ac074",
+    "acNumber": 74,
+    "assemblyName": "Viluppuram",
+    "electors": 245899,
+    "votes": 212949,
+    "turnoutPercent": 86.6
+  },
+  {
+    "assemblyId": "ac075",
+    "acNumber": 75,
+    "assemblyName": "Vikravandi",
+    "electors": 228995,
+    "votes": 207263,
+    "turnoutPercent": 90.51
+  },
+  {
+    "assemblyId": "ac076",
+    "acNumber": 76,
+    "assemblyName": "Tirukkoyilur",
+    "electors": 243105,
+    "votes": 215051,
+    "turnoutPercent": 88.46
+  },
+  {
+    "assemblyId": "ac077",
+    "acNumber": 77,
+    "assemblyName": "Ulundurpettai",
+    "electors": 300699,
+    "votes": 269065,
+    "turnoutPercent": 89.48
+  },
+  {
+    "assemblyId": "ac078",
+    "acNumber": 78,
+    "assemblyName": "Rishivandiyam",
+    "electors": 273571,
+    "votes": 243259,
+    "turnoutPercent": 88.92
+  },
+  {
+    "assemblyId": "ac079",
+    "acNumber": 79,
+    "assemblyName": "Sankarapuram",
+    "electors": 265951,
+    "votes": 232920,
+    "turnoutPercent": 87.58
+  },
+  {
+    "assemblyId": "ac080",
+    "acNumber": 80,
+    "assemblyName": "Kallakurichi",
+    "electors": 281582,
+    "votes": 247595,
+    "turnoutPercent": 87.93
+  },
+  {
+    "assemblyId": "ac081",
+    "acNumber": 81,
+    "assemblyName": "Gangavalli",
+    "electors": 218317,
+    "votes": 193844,
+    "turnoutPercent": 88.79
+  },
+  {
+    "assemblyId": "ac082",
+    "acNumber": 82,
+    "assemblyName": "Attur",
+    "electors": 228153,
+    "votes": 205885,
+    "turnoutPercent": 90.24
+  },
+  {
+    "assemblyId": "ac083",
+    "acNumber": 83,
+    "assemblyName": "Yercaud",
+    "electors": 272829,
+    "votes": 251085,
+    "turnoutPercent": 92.03
+  },
+  {
+    "assemblyId": "ac084",
+    "acNumber": 84,
+    "assemblyName": "Omalur",
+    "electors": 294593,
+    "votes": 267785,
+    "turnoutPercent": 90.9
+  },
+  {
+    "assemblyId": "ac085",
+    "acNumber": 85,
+    "assemblyName": "Mettur",
+    "electors": 255665,
+    "votes": 228104,
+    "turnoutPercent": 89.22
+  },
+  {
+    "assemblyId": "ac086",
+    "acNumber": 86,
+    "assemblyName": "Edappadi",
+    "electors": 276387,
+    "votes": 254525,
+    "turnoutPercent": 92.09
+  },
+  {
+    "assemblyId": "ac087",
+    "acNumber": 87,
+    "assemblyName": "Sankari",
+    "electors": 260525,
+    "votes": 241064,
+    "turnoutPercent": 92.53
+  },
+  {
+    "assemblyId": "ac088",
+    "acNumber": 88,
+    "assemblyName": "Salem (West)",
+    "electors": 257950,
+    "votes": 232129,
+    "turnoutPercent": 89.99
+  },
+  {
+    "assemblyId": "ac089",
+    "acNumber": 89,
+    "assemblyName": "Salem (North)",
+    "electors": 238637,
+    "votes": 208569,
+    "turnoutPercent": 87.4
+  },
+  {
+    "assemblyId": "ac090",
+    "acNumber": 90,
+    "assemblyName": "Salem (South)",
+    "electors": 226851,
+    "votes": 206457,
+    "turnoutPercent": 91.01
+  },
+  {
+    "assemblyId": "ac091",
+    "acNumber": 91,
+    "assemblyName": "Veerapandi",
+    "electors": 250449,
+    "votes": 233919,
+    "turnoutPercent": 93.4
+  },
+  {
+    "assemblyId": "ac092",
+    "acNumber": 92,
+    "assemblyName": "Rasipuram",
+    "electors": 222252,
+    "votes": 201360,
+    "turnoutPercent": 90.6
+  },
+  {
+    "assemblyId": "ac093",
+    "acNumber": 93,
+    "assemblyName": "Senthamangalam",
+    "electors": 229398,
+    "votes": 206848,
+    "turnoutPercent": 90.17
+  },
+  {
+    "assemblyId": "ac094",
+    "acNumber": 94,
+    "assemblyName": "Namakkal",
+    "electors": 237836,
+    "votes": 208630,
+    "turnoutPercent": 87.72
+  },
+  {
+    "assemblyId": "ac095",
+    "acNumber": 95,
+    "assemblyName": "Paramathi-Velur",
+    "electors": 205147,
+    "votes": 185125,
+    "turnoutPercent": 90.24
+  },
+  {
+    "assemblyId": "ac096",
+    "acNumber": 96,
+    "assemblyName": "Tiruchengodu",
+    "electors": 209072,
+    "votes": 188290,
+    "turnoutPercent": 90.06
+  },
+  {
+    "assemblyId": "ac097",
+    "acNumber": 97,
+    "assemblyName": "Kumarapalayam",
+    "electors": 220048,
+    "votes": 203874,
+    "turnoutPercent": 92.65
+  },
+  {
+    "assemblyId": "ac098",
+    "acNumber": 98,
+    "assemblyName": "Erode (East)",
+    "electors": 179566,
+    "votes": 161250,
+    "turnoutPercent": 89.8
+  },
+  {
+    "assemblyId": "ac099",
+    "acNumber": 99,
+    "assemblyName": "Erode (West)",
+    "electors": 250177,
+    "votes": 220031,
+    "turnoutPercent": 87.95
+  },
+  {
+    "assemblyId": "ac100",
+    "acNumber": 100,
+    "assemblyName": "Modakkurichi",
+    "electors": 207664,
+    "votes": 187604,
+    "turnoutPercent": 90.34
+  },
+  {
+    "assemblyId": "ac101",
+    "acNumber": 101,
+    "assemblyName": "Dharapuram",
+    "electors": 222406,
+    "votes": 197763,
+    "turnoutPercent": 88.92
+  },
+  {
+    "assemblyId": "ac102",
+    "acNumber": 102,
+    "assemblyName": "Kangayam",
+    "electors": 219553,
+    "votes": 201023,
+    "turnoutPercent": 91.56
+  },
+  {
+    "assemblyId": "ac103",
+    "acNumber": 103,
+    "assemblyName": "Perundurai",
+    "electors": 214431,
+    "votes": 198284,
+    "turnoutPercent": 92.47
+  },
+  {
+    "assemblyId": "ac104",
+    "acNumber": 104,
+    "assemblyName": "Bhavani",
+    "electors": 223172,
+    "votes": 205229,
+    "turnoutPercent": 91.96
+  },
+  {
+    "assemblyId": "ac105",
+    "acNumber": 105,
+    "assemblyName": "Anthiyur",
+    "electors": 207355,
+    "votes": 182783,
+    "turnoutPercent": 88.15
+  },
+  {
+    "assemblyId": "ac106",
+    "acNumber": 106,
+    "assemblyName": "Gobichettipalayam",
+    "electors": 239179,
+    "votes": 217031,
+    "turnoutPercent": 90.74
+  },
+  {
+    "assemblyId": "ac107",
+    "acNumber": 107,
+    "assemblyName": "Bhavanisagar",
+    "electors": 237613,
+    "votes": 212711,
+    "turnoutPercent": 89.52
+  },
+  {
+    "assemblyId": "ac108",
+    "acNumber": 108,
+    "assemblyName": "Udhagamandalam",
+    "electors": 188826,
+    "votes": 146510,
+    "turnoutPercent": 77.59
+  },
+  {
+    "assemblyId": "ac109",
+    "acNumber": 109,
+    "assemblyName": "Gudalur",
+    "electors": 185398,
+    "votes": 149802,
+    "turnoutPercent": 80.8
+  },
+  {
+    "assemblyId": "ac110",
+    "acNumber": 110,
+    "assemblyName": "Coonoor",
+    "electors": 177782,
+    "votes": 139346,
+    "turnoutPercent": 78.38
+  },
+  {
+    "assemblyId": "ac111",
+    "acNumber": 111,
+    "assemblyName": "Mettuppalayam",
+    "electors": 282179,
+    "votes": 242561,
+    "turnoutPercent": 85.96
+  },
+  {
+    "assemblyId": "ac112",
+    "acNumber": 112,
+    "assemblyName": "Avanashi",
+    "electors": 253361,
+    "votes": 229469,
+    "turnoutPercent": 90.57
+  },
+  {
+    "assemblyId": "ac113",
+    "acNumber": 113,
+    "assemblyName": "Tiruppur (North)",
+    "electors": 315837,
+    "votes": 262587,
+    "turnoutPercent": 83.14
+  },
+  {
+    "assemblyId": "ac114",
+    "acNumber": 114,
+    "assemblyName": "Tiruppur (South)",
+    "electors": 197091,
+    "votes": 178781,
+    "turnoutPercent": 90.71
+  },
+  {
+    "assemblyId": "ac115",
+    "acNumber": 115,
+    "assemblyName": "Palladam",
+    "electors": 329849,
+    "votes": 299272,
+    "turnoutPercent": 90.73
+  },
+  {
+    "assemblyId": "ac116",
+    "acNumber": 116,
+    "assemblyName": "Sulur",
+    "electors": 307616,
+    "votes": 271656,
+    "turnoutPercent": 88.31
+  },
+  {
+    "assemblyId": "ac117",
+    "acNumber": 117,
+    "assemblyName": "Kavundampalayam",
+    "electors": 422138,
+    "votes": 360928,
+    "turnoutPercent": 85.5
+  },
+  {
+    "assemblyId": "ac118",
+    "acNumber": 118,
+    "assemblyName": "Coimbatore (North)",
+    "electors": 296939,
+    "votes": 224694,
+    "turnoutPercent": 75.67
+  },
+  {
+    "assemblyId": "ac119",
+    "acNumber": 119,
+    "assemblyName": "Thondamuthur",
+    "electors": 293324,
+    "votes": 256658,
+    "turnoutPercent": 87.5
+  },
+  {
+    "assemblyId": "ac120",
+    "acNumber": 120,
+    "assemblyName": "Coimbatore (South)",
+    "electors": 188878,
+    "votes": 155182,
+    "turnoutPercent": 82.16
+  },
+  {
+    "assemblyId": "ac121",
+    "acNumber": 121,
+    "assemblyName": "Singanallur",
+    "electors": 269941,
+    "votes": 219192,
+    "turnoutPercent": 81.2
+  },
+  {
+    "assemblyId": "ac122",
+    "acNumber": 122,
+    "assemblyName": "Kinathukadavu",
+    "electors": 305878,
+    "votes": 266450,
+    "turnoutPercent": 87.11
+  },
+  {
+    "assemblyId": "ac123",
+    "acNumber": 123,
+    "assemblyName": "Pollachi",
+    "electors": 203971,
+    "votes": 179678,
+    "turnoutPercent": 88.09
+  },
+  {
+    "assemblyId": "ac124",
+    "acNumber": 124,
+    "assemblyName": "Valparai",
+    "electors": 173608,
+    "votes": 149216,
+    "turnoutPercent": 85.95
+  },
+  {
+    "assemblyId": "ac125",
+    "acNumber": 125,
+    "assemblyName": "Udumalaipettai",
+    "electors": 230976,
+    "votes": 201873,
+    "turnoutPercent": 87.4
+  },
+  {
+    "assemblyId": "ac126",
+    "acNumber": 126,
+    "assemblyName": "Madathukulam",
+    "electors": 214809,
+    "votes": 186669,
+    "turnoutPercent": 86.9
+  },
+  {
+    "assemblyId": "ac127",
+    "acNumber": 127,
+    "assemblyName": "Palani",
+    "electors": 239795,
+    "votes": 206799,
+    "turnoutPercent": 86.24
+  },
+  {
+    "assemblyId": "ac128",
+    "acNumber": 128,
+    "assemblyName": "Oddanchatram",
+    "electors": 220238,
+    "votes": 199822,
+    "turnoutPercent": 90.73
+  },
+  {
+    "assemblyId": "ac129",
+    "acNumber": 129,
+    "assemblyName": "Athoor",
+    "electors": 261843,
+    "votes": 234323,
+    "turnoutPercent": 89.49
+  },
+  {
+    "assemblyId": "ac130",
+    "acNumber": 130,
+    "assemblyName": "Nilakkottai",
+    "electors": 221094,
+    "votes": 195823,
+    "turnoutPercent": 88.57
+  },
+  {
+    "assemblyId": "ac131",
+    "acNumber": 131,
+    "assemblyName": "Natham",
+    "electors": 261152,
+    "votes": 237988,
+    "turnoutPercent": 91.13
+  },
+  {
+    "assemblyId": "ac132",
+    "acNumber": 132,
+    "assemblyName": "Dindigul",
+    "electors": 241926,
+    "votes": 208879,
+    "turnoutPercent": 86.34
+  },
+  {
+    "assemblyId": "ac133",
+    "acNumber": 133,
+    "assemblyName": "Vedasandur",
+    "electors": 243774,
+    "votes": 224613,
+    "turnoutPercent": 92.14
+  },
+  {
+    "assemblyId": "ac134",
+    "acNumber": 134,
+    "assemblyName": "Aravakurichi",
+    "electors": 195517,
+    "votes": 179387,
+    "turnoutPercent": 91.75
+  },
+  {
+    "assemblyId": "ac135",
+    "acNumber": 135,
+    "assemblyName": "Karur",
+    "electors": 229995,
+    "votes": 214815,
+    "turnoutPercent": 93.4
+  },
+  {
+    "assemblyId": "ac136",
+    "acNumber": 136,
+    "assemblyName": "Krishnarayapuram",
+    "electors": 202994,
+    "votes": 187668,
+    "turnoutPercent": 92.45
+  },
+  {
+    "assemblyId": "ac137",
+    "acNumber": 137,
+    "assemblyName": "Kulithalai",
+    "electors": 223184,
+    "votes": 207092,
+    "turnoutPercent": 92.79
+  },
+  {
+    "assemblyId": "ac138",
+    "acNumber": 138,
+    "assemblyName": "Manapparai",
+    "electors": 267999,
+    "votes": 238010,
+    "turnoutPercent": 88.81
+  },
+  {
+    "assemblyId": "ac139",
+    "acNumber": 139,
+    "assemblyName": "Srirangam",
+    "electors": 287027,
+    "votes": 252268,
+    "turnoutPercent": 87.89
+  },
+  {
+    "assemblyId": "ac140",
+    "acNumber": 140,
+    "assemblyName": "Tiruchirappalli (West)",
+    "electors": 238920,
+    "votes": 194361,
+    "turnoutPercent": 81.35
+  },
+  {
+    "assemblyId": "ac141",
+    "acNumber": 141,
+    "assemblyName": "Tiruchirappalli (East)",
+    "electors": 220191,
+    "votes": 180050,
+    "turnoutPercent": 81.77
+  },
+  {
+    "assemblyId": "ac142",
+    "acNumber": 142,
+    "assemblyName": "Thiruverumbur",
+    "electors": 259546,
+    "votes": 210777,
+    "turnoutPercent": 81.21
+  },
+  {
+    "assemblyId": "ac143",
+    "acNumber": 143,
+    "assemblyName": "Lalgudi",
+    "electors": 212177,
+    "votes": 183554,
+    "turnoutPercent": 86.51
+  },
+  {
+    "assemblyId": "ac144",
+    "acNumber": 144,
+    "assemblyName": "Manachanallur",
+    "electors": 236500,
+    "votes": 207269,
+    "turnoutPercent": 87.64
+  },
+  {
+    "assemblyId": "ac145",
+    "acNumber": 145,
+    "assemblyName": "Musiri",
+    "electors": 214006,
+    "votes": 185800,
+    "turnoutPercent": 86.82
+  },
+  {
+    "assemblyId": "ac146",
+    "acNumber": 146,
+    "assemblyName": "Thuraiyur",
+    "electors": 210685,
+    "votes": 182285,
+    "turnoutPercent": 86.52
+  },
+  {
+    "assemblyId": "ac147",
+    "acNumber": 147,
+    "assemblyName": "Perambalur",
+    "electors": 290666,
+    "votes": 249740,
+    "turnoutPercent": 85.92
+  },
+  {
+    "assemblyId": "ac148",
+    "acNumber": 148,
+    "assemblyName": "Kunnam",
+    "electors": 268095,
+    "votes": 227988,
+    "turnoutPercent": 85.04
+  },
+  {
+    "assemblyId": "ac149",
+    "acNumber": 149,
+    "assemblyName": "Ariyalur",
+    "electors": 262942,
+    "votes": 233939,
+    "turnoutPercent": 88.97
+  },
+  {
+    "assemblyId": "ac150",
+    "acNumber": 150,
+    "assemblyName": "Jayankondam",
+    "electors": 263450,
+    "votes": 226172,
+    "turnoutPercent": 85.85
+  },
+  {
+    "assemblyId": "ac151",
+    "acNumber": 151,
+    "assemblyName": "Tittakudi",
+    "electors": 208984,
+    "votes": 174146,
+    "turnoutPercent": 83.33
+  },
+  {
+    "assemblyId": "ac152",
+    "acNumber": 152,
+    "assemblyName": "Vriddhachalam",
+    "electors": 240783,
+    "votes": 207073,
+    "turnoutPercent": 86
+  },
+  {
+    "assemblyId": "ac153",
+    "acNumber": 153,
+    "assemblyName": "Neyveli",
+    "electors": 191271,
+    "votes": 166769,
+    "turnoutPercent": 87.19
+  },
+  {
+    "assemblyId": "ac154",
+    "acNumber": 154,
+    "assemblyName": "Panruti",
+    "electors": 241767,
+    "votes": 208137,
+    "turnoutPercent": 86.09
+  },
+  {
+    "assemblyId": "ac155",
+    "acNumber": 155,
+    "assemblyName": "Cuddalore",
+    "electors": 223149,
+    "votes": 187177,
+    "turnoutPercent": 83.88
+  },
+  {
+    "assemblyId": "ac156",
+    "acNumber": 156,
+    "assemblyName": "Kurinjipadi",
+    "electors": 238189,
+    "votes": 211821,
+    "turnoutPercent": 88.93
+  },
+  {
+    "assemblyId": "ac157",
+    "acNumber": 157,
+    "assemblyName": "Bhuvanagiri",
+    "electors": 233259,
+    "votes": 205035,
+    "turnoutPercent": 87.9
+  },
+  {
+    "assemblyId": "ac158",
+    "acNumber": 158,
+    "assemblyName": "Chidambaram",
+    "electors": 231236,
+    "votes": 193799,
+    "turnoutPercent": 83.81
+  },
+  {
+    "assemblyId": "ac159",
+    "acNumber": 159,
+    "assemblyName": "Kattumannarkoil",
+    "electors": 226333,
+    "votes": 185842,
+    "turnoutPercent": 82.11
+  },
+  {
+    "assemblyId": "ac160",
+    "acNumber": 160,
+    "assemblyName": "Sirkazhi",
+    "electors": 241319,
+    "votes": 198943,
+    "turnoutPercent": 82.44
+  },
+  {
+    "assemblyId": "ac161",
+    "acNumber": 161,
+    "assemblyName": "Mayiladuthurai",
+    "electors": 234554,
+    "votes": 186869,
+    "turnoutPercent": 79.67
+  },
+  {
+    "assemblyId": "ac162",
+    "acNumber": 162,
+    "assemblyName": "Poompuhar",
+    "electors": 259262,
+    "votes": 218013,
+    "turnoutPercent": 84.09
+  },
+  {
+    "assemblyId": "ac163",
+    "acNumber": 163,
+    "assemblyName": "Nagapattinam",
+    "electors": 174683,
+    "votes": 150000,
+    "turnoutPercent": 85.87
+  },
+  {
+    "assemblyId": "ac164",
+    "acNumber": 164,
+    "assemblyName": "Kilvelur",
+    "electors": 170558,
+    "votes": 150057,
+    "turnoutPercent": 87.98
+  },
+  {
+    "assemblyId": "ac165",
+    "acNumber": 165,
+    "assemblyName": "Vedaranyam",
+    "electors": 187439,
+    "votes": 159661,
+    "turnoutPercent": 85.18
+  },
+  {
+    "assemblyId": "ac166",
+    "acNumber": 166,
+    "assemblyName": "Thiruthuraipoondi",
+    "electors": 226845,
+    "votes": 189143,
+    "turnoutPercent": 83.38
+  },
+  {
+    "assemblyId": "ac167",
+    "acNumber": 167,
+    "assemblyName": "Mannargudi",
+    "electors": 234430,
+    "votes": 192561,
+    "turnoutPercent": 82.14
+  },
+  {
+    "assemblyId": "ac168",
+    "acNumber": 168,
+    "assemblyName": "Thiruvarur",
+    "electors": 260027,
+    "votes": 216004,
+    "turnoutPercent": 83.07
+  },
+  {
+    "assemblyId": "ac169",
+    "acNumber": 169,
+    "assemblyName": "Nannilam",
+    "electors": 267432,
+    "votes": 229778,
+    "turnoutPercent": 85.92
+  },
+  {
+    "assemblyId": "ac170",
+    "acNumber": 170,
+    "assemblyName": "Thiruvidaimarudur",
+    "electors": 256930,
+    "votes": 207548,
+    "turnoutPercent": 80.78
+  },
+  {
+    "assemblyId": "ac171",
+    "acNumber": 171,
+    "assemblyName": "Kumbakonam",
+    "electors": 254318,
+    "votes": 206099,
+    "turnoutPercent": 81.04
+  },
+  {
+    "assemblyId": "ac172",
+    "acNumber": 172,
+    "assemblyName": "Papanasam",
+    "electors": 256518,
+    "votes": 206087,
+    "turnoutPercent": 80.34
+  },
+  {
+    "assemblyId": "ac173",
+    "acNumber": 173,
+    "assemblyName": "Thiruvaiyaru",
+    "electors": 258374,
+    "votes": 220109,
+    "turnoutPercent": 85.19
+  },
+  {
+    "assemblyId": "ac174",
+    "acNumber": 174,
+    "assemblyName": "Thanjavur",
+    "electors": 252676,
+    "votes": 195748,
+    "turnoutPercent": 77.47
+  },
+  {
+    "assemblyId": "ac175",
+    "acNumber": 175,
+    "assemblyName": "Orathanadu",
+    "electors": 233542,
+    "votes": 193793,
+    "turnoutPercent": 82.98
+  },
+  {
+    "assemblyId": "ac176",
+    "acNumber": 176,
+    "assemblyName": "Pattukkottai",
+    "electors": 242420,
+    "votes": 182833,
+    "turnoutPercent": 75.42
+  },
+  {
+    "assemblyId": "ac177",
+    "acNumber": 177,
+    "assemblyName": "Peravurani",
+    "electors": 213946,
+    "votes": 175200,
+    "turnoutPercent": 81.89
+  },
+  {
+    "assemblyId": "ac178",
+    "acNumber": 178,
+    "assemblyName": "Gandarvakkottai",
+    "electors": 196024,
+    "votes": 166483,
+    "turnoutPercent": 84.93
+  },
+  {
+    "assemblyId": "ac179",
+    "acNumber": 179,
+    "assemblyName": "Viralimalai",
+    "electors": 225090,
+    "votes": 202131,
+    "turnoutPercent": 89.8
+  },
+  {
+    "assemblyId": "ac180",
+    "acNumber": 180,
+    "assemblyName": "Pudukkottai",
+    "electors": 225944,
+    "votes": 188121,
+    "turnoutPercent": 83.26
+  },
+  {
+    "assemblyId": "ac181",
+    "acNumber": 181,
+    "assemblyName": "Thirumayam",
+    "electors": 220568,
+    "votes": 181020,
+    "turnoutPercent": 82.07
+  },
+  {
+    "assemblyId": "ac182",
+    "acNumber": 182,
+    "assemblyName": "Alangudi",
+    "electors": 212078,
+    "votes": 179397,
+    "turnoutPercent": 84.59
+  },
+  {
+    "assemblyId": "ac183",
+    "acNumber": 183,
+    "assemblyName": "Aranthangi",
+    "electors": 229792,
+    "votes": 181467,
+    "turnoutPercent": 78.97
+  },
+  {
+    "assemblyId": "ac184",
+    "acNumber": 184,
+    "assemblyName": "Karaikudi",
+    "electors": 305925,
+    "votes": 227394,
+    "turnoutPercent": 74.33
+  },
+  {
+    "assemblyId": "ac185",
+    "acNumber": 185,
+    "assemblyName": "Tiruppattur",
+    "electors": 275904,
+    "votes": 213688,
+    "turnoutPercent": 77.45
+  },
+  {
+    "assemblyId": "ac186",
+    "acNumber": 186,
+    "assemblyName": "Sivaganga",
+    "electors": 278124,
+    "votes": 211346,
+    "turnoutPercent": 75.99
+  },
+  {
+    "assemblyId": "ac187",
+    "acNumber": 187,
+    "assemblyName": "Manamadurai",
+    "electors": 259382,
+    "votes": 205664,
+    "turnoutPercent": 79.29
+  },
+  {
+    "assemblyId": "ac188",
+    "acNumber": 188,
+    "assemblyName": "Melur",
+    "electors": 229821,
+    "votes": 188959,
+    "turnoutPercent": 82.22
+  },
+  {
+    "assemblyId": "ac189",
+    "acNumber": 189,
+    "assemblyName": "Madurai East",
+    "electors": 336527,
+    "votes": 268885,
+    "turnoutPercent": 79.9
+  },
+  {
+    "assemblyId": "ac190",
+    "acNumber": 190,
+    "assemblyName": "Sholavandan",
+    "electors": 214785,
+    "votes": 187357,
+    "turnoutPercent": 87.23
+  },
+  {
+    "assemblyId": "ac191",
+    "acNumber": 191,
+    "assemblyName": "Madurai North",
+    "electors": 221174,
+    "votes": 160639,
+    "turnoutPercent": 72.63
+  },
+  {
+    "assemblyId": "ac192",
+    "acNumber": 192,
+    "assemblyName": "Madurai South",
+    "electors": 179919,
+    "votes": 140679,
+    "turnoutPercent": 78.19
+  },
+  {
+    "assemblyId": "ac193",
+    "acNumber": 193,
+    "assemblyName": "Madurai Central",
+    "electors": 199618,
+    "votes": 147478,
+    "turnoutPercent": 73.88
+  },
+  {
+    "assemblyId": "ac194",
+    "acNumber": 194,
+    "assemblyName": "Madurai West",
+    "electors": 275516,
+    "votes": 214269,
+    "turnoutPercent": 77.77
+  },
+  {
+    "assemblyId": "ac195",
+    "acNumber": 195,
+    "assemblyName": "Thiruparankundram",
+    "electors": 311400,
+    "votes": 253511,
+    "turnoutPercent": 81.41
+  },
+  {
+    "assemblyId": "ac196",
+    "acNumber": 196,
+    "assemblyName": "Thirumangalam",
+    "electors": 261238,
+    "votes": 227355,
+    "turnoutPercent": 87.03
+  },
+  {
+    "assemblyId": "ac197",
+    "acNumber": 197,
+    "assemblyName": "Usilampatti",
+    "electors": 266192,
+    "votes": 220806,
+    "turnoutPercent": 82.95
+  },
+  {
+    "assemblyId": "ac198",
+    "acNumber": 198,
+    "assemblyName": "Andipatti",
+    "electors": 256529,
+    "votes": 214663,
+    "turnoutPercent": 83.68
+  },
+  {
+    "assemblyId": "ac199",
+    "acNumber": 199,
+    "assemblyName": "Periyakulam",
+    "electors": 265830,
+    "votes": 208703,
+    "turnoutPercent": 78.51
+  },
+  {
+    "assemblyId": "ac200",
+    "acNumber": 200,
+    "assemblyName": "Bodinayakanur",
+    "electors": 263292,
+    "votes": 218190,
+    "turnoutPercent": 82.87
+  },
+  {
+    "assemblyId": "ac201",
+    "acNumber": 201,
+    "assemblyName": "Cumbum",
+    "electors": 255888,
+    "votes": 207858,
+    "turnoutPercent": 81.23
+  },
+  {
+    "assemblyId": "ac202",
+    "acNumber": 202,
+    "assemblyName": "Rajapalayam",
+    "electors": 214192,
+    "votes": 180671,
+    "turnoutPercent": 84.35
+  },
+  {
+    "assemblyId": "ac203",
+    "acNumber": 203,
+    "assemblyName": "Srivilliputhur",
+    "electors": 224122,
+    "votes": 190436,
+    "turnoutPercent": 84.97
+  },
+  {
+    "assemblyId": "ac204",
+    "acNumber": 204,
+    "assemblyName": "Sattur",
+    "electors": 229330,
+    "votes": 196375,
+    "turnoutPercent": 85.63
+  },
+  {
+    "assemblyId": "ac205",
+    "acNumber": 205,
+    "assemblyName": "Sivakasi",
+    "electors": 228205,
+    "votes": 191852,
+    "turnoutPercent": 84.07
+  },
+  {
+    "assemblyId": "ac206",
+    "acNumber": 206,
+    "assemblyName": "Virudhunagar",
+    "electors": 200618,
+    "votes": 165991,
+    "turnoutPercent": 82.74
+  },
+  {
+    "assemblyId": "ac207",
+    "acNumber": 207,
+    "assemblyName": "Aruppukkottai",
+    "electors": 207750,
+    "votes": 175985,
+    "turnoutPercent": 84.71
+  },
+  {
+    "assemblyId": "ac208",
+    "acNumber": 208,
+    "assemblyName": "Tiruchuli",
+    "electors": 205301,
+    "votes": 179084,
+    "turnoutPercent": 87.23
+  },
+  {
+    "assemblyId": "ac209",
+    "acNumber": 209,
+    "assemblyName": "Paramakudi",
+    "electors": 234608,
+    "votes": 186771,
+    "turnoutPercent": 79.61
+  },
+  {
+    "assemblyId": "ac210",
+    "acNumber": 210,
+    "assemblyName": "Tiruvadanai",
+    "electors": 283864,
+    "votes": 218802,
+    "turnoutPercent": 77.08
+  },
+  {
+    "assemblyId": "ac211",
+    "acNumber": 211,
+    "assemblyName": "Ramanathapuram",
+    "electors": 312303,
+    "votes": 235383,
+    "turnoutPercent": 75.37
+  },
+  {
+    "assemblyId": "ac212",
+    "acNumber": 212,
+    "assemblyName": "Mudhukulathur",
+    "electors": 298958,
+    "votes": 229062,
+    "turnoutPercent": 76.62
+  },
+  {
+    "assemblyId": "ac213",
+    "acNumber": 213,
+    "assemblyName": "Vilathikulam",
+    "electors": 204982,
+    "votes": 172513,
+    "turnoutPercent": 84.16
+  },
+  {
+    "assemblyId": "ac214",
+    "acNumber": 214,
+    "assemblyName": "Thoothukkudi",
+    "electors": 250587,
+    "votes": 202775,
+    "turnoutPercent": 80.92
+  },
+  {
+    "assemblyId": "ac215",
+    "acNumber": 215,
+    "assemblyName": "Tiruchendur",
+    "electors": 232933,
+    "votes": 183761,
+    "turnoutPercent": 78.89
+  },
+  {
+    "assemblyId": "ac216",
+    "acNumber": 216,
+    "assemblyName": "Srivaikuntam",
+    "electors": 214268,
+    "votes": 173643,
+    "turnoutPercent": 81.04
+  },
+  {
+    "assemblyId": "ac217",
+    "acNumber": 217,
+    "assemblyName": "Ottapidaram",
+    "electors": 243756,
+    "votes": 193518,
+    "turnoutPercent": 79.39
+  },
+  {
+    "assemblyId": "ac218",
+    "acNumber": 218,
+    "assemblyName": "Kovilpatti",
+    "electors": 241660,
+    "votes": 191733,
+    "turnoutPercent": 79.34
+  },
+  {
+    "assemblyId": "ac219",
+    "acNumber": 219,
+    "assemblyName": "Sankarankovil",
+    "electors": 238082,
+    "votes": 192942,
+    "turnoutPercent": 81.04
+  },
+  {
+    "assemblyId": "ac220",
+    "acNumber": 220,
+    "assemblyName": "Vasudevanallur",
+    "electors": 228557,
+    "votes": 186320,
+    "turnoutPercent": 81.52
+  },
+  {
+    "assemblyId": "ac221",
+    "acNumber": 221,
+    "assemblyName": "Kadayanallur",
+    "electors": 269220,
+    "votes": 219091,
+    "turnoutPercent": 81.38
+  },
+  {
+    "assemblyId": "ac222",
+    "acNumber": 222,
+    "assemblyName": "Tenkasi",
+    "electors": 281624,
+    "votes": 232171,
+    "turnoutPercent": 82.44
+  },
+  {
+    "assemblyId": "ac223",
+    "acNumber": 223,
+    "assemblyName": "Alangulam",
+    "electors": 255457,
+    "votes": 218492,
+    "turnoutPercent": 85.53
+  },
+  {
+    "assemblyId": "ac224",
+    "acNumber": 224,
+    "assemblyName": "Tirunelveli",
+    "electors": 275857,
+    "votes": 215748,
+    "turnoutPercent": 78.21
+  },
+  {
+    "assemblyId": "ac225",
+    "acNumber": 225,
+    "assemblyName": "Ambasamudram",
+    "electors": 227878,
+    "votes": 188888,
+    "turnoutPercent": 82.89
+  },
+  {
+    "assemblyId": "ac226",
+    "acNumber": 226,
+    "assemblyName": "Palayamkottai",
+    "electors": 257329,
+    "votes": 177480,
+    "turnoutPercent": 68.97
+  },
+  {
+    "assemblyId": "ac227",
+    "acNumber": 227,
+    "assemblyName": "Nanguneri",
+    "electors": 257177,
+    "votes": 206307,
+    "turnoutPercent": 80.22
+  },
+  {
+    "assemblyId": "ac228",
+    "acNumber": 228,
+    "assemblyName": "Radhapuram",
+    "electors": 247061,
+    "votes": 197723,
+    "turnoutPercent": 80.03
+  },
+  {
+    "assemblyId": "ac229",
+    "acNumber": 229,
+    "assemblyName": "Kanniyakumari",
+    "electors": 288867,
+    "votes": 235224,
+    "turnoutPercent": 81.43
+  },
+  {
+    "assemblyId": "ac230",
+    "acNumber": 230,
+    "assemblyName": "Nagercoil",
+    "electors": 258928,
+    "votes": 193471,
+    "turnoutPercent": 74.72
+  },
+  {
+    "assemblyId": "ac231",
+    "acNumber": 231,
+    "assemblyName": "Colachal",
+    "electors": 265015,
+    "votes": 196456,
+    "turnoutPercent": 74.13
+  },
+  {
+    "assemblyId": "ac232",
+    "acNumber": 232,
+    "assemblyName": "Padmanabhapuram",
+    "electors": 235511,
+    "votes": 177717,
+    "turnoutPercent": 75.46
+  },
+  {
+    "assemblyId": "ac233",
+    "acNumber": 233,
+    "assemblyName": "Vilavancode",
+    "electors": 226658,
+    "votes": 171739,
+    "turnoutPercent": 75.77
+  },
+  {
+    "assemblyId": "ac234",
+    "acNumber": 234,
+    "assemblyName": "Killiyoor",
+    "electors": 245359,
+    "votes": 174916,
+    "turnoutPercent": 71.29
+  }
+]

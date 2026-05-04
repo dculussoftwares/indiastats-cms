@@ -110,7 +110,7 @@ export const ElectionResults2026: CollectionConfig = {
           name: 'name',
           type: 'text',
           required: true,
-          admin: { description: 'Party abbreviation — e.g. DMK, ADMK' },
+          admin: { description: 'Full party name from ECI — e.g. Dravida Munnetra Kazhagam' },
         },
         {
           name: 'candidateName',
@@ -124,6 +124,27 @@ export const ElectionResults2026: CollectionConfig = {
           defaultValue: 0,
         },
       ],
+    },
+    // ── Scraper-populated fields ──────────────────────────────────────────
+    {
+      name: 'margin',
+      type: 'number',
+      admin: { description: 'Vote gap between #1 and #2 candidate' },
+    },
+    {
+      name: 'notaVotes',
+      type: 'number',
+      admin: { description: 'NOTA (None of the Above) votes' },
+    },
+    {
+      name: 'eciLastUpdatedAt',
+      type: 'text',
+      admin: { description: 'Last updated timestamp shown on ECI page — e.g. "09:15 AM On 04/05/2026"' },
+    },
+    {
+      name: 'lastScrapedAt',
+      type: 'date',
+      admin: { description: 'When the Azure Function last successfully scraped this constituency' },
     },
   ],
 }

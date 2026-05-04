@@ -186,6 +186,7 @@ jobs:
           TF_VAR_database_url: ${{ secrets.DATABASE_URL }}
           TF_VAR_payload_secret: ${{ secrets.PAYLOAD_SECRET }}
           TF_VAR_ga_id: ${{ secrets.NEXT_PUBLIC_GA_ID }}
+          TF_VAR_cron_secret: ${{ secrets.CRON_SECRET }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
@@ -198,6 +199,60 @@ jobs:
       - name: Get Container App URL
         run: |
           echo "🚀 Deployment Complete!"
+
+  deploy-function:
+    name: Deploy ECI Scraper Function
+    runs-on: ubuntu-latest
+    needs: [terraform]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Install function dependencies
+        working-directory: functions
+        run: pnpm install --frozen-lockfile --prod=false
+
+      - name: Build function TypeScript
+        working-directory: functions
+        run: pnpm exec tsc
+
+      - name: Zip function app
+        working-directory: functions
+        run: |
+          zip -r ../function.zip . \
+            --exclude "*.ts" \
+            --exclude "tsconfig.json" \
+            --exclude "node_modules/.cache/*"
+
+      - name: Deploy to Azure Function App
+        run: |
+          az functionapp deployment source config-zip \
+            --name func-indiastats-eci-scraper \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --src function.zip
+
+      - name: Verify function deployment
+        run: |
+          echo "✅ ECI Scraper Function deployed successfully"
           echo ""
           terraform output container_app_url
         env:
