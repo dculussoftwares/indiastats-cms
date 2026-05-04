@@ -53244,6 +53244,7 @@ function getPool() {
       idleTimeoutMillis: 1e4,
       connectionTimeoutMillis: 5e3
     });
+    pool.on("error", (err) => console.error("[db-writer] Pool error:", err));
   }
   return pool;
 }
@@ -53273,7 +53274,8 @@ async function writeResultToDB(result) {
       ]
     );
     return (res.rowCount ?? 0) > 0;
-  } catch {
+  } catch (err) {
+    console.error(`[db-writer] Error updating ${result.assemblyId}:`, err);
     return false;
   }
 }
@@ -53310,6 +53312,7 @@ async function processBatch(numbers, context) {
 }
 async function eciScraperTimer(timer, context) {
   context.log("ECI Scraper started");
+  context.log(`DATABASE_URI set: ${!!process.env["DATABASE_URI"]}`);
   const startTime = Date.now();
   let totalScraped = 0;
   let totalUpdated = 0;

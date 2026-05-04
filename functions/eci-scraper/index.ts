@@ -46,6 +46,7 @@ async function processBatch(
 
 export async function eciScraperTimer(timer: Timer, context: InvocationContext): Promise<void> {
   context.log('ECI Scraper started')
+  context.log(`DATABASE_URI set: ${!!process.env['DATABASE_URI']}`)
   const startTime = Date.now()
 
   let totalScraped = 0

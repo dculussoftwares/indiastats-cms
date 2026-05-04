@@ -24,6 +24,7 @@ function getPool(): Pool {
       idleTimeoutMillis: 10_000,
       connectionTimeoutMillis: 5_000,
     })
+    pool.on('error', (err) => console.error('[db-writer] Pool error:', err))
   }
   return pool
 }
@@ -58,7 +59,8 @@ export async function writeResultToDB(result: ConstituencyResult): Promise<boole
       ],
     )
     return (res.rowCount ?? 0) > 0
-  } catch {
+  } catch (err) {
+    console.error(`[db-writer] Error updating ${result.assemblyId}:`, err)
     return false
   }
 }
