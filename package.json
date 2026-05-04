@@ -21,6 +21,7 @@
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation\" pnpm exec playwright test --config=playwright.config.ts",
     "test:smoke": "cross-env NODE_OPTIONS=\"--no-deprecation\" pnpm exec playwright test tests/e2e/smoke.spec.ts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "eci:push": "npx tsx scripts/eci-push.mts",
     "remotion:preview": "remotion studio src/remotion/index.tsx",
     "remotion:render": "remotion render src/remotion/index.tsx ReelCard out/reel.mp4",
     "remotion:thumbnail": "remotion still src/remotion/index.tsx ReelCard out/thumbnail.png --frame=210"
