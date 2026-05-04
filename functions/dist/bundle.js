@@ -53134,23 +53134,21 @@ var undici = __toESM(require_undici(), 1);
 var import_whatwg_mimetype = __toESM(require_mime_type(), 1);
 
 // eci-scraper/scraper.ts
-var ECI_BASE = "https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-S22";
 function numberToAssemblyId(n) {
   return `ac${String(n).padStart(3, "0")}`;
 }
 async function scrapeConstituency(assemblyNumber) {
-  const url = `${ECI_BASE}${assemblyNumber}.htm`;
+  const proxyUrl = process.env["ECI_PROXY_URL"];
+  if (!proxyUrl) {
+    console.error("[scraper] ECI_PROXY_URL not set \u2014 cannot scrape");
+    return null;
+  }
+  const proxySecret = process.env["ECI_PROXY_SECRET"] ?? "";
+  const url = `${proxyUrl}?n=${assemblyNumber}`;
   let html3;
   try {
     const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-IN,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        Referer: "https://results.eci.gov.in/",
-        Connection: "keep-alive"
-      },
+      headers: { "X-Proxy-Secret": proxySecret },
       signal: AbortSignal.timeout(15e3)
     });
     if (!res.ok) return null;

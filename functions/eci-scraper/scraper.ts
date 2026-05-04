@@ -27,28 +27,26 @@ export interface ConstituencyResult {
   lastScrapedAt: string
 }
 
-const ECI_BASE = 'https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-S22'
-
 /** Convert assembly number (1–234) to assemblyId (ac001–ac234) */
 export function numberToAssemblyId(n: number): string {
   return `ac${String(n).padStart(3, '0')}`
 }
 
 export async function scrapeConstituency(assemblyNumber: number): Promise<ConstituencyResult | null> {
-  const url = `${ECI_BASE}${assemblyNumber}.htm`
+  // Route through Cloudflare Worker proxy to bypass Akamai IP-blocking of Azure datacenter IPs.
+  // Direct ECI URL: https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-S22{N}.htm
+  const proxyUrl = process.env['ECI_PROXY_URL']
+  if (!proxyUrl) {
+    console.error('[scraper] ECI_PROXY_URL not set — cannot scrape')
+    return null
+  }
+  const proxySecret = process.env['ECI_PROXY_SECRET'] ?? ''
+  const url = `${proxyUrl}?n=${assemblyNumber}`
   let html: string
 
   try {
     const res = await fetch(url, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-IN,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        Referer: 'https://results.eci.gov.in/',
-        Connection: 'keep-alive',
-      },
+      headers: { 'X-Proxy-Secret': proxySecret },
       signal: AbortSignal.timeout(15_000),
     })
     if (!res.ok) return null
