@@ -4,7 +4,7 @@
  * Runs every 5 minutes. Scrapes all 234 TN constituencies from ECI
  * in batches of 20, then PATCHes the Payload REST API with fresh data.
  *
- * Schedule: "0 */5 * * * *"  (every 5 minutes)
+ * Schedule: every 5 minutes (cron: 0 *\/5 * * * *)
  */
 import { app, InvocationContext, Timer } from '@azure/functions'
 import { scrapeConstituency } from './scraper'
