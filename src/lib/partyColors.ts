@@ -3,10 +3,10 @@ export const PARTY_COLORS: Record<string, string> = {
     DMK: '#b71c1c', // Deep Red
     ADMK: '#388e3c', // Green
     AIADMK: '#388e3c', // Green
-    TVK: '#1565c0', // Blue (Tamilaga Vettri Kazhagam)
+    TVK: '#fbc02d', // Yellow (Tamilaga Vettri Kazhagam)
     INC: '#00bcd4', // Light Blue
     BJP: '#ff9800', // Saffron
-    PMK: '#fbc02d', // Yellow
+    PMK: '#1565c0', // Blue
     DMDK: '#7b1fa2', // Purple
     VCK: '#c2185b', // Pink
     CPI: '#f44336', // Red
