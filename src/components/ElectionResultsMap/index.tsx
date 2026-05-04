@@ -437,9 +437,9 @@ function SeatCard({ seat, onClose }: { seat: SeatResult; onClose: () => void }) 
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-widest text-gray-500">Turnout</p>
+            <p className="text-[10px] uppercase tracking-widest text-gray-500">Total Votes</p>
             <p className="font-bold text-white">
-              {((seat.totalVotes / 120000) * 100).toFixed(1)}%
+              {seat.totalVotes.toLocaleString()}
             </p>
           </div>
         </div>
