@@ -35,9 +35,38 @@ permissions:
   packages: write
 
 jobs:
+  # Detects which parts of the repo changed so downstream jobs can be skipped.
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+      functions: ${{ steps.filter.outputs.functions }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            app:
+              - 'src/**'
+              - 'Dockerfile'
+              - 'next.config.js'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'tailwind.config.mjs'
+              - 'postcss.config.js'
+              - 'public/**'
+              - 'infra/**'
+              - '.github/workflows/terraform-deploy.yml'
+            functions:
+              - 'functions/**'
+
   build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.app == 'true'
     outputs:
       image_tag: ${{ steps.meta.outputs.tags }}
       image_digest: ${{ steps.build.outputs.digest }}
@@ -93,7 +122,8 @@ jobs:
   migrate-schema:
     name: Migrate DB Schema
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.app == 'true'
 
     steps:
       - name: Checkout
@@ -141,6 +171,11 @@ jobs:
     name: Terraform Apply
     runs-on: ubuntu-latest
     needs: [build-and-push, migrate-schema]
+    if: |
+      always() &&
+      (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped') &&
+      (needs.migrate-schema.result == 'success' || needs.migrate-schema.result == 'skipped') &&
+      (needs.build-and-push.result == 'success' || needs.migrate-schema.result == 'success')
     defaults:
       run:
         working-directory: infra
@@ -206,7 +241,11 @@ jobs:
   deploy-function:
     name: Deploy ECI Scraper Function
     runs-on: ubuntu-latest
-    needs: [terraform]
+    needs: [changes, terraform]
+    if: |
+      always() &&
+      (needs.terraform.result == 'success' || needs.terraform.result == 'skipped') &&
+      (github.event_name == 'workflow_dispatch' || needs.changes.outputs.functions == 'true')
 
     steps:
       - name: Checkout
