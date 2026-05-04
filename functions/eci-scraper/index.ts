@@ -2,13 +2,13 @@
  * index.ts — Azure Timer-triggered Function
  *
  * Runs every 5 minutes. Scrapes all 234 TN constituencies from ECI
- * in batches of 20, then PATCHes the Payload REST API with fresh data.
+ * in batches of 20, then writes directly to PostgreSQL.
  *
  * Schedule: every 5 minutes (cron: 0 *\/5 * * * *)
  */
 import { app, InvocationContext, Timer } from '@azure/functions'
 import { scrapeConstituency } from './scraper'
-import { updateConstituency } from './payload-client'
+import { writeResultToDB, closePool } from './db-writer'
 
 const TOTAL_CONSTITUENCIES = 234
 const BATCH_SIZE = 20
@@ -36,7 +36,7 @@ async function processBatch(
       continue
     }
     scraped++
-    const ok = await updateConstituency(result.value)
+    const ok = await writeResultToDB(result.value)
     if (ok) updated++
     else failed++
   }
@@ -74,6 +74,8 @@ export async function eciScraperTimer(timer: Timer, context: InvocationContext):
       await sleep(BATCH_DELAY_MS)
     }
   }
+
+  await closePool()
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(1)
   context.log(
