@@ -97,7 +97,32 @@ app.http('eci-test', {
   authLevel: 'function',
   handler: async (req: HttpRequest): Promise<HttpResponseInit> => {
     const n = parseInt(req.query.get('n') ?? '1', 10)
+    const url = `https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-S22${n}.htm`
+    // Raw fetch diagnostic
+    let httpStatus = 0
+    let bodySnippet = ''
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-IN,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          Referer: 'https://results.eci.gov.in/',
+          Connection: 'keep-alive',
+        },
+        signal: AbortSignal.timeout(15_000),
+      })
+      httpStatus = res.status
+      const text = await res.text()
+      bodySnippet = text.slice(0, 500)
+    } catch (e) {
+      return { status: 200, jsonBody: { error: String(e), url } }
+    }
+    if (httpStatus !== 200) {
+      return { status: 200, jsonBody: { httpStatus, url, bodySnippet } }
+    }
     const result = await scrapeConstituency(n)
-    return { status: 200, jsonBody: result ?? { error: 'scrape returned null', n } }
+    return { status: 200, jsonBody: result ?? { error: 'parse returned null', httpStatus, url, bodySnippet } }
   },
 })
