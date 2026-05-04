@@ -2235,7 +2235,7 @@ var require_azure_functions = __commonJS({
             /*! ./extractHttpUserFromHeaders */
             "./src/http/extractHttpUserFromHeaders.ts"
           );
-          class HttpRequest {
+          class HttpRequest2 {
             constructor(init) {
               var _a5, _b, _c;
               _HttpRequest_cachedUser.set(this, void 0);
@@ -2316,10 +2316,10 @@ var require_azure_functions = __commonJS({
               const _a5 = __classPrivateFieldGet(this, _HttpRequest_init, "f"), { nativeRequest: _nativeRequest } = _a5, initWithoutNativeReq = __rest(_a5, ["nativeRequest"]);
               const newInit = structuredClone(initWithoutNativeReq);
               newInit.nativeRequest = __classPrivateFieldGet(this, _HttpRequest_nativeReq, "f").clone();
-              return new HttpRequest(newInit);
+              return new HttpRequest2(newInit);
             }
           }
-          exports3.HttpRequest = HttpRequest;
+          exports3.HttpRequest = HttpRequest2;
           _HttpRequest_cachedUser = /* @__PURE__ */ new WeakMap(), _HttpRequest_nativeReq = /* @__PURE__ */ new WeakMap(), _HttpRequest_init = /* @__PURE__ */ new WeakMap();
           function createStreamRequest(proxyReq, triggerMetadata) {
             var _a5;
@@ -2355,7 +2355,7 @@ var require_azure_functions = __commonJS({
                 params[key] = rpcValue.string;
               }
             }
-            return new HttpRequest({
+            return new HttpRequest2({
               nativeRequest: nativeReq,
               params
             });
@@ -53345,6 +53345,15 @@ import_functions.app.timer("eci-scraper", {
   schedule: "0 */5 * * * *",
   // every 5 minutes
   handler: eciScraperTimer
+});
+import_functions.app.http("eci-test", {
+  methods: ["GET"],
+  authLevel: "function",
+  handler: async (req) => {
+    const n = parseInt(req.query.get("n") ?? "1", 10);
+    const result = await scrapeConstituency(n);
+    return { status: 200, jsonBody: result ?? { error: "scrape returned null", n } };
+  }
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

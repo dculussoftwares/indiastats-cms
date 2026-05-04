@@ -6,7 +6,7 @@
  *
  * Schedule: every 5 minutes (cron: 0 *\/5 * * * *)
  */
-import { app, InvocationContext, Timer } from '@azure/functions'
+import { app, InvocationContext, Timer, HttpRequest, HttpResponseInit } from '@azure/functions'
 import { scrapeConstituency } from './scraper'
 import { writeResultToDB, closePool } from './db-writer'
 
@@ -89,4 +89,15 @@ export async function eciScraperTimer(timer: Timer, context: InvocationContext):
 app.timer('eci-scraper', {
   schedule: '0 */5 * * * *', // every 5 minutes
   handler: eciScraperTimer,
+})
+
+/** HTTP test endpoint: scrape a single constituency and return result as JSON */
+app.http('eci-test', {
+  methods: ['GET'],
+  authLevel: 'function',
+  handler: async (req: HttpRequest): Promise<HttpResponseInit> => {
+    const n = parseInt(req.query.get('n') ?? '1', 10)
+    const result = await scrapeConstituency(n)
+    return { status: 200, jsonBody: result ?? { error: 'scrape returned null', n } }
+  },
 })
