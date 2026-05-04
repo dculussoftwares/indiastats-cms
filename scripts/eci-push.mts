@@ -68,8 +68,8 @@ async function scrapeAll(): Promise<ConstResult[]> {
       const text = await page.evaluate(() => document.body.innerText)
       const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
 
-      // Parse round info
-      const roundMatch = text.match(/Round\s*:\s*(\d+)\s*of\s*(\d+)/i)
+      // Parse round info (handles both "Round: 20 of 23" and "Round: 20/23" formats)
+      const roundMatch = text.match(/Round[^:]*:\s*(\d+)\s*(?:\/|of)\s*(\d+)/i)
       const currentRound = roundMatch ? parseInt(roundMatch[1]) : 1
       const totalRounds = roundMatch ? parseInt(roundMatch[2]) : 1
       const status = currentRound >= totalRounds ? 'declared' : 'counting'
@@ -94,16 +94,16 @@ async function scrapeAll(): Promise<ConstResult[]> {
         }
       }
 
-      // Parse candidate rows: look for party name followed by candidate name followed by votes
+      // Parse candidate rows: new ECI format is votes → candidate name → party name
       for (let i = 0; i < lines.length - 2; i++) {
-        const voteLine = lines[i + 2]
+        const voteLine = lines[i]
         if (!voteRegex.test(voteLine)) continue
         const rawVotes = voteLine.split('(')[0].replace(/,/g, '').trim()
         const votes = parseInt(rawVotes)
         if (isNaN(votes) || votes < 0) continue
 
-        const partyName = lines[i]
         const candidateName = lines[i + 1]
+        const partyName = lines[i + 2]
         if (!partyName || !candidateName || partyName.match(/^\d/) || candidateName.match(/^\d/)) continue
 
         candidates.push({ name: partyName, candidateName, votes })
