@@ -47,6 +47,11 @@ resource "azurerm_container_app" "main" {
     value = azurerm_storage_account.media.primary_connection_string
   }
 
+  secret {
+    name  = "cron-secret"
+    value = var.cron_secret
+  }
+
   ingress {
     external_enabled = true
     target_port      = 3000
@@ -138,6 +143,11 @@ resource "azurerm_container_app" "main" {
       env {
         name  = "NEXT_PUBLIC_ADSENSE_CLIENT_ID"
         value = var.adsense_client_id
+      }
+
+      env {
+        name        = "CRON_SECRET"
+        secret_name = "cron-secret"
       }
     }
   }
