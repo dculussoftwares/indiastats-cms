@@ -16,6 +16,12 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 const { Pool } = require('../functions/node_modules/pg')
 
+// Parse --year=NNNN from CLI args, default to current year
+const yearArg = process.argv.find(a => a.startsWith('--year='))
+const ELECTION_YEAR = yearArg ? parseInt(yearArg.split('=')[1]) : new Date().getFullYear()
+
+console.log(`📅 Election year: ${ELECTION_YEAR}`)
+
 const CONN = process.env.DATABASE_URI ||
   'postgresql://dculus_admin:REDACTED_PASSWORD@dculus-shared-postgres.postgres.database.azure.com/indiastats_cms_db?sslmode=require'
 
@@ -170,8 +176,8 @@ async function pushToDB(data: ConstResult[]) {
   const client = await pool.connect()
 
   const { rows: parentRows } = await client.query(
-    'SELECT id, assembly_id FROM election_results_2026 WHERE state_code = $1',
-    ['TN']
+    'SELECT id, assembly_id FROM live_election_results WHERE state_code = $1 AND year = $2',
+    ['TN', ELECTION_YEAR]
   )
   const idMap: Record<string, string> = {}
   for (const r of parentRows) idMap[r.assembly_id] = r.id
@@ -183,23 +189,23 @@ async function pushToDB(data: ConstResult[]) {
     const parentId = idMap[assemblyId]
     if (!parentId) { skipped++; continue }
 
-    await client.query('DELETE FROM election_results_2026_parties WHERE _parent_id = $1', [parentId])
+    await client.query('DELETE FROM live_election_results_parties WHERE _parent_id = $1', [parentId])
 
     for (let i = 0; i < row.top.length; i++) {
       const c = row.top[i]
       const partyCode = PARTY_NAME_MAP[c.name] || c.name
       const uuid = crypto.randomUUID()
       await client.query(
-        'INSERT INTO election_results_2026_parties (_order, _parent_id, id, name, candidate_name, votes) VALUES ($1,$2,$3,$4,$5,$6)',
+        'INSERT INTO live_election_results_parties (_order, _parent_id, id, name, candidate_name, votes) VALUES ($1,$2,$3,$4,$5,$6)',
         [i + 1, parentId, uuid, partyCode, c.candidateName, c.votes]
       )
     }
 
     const newStatus = row.status === 'declared' ? 'declared' : 'leading'
     await client.query(
-      `UPDATE election_results_2026
+      `UPDATE live_election_results
        SET current_round=$1, total_rounds=$2,
-           status=$3::enum_election_results_2026_status,
+           status=$3::enum_live_election_results_status,
            votes=$4, nota_votes=$5,
            updated_at=NOW(), eci_last_updated_at=NOW()
        WHERE id=$6`,
@@ -215,14 +221,16 @@ async function pushToDB(data: ConstResult[]) {
   // Summary
   const pool2 = new Pool({ connectionString: CONN, ssl: { rejectUnauthorized: false } })
   const { rows } = await pool2.query(
-    `SELECT status, count(*) FROM election_results_2026 WHERE state_code='TN' GROUP BY status ORDER BY count DESC`
+    `SELECT status, count(*) FROM live_election_results WHERE state_code='TN' AND year=$1 GROUP BY status ORDER BY count DESC`,
+    [ELECTION_YEAR]
   )
   const { rows: partyRows } = await pool2.query(
     `SELECT p.name, count(*) as seats
-     FROM election_results_2026_parties p
-     JOIN election_results_2026 e ON e.id = p._parent_id
-     WHERE e.state_code='TN' AND p._order=1
-     GROUP BY p.name ORDER BY seats DESC LIMIT 8`
+     FROM live_election_results_parties p
+     JOIN live_election_results e ON e.id = p._parent_id
+     WHERE e.state_code='TN' AND e.year=$1 AND p._order=1
+     GROUP BY p.name ORDER BY seats DESC LIMIT 8`,
+    [ELECTION_YEAR]
   )
   await pool2.end()
 

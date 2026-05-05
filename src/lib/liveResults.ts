@@ -1,7 +1,7 @@
 /**
  * liveResults.ts
  *
- * Transforms ElectionResults2026 Payload docs into the ElectionResultsDataset
+ * Transforms LiveElectionResults Payload docs into the ElectionResultsDataset
  * shape consumed by <ElectionResultsMap />.
  *
  * Zero → all 234 seats show as "PENDING" with a neutral map colour.
@@ -10,9 +10,10 @@
 
 import type { ElectionResultsDataset, PartyTally, SeatResult } from '@/lib/electionResults'
 
-// ── Raw shape coming out of Payload (election-results-2026 collection) ────────
+// ── Raw shape coming out of Payload (live-election-results collection) ────────
 export interface LiveResultDoc {
   id: string | number
+  year: number
   assemblyId: string
   assemblyName: string
   districtName?: string | null

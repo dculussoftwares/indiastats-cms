@@ -82,7 +82,7 @@ export interface Config {
     'election-predictions': ElectionPrediction;
     alliances: Alliance;
     'caste-census': CasteCensus;
-    'election-results-2026': ElectionResults2026;
+    'live-election-results': LiveElectionResult;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -115,7 +115,7 @@ export interface Config {
     'election-predictions': ElectionPredictionsSelect<false> | ElectionPredictionsSelect<true>;
     alliances: AlliancesSelect<false> | AlliancesSelect<true>;
     'caste-census': CasteCensusSelect<false> | CasteCensusSelect<true>;
-    'election-results-2026': ElectionResults2026Select<false> | ElectionResults2026Select<true>;
+    'live-election-results': LiveElectionResultsSelect<false> | LiveElectionResultsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -1252,15 +1252,19 @@ export interface CasteCensus {
   createdAt: string;
 }
 /**
- * Live 2026 TN election counting data — one record per assembly. assemblyId is the unique key (e.g. ac001).
+ * Live election counting data — one record per assembly per year. Unique key: (assemblyId + year + stateCode).
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "election-results-2026".
+ * via the `definition` "live-election-results".
  */
-export interface ElectionResults2026 {
+export interface LiveElectionResult {
   id: number;
   /**
-   * State code (e.g. TN)
+   * Election year — e.g. 2026, 2031
+   */
+  year: number;
+  /**
+   * State code — e.g. TN, MH, UP
    */
   stateCode: string;
   /**
@@ -1276,7 +1280,7 @@ export interface ElectionResults2026 {
    */
   districtName?: string | null;
   /**
-   * Total registered electors (2026 roll)
+   * Total registered electors
    */
   electors?: number | null;
   /**
@@ -1284,7 +1288,7 @@ export interface ElectionResults2026 {
    */
   votes?: number | null;
   /**
-   * Voter turnout % (e.g. 85.15)
+   * Voter turnout % — e.g. 85.15
    */
   turnoutPercent?: number | null;
   /**
@@ -1295,21 +1299,18 @@ export interface ElectionResults2026 {
    * Rounds completed so far (0 = not started)
    */
   currentRound?: number | null;
-  /**
-   * Current result status. Can also be derived from round data.
-   */
   status: 'pending' | 'counting' | 'leading' | 'declared';
   /**
-   * Party-wise vote tally from counting rounds so far
+   * Party-wise vote tally (sorted by votes desc)
    */
   parties?:
     | {
         /**
-         * Full party name from ECI — e.g. Dravida Munnetra Kazhagam
+         * Party abbreviation — e.g. TVK, DMK, AIADMK
          */
         name: string;
         /**
-         * Candidate name (optional)
+         * Candidate name
          */
         candidateName?: string | null;
         votes: number;
@@ -1321,15 +1322,15 @@ export interface ElectionResults2026 {
    */
   margin?: number | null;
   /**
-   * NOTA (None of the Above) votes
+   * NOTA votes
    */
   notaVotes?: number | null;
   /**
-   * Last updated timestamp shown on ECI page — e.g. "09:15 AM On 04/05/2026"
+   * Last updated timestamp from ECI page
    */
   eciLastUpdatedAt?: string | null;
   /**
-   * When the Azure Function last successfully scraped this constituency
+   * When the scraper last successfully updated this record
    */
   lastScrapedAt?: string | null;
   updatedAt: string;
@@ -1586,8 +1587,8 @@ export interface PayloadLockedDocument {
         value: number | CasteCensus;
       } | null)
     | ({
-        relationTo: 'election-results-2026';
-        value: number | ElectionResults2026;
+        relationTo: 'live-election-results';
+        value: number | LiveElectionResult;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2154,9 +2155,10 @@ export interface CasteCensusSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "election-results-2026_select".
+ * via the `definition` "live-election-results_select".
  */
-export interface ElectionResults2026Select<T extends boolean = true> {
+export interface LiveElectionResultsSelect<T extends boolean = true> {
+  year?: T;
   stateCode?: T;
   assemblyId?: T;
   assemblyName?: T;

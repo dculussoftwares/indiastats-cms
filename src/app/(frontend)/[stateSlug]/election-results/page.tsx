@@ -54,8 +54,11 @@ export default async function ElectionResultsPage({ params }: Props) {
 
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
-    collection: 'election-results-2026',
-    where: { stateCode: { equals: stateConfig.code } },
+    collection: 'live-election-results',
+    where: {
+      stateCode: { equals: stateConfig.code },
+      year: { equals: 2026 },
+    },
     limit: 300,
     pagination: false,
     depth: 0,
