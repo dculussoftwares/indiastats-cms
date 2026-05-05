@@ -2,8 +2,8 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 const { Pool } = require('../functions/node_modules/pg')
 
-const CONN = process.env.DATABASE_URI ||
-  'postgresql://dculus_admin:REDACTED_PASSWORD@dculus-shared-postgres.postgres.database.azure.com/indiastats_cms_db?sslmode=require'
+const CONN = process.env.DATABASE_URI
+if (!CONN) throw new Error('DATABASE_URI env var is required')
 
 const pool = new Pool({ connectionString: CONN, ssl: { rejectUnauthorized: false } })
 const client = await pool.connect()

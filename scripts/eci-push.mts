@@ -22,8 +22,8 @@ const ELECTION_YEAR = yearArg ? parseInt(yearArg.split('=')[1]) : new Date().get
 
 console.log(`📅 Election year: ${ELECTION_YEAR}`)
 
-const CONN = process.env.DATABASE_URI ||
-  'postgresql://dculus_admin:REDACTED_PASSWORD@dculus-shared-postgres.postgres.database.azure.com/indiastats_cms_db?sslmode=require'
+const CONN = process.env.DATABASE_URI
+if (!CONN) throw new Error('DATABASE_URI env var is required')
 
 const PARTY_NAME_MAP: Record<string, string> = {
   'Tamilaga Vettri Kazhagam': 'TVK',
