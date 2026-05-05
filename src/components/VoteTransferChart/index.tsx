@@ -128,7 +128,14 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
   const svgRef = React.useRef<SVGSVGElement>(null)
   const touchTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const [tooltip, setTooltip] = React.useState<TooltipState>({
-    visible: false, x: 0, y: 0, party: '', votes: 0, pct: 0, color: '', year: 0,
+    visible: false,
+    x: 0,
+    y: 0,
+    party: '',
+    votes: 0,
+    pct: 0,
+    color: '',
+    year: 0,
   })
 
   const sorted = [...electionHistory].sort((a, b) => b.year - a.year)
@@ -217,10 +224,7 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
     })
   }
 
-  function showRibbonTooltipAt(
-    pos: { x: number; y: number },
-    ribbon: (typeof ribbons)[0],
-  ) {
+  function showRibbonTooltipAt(pos: { x: number; y: number }, ribbon: (typeof ribbons)[0]) {
     if (touchTimerRef.current) clearTimeout(touchTimerRef.current)
     const recentPolled = recent.votesPolled || 1
     setTooltip({
@@ -268,7 +272,9 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
             style={{ display: 'block' }}
             aria-label={`Vote share comparison ${prev.year} vs ${recent.year}`}
             onMouseLeave={hideTooltip}
-            onTouchEnd={(e) => { if ((e.target as SVGElement).tagName === 'svg') hideTooltip() }}
+            onTouchEnd={(e) => {
+              if ((e.target as SVGElement).tagName === 'svg') hideTooltip()
+            }}
           >
             {/* Ribbons */}
             {ribbons.map((r) => (
@@ -283,7 +289,11 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
                 style={{ cursor: 'pointer' }}
                 onMouseMove={(e) => showRibbonTooltipAt(getSvgMousePos(e), r)}
                 onMouseLeave={hideTooltip}
-                onTouchEnd={(e) => { e.stopPropagation(); showRibbonTooltipAt(getSvgTouchPos(e), r); autoHideAfter(3000) }}
+                onTouchEnd={(e) => {
+                  e.stopPropagation()
+                  showRibbonTooltipAt(getSvgTouchPos(e), r)
+                  autoHideAfter(3000)
+                }}
               />
             ))}
 
@@ -292,9 +302,15 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
               <g
                 key={`l-${node.party}`}
                 style={{ cursor: 'pointer' }}
-                onMouseMove={(e) => showBlockTooltipAt(getSvgMousePos(e), node, prev.year, prev.votesPolled)}
+                onMouseMove={(e) =>
+                  showBlockTooltipAt(getSvgMousePos(e), node, prev.year, prev.votesPolled)
+                }
                 onMouseLeave={hideTooltip}
-                onTouchEnd={(e) => { e.stopPropagation(); showBlockTooltipAt(getSvgTouchPos(e), node, prev.year, prev.votesPolled); autoHideAfter(3000) }}
+                onTouchEnd={(e) => {
+                  e.stopPropagation()
+                  showBlockTooltipAt(getSvgTouchPos(e), node, prev.year, prev.votesPolled)
+                  autoHideAfter(3000)
+                }}
               >
                 <rect x={0} y={node.y} width={COL_W} height={node.h} fill={node.color} rx={2} />
                 {node.h >= 16 && (
@@ -331,9 +347,15 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
               <g
                 key={`r-${node.party}`}
                 style={{ cursor: 'pointer' }}
-                onMouseMove={(e) => showBlockTooltipAt(getSvgMousePos(e), node, recent.year, recent.votesPolled)}
+                onMouseMove={(e) =>
+                  showBlockTooltipAt(getSvgMousePos(e), node, recent.year, recent.votesPolled)
+                }
                 onMouseLeave={hideTooltip}
-                onTouchEnd={(e) => { e.stopPropagation(); showBlockTooltipAt(getSvgTouchPos(e), node, recent.year, recent.votesPolled); autoHideAfter(3000) }}
+                onTouchEnd={(e) => {
+                  e.stopPropagation()
+                  showBlockTooltipAt(getSvgTouchPos(e), node, recent.year, recent.votesPolled)
+                  autoHideAfter(3000)
+                }}
               >
                 <rect
                   x={SVG_W - COL_W}
@@ -420,12 +442,23 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
                 {/* Ribbon: prev election comparison */}
                 {tooltip.isRibbon && tooltip.prevVotes !== undefined && (
                   <>
-                    <text x={ttX + 10} y={ttY + 57} fontSize={9} fill="#6b7280" className="select-none">
+                    <text
+                      x={ttX + 10}
+                      y={ttY + 57}
+                      fontSize={9}
+                      fill="#6b7280"
+                      className="select-none"
+                    >
                       {tooltip.prevYear}: {tooltip.prevVotes.toLocaleString()} votes
                     </text>
-                    <text x={ttX + 10} y={ttY + 70} fontSize={9} fontWeight="600" fill={
-                      tooltip.votes > (tooltip.prevVotes ?? 0) ? '#16a34a' : '#dc2626'
-                    } className="select-none">
+                    <text
+                      x={ttX + 10}
+                      y={ttY + 70}
+                      fontSize={9}
+                      fontWeight="600"
+                      fill={tooltip.votes > (tooltip.prevVotes ?? 0) ? '#16a34a' : '#dc2626'}
+                      className="select-none"
+                    >
                       {tooltip.votes > (tooltip.prevVotes ?? 0) ? '▲' : '▼'}{' '}
                       {Math.abs(tooltip.votes - (tooltip.prevVotes ?? 0)).toLocaleString()} votes
                     </text>
