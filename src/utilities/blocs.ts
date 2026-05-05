@@ -1,6 +1,6 @@
 import { getStateByCode } from '@/config/states'
 
-export type BlocType = 'dmk' | 'aiadmk' | 'other'
+export type BlocType = 'dmk' | 'aiadmk' | 'tvk' | 'other'
 
 /**
  * Identifies the political bloc for a party in a specific year and state.
@@ -16,6 +16,7 @@ export function identifyBloc(
   // 1. Direct anchor party match (Primary identification)
   if (party === 'DMK') return 'dmk'
   if (['AIADMK', 'ADMK', 'AIADMK(J)', 'AIADMK(JA)'].includes(party)) return 'aiadmk'
+  if (party === 'TVK') return 'tvk'
 
   // 2. Check year-specific alliance data
   const yearAlliances = allianceMap[year] || []

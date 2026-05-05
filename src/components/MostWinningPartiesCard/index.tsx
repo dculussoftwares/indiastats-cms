@@ -118,7 +118,14 @@ export function MostWinningPartiesCard({
 
   // Calculate alliance bloc wins
   const calculateAllianceWins = (): AllianceWins[] => {
-    // Define the two main blocs
+    // Define the main blocs
+    const tvkBloc: AllianceWins = {
+      allianceName: 'TVK',
+      wins: 0,
+      parties: [],
+      color: '#F5C518', // Yellow/Gold
+    }
+
     const dmkBloc: AllianceWins = {
       allianceName: 'DMK Bloc',
       wins: 0,
@@ -134,6 +141,7 @@ export function MostWinningPartiesCard({
     }
 
     const partyWinsMap: Record<string, Record<string, number>> = {
+      tvk: {},
       dmk: {},
       aiadmk: {},
     }
@@ -150,7 +158,10 @@ export function MostWinningPartiesCard({
 
         const blocType = identifyBloc(party, year, stateCode, allianceData)
 
-        if (blocType === 'dmk') {
+        if (blocType === 'tvk') {
+          tvkBloc.wins++
+          partyWinsMap.tvk[party] = (partyWinsMap.tvk[party] || 0) + 1
+        } else if (blocType === 'dmk') {
           dmkBloc.wins++
           partyWinsMap.dmk[party] = (partyWinsMap.dmk[party] || 0) + 1
         } else if (blocType === 'aiadmk') {
@@ -160,6 +171,11 @@ export function MostWinningPartiesCard({
       })
 
     // Convert party wins to array
+    tvkBloc.parties = Object.entries(partyWinsMap.tvk)
+      .map(([party, wins]) => ({ party, wins }))
+      .sort((a, b) => b.wins - a.wins)
+      .slice(0, 5)
+
     dmkBloc.parties = Object.entries(partyWinsMap.dmk)
       .map(([party, wins]) => ({ party, wins }))
       .sort((a, b) => b.wins - a.wins)
@@ -170,8 +186,8 @@ export function MostWinningPartiesCard({
       .sort((a, b) => b.wins - a.wins)
       .slice(0, 5)
 
-    // Return in order of wins
-    return [dmkBloc, aiadmkBloc].sort((a, b) => b.wins - a.wins)
+    // Return in order of wins (filter out blocs with 0 wins)
+    return [tvkBloc, dmkBloc, aiadmkBloc].filter((b) => b.wins > 0).sort((a, b) => b.wins - a.wins)
   }
 
   const topParties = calculateMostWinningParties()
@@ -313,148 +329,84 @@ export function MostWinningPartiesCard({
       )
     }
 
-    if (allianceBlocs.length < 2) {
+    if (allianceBlocs.length === 0) {
       return (
         <p className="text-sm text-muted-foreground text-center py-4">Loading alliance data...</p>
       )
     }
 
-    const leader1 = getLeaderImage(stateCode, allianceBlocs[0].allianceName, true)
-    const leader2 = getLeaderImage(stateCode, allianceBlocs[1].allianceName, true)
-    const winDifference = allianceBlocs[0].wins - allianceBlocs[1].wins
-
-    const winnerColor = allianceBlocs[0].color
-    const loserColor = allianceBlocs[1].color
-
     return (
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
-          {/* Alliance 1 (Winner) */}
-          <div className="flex-1 w-full md:w-auto">
-            <div
-              className="rounded-lg p-5 text-center"
-              style={{ backgroundColor: `${winnerColor}10` }}
-            >
-              <div className="relative inline-block mb-3">
-                <div
-                  className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-4 mx-auto"
-                  style={{ borderColor: winnerColor }}
+      <div
+        className={`grid gap-4 ${
+          allianceBlocs.length >= 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'
+        }`}
+      >
+        {allianceBlocs.map((bloc, idx) => {
+          const leader = getLeaderImage(stateCode, bloc.allianceName, true)
+          const isWinner = idx === 0
+          return (
+            <div key={bloc.allianceName} className="relative">
+              <div
+                className="rounded-lg p-5 text-center h-full"
+                style={{ backgroundColor: `${bloc.color}10` }}
+              >
+                {isWinner && (
+                  <div className="absolute top-2 right-2">
+                    <Trophy className="h-4 w-4" style={{ color: bloc.color }} />
+                  </div>
+                )}
+                <div className="relative inline-block mb-3">
+                  <div
+                    className="w-20 h-20 rounded-full overflow-hidden border-4 mx-auto"
+                    style={{ borderColor: bloc.color }}
+                  >
+                    {leader ? (
+                      <Image
+                        src={leader}
+                        alt={`${bloc.allianceName} leader`}
+                        width={80}
+                        height={80}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        style={{ backgroundColor: `${bloc.color}20` }}
+                      >
+                        <Users className="h-10 w-10" style={{ color: bloc.color }} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <p className="text-base font-bold mb-1">{bloc.allianceName}</p>
+                <p
+                  className="text-4xl md:text-5xl font-bold mb-1"
+                  style={{ color: bloc.color }}
                 >
-                  {leader1 ? (
-                    <Image
-                      src={leader1}
-                      alt={`${allianceBlocs[0].allianceName} leader`}
-                      width={112}
-                      height={112}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-full flex items-center justify-center"
-                      style={{ backgroundColor: `${winnerColor}20` }}
-                    >
-                      <Users className="h-12 w-12" style={{ color: winnerColor }} />
+                  {bloc.wins}
+                </p>
+                <p className="text-sm text-muted-foreground mb-3">Total Wins</p>
+
+                {bloc.parties.length > 0 && (
+                  <div className="border-t pt-3 mt-2">
+                    <p className="text-xs text-muted-foreground mb-2">Top contributing parties:</p>
+                    <div className="flex flex-wrap justify-center gap-1">
+                      {bloc.parties.slice(0, 3).map((p) => (
+                        <span
+                          key={p.party}
+                          className="text-xs px-2 py-0.5 rounded-full text-white"
+                          style={{ backgroundColor: bloc.color }}
+                        >
+                          {p.party}: {p.wins}
+                        </span>
+                      ))}
                     </div>
-                  )}
-                </div>
-                <div
-                  className="absolute -bottom-1 right-1/2 translate-x-1/2 md:right-0 md:translate-x-0 rounded-full p-1.5 border-2 border-white dark:border-gray-900"
-                  style={{ backgroundColor: winnerColor }}
-                >
-                  <Trophy className="h-3 w-3 text-white" />
-                </div>
-              </div>
-
-              <p className="text-lg font-bold mb-1">{allianceBlocs[0].allianceName}</p>
-              <p className="text-5xl md:text-6xl font-bold mb-1" style={{ color: winnerColor }}>
-                {allianceBlocs[0].wins}
-              </p>
-              <p className="text-sm text-muted-foreground mb-3">Total Wins</p>
-
-              {/* Party breakdown */}
-              <div className="border-t pt-3 mt-2">
-                <p className="text-xs text-muted-foreground mb-2">Top contributing parties:</p>
-                <div className="flex flex-wrap justify-center gap-1">
-                  {allianceBlocs[0].parties.slice(0, 3).map((p) => (
-                    <span
-                      key={p.party}
-                      className="text-xs px-2 py-0.5 rounded-full text-white"
-                      style={{ backgroundColor: winnerColor }}
-                    >
-                      {p.party}: {p.wins}
-                    </span>
-                  ))}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-
-          {/* VS Badge */}
-          <div className="flex-shrink-0 flex flex-col items-center">
-            <div className="relative">
-              <div className="bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-700 dark:to-gray-800 rounded-full w-16 h-16 flex items-center justify-center shadow-lg">
-                <span className="text-xl font-black text-white tracking-wide">VS</span>
-              </div>
-              {winDifference > 0 && (
-                <div
-                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow"
-                  style={{ backgroundColor: winnerColor }}
-                >
-                  +{winDifference}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Alliance 2 (Runner-up) */}
-          <div className="flex-1 w-full md:w-auto">
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-5 text-center">
-              <div className="relative inline-block mb-3">
-                <div
-                  className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-4 mx-auto"
-                  style={{ borderColor: loserColor }}
-                >
-                  {leader2 ? (
-                    <Image
-                      src={leader2}
-                      alt={`${allianceBlocs[1].allianceName} leader`}
-                      width={112}
-                      height={112}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                      <Users className="h-12 w-12 text-gray-400" />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <p className="text-lg font-bold text-gray-600 dark:text-gray-400 mb-1">
-                {allianceBlocs[1].allianceName}
-              </p>
-              <p className="text-5xl md:text-6xl font-bold text-gray-400 mb-1">
-                {allianceBlocs[1].wins}
-              </p>
-              <p className="text-sm text-muted-foreground mb-3">Total Wins</p>
-
-              {/* Party breakdown */}
-              <div className="border-t pt-3 mt-2">
-                <p className="text-xs text-muted-foreground mb-2">Top contributing parties:</p>
-                <div className="flex flex-wrap justify-center gap-1">
-                  {allianceBlocs[1].parties.slice(0, 3).map((p) => (
-                    <span
-                      key={p.party}
-                      className="text-xs px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700"
-                    >
-                      {p.party}: {p.wins}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          )
+        })}
       </div>
     )
   }

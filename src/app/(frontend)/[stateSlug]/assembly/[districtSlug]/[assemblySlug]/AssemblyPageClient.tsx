@@ -278,25 +278,13 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
         </section>
       )}
 
-      {/* Most Winning Parties since ADMK formed */}
+      {/* Past Winning histories */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Most Winning Parties since ADMK formed
+            Past Winning Histories
           </h2>
-          <MostWinningPartiesCard
-            historicData={data.electionHistory.map((e) => ({
-              year: e.year,
-              assemblyId: data.assemblyId,
-              totalVoters: e.totalVoters,
-              noOfVotesPolled: e.votesPolled,
-              candidates: e.candidates.map((c, idx) => ({
-                ...c,
-                rank: idx + 1,
-              })),
-            }))}
-            allianceData={data.allianceData}
-          />
+          <PastWinningHistories electionHistory={data.electionHistory} />
         </section>
       )}
 
@@ -403,13 +391,25 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
         </section>
       )}
 
-      {/* Past Winning histories */}
+      {/* Most Winning Parties since ADMK formed */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Past Winning Histories
+            Most Winning Parties since ADMK formed
           </h2>
-          <PastWinningHistories electionHistory={data.electionHistory} />
+          <MostWinningPartiesCard
+            historicData={data.electionHistory.map((e) => ({
+              year: e.year,
+              assemblyId: data.assemblyId,
+              totalVoters: e.totalVoters,
+              noOfVotesPolled: e.votesPolled,
+              candidates: e.candidates.map((c, idx) => ({
+                ...c,
+                rank: idx + 1,
+              })),
+            }))}
+            allianceData={data.allianceData}
+          />
         </section>
       )}
 

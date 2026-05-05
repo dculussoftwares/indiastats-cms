@@ -30,6 +30,7 @@ interface PastWinningHistoriesProps {
 
 // Party color mapping
 const PARTY_COLORS: Record<string, string> = {
+  TVK: '#F5C518', // Yellow/Gold
   DMK: '#b71c1c', // Deep Red
   ADMK: '#388e3c', // Green
   AIADMK: '#388e3c', // Green
@@ -133,78 +134,6 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
 
   return (
     <div className="space-y-6">
-      {/* Quick Stats Summary */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/20">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-500/20 rounded-lg">
-                <Flame className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Longest Streak</p>
-                <p className="font-bold text-lg">{stats.longestStreak.party}</p>
-                <p className="text-xs text-muted-foreground">
-                  {stats.longestStreak.count} wins ({stats.longestStreak.startYear}-
-                  {stats.longestStreak.endYear})
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-500/20">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-500/20 rounded-lg">
-                <Target className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Closest Race</p>
-                <p className="font-bold text-lg">{stats.closestRace.year}</p>
-                <p className="text-xs text-muted-foreground">
-                  Margin: {formatNumber(stats.closestRace.margin)}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Biggest Landslide</p>
-                <p className="font-bold text-lg">{stats.landslide.party}</p>
-                <p className="text-xs text-muted-foreground">
-                  {stats.landslide.year} (+{formatNumber(stats.landslide.margin)})
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <Trophy className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Elections</p>
-                <p className="font-bold text-lg">{stats.totalElections}</p>
-                <p className="text-xs text-muted-foreground">
-                  Since {sortedHistory[sortedHistory.length - 1]?.year}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Timeline */}
       <Card>
         <CardHeader className="pb-2">
@@ -437,6 +366,78 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
           )}
         </CardContent>
       </Card>
+
+      {/* Quick Stats Summary */}
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/20">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-500/20 rounded-lg">
+                <Flame className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Longest Streak</p>
+                <p className="font-bold text-lg">{stats.longestStreak.party}</p>
+                <p className="text-xs text-muted-foreground">
+                  {stats.longestStreak.count} wins ({stats.longestStreak.startYear}-
+                  {stats.longestStreak.endYear})
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-500/20">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <Target className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Closest Race</p>
+                <p className="font-bold text-lg">{stats.closestRace.year}</p>
+                <p className="text-xs text-muted-foreground">
+                  Margin: {formatNumber(stats.closestRace.margin)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Biggest Landslide</p>
+                <p className="font-bold text-lg">{stats.landslide.party}</p>
+                <p className="text-xs text-muted-foreground">
+                  {stats.landslide.year} (+{formatNumber(stats.landslide.margin)})
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <Trophy className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Total Elections</p>
+                <p className="font-bold text-lg">{stats.totalElections}</p>
+                <p className="text-xs text-muted-foreground">
+                  Since {sortedHistory[sortedHistory.length - 1]?.year}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

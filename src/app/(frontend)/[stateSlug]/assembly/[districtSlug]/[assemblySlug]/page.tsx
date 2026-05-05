@@ -155,7 +155,7 @@ async function _getAssemblyData(districtSlug: string, assemblySlug: string) {
   })
 
   // Sort candidates by votes and get election results
-  const electionHistory = Array.from(historyByYear.entries())
+  let electionHistory = Array.from(historyByYear.entries())
     .map(([year, candidates]) => {
       candidates.sort((a, b) => b.votes - a.votes)
       const winner = candidates[0]
@@ -170,6 +170,44 @@ async function _getAssemblyData(districtSlug: string, assemblySlug: string) {
       }
     })
     .sort((a, b) => b.year - a.year)
+
+  // Merge live election results (overrides historical data for the same year)
+  const liveResult = await payload.find({
+    collection: 'live-election-results',
+    where: {
+      and: [
+        { assemblyId: { equals: assemblyId } },
+        { status: { not_equals: 'pending' } },
+      ],
+    },
+    limit: 10,
+  })
+  if (liveResult.docs.length > 0) {
+    const liveYears = new Set(liveResult.docs.map((doc: any) => doc.year as number))
+    const liveHistory = liveResult.docs.map((doc: any) => {
+      const parties = ((doc.parties as any[]) || [])
+        .slice()
+        .sort((a: any, b: any) => b.votes - a.votes)
+      const winner = parties[0]
+      return {
+        year: doc.year as number,
+        winner: winner?.candidateName || 'Unknown',
+        winnerParty: winner?.name || 'IND',
+        winnerVotes: winner?.votes || 0,
+        totalVoters: doc.electors || 0,
+        votesPolled: doc.votes || 0,
+        candidates: parties.map((p: any) => ({
+          name: p.candidateName || '',
+          party: p.name || 'IND',
+          votes: p.votes || 0,
+        })),
+      }
+    })
+    electionHistory = [
+      ...liveHistory,
+      ...electionHistory.filter((e) => !liveYears.has(e.year)),
+    ].sort((a, b) => b.year - a.year)
+  }
 
   // Get booth count
   const boothsCount = await payload.count({

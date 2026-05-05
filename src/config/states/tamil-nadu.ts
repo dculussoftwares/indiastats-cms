@@ -5,9 +5,15 @@ export const tamilNaduConfig: StateConfig = {
     slug: 'tamil-nadu',
     name: 'Tamil Nadu',
 
-    majorParties: ['DMK', 'AIADMK', 'PMK', 'BJP', 'INC', 'VCK', 'MDMK', 'CPI', 'CPI(M)'],
+    majorParties: ['TVK', 'DMK', 'AIADMK', 'PMK', 'BJP', 'INC', 'VCK', 'MDMK', 'CPI', 'CPI(M)'],
 
     blocs: [
+        {
+            name: 'TVK',
+            parties: ['TVK'],
+            leaderImage: '/images/VIJAY.png',
+            color: '#F5C518',
+        },
         {
             name: 'DMK Bloc',
             parties: ['DMK', 'INC', 'VCK', 'CPI', 'CPI(M)', 'MDMK', 'IUML', 'KMDK', 'MMK'],
@@ -23,6 +29,7 @@ export const tamilNaduConfig: StateConfig = {
     ],
 
     partyColors: {
+        TVK: '#F5C518',      // Yellow/Gold
         DMK: '#E7191E',      // Red
         AIADMK: '#10663D',   // Green
         ADMK: '#10663D',     // Alias
@@ -39,6 +46,7 @@ export const tamilNaduConfig: StateConfig = {
     },
 
     leaderImages: {
+        TVK: '/images/VIJAY.png',
         DMK: '/images/Stalin.png',
         AIADMK: '/images/EPS.jpg',
         ADMK: '/images/EPS.jpg',
@@ -49,5 +57,5 @@ export const tamilNaduConfig: StateConfig = {
 
     mapGeoJson: '/geojson/tamil-nadu-assemblies.json',
 
-    electionYears: [1972, 1977, 1980, 1984, 1989, 1991, 1996, 2001, 2006, 2011, 2016, 2021],
+    electionYears: [1972, 1977, 1980, 1984, 1989, 1991, 1996, 2001, 2006, 2011, 2016, 2021, 2026],
 }
