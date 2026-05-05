@@ -8,13 +8,26 @@ import { PopulationChangeCard } from '@/components/PopulationChangeCard'
 import { GenderChart } from '@/components/GenderChart'
 import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { VotesSharesChart } from '@/components/VotesSharesChart'
+import { VoteTransferChart } from '@/components/VoteTransferChart'
 import { PastWinningHistories } from '@/components/PastWinningHistories'
 import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import {
-  ArrowLeft, User, UserCircle2, Users, UsersRound, Locate, BookOpen,
-  Factory, Building2, GraduationCap, HeartPulse, Bus, Landmark,
-  Briefcase, Store,
+  ArrowLeft,
+  User,
+  UserCircle2,
+  Users,
+  UsersRound,
+  Locate,
+  BookOpen,
+  Factory,
+  Building2,
+  GraduationCap,
+  HeartPulse,
+  Bus,
+  Landmark,
+  Briefcase,
+  Store,
 } from 'lucide-react'
 import { TwitterCardModal } from '@/components/TwitterCardModal'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
@@ -126,7 +139,8 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
     })
-    trackViewed({ name: 'assembly_page',
+    trackViewed({
+      name: 'assembly_page',
       page_name: PAGE_NAMES.ASSEMBLY_DETAIL,
       page_url: window.location.href,
       page_path: window.location.pathname,
@@ -191,7 +205,8 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
               href={`/${stateSlug}/assembly/${data.districtSlug}/${data.assemblySlug}/booths`}
               onClick={() => {
                 const pageContext = getPageContext()
-                trackClicked({ name: 'link',
+                trackClicked({
+                  name: 'link',
                   page_name: pageContext.page_name || 'Assembly Detail',
                   link_name: 'view_booths',
                   link_location: 'assembly_overview',
@@ -278,6 +293,16 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
         </section>
       )}
 
+      {/* Vote Transfer: Last 2 Elections */}
+      {data.electionHistory.length >= 2 && (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Vote Transfer: Last 2 Elections
+          </h2>
+          <VoteTransferChart electionHistory={data.electionHistory} />
+        </section>
+      )}
+
       {/* Past Winning histories */}
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
@@ -337,7 +362,8 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                   variant="outline"
                   onClick={() => {
                     const pageContext = getPageContext()
-                    trackClicked({ name: 'button',
+                    trackClicked({
+                      name: 'button',
                       page_name: pageContext.page_name || 'Assembly Detail',
                       button_name: 'view_all_history',
                       button_label: 'View all',
@@ -468,7 +494,11 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                 <div className="flex w-full h-6 rounded overflow-hidden mb-2">
                   {data.knownBusinesses.economicMix.map((item, i) => {
                     const colors = [
-                      'bg-red-600', 'bg-blue-600', 'bg-amber-500', 'bg-emerald-600', 'bg-gray-400',
+                      'bg-red-600',
+                      'bg-blue-600',
+                      'bg-amber-500',
+                      'bg-emerald-600',
+                      'bg-gray-400',
                     ]
                     return (
                       <div
@@ -489,7 +519,11 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   {data.knownBusinesses.economicMix.map((item, i) => {
                     const dots = [
-                      'bg-red-600', 'bg-blue-600', 'bg-amber-500', 'bg-emerald-600', 'bg-gray-400',
+                      'bg-red-600',
+                      'bg-blue-600',
+                      'bg-amber-500',
+                      'bg-emerald-600',
+                      'bg-gray-400',
                     ]
                     return (
                       <div key={item.category} className="flex items-center gap-1.5">
@@ -601,10 +635,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {data.knownBusinesses.commercialLandmarks.map((name, idx) => (
-                      <span
-                        key={`cl-${idx}`}
-                        className="px-2.5 py-1 bg-muted rounded text-xs"
-                      >
+                      <span key={`cl-${idx}`} className="px-2.5 py-1 bg-muted rounded text-xs">
                         {name}
                       </span>
                     ))}
@@ -630,9 +661,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                     {data.knownBusinesses.education.map((item, idx) => (
                       <li key={`edu-${idx}`} className="text-xs">
                         <span className="font-medium">{item.name}</span>
-                        {item.type && (
-                          <span className="text-muted-foreground"> — {item.type}</span>
-                        )}
+                        {item.type && <span className="text-muted-foreground"> — {item.type}</span>}
                       </li>
                     ))}
                   </ul>
@@ -654,9 +683,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                     {data.knownBusinesses.healthcare.map((item, idx) => (
                       <li key={`health-${idx}`} className="text-xs">
                         <span className="font-medium">{item.name}</span>
-                        {item.type && (
-                          <span className="text-muted-foreground"> — {item.type}</span>
-                        )}
+                        {item.type && <span className="text-muted-foreground"> — {item.type}</span>}
                       </li>
                     ))}
                   </ul>
@@ -678,9 +705,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                     {data.knownBusinesses.transport.map((item, idx) => (
                       <li key={`transport-${idx}`} className="text-xs">
                         <span className="font-medium">{item.name}</span>
-                        {item.type && (
-                          <span className="text-muted-foreground"> — {item.type}</span>
-                        )}
+                        {item.type && <span className="text-muted-foreground"> — {item.type}</span>}
                       </li>
                     ))}
                   </ul>
@@ -702,9 +727,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                     {data.knownBusinesses.landmarks.map((item, idx) => (
                       <li key={`landmark-${idx}`} className="text-xs">
                         <span className="font-medium">{item.name}</span>
-                        {item.type && (
-                          <span className="text-muted-foreground"> — {item.type}</span>
-                        )}
+                        {item.type && <span className="text-muted-foreground"> — {item.type}</span>}
                       </li>
                     ))}
                   </ul>
@@ -719,7 +742,10 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       <AssemblyPageJsonLd
         assemblyName={data.name.split(' / ')[1] || data.name}
         districtName={data.districtName.split(' / ')[1] || data.districtName}
-        description={data.metaDescription || `Election data for ${data.name} assembly constituency, Tamil Nadu.`}
+        description={
+          data.metaDescription ||
+          `Election data for ${data.name} assembly constituency, Tamil Nadu.`
+        }
         url={`https://indiastats.org/${stateSlug}/assembly/${data.districtSlug}/${data.assemblySlug}`}
       />
     </div>

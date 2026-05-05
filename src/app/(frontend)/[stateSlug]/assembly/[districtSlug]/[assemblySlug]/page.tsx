@@ -175,10 +175,7 @@ async function _getAssemblyData(districtSlug: string, assemblySlug: string) {
   const liveResult = await payload.find({
     collection: 'live-election-results',
     where: {
-      and: [
-        { assemblyId: { equals: assemblyId } },
-        { status: { not_equals: 'pending' } },
-      ],
+      and: [{ assemblyId: { equals: assemblyId } }, { status: { not_equals: 'pending' } }],
     },
     limit: 10,
   })

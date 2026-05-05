@@ -123,7 +123,8 @@ export function PastWinningHistories({ electionHistory }: PastWinningHistoriesPr
     const isOpening = expandedYear !== year
     if (isOpening) {
       const pageContext = getPageContext()
-      trackClicked({ name: 'button',
+      trackClicked({
+        name: 'button',
         page_name: pageContext.page_name || 'Election Data',
         button_name: 'expand_election_year',
         button_label: `Expand ${year}`,

@@ -11,7 +11,7 @@ export function identifyBloc(
   year: number,
   stateCode: string,
   allianceMap: Record<number, any[]> = {},
-  stateDoc?: any
+  stateDoc?: any,
 ): BlocType {
   // 1. Direct anchor party match (Primary identification)
   if (party === 'DMK') return 'dmk'
@@ -34,8 +34,7 @@ export function identifyBloc(
       name.includes('Democratic Progressive')
     )
       return 'dmk'
-    if (name.includes('AIADMK') || name.includes('NDA') || name.includes('SDPA'))
-      return 'aiadmk'
+    if (name.includes('AIADMK') || name.includes('NDA') || name.includes('SDPA')) return 'aiadmk'
   }
 
   // 3. Fallback to static/DB bloc definitions

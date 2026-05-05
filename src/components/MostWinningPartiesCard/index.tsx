@@ -77,7 +77,6 @@ const getLeaderImage = (stateCode: string, name: string, isAlliance?: boolean): 
   return getLeaderImageFromConfig(stateCode, name)
 }
 
-
 export function MostWinningPartiesCard({
   historicData,
   stateCode = 'TN',
@@ -379,10 +378,7 @@ export function MostWinningPartiesCard({
                   </div>
                 </div>
                 <p className="text-base font-bold mb-1">{bloc.allianceName}</p>
-                <p
-                  className="text-4xl md:text-5xl font-bold mb-1"
-                  style={{ color: bloc.color }}
-                >
+                <p className="text-4xl md:text-5xl font-bold mb-1" style={{ color: bloc.color }}>
                   {bloc.wins}
                 </p>
                 <p className="text-sm text-muted-foreground mb-3">Total Wins</p>
@@ -420,7 +416,8 @@ export function MostWinningPartiesCard({
             <button
               onClick={() => {
                 const pageContext = getPageContext()
-                trackClicked({ name: 'button',
+                trackClicked({
+                  name: 'button',
                   page_name: pageContext.page_name || 'Election Data',
                   button_name: 'view_by_party',
                   button_label: 'By Party',
@@ -438,7 +435,8 @@ export function MostWinningPartiesCard({
             <button
               onClick={() => {
                 const pageContext = getPageContext()
-                trackClicked({ name: 'button',
+                trackClicked({
+                  name: 'button',
                   page_name: pageContext.page_name || 'Election Data',
                   button_name: 'view_by_alliance',
                   button_label: 'By Alliance Bloc',
