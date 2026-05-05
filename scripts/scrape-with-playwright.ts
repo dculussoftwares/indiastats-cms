@@ -9,11 +9,13 @@
  */
 import { chromium } from 'playwright'
 import { createRequire } from 'module'
-const { Pool } = createRequire(import.meta.url)('../functions/node_modules/pg') as typeof import('pg')
+const { Pool } = createRequire(import.meta.url)(
+  '../functions/node_modules/pg',
+) as typeof import('pg')
 
 const ECI_BASE = 'https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-S22'
 const TOTAL = 234
-const CONCURRENCY = 5  // browser tabs in parallel
+const CONCURRENCY = 5 // browser tabs in parallel
 
 const pool = new Pool({
   connectionString: process.env['DATABASE_URI'],
@@ -36,7 +38,7 @@ async function scrapePage(page: import('playwright').Page, n: number) {
       // Votes: extract all numbers followed by (+/-delta) pattern
       // Format in body: "62081 (+ 19483)"  or "42598 ( -19483)"
       const voteMatches = [...bodyText.matchAll(/(\d[\d,]+)\s*\(\s*[+\-]\s*[\d,]+\)/g)]
-      const votes = voteMatches.map(m => parseInt(m[1]!.replace(/,/g, '')))
+      const votes = voteMatches.map((m) => parseInt(m[1]!.replace(/,/g, '')))
       const leadingVotes = votes[0] ?? 0
       const trailingVotes = votes[1] ?? 0
       const margin = leadingVotes - trailingVotes
@@ -65,10 +67,22 @@ async function scrapePage(page: import('playwright').Page, n: number) {
          SET current_round=$1, total_rounds=$2, status=$3, margin=$4,
              nota_votes=$5, eci_last_updated_at=$6, last_scraped_at=NOW(), updated_at=NOW()
        WHERE assembly_id=$7`,
-      [data.currentRound, data.totalRounds, status, data.margin || null,
-       data.notaVotes || null, data.eciLastUpdatedAt || null, assemblyId]
+      [
+        data.currentRound,
+        data.totalRounds,
+        status,
+        data.margin || null,
+        data.notaVotes || null,
+        data.eciLastUpdatedAt || null,
+        assemblyId,
+      ],
     )
-    return { n, ok: (res.rowCount ?? 0) > 0, status, round: `${data.currentRound}/${data.totalRounds}` }
+    return {
+      n,
+      ok: (res.rowCount ?? 0) > 0,
+      status,
+      round: `${data.currentRound}/${data.totalRounds}`,
+    }
   } catch (e) {
     return { n, ok: false, reason: String(e).slice(0, 80) }
   }
@@ -76,7 +90,8 @@ async function scrapePage(page: import('playwright').Page, n: number) {
 
 async function runOnce(browser: import('playwright').Browser) {
   const start = Date.now()
-  let updated = 0, failed = 0
+  let updated = 0,
+    failed = 0
 
   // Process in batches of CONCURRENCY
   for (let i = 1; i <= TOTAL; i += CONCURRENCY) {
@@ -85,25 +100,29 @@ async function runOnce(browser: import('playwright').Browser) {
 
     const results = await Promise.all(batch.map((n, idx) => scrapePage(pages[idx]!, n)))
 
-    await Promise.all(pages.map(p => p.close()))
+    await Promise.all(pages.map((p) => p.close()))
 
     for (const r of results) {
       if (r.ok) {
         updated++
         if (updated <= 5 || updated % 50 === 0) {
-          console.log(`  ✅ ac${String(r.n).padStart(3,'0')} ${r.status} round ${r.round}`)
+          console.log(`  ✅ ac${String(r.n).padStart(3, '0')} ${r.status} round ${r.round}`)
         }
       } else {
         failed++
-        if (r.n <= 3) console.log(`  ❌ ac${String(r.n).padStart(3,'0')} ${(r as any).reason}`)
+        if (r.n <= 3) console.log(`  ❌ ac${String(r.n).padStart(3, '0')} ${(r as any).reason}`)
       }
     }
 
-    process.stdout.write(`\r  Progress: ${Math.min(i + CONCURRENCY - 1, TOTAL)}/${TOTAL} (${updated} updated)`)
+    process.stdout.write(
+      `\r  Progress: ${Math.min(i + CONCURRENCY - 1, TOTAL)}/${TOTAL} (${updated} updated)`,
+    )
   }
 
   const dur = ((Date.now() - start) / 1000).toFixed(1)
-  console.log(`\n[${new Date().toISOString()}] Done in ${dur}s — updated=${updated} failed=${failed}`)
+  console.log(
+    `\n[${new Date().toISOString()}] Done in ${dur}s — updated=${updated} failed=${failed}`,
+  )
   return updated
 }
 
@@ -123,7 +142,7 @@ async function main() {
       console.log(`\n[${new Date().toISOString()}] Starting scrape of ${TOTAL} constituencies...`)
       await runOnce(browser)
       console.log(`Sleeping 5 minutes...`)
-      await new Promise(r => setTimeout(r, INTERVAL_MS))
+      await new Promise((r) => setTimeout(r, INTERVAL_MS))
     }
   } finally {
     await browser.close()
@@ -131,4 +150,7 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1) })
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})

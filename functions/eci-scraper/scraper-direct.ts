@@ -10,14 +10,17 @@ import { type ConstituencyResult, type CandidateResult, numberToAssemblyId } fro
 
 const ECI_BASE = 'https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-S22'
 
-export async function scrapeConstituencyDirect(assemblyNumber: number): Promise<ConstituencyResult | null> {
+export async function scrapeConstituencyDirect(
+  assemblyNumber: number,
+): Promise<ConstituencyResult | null> {
   const url = `${ECI_BASE}${assemblyNumber}.htm`
   let html: string
 
   try {
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-IN,en;q=0.9',
         Referer: 'https://results.eci.gov.in/',
@@ -25,7 +28,8 @@ export async function scrapeConstituencyDirect(assemblyNumber: number): Promise<
       signal: AbortSignal.timeout(15_000),
     })
     if (!res.ok) {
-      if (assemblyNumber <= 3) console.error(`[scraper-direct] ac${assemblyNumber} HTTP ${res.status}`)
+      if (assemblyNumber <= 3)
+        console.error(`[scraper-direct] ac${assemblyNumber} HTTP ${res.status}`)
       return null
     }
     html = await res.text()
@@ -67,7 +71,9 @@ export async function scrapeConstituencyDirect(assemblyNumber: number): Promise<
       const party = h6.text().trim()
       const grandParent = $(nameEl).parent().parent()
       const rawStatus = grandParent.text()
-      const cardStatus: CandidateResult['status'] = rawStatus.toLowerCase().includes('leading') ? 'leading' : 'trailing'
+      const cardStatus: CandidateResult['status'] = rawStatus.toLowerCase().includes('leading')
+        ? 'leading'
+        : 'trailing'
       const votesMatch = grandParent.text().match(/(\d[\d,]*)\s*[\(\+\-]/)
       const votes = votesMatch ? parseInt(votesMatch[1]!.replace(/,/g, ''), 10) : 0
 
@@ -80,7 +86,7 @@ export async function scrapeConstituencyDirect(assemblyNumber: number): Promise<
     })
 
     candidates.sort((a, b) => b.votes - a.votes)
-    const margin = candidates.length >= 2 ? (candidates[0]!.votes - candidates[1]!.votes) : 0
+    const margin = candidates.length >= 2 ? candidates[0]!.votes - candidates[1]!.votes : 0
 
     // ── Last updated ──────────────────────────────────────────────────────
     let eciLastUpdatedAt = ''
