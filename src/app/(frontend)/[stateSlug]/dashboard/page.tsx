@@ -5,7 +5,6 @@ import { unstable_cache } from 'next/cache'
 import { Map, MapPinned, Locate, UsersRound } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { DashboardClient } from './DashboardClient'
-import { getPredictorsWithSummaries } from '@/lib/electionPredictions'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
@@ -128,10 +127,7 @@ interface Props {
 
 export default async function DashboardPage({ params }: Props) {
   const { stateSlug } = await params
-  const [{ stats, assemblies, districts }, predictors] = await Promise.all([
-    getDashboardData(),
-    getPredictorsWithSummaries({ stateCode: 'TN' }),
-  ])
+  const { stats, assemblies, districts } = await getDashboardData()
 
   return (
     <div className="container py-8">
@@ -172,12 +168,7 @@ export default async function DashboardPage({ params }: Props) {
       </section>
 
       {/* Search + Predictions - Client Component */}
-      <DashboardClient
-        assemblies={assemblies}
-        districts={districts}
-        stateSlug={stateSlug}
-        predictors={predictors}
-      />
+      <DashboardClient assemblies={assemblies} districts={districts} stateSlug={stateSlug} />
     </div>
   )
 }

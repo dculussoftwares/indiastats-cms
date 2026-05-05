@@ -25,19 +25,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
-import { predictorHref } from '@/utilities/predictorUrl'
-interface PredictorSummary {
-  id: string
-  name: string
-  imagePath: string | null
-  bio: string | null
-  totalPredictions: number
-  calledSeats: number
-  tooCloseToCall: number
-  leadingParty: string | null
-  latestYear: number | null
-}
-
 interface HomePageClientProps {
   stats: {
     totalDistricts: number
@@ -106,17 +93,6 @@ function StatCounter({ value, label }: { value: number; label: string }) {
 }
 
 export function HomePageClient({ stats }: HomePageClientProps) {
-  const [predictors, setPredictors] = useState<PredictorSummary[]>([])
-
-  useEffect(() => {
-    fetch('/next/predictor-summaries')
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setPredictors(data)
-      })
-      .catch(() => {})
-  }, [])
-
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.HOMEPAGE,
@@ -353,29 +329,31 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               </div>
             </Link>
 
-            {/* Election Predictions */}
+            {/* Vote Transfer Chart */}
             <Link
-              href="/tamil-nadu/election-predictions"
+              href="/tamil-nadu/assembly/chennai-north/villivakkam"
               className="group"
               onClick={() => {
                 const pageContext = getPageContext()
                 trackClicked({
                   name: 'link',
                   page_name: pageContext.page_name || 'Homepage',
-                  link_name: 'election_predictions_card',
+                  link_name: 'vote_transfer_chart_card',
                   link_location: 'features_section',
                 })
               }}
             >
-              <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/50 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-purple-600/20 flex items-center justify-center mb-4 group-hover:bg-purple-600/30 transition-colors">
-                  <TrendingUp className="h-6 w-6 text-purple-400" />
+              <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-yellow-500/50 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center mb-4 group-hover:bg-yellow-500/30 transition-colors">
+                  <TrendingUp className="h-6 w-6 text-yellow-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-purple-400 transition-colors">
-                  Election Predictions
+                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-yellow-400 transition-colors">
+                  Vote Transfer Chart
                 </h3>
-                <p className="text-white/50 text-sm mb-4">2026 assembly-level seat forecasts</p>
-                <div className="flex items-center text-purple-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                <p className="text-white/50 text-sm mb-4">
+                  See how votes shifted between 2021 & 2026 in every seat
+                </p>
+                <div className="flex items-center text-yellow-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Explore <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
               </div>
@@ -549,135 +527,111 @@ export function HomePageClient({ stats }: HomePageClientProps) {
         </div>
       </section>
 
-      {/* Election Predictions Section */}
-      {predictors.length > 0 && (
-        <section className="bg-[#1a1a2e] py-16">
-          <div className="container">
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-purple-500/10 rounded-full px-3 py-1 mb-3">
-                  <TrendingUp className="h-4 w-4 text-purple-400" />
-                  <span className="text-sm font-medium text-purple-400">2026 Forecasts</span>
-                </div>
-                <h2 className="text-2xl md:text-3xl font-bold text-white">Election Predictions</h2>
-                <p className="text-white/50 mt-1 text-sm">
-                  Assembly-level seat forecasts from independent analysts
-                </p>
+      {/* TVK 2026 Results Highlight Section */}
+      <section className="bg-[#1a1a2e] py-16">
+        <div className="container">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-yellow-500/10 rounded-full px-3 py-1 mb-3">
+                <Activity className="h-4 w-4 text-yellow-400" />
+                <span className="text-sm font-medium text-yellow-400">2026 Results</span>
               </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                Tamil Nadu Has a New Chapter
+              </h2>
+              <p className="text-white/50 mt-1 text-sm">
+                How the vote shifted — explore it constituency by constituency
+              </p>
+            </div>
+            <Link
+              href="/tamil-nadu/election-results"
+              className="hidden md:flex items-center gap-1 text-sm font-medium text-yellow-400 hover:text-yellow-300 transition-colors"
+              onClick={() => {
+                const pageContext = getPageContext()
+                trackClicked({
+                  name: 'link',
+                  page_name: pageContext.page_name || 'Homepage',
+                  link_name: 'view_all_results',
+                  link_location: 'tvk_section',
+                })
+              }}
+            >
+              Full results <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          {/* Seat shift cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            {[
+              { party: 'TVK', seats: 108, prev: 0, color: '#F5C518', note: 'Debut election' },
+              { party: 'DMK', seats: 59, prev: 133, color: '#E7191E', note: 'Outgoing govt' },
+              { party: 'AIADMK', seats: 47, prev: 68, color: '#10663D', note: '' },
+              { party: 'INC', seats: 5, prev: 18, color: '#00bcd4', note: '' },
+            ].map((p) => (
+              <div
+                key={p.party}
+                className="rounded-xl bg-white/5 border border-white/10 p-5 text-center"
+              >
+                <div
+                  className="text-xs font-bold uppercase tracking-widest mb-2"
+                  style={{ color: p.color }}
+                >
+                  {p.party}
+                </div>
+                <div className="text-4xl font-black text-white mb-1">{p.seats}</div>
+                <div className="text-xs text-white/40">
+                  {p.prev === 0 ? (
+                    <span className="text-yellow-400 font-semibold">New entrant</span>
+                  ) : (
+                    <span
+                      className={
+                        p.seats > p.prev
+                          ? 'text-green-400 font-semibold'
+                          : 'text-red-400 font-semibold'
+                      }
+                    >
+                      {p.seats > p.prev ? '▲' : '▼'} {Math.abs(p.seats - p.prev)} from 2021
+                    </span>
+                  )}
+                </div>
+                {p.note && <div className="text-[10px] text-white/30 mt-1">{p.note}</div>}
+              </div>
+            ))}
+          </div>
+
+          {/* Vote Transfer CTA */}
+          <div className="rounded-xl bg-white/5 border border-yellow-500/20 p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <h3 className="text-lg font-bold text-white mb-1">
+                See how votes flowed in your constituency
+              </h3>
+              <p className="text-white/50 text-sm">
+                Every assembly page now has an alluvial flow chart comparing 2021 &amp; 2026 —
+                ribbons show which parties held on, and where the new surge came from.
+              </p>
+            </div>
+            <Button
+              asChild
+              className="shrink-0 bg-yellow-500 hover:bg-yellow-400 text-black font-bold"
+            >
               <Link
-                href="/tamil-nadu/election-predictions"
-                className="hidden md:flex items-center gap-1 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                href="/tamil-nadu/dashboard"
                 onClick={() => {
                   const pageContext = getPageContext()
                   trackClicked({
-                    name: 'link',
+                    name: 'button',
                     page_name: pageContext.page_name || 'Homepage',
-                    link_name: 'view_all_predictions',
-                    link_location: 'predictions_section',
+                    button_name: 'explore_vote_transfer',
+                    button_label: 'Explore Vote Transfer',
                   })
                 }}
               >
-                View all <ChevronRight className="h-4 w-4" />
+                Pick a constituency <ChevronRight className="ml-1 h-4 w-4" />
               </Link>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {predictors.map((predictor) => (
-                <Link
-                  key={predictor.id}
-                  href={predictorHref('tamil-nadu', predictor.id, predictor.name)}
-                  className="group"
-                  onClick={() => {
-                    const pageContext = getPageContext()
-                    trackClicked({
-                      name: 'link',
-                      page_name: pageContext.page_name || 'Homepage',
-                      link_name: 'predictor_card',
-                      link_location: 'predictions_section',
-                    })
-                  }}
-                >
-                  <div className="h-full rounded-xl bg-white/5 border border-white/10 p-5 hover:bg-white/8 hover:border-purple-500/40 transition-all duration-300">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-purple-500/40">
-                        {predictor.imagePath ? (
-                          <Image
-                            src={predictor.imagePath}
-                            alt={predictor.name}
-                            fill
-                            className="object-cover"
-                            sizes="48px"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-purple-900/40 text-purple-400">
-                            <User className="h-5 w-5" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-white truncate group-hover:text-purple-300 transition-colors">
-                          {predictor.name}
-                        </p>
-                        {predictor.latestYear && (
-                          <p className="text-xs text-white/40">{predictor.latestYear} Forecast</p>
-                        )}
-                      </div>
-                    </div>
-
-                    {predictor.totalPredictions > 0 && (
-                      <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">
-                            Called
-                          </p>
-                          <p className="text-xl font-bold text-white">
-                            {predictor.calledSeats}
-                            <span className="text-xs font-normal text-white/40">
-                              /{predictor.totalPredictions}
-                            </span>
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">
-                            Close
-                          </p>
-                          <p className="text-xl font-bold text-white">{predictor.tooCloseToCall}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-purple-400 mb-1">
-                            Leading
-                          </p>
-                          {predictor.leadingParty ? (
-                            <span className="inline-block rounded px-1.5 py-0.5 text-[11px] font-bold text-white bg-red-600">
-                              {predictor.leadingParty}
-                            </span>
-                          ) : (
-                            <p className="text-sm text-white/40">&mdash;</p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="mt-4 flex items-center gap-1 text-xs font-medium text-purple-400 group-hover:text-purple-300 transition-colors">
-                      <TrendingUp className="h-3 w-3" />
-                      View prediction map
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            <div className="mt-6 text-center md:hidden">
-              <Link
-                href="/tamil-nadu/election-predictions"
-                className="inline-flex items-center gap-1 text-sm font-medium text-purple-400 hover:text-purple-300"
-              >
-                View all predictions <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
+            </Button>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Coming Soon */}
       <section className="container py-16">
