@@ -1,5 +1,9 @@
 # India Stats CMS — Copilot Instructions
 
+> **SECURITY — PUBLIC REPOSITORY**
+> Never include passwords, API keys, connection strings, tokens, or any secrets in generated code, scripts, commands, or commit messages.
+> All sensitive values must come from environment variables (`.env.local`, CI secrets, or Azure Key Vault). Do not hardcode or suggest hardcoding credentials of any kind.
+
 PayloadCMS 3.x + Next.js 15 app serving Indian election data (currently Tamil Nadu).
 See [CLAUDE.md](../CLAUDE.md) for full architecture, DB schema, design system, and migration scripts.
 
