@@ -1299,8 +1299,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                     >
                       <option value="">Election Year</option>
                       {[
-                        2026, 2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977, 1971,
-                        1967, 1962, 1957, 1952,
+                        2026, 2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977,
+                        1971, 1967, 1962, 1957, 1952,
                       ].map((year) => (
                         <option key={year} value={year}>
                           {year}
@@ -1366,8 +1366,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                     >
                       <option value="">Select</option>
                       {[
-                        2026, 2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977, 1971,
-                        1967, 1962, 1957, 1952,
+                        2026, 2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977,
+                        1971, 1967, 1962, 1957, 1952,
                       ]
                         .filter((year) => year !== compareYear)
                         .map((year) => (
@@ -1398,8 +1398,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                     >
                       <option value="">Select</option>
                       {[
-                        2026, 2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977, 1971,
-                        1967, 1962, 1957, 1952,
+                        2026, 2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977,
+                        1971, 1967, 1962, 1957, 1952,
                       ]
                         .filter((year) => year !== selectedElectionYear)
                         .map((year) => (
