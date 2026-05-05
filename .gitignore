@@ -2,6 +2,9 @@ build
 dist / media
 node_modules
 .DS_Store
+*.swp
+*.swo
+functions/dist/
 .env
 .next
 .vercel
