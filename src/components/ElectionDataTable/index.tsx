@@ -129,6 +129,7 @@ export function ElectionDataTable() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const hasYearInURL = searchParams.has('year')
 
   useEffect(() => {
     setPageContext({
@@ -157,7 +158,7 @@ export function ElectionDataTable() {
   const [error, setError] = useState<string | null>(null)
 
   // Filter state — initialised from URL search params
-  const [selectedYear, setSelectedYear] = useState<string>(() => searchParams.get('year') ?? '2021')
+  const [selectedYear, setSelectedYear] = useState<string>(() => searchParams.get('year') ?? 'all')
   const [selectedDistrict, setSelectedDistrict] = useState<string>(
     () => searchParams.get('district') ?? 'all',
   )
@@ -362,6 +363,14 @@ export function ElectionDataTable() {
     }
     fetchInitialYears()
   }, [])
+
+  useEffect(() => {
+    if (!hasYearInURL && selectedYear === 'all' && initialYears.length > 0) {
+      const latestYear = String(initialYears[0])
+      setSelectedYear(latestYear)
+      updateURL({ year: latestYear })
+    }
+  }, [hasYearInURL, initialYears, selectedYear, updateURL])
 
   // Fetch data when year filter changes
   useEffect(() => {

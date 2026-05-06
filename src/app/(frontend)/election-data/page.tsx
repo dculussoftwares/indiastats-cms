@@ -21,8 +21,8 @@ export default function ElectionDataPage() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Tamil Nadu Election Data</h1>
           <p className="text-muted-foreground">
-            Comprehensive election results from 1952 to 2021. Filter by year, district, or winning
-            party. Export data to Excel for your analysis.
+            Comprehensive election results from 1952 to the latest available election year. Filter
+            by year, district, or winning party. Export data to Excel for your analysis.
           </p>
         </div>
 

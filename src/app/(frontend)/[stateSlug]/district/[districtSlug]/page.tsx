@@ -223,20 +223,29 @@ async function _getDistrictData(districtSlug: string) {
     limit: 100,
   })
 
-  const assemblyCasteData = casteCensusResult.docs.map((doc: any) => ({
-    assemblyId: doc.assemblyId,
-    assemblyName: doc.assemblyName,
-    rank1Caste: doc.rank1Caste,
-    rank1Percentage: doc.rank1Percentage,
-    rank2Caste: doc.rank2Caste,
-    rank2Percentage: doc.rank2Percentage,
-    rank3Caste: doc.rank3Caste,
-    rank3Percentage: doc.rank3Percentage,
-    rank4Caste: doc.rank4Caste,
-    rank4Percentage: doc.rank4Percentage,
-    rank5Caste: doc.rank5Caste,
-    rank5Percentage: doc.rank5Percentage,
-  }))
+  // Keep one row per assembly to avoid duplicate UI rows/React keys.
+  const seenAssemblyIds = new Set<string>()
+  const assemblyCasteData = casteCensusResult.docs
+    .filter((doc: any) => {
+      const assemblyId = doc.assemblyId
+      if (!assemblyId || seenAssemblyIds.has(assemblyId)) return false
+      seenAssemblyIds.add(assemblyId)
+      return true
+    })
+    .map((doc: any) => ({
+      assemblyId: doc.assemblyId,
+      assemblyName: doc.assemblyName,
+      rank1Caste: doc.rank1Caste,
+      rank1Percentage: doc.rank1Percentage,
+      rank2Caste: doc.rank2Caste,
+      rank2Percentage: doc.rank2Percentage,
+      rank3Caste: doc.rank3Caste,
+      rank3Percentage: doc.rank3Percentage,
+      rank4Caste: doc.rank4Caste,
+      rank4Percentage: doc.rank4Percentage,
+      rank5Caste: doc.rank5Caste,
+      rank5Percentage: doc.rank5Percentage,
+    }))
 
   return {
     districtId: district.districtId,
