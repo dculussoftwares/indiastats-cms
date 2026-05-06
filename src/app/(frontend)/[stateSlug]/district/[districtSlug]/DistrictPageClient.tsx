@@ -13,6 +13,8 @@ import {
   ArrowLeft, ChevronRight, Building2, MapPin, Locate, BookOpen,
   Factory, GraduationCap, HeartPulse, Bus, Landmark, Briefcase, Store,
 } from 'lucide-react'
+import { getPartyColor } from '@/lib/partyColors'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 import { DistrictPageJsonLd } from '@/components/seo/JsonLd'
@@ -131,6 +133,61 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
   // Calculate total booths across all assemblies
   const totalBooths = data.assemblies.reduce((sum, a) => sum + (a.noOfBooths || 0), 0)
 
+  // Latest election year helpers
+  const latestYear = React.useMemo(() => {
+    if (!data.electionHistory?.length) return null
+    return Math.max(...data.electionHistory.map((e) => e.year))
+  }, [data.electionHistory])
+
+  // Per-assembly winner in latest election (for Dominance Scorecard)
+  const dominanceData = React.useMemo(() => {
+    if (!data.electionHistory?.length || !latestYear) return []
+    const nameMap = Object.fromEntries(data.assemblies.map((a) => [a.assemblyId, a.name]))
+    return data.electionHistory
+      .filter((e) => e.year === latestYear)
+      .map((r) => {
+        const winner =
+          r.candidates.find((c) => c.rank === 1) ??
+          [...r.candidates].sort((a, b) => b.votes - a.votes)[0]
+        return {
+          assemblyId: r.assemblyId,
+          assemblyName: nameMap[r.assemblyId] ?? r.assemblyId,
+          party: winner?.party ?? 'Unknown',
+        }
+      })
+  }, [data.electionHistory, data.assemblies, latestYear])
+
+  // Aggregate vote share by party in latest election (for Pie chart)
+  const voteSharePie = React.useMemo(() => {
+    if (!data.electionHistory?.length || !latestYear) return []
+    const votesMap: Record<string, number> = {}
+    for (const r of data.electionHistory.filter((e) => e.year === latestYear)) {
+      for (const c of r.candidates) {
+        votesMap[c.party] = (votesMap[c.party] || 0) + c.votes
+      }
+    }
+    const total = Object.values(votesMap).reduce((s, v) => s + v, 0)
+    const sorted = Object.entries(votesMap).sort((a, b) => b[1] - a[1])
+    const TOP_N = 6
+    const top = sorted.slice(0, TOP_N)
+    const othersVotes = sorted.slice(TOP_N).reduce((s, [, v]) => s + v, 0)
+    const slices = top.map(([party, votes]) => ({
+      name: party,
+      value: votes,
+      pct: +(((votes / total) * 100).toFixed(1)),
+      color: getPartyColor(party),
+    }))
+    if (othersVotes > 0) {
+      slices.push({
+        name: 'Others',
+        value: othersVotes,
+        pct: +(((othersVotes / total) * 100).toFixed(1)),
+        color: '#9ca3af',
+      })
+    }
+    return slices
+  }, [data.electionHistory, latestYear])
+
   return (
     <div className="container py-8">
       {/* Back Button */}
@@ -223,18 +280,146 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
         </Card>
       </section>
 
-      {/* Most Winning Parties */}
-      {data.electionHistory && data.electionHistory.length > 0 && (
+      {/* District Dominance Scorecard */}
+      {dominanceData.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Most Winning Parties since ADMK formed
+            District Dominance — {latestYear} Election
           </h2>
-          <MostWinningPartiesCard
-            historicData={data.electionHistory}
-            allianceData={data.allianceData}
-          />
+          <Card>
+            <CardContent className="pt-4 pb-4">
+              {/* Seat dots — one per assembly, coloured by winning party */}
+              <div className="flex flex-wrap gap-1.5 mb-5">
+                {dominanceData.map(({ assemblyId, assemblyName, party }) => (
+                  <div
+                    key={assemblyId}
+                    title={`${assemblyName}: ${party}`}
+                    className="w-5 h-5 rounded-full border-2 border-white dark:border-gray-900 cursor-default flex-shrink-0"
+                    style={{ backgroundColor: getPartyColor(party) }}
+                  />
+                ))}
+              </div>
+              {/* Party seat bars */}
+              <div className="space-y-2">
+                {Object.entries(
+                  dominanceData.reduce<Record<string, number>>((acc, { party }) => {
+                    acc[party] = (acc[party] ?? 0) + 1
+                    return acc
+                  }, {}),
+                )
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([party, seats], _, arr) => {
+                    const color = getPartyColor(party)
+                    const maxSeats = arr[0]![1]
+                    const pct = Math.round((seats / dominanceData.length) * 100)
+                    return (
+                      <div key={party} className="flex items-center gap-3">
+                        <span className="text-[11px] font-bold w-14 truncate flex-shrink-0">
+                          {party}
+                        </span>
+                        <div className="flex-1 h-4 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
+                          <div
+                            className="h-full rounded"
+                            style={{
+                              width: `${(seats / maxSeats) * 100}%`,
+                              backgroundColor: color,
+                              opacity: 0.85,
+                            }}
+                          />
+                        </div>
+                        <span
+                          className="text-xs font-bold w-14 text-right flex-shrink-0"
+                          style={{ color }}
+                        >
+                          {seats} seat{seats !== 1 ? 's' : ''}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground w-8 text-right flex-shrink-0">
+                          {pct}%
+                        </span>
+                      </div>
+                    )
+                  })}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                Each dot = one assembly constituency. Colour = winning party in {latestYear}.
+              </p>
+            </CardContent>
+          </Card>
         </section>
       )}
+
+      {/* Vote Share + Year-wise Party Performance — side by side */}
+      {voteSharePie.length > 0 || (data.electionHistory && data.electionHistory.length > 0) ? (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Election Performance
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Pie: latest year vote share */}
+            {voteSharePie.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">
+                    {latestYear} Vote Share across District
+                  </p>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={voteSharePie}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={82}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {voteSharePie.map((entry) => (
+                          <Cell key={entry.name} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value: number, name: string) => {
+                          const entry = voteSharePie.find((e) => e.name === name)
+                          return [`${value.toLocaleString()} votes (${entry?.pct}%)`, name]
+                        }}
+                        contentStyle={{
+                          fontSize: 11,
+                          border: '1px solid #e5e7eb',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1.5 justify-center mt-2">
+                    {voteSharePie.map((entry) => (
+                      <div key={entry.name} className="flex items-center gap-1">
+                        <div
+                          className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                          style={{ backgroundColor: entry.color }}
+                        />
+                        <span className="text-[10px]">{entry.name}</span>
+                        <span className="text-[10px] font-bold">{entry.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Bar: historical party wins per year */}
+            {data.electionHistory && data.electionHistory.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">
+                    Year-wise Party Performance
+                  </p>
+                  <PartyWinsChart historicData={data.electionHistory} />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {/* Population Changes */}
       <section className="mb-8">
@@ -259,16 +444,6 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
         </h2>
         <CasteComparisonTable assemblyCasteData={data.assemblyCasteData} />
       </section>
-
-      {/* Year-wise Party Performance */}
-      {data.electionHistory && data.electionHistory.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Year-wise Party Performance
-          </h2>
-          <PartyWinsChart historicData={data.electionHistory} />
-        </section>
-      )}
 
       {/* Assemblies List */}
       <section className="mb-8">
@@ -332,6 +507,19 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
           ))}
         </div>
       </section>
+
+      {/* Most Winning Parties */}
+      {data.electionHistory && data.electionHistory.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Most Winning Parties since ADMK formed
+          </h2>
+          <MostWinningPartiesCard
+            historicData={data.electionHistory}
+            allianceData={data.allianceData}
+          />
+        </section>
+      )}
 
       {/* District Description */}
       {data.description && (
