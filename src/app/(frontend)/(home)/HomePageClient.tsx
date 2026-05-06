@@ -21,6 +21,13 @@ import {
   User,
   Activity,
   FlaskConical,
+  Zap,
+  Scale,
+  GitMerge,
+  Building2,
+  PieChart,
+  Target,
+  Trophy,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -209,6 +216,172 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 <StatCounter value={stats.totalVoters} label="Voters" />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Election Analysis Feature — most important section */}
+      <section className="bg-gradient-to-br from-[#0f0f1a] via-[#1a1a2e] to-[#0f0f1a] py-16 border-y border-white/5">
+        <div className="container">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-red-600/15 border border-red-600/30 rounded-full px-3 py-1 mb-3">
+                <Zap className="h-3.5 w-3.5 text-red-500" />
+                <span className="text-red-400 text-xs font-semibold uppercase tracking-wider">
+                  Deep Analytics
+                </span>
+              </div>
+              <h2 className="text-2xl md:text-4xl font-bold text-white leading-tight">
+                Election Analysis
+                <span className="block text-red-500 text-xl md:text-2xl font-normal mt-1">
+                  The most comprehensive psephology dashboard in India
+                </span>
+              </h2>
+              <p className="text-white/50 mt-3 max-w-xl text-sm leading-relaxed">
+                Go beyond raw results. Every election year dissected through{' '}
+                <span className="text-white/80 font-semibold">10+ analytical lenses</span> — from
+                FPTP distortion and vote-split math to district dominance maps and security deposit
+                forfeitures.
+              </p>
+            </div>
+            <Link
+              href="/tamil-nadu/election-analysis/2021"
+              onClick={() => {
+                const pageContext = getPageContext()
+                trackClicked({
+                  name: 'link',
+                  page_name: pageContext.page_name || 'Homepage',
+                  link_name: 'election_analysis_hero_cta',
+                  link_location: 'election_analysis_feature',
+                })
+              }}
+            >
+              <div className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white font-semibold px-5 py-3 rounded-lg text-sm whitespace-nowrap">
+                Explore 2021 Analysis
+                <ChevronRight className="h-4 w-4" />
+              </div>
+            </Link>
+          </div>
+
+          {/* Analysis modules grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+            {[
+              {
+                icon: <Scale className="h-5 w-5" />,
+                title: 'Vote-to-Seat Disproportionality',
+                desc: 'Gallagher Index — how FPTP manufactures majorities',
+                color: 'red',
+              },
+              {
+                icon: <PieChart className="h-5 w-5" />,
+                title: 'Plurality Winners',
+                desc: 'Seats won with <50% of votes — the spoiler effect',
+                color: 'orange',
+              },
+              {
+                icon: <GitMerge className="h-5 w-5" />,
+                title: 'Seat Flip Sankey',
+                desc: 'How seats changed hands between parties',
+                color: 'violet',
+              },
+              {
+                icon: <TrendingUp className="h-5 w-5" />,
+                title: 'Vote Share Wave',
+                desc: 'Party trajectories across election cycles',
+                color: 'blue',
+              },
+              {
+                icon: <Target className="h-5 w-5" />,
+                title: 'Contest Intensity',
+                desc: 'Candidate density vs winning margins',
+                color: 'indigo',
+              },
+              {
+                icon: <Building2 className="h-5 w-5" />,
+                title: 'District Dominance',
+                desc: 'Geographic strongholds — seat-dot scorecards',
+                color: 'teal',
+              },
+              {
+                icon: <Trophy className="h-5 w-5" />,
+                title: 'Runner-Up Analysis',
+                desc: 'The eternal bridesmaid — near-miss constituencies',
+                color: 'amber',
+              },
+              {
+                icon: <BarChart3 className="h-5 w-5" />,
+                title: 'Mandate Meter',
+                desc: 'Vote share vs previous election, party by party',
+                color: 'emerald',
+              },
+              {
+                icon: <Activity className="h-5 w-5" />,
+                title: 'Nail-biters & Landslides',
+                desc: 'Margin scatter across all 234 constituencies',
+                color: 'rose',
+              },
+              {
+                icon: <Users className="h-5 w-5" />,
+                title: 'Security Deposits',
+                desc: 'Parties whose candidates forfeited deposits',
+                color: 'red',
+              },
+            ].map((m) => {
+              const colorMap: Record<string, string> = {
+                red: 'bg-red-600/15 border-red-600/20 group-hover:border-red-500/50',
+                orange: 'bg-orange-600/15 border-orange-600/20 group-hover:border-orange-500/50',
+                violet: 'bg-violet-600/15 border-violet-600/20 group-hover:border-violet-500/50',
+                blue: 'bg-blue-600/15 border-blue-600/20 group-hover:border-blue-500/50',
+                indigo: 'bg-indigo-600/15 border-indigo-600/20 group-hover:border-indigo-500/50',
+                teal: 'bg-teal-600/15 border-teal-600/20 group-hover:border-teal-500/50',
+                amber: 'bg-amber-600/15 border-amber-600/20 group-hover:border-amber-500/50',
+                emerald:
+                  'bg-emerald-600/15 border-emerald-600/20 group-hover:border-emerald-500/50',
+                rose: 'bg-rose-600/15 border-rose-600/20 group-hover:border-rose-500/50',
+              }
+              const iconColorMap: Record<string, string> = {
+                red: 'text-red-400',
+                orange: 'text-orange-400',
+                violet: 'text-violet-400',
+                blue: 'text-blue-400',
+                indigo: 'text-indigo-400',
+                teal: 'text-teal-400',
+                amber: 'text-amber-400',
+                emerald: 'text-emerald-400',
+                rose: 'text-rose-400',
+              }
+              return (
+                <Link
+                  key={m.title}
+                  href="/tamil-nadu/election-analysis/2021"
+                  className={`group p-4 rounded-xl border bg-white/[0.03] ${colorMap[m.color] ?? colorMap.red} hover:bg-white/[0.07] transition-all duration-200`}
+                >
+                  <div className={`mb-2 ${iconColorMap[m.color] ?? iconColorMap.red}`}>
+                    {m.icon}
+                  </div>
+                  <p className="text-white text-[12px] font-semibold leading-snug mb-1">
+                    {m.title}
+                  </p>
+                  <p className="text-white/40 text-[10px] leading-relaxed">{m.desc}</p>
+                </Link>
+              )
+            })}
+          </div>
+
+          {/* Bottom strip: year switcher teaser */}
+          <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-white/5">
+            <span className="text-white/30 text-xs uppercase tracking-wider">Available for</span>
+            {[2021, 2016, 2011, 2006].map((y) => (
+              <Link
+                key={y}
+                href={`/tamil-nadu/election-analysis/${y}`}
+                className="px-3 py-1 rounded-full border border-white/10 text-white/50 hover:border-red-500/50 hover:text-red-400 text-xs font-semibold transition-colors"
+              >
+                {y}
+              </Link>
+            ))}
+            <span className="text-white/20 text-xs">+ all Tamil Nadu elections</span>
           </div>
         </div>
       </section>
