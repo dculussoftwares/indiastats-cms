@@ -581,15 +581,6 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 })
               }}
               className="group"
-              onClick={() => {
-                const pageContext = getPageContext()
-                trackClicked({
-                  name: 'link',
-                  page_name: pageContext.page_name || 'Homepage',
-                  link_name: 'election_analysis_card',
-                  link_location: 'features_section',
-                })
-              }}
             >
               <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/50 transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-purple-600/20 flex items-center justify-center mb-4 group-hover:bg-purple-600/30 transition-colors">
