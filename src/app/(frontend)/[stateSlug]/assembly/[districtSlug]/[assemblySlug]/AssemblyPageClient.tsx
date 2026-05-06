@@ -8,6 +8,8 @@ import { PopulationChangeCard } from '@/components/PopulationChangeCard'
 import { GenderChart } from '@/components/GenderChart'
 import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
 import { VotesSharesChart } from '@/components/VotesSharesChart'
+import { getPartyColor } from '@/lib/partyColors'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { VoteTransferChart } from '@/components/VoteTransferChart'
 import { PastWinningHistories } from '@/components/PastWinningHistories'
 import { ViewOnMapCard } from '@/components/ViewOnMapCard'
@@ -131,6 +133,36 @@ function formatNumber(num: number): string {
 
 export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps) {
   const [showAllWinningHistories, setShowAllWinningHistories] = React.useState(false)
+
+  // Latest election vote-share pie
+  const voteSharePie = React.useMemo((): {
+    slices: { name: string; value: number; pct: number; color: string }[]
+    year: number
+  } | null => {
+    if (!data.electionHistory.length) return null
+    const latest = [...data.electionHistory].sort((a, b) => b.year - a.year)[0]!
+    const total = latest.candidates.reduce((s, c) => s + c.votes, 0)
+    if (!total) return null
+    const sorted = [...latest.candidates].sort((a, b) => b.votes - a.votes)
+    const TOP_N = 6
+    const top = sorted.slice(0, TOP_N)
+    const othersVotes = sorted.slice(TOP_N).reduce((s, c) => s + c.votes, 0)
+    const slices = top.map((c) => ({
+      name: c.party,
+      value: c.votes,
+      pct: +((c.votes / total) * 100).toFixed(1),
+      color: getPartyColor(c.party),
+    }))
+    if (othersVotes > 0) {
+      slices.push({
+        name: 'Others',
+        value: othersVotes,
+        pct: +((othersVotes / total) * 100).toFixed(1),
+        color: '#9ca3af',
+      })
+    }
+    return { slices, year: latest.year }
+  }, [data.electionHistory])
 
   React.useEffect(() => {
     setPageContext({
@@ -379,6 +411,85 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
         </section>
       )}
 
+      {/* Vote Shares — pie (latest) + historical bar chart side-by-side */}
+      {data.electionHistory.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Vote Shares by Party
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Pie: latest election */}
+            {voteSharePie && voteSharePie.slices.length > 0 && (
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">
+                    {voteSharePie.year} Vote Share
+                  </p>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={voteSharePie.slices}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={82}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {voteSharePie.slices.map((entry) => (
+                          <Cell key={entry.name} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(
+                          value: number | string | undefined,
+                          name: string | undefined,
+                        ) => {
+                          const entry = voteSharePie.slices.find(
+                            (e: { name: string }) => e.name === name,
+                          )
+                          return [
+                            `${Number(value ?? 0).toLocaleString()} votes (${entry?.pct ?? 0}%)`,
+                            name ?? '',
+                          ] as [string, string]
+                        }}
+                        contentStyle={{
+                          fontSize: 11,
+                          border: '1px solid #e5e7eb',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1.5 justify-center mt-2">
+                    {voteSharePie.slices.map((entry) => (
+                      <div key={entry.name} className="flex items-center gap-1">
+                        <div
+                          className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                          style={{ backgroundColor: entry.color }}
+                        />
+                        <span className="text-[10px]">{entry.name}</span>
+                        <span className="text-[10px] font-bold">{entry.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Bar: historical vote share across years */}
+            <Card>
+              <CardContent className="pt-4 pb-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">
+                  Historical Vote Share
+                </p>
+                <VotesSharesChart electionHistory={data.electionHistory} />
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      )}
+
       {/* Gender chart */}
       {data.voters && (
         <section className="mb-8">
@@ -404,16 +515,6 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
             Population Changes since 2019
           </h2>
           <PopulationChangeCard voters={data.voters} lastElectionVoters={data.lastElectionVoters} />
-        </section>
-      )}
-
-      {/* Votes shares */}
-      {data.electionHistory.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Vote Shares by Party
-          </h2>
-          <VotesSharesChart electionHistory={data.electionHistory} />
         </section>
       )}
 
