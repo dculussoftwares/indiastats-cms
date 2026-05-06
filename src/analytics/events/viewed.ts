@@ -15,13 +15,22 @@ export type ViewedEvent =
   | 'assembly'
   | 'assembly_demographics'
   | 'election_prediction_page'
+  | 'election_analysis_page'
+  | 'share_page'
 
 export function trackViewed(
-  properties: { name: ViewedEvent; page_name: string; page_url?: string; page_path?: string } & Record<string, unknown>,
+  properties: {
+    name: ViewedEvent
+    page_name: string
+    page_url?: string
+    page_path?: string
+  } & Record<string, unknown>,
 ) {
   // Fallback to window.location if not provided
-  const page_url = properties.page_url || (typeof window !== 'undefined' ? window.location.href : undefined)
-  const page_path = properties.page_path || (typeof window !== 'undefined' ? window.location.pathname : undefined)
+  const page_url =
+    properties.page_url || (typeof window !== 'undefined' ? window.location.href : undefined)
+  const page_path =
+    properties.page_path || (typeof window !== 'undefined' ? window.location.pathname : undefined)
 
   setPageContext({
     page_name: properties.page_name,

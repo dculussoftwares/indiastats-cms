@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { trackViewed, setPageContext, PAGE_NAMES } from '@/analytics'
+import { getCurrentUTM } from '@/utilities/utm'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -170,6 +172,22 @@ export function SharePageClient() {
   const [selectedPage, setSelectedPage] = useState(DESTINATION_PAGES[1]!) // Tamil Nadu default
   const [copied, setCopied] = useState<CopiedState | null>(null)
   const [expandedFriend, setExpandedFriend] = useState<string | null>(null)
+
+  // Page view tracking
+  useEffect(() => {
+    setPageContext({
+      page_name: PAGE_NAMES.SHARE,
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      ...getCurrentUTM(window.location.search),
+    })
+    trackViewed({
+      name: 'share_page',
+      page_name: PAGE_NAMES.SHARE,
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+    })
+  }, [])
 
   // Load from localStorage on mount
   useEffect(() => {

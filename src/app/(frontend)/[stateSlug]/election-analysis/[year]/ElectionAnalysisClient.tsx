@@ -28,7 +28,7 @@ import { ConstituencyLeaderboard } from '@/components/ConstituencyLeaderboard'
 import { WaveTimeline } from '@/components/WaveTimeline'
 import { GenderDistrictChart } from '@/components/GenderDistrictChart'
 import { HemicycleChart } from '@/components/HemicycleChart'
-import { trackViewed, setPageContext } from '@/analytics'
+import { trackViewed, setPageContext, PAGE_NAMES } from '@/analytics'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { ElectionAnalysisResponse } from '@/app/api/election-analysis/route'
 
@@ -1487,13 +1487,13 @@ export function ElectionAnalysisClient({
 
   React.useEffect(() => {
     setPageContext({
-      page_name: 'Election Analysis',
+      page_name: PAGE_NAMES.ELECTION_ANALYSIS,
       page_url: typeof window !== 'undefined' ? window.location.href : undefined,
       page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
     })
     trackViewed({
       name: 'election_analysis_page',
-      page_name: 'Election Analysis',
+      page_name: PAGE_NAMES.ELECTION_ANALYSIS,
       page_type: 'other',
     })
   }, [])

@@ -246,7 +246,18 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               </p>
             </div>
             <Link href="/tamil-nadu/election-analysis/2026">
-              <div className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white font-semibold px-5 py-3 rounded-lg text-sm whitespace-nowrap">
+              <div
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white font-semibold px-5 py-3 rounded-lg text-sm whitespace-nowrap"
+                onClick={() => {
+                  const pageContext = getPageContext()
+                  trackClicked({
+                    name: 'election_analysis_cta',
+                    page_name: pageContext.page_name || 'Homepage',
+                    cta_label: 'Explore 2026 Analysis',
+                    cta_location: 'election_analysis_feature_header',
+                  })
+                }}
+              >
                 Explore 2026 Analysis
                 <ChevronRight className="h-4 w-4" />
               </div>
@@ -355,6 +366,16 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                   key={m.title}
                   href={`/tamil-nadu/election-analysis/2026#${m.hash}`}
                   className={`group p-4 rounded-xl border bg-white/[0.03] ${colorMap[m.color] ?? colorMap.red} hover:bg-white/[0.07] transition-all duration-200`}
+                  onClick={() => {
+                    const pageContext = getPageContext()
+                    trackClicked({
+                      name: 'analysis_module',
+                      page_name: pageContext.page_name || 'Homepage',
+                      module_name: m.title,
+                      module_hash: m.hash,
+                      module_color: m.color,
+                    })
+                  }}
                 >
                   <div className={`mb-2 ${iconColorMap[m.color] ?? iconColorMap.red}`}>
                     {m.icon}
@@ -380,6 +401,15 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                     ? 'border-red-500/60 text-red-400 bg-red-600/10 hover:bg-red-600/20'
                     : 'border-white/10 text-white/50 hover:border-red-500/50 hover:text-red-400'
                 }`}
+                onClick={() => {
+                  const pageContext = getPageContext()
+                  trackClicked({
+                    name: 'election_analysis_year',
+                    page_name: pageContext.page_name || 'Homepage',
+                    year: y,
+                    year_location: 'election_analysis_year_strip',
+                  })
+                }}
               >
                 {y === 2026 ? '2026 ✦' : y}
               </Link>

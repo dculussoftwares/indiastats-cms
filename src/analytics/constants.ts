@@ -25,6 +25,8 @@ export const PAGE_NAMES = {
   NOT_FOUND: '404 Not Found',
   ELECTION_PREDICTIONS: 'Election Predictions',
   ELECTION_RESULTS: 'Election Results',
+  ELECTION_ANALYSIS: 'Election Analysis',
+  SHARE: 'Share',
 } as const
 
 // ============================================

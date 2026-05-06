@@ -180,6 +180,8 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       assembly_name: data.name,
       district_id: data.districtId,
       district_name: data.districtName,
+      has_vote_share_pie: data.electionHistory.length > 0,
+      has_historical_vote_chart: data.electionHistory.length > 0,
     })
   }, [])
 

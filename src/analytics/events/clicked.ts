@@ -38,6 +38,11 @@ export type ClickedEvent =
   | 'election_results_party_filter'
   | 'election_results_seat_click'
   | 'table_sort'
+  | 'analysis_module'
+  | 'election_analysis_year'
+  | 'election_analysis_cta'
+  | 'district_dominance_party'
+  | 'vote_share_pie_slice'
 
 export function trackClicked(
   properties: { name: ClickedEvent; page_name: string } & Record<string, unknown>,
