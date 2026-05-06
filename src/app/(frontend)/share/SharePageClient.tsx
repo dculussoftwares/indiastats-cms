@@ -48,6 +48,7 @@ const DESTINATION_PAGES = [
   { label: 'Dashboard', path: '/tamil-nadu/dashboard' },
   { label: 'Election Predictions', path: '/tamil-nadu/election-predictions' },
   { label: 'Live Election Results', path: '/tamil-nadu/election-results' },
+  { label: 'Election Analysis 2026', path: '/tamil-nadu/election-analysis/2026' },
 ]
 
 const CHANNEL_META: Record<string, { label: string; icon: React.ReactNode; color: string }> = {

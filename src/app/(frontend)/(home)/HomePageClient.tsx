@@ -20,6 +20,7 @@ import {
   Download,
   User,
   Activity,
+  FlaskConical,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -387,6 +388,36 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 <p className="text-white/50 text-sm mb-4">TV-mode live count map for 2026</p>
                 <div className="flex items-center text-red-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Watch Live <ChevronRight className="h-4 w-4 ml-1" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Election Analysis */}
+            <Link
+              href="/tamil-nadu/election-analysis/2026"
+              className="group"
+              onClick={() => {
+                const pageContext = getPageContext()
+                trackClicked({
+                  name: 'link',
+                  page_name: pageContext.page_name || 'Homepage',
+                  link_name: 'election_analysis_card',
+                  link_location: 'features_section',
+                })
+              }}
+            >
+              <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/50 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-purple-600/20 flex items-center justify-center mb-4 group-hover:bg-purple-600/30 transition-colors">
+                  <FlaskConical className="h-6 w-6 text-purple-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-purple-400 transition-colors">
+                  Election Analysis
+                </h3>
+                <p className="text-white/50 text-sm mb-4">
+                  Deep dive: vote shares, seat flips, closest races & trends
+                </p>
+                <div className="flex items-center text-purple-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  Analyse <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
               </div>
             </Link>
