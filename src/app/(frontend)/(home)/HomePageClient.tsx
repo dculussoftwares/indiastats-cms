@@ -261,60 +261,70 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 title: 'Vote-to-Seat Disproportionality',
                 desc: 'Gallagher Index — how FPTP manufactures majorities',
                 color: 'red',
+                hash: 'vote-to-seat',
               },
               {
                 icon: <PieChart className="h-5 w-5" />,
                 title: 'Plurality Winners',
                 desc: 'Seats won with <50% of votes — the spoiler effect',
                 color: 'orange',
+                hash: 'plurality-winners',
               },
               {
                 icon: <GitMerge className="h-5 w-5" />,
                 title: 'Seat Flip Sankey',
                 desc: 'How seats changed hands between parties',
                 color: 'violet',
+                hash: 'seat-flips',
               },
               {
                 icon: <TrendingUp className="h-5 w-5" />,
                 title: 'Vote Share Wave',
                 desc: 'Party trajectories across election cycles',
                 color: 'blue',
+                hash: 'vote-wave',
               },
               {
                 icon: <Target className="h-5 w-5" />,
                 title: 'Contest Intensity',
                 desc: 'Candidate density vs winning margins',
                 color: 'indigo',
+                hash: 'contest-intensity',
               },
               {
                 icon: <Building2 className="h-5 w-5" />,
                 title: 'District Dominance',
                 desc: 'Geographic strongholds — seat-dot scorecards',
                 color: 'teal',
+                hash: 'district-dominance',
               },
               {
                 icon: <Trophy className="h-5 w-5" />,
                 title: 'Runner-Up Analysis',
                 desc: 'The eternal bridesmaid — near-miss constituencies',
                 color: 'amber',
+                hash: 'runner-up',
               },
               {
                 icon: <BarChart3 className="h-5 w-5" />,
                 title: 'Mandate Meter',
                 desc: 'Vote share vs previous election, party by party',
                 color: 'emerald',
+                hash: 'vote-share',
               },
               {
                 icon: <Activity className="h-5 w-5" />,
                 title: 'Nail-biters & Landslides',
                 desc: 'Margin scatter across all 234 constituencies',
                 color: 'rose',
+                hash: 'nail-biters',
               },
               {
                 icon: <Users className="h-5 w-5" />,
                 title: 'Security Deposits',
                 desc: 'Parties whose candidates forfeited deposits',
                 color: 'red',
+                hash: 'deposits',
               },
             ].map((m) => {
               const colorMap: Record<string, string> = {
@@ -343,7 +353,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               return (
                 <Link
                   key={m.title}
-                  href="/tamil-nadu/election-analysis/2026"
+                  href={`/tamil-nadu/election-analysis/2026#${m.hash}`}
                   className={`group p-4 rounded-xl border bg-white/[0.03] ${colorMap[m.color] ?? colorMap.red} hover:bg-white/[0.07] transition-all duration-200`}
                 >
                   <div className={`mb-2 ${iconColorMap[m.color] ?? iconColorMap.red}`}>

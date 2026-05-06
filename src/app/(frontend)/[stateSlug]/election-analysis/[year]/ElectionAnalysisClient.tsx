@@ -242,7 +242,13 @@ function VerdictHero({ data }: { data: ElectionAnalysisResponse }) {
 
 // ── Phase 5: Contest Intensity ────────────────────────────────────────────────
 // How crowded were the races? numCandidates histogram + multi-cornered contest breakdown
-function ContestIntensityCard({ constituencies }: { constituencies: ConstituencyResult[] }) {
+function ContestIntensityCard({
+  constituencies,
+  sectionId,
+}: {
+  constituencies: ConstituencyResult[]
+  sectionId?: string
+}) {
   const [showInfo, setShowInfo] = React.useState(false)
 
   // Bucket by candidate count
@@ -296,7 +302,7 @@ function ContestIntensityCard({ constituencies }: { constituencies: Constituency
     .slice(0, 5)
 
   return (
-    <section>
+    <section id={sectionId}>
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3">Contest Intensity</h2>
         <button
@@ -445,9 +451,11 @@ function ContestIntensityCard({ constituencies }: { constituencies: Constituency
 function RunnerUpCard({
   constituencies,
   stateSlug,
+  sectionId,
 }: {
   constituencies: ConstituencyResult[]
   stateSlug: string
+  sectionId?: string
 }) {
   const [showInfo, setShowInfo] = React.useState(false)
   const [selectedParty, setSelectedParty] = React.useState<string | null>(null)
@@ -486,7 +494,7 @@ function RunnerUpCard({
   const maxCount = Math.max(...rows.map((r) => r.count), 1)
 
   return (
-    <section>
+    <section id={sectionId}>
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3">
           Runner-Up Party Analysis
@@ -671,9 +679,11 @@ function RunnerUpCard({
 function DistrictDominanceCard({
   constituencies,
   stateSlug,
+  sectionId,
 }: {
   constituencies: ConstituencyResult[]
   stateSlug: string
+  sectionId?: string
 }) {
   const [showInfo, setShowInfo] = React.useState(false)
 
@@ -711,7 +721,7 @@ function DistrictDominanceCard({
     .sort((a, b) => b.dominancePct - a.dominancePct || b.seats.length - a.seats.length)
 
   return (
-    <section>
+    <section id={sectionId}>
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3">
           District Dominance Scorecard
@@ -835,9 +845,11 @@ function DistrictDominanceCard({
 function PluralityWinnersCard({
   constituencies,
   stateSlug,
+  sectionId,
 }: {
   constituencies: ConstituencyResult[]
   stateSlug: string
+  sectionId?: string
 }) {
   const [showInfo, setShowInfo] = React.useState(false)
   const [expanded, setExpanded] = React.useState(false)
@@ -890,7 +902,7 @@ function PluralityWinnersCard({
     }))
 
   return (
-    <section>
+    <section id={sectionId}>
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3">
           Plurality Winners (Vote-Split Seats)
@@ -1086,7 +1098,13 @@ function PluralityWinnersCard({
 // ── Phase 1: Vote-to-Seat Disproportionality ──────────────────────────────────
 // FPTP's "manufactured majority": a party can win 38% of votes but 60% of seats.
 // The bonus/penalty (seatPct − votePct) measures democratic distortion.
-function VoteToSeatChart({ data }: { data: ElectionAnalysisResponse }) {
+function VoteToSeatChart({
+  data,
+  sectionId,
+}: {
+  data: ElectionAnalysisResponse
+  sectionId?: string
+}) {
   const { partyVoteShares, summary } = data
   const totalSeats = summary.totalSeats
 
@@ -1111,7 +1129,7 @@ function VoteToSeatChart({ data }: { data: ElectionAnalysisResponse }) {
   const [showInfo, setShowInfo] = React.useState(false)
 
   return (
-    <section>
+    <section id={sectionId}>
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3">
           Vote-to-Seat Disproportionality
@@ -1510,7 +1528,7 @@ export function ElectionAnalysisClient({
       <VerdictHero data={data} />
 
       {/* ② Parliament Hemicycle */}
-      <section>
+      <section id="seat-distribution">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">Seat Distribution</h2>
         <HemicycleChart
           partyVoteShares={data.partyVoteShares}
@@ -1521,10 +1539,10 @@ export function ElectionAnalysisClient({
       </section>
 
       {/* ③ Vote-to-Seat Disproportionality */}
-      <VoteToSeatChart data={data} />
+      <VoteToSeatChart data={data} sectionId="vote-to-seat" />
 
       {/* ④ Mandate Meter */}
-      <section>
+      <section id="vote-share">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">Vote Share</h2>
         <MandateMeter
           partyVoteShares={data.partyVoteShares}
@@ -1535,7 +1553,7 @@ export function ElectionAnalysisClient({
 
       {/* ③ Power Shift Sankey */}
       {data.seatFlips && data.seatFlips.length > 0 && data.prevYear && (
-        <section>
+        <section id="seat-flips">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">Seat Flips</h2>
           <SeatFlipSankey
             seatFlips={data.seatFlips}
@@ -1548,17 +1566,17 @@ export function ElectionAnalysisClient({
 
       {/* ④ Wave Timeline */}
       {data.waveTimeline && data.waveTimeline.length >= 2 && (
-        <section>
+        <section id="vote-wave">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">Vote Share Wave</h2>
           <WaveTimeline waveTimeline={data.waveTimeline} />
         </section>
       )}
 
       {/* ④b Contest Intensity */}
-      <ContestIntensityCard constituencies={data.constituencies} />
+      <ContestIntensityCard constituencies={data.constituencies} sectionId="contest-intensity" />
 
       {/* ⑤ Nail-biters vs Landslides scatter */}
-      <section>
+      <section id="nail-biters">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
           Nail-biters vs Landslides
         </h2>
@@ -1570,22 +1588,28 @@ export function ElectionAnalysisClient({
       </section>
 
       {/* ⑥ Plurality Winners */}
-      <PluralityWinnersCard constituencies={data.constituencies} stateSlug={stateSlug} />
+      <PluralityWinnersCard
+        constituencies={data.constituencies}
+        stateSlug={stateSlug}
+        sectionId="plurality-winners"
+      />
 
       {/* ⑦ Constituency Leaderboards */}
-      <section>
-        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-          Constituency Leaderboards
-        </h2>
+      <section id="leaderboards">
+        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4"></h2>
         <ConstituencyLeaderboard constituencies={data.constituencies} stateSlug={stateSlug} />
       </section>
 
       {/* ⑦b Runner-Up Party Analysis */}
-      <RunnerUpCard constituencies={data.constituencies} stateSlug={stateSlug} />
+      <RunnerUpCard
+        constituencies={data.constituencies}
+        stateSlug={stateSlug}
+        sectionId="runner-up"
+      />
 
       {/* ⑦c Security Deposit Forfeitures */}
       {data.lostDeposits && data.lostDeposits.length > 0 && (
-        <section>
+        <section id="deposits">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
             Security Deposit Forfeitures
           </h2>
@@ -1594,11 +1618,15 @@ export function ElectionAnalysisClient({
       )}
 
       {/* ⑨ District Dominance Scorecard */}
-      <DistrictDominanceCard constituencies={data.constituencies} stateSlug={stateSlug} />
+      <DistrictDominanceCard
+        constituencies={data.constituencies}
+        stateSlug={stateSlug}
+        sectionId="district-dominance"
+      />
 
       {/* ⑩ Gender Electorate Profile (bottom) */}
       {data.districtGenderProfiles && data.districtGenderProfiles.length > 0 && (
-        <section>
+        <section id="gender-profile">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
             Gender Electorate Profile
           </h2>
