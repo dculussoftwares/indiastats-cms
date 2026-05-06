@@ -62,6 +62,24 @@ export interface DistrictGenderProfile {
   dominantParty: string
 }
 
+export interface LostDeposit {
+  party: string
+  lost: number // candidates who forfeited deposit (votes ≤ 1/6 of valid votes polled)
+  total: number // total candidates fielded by this party
+  lostPct: number // % of party candidates who lost deposit
+  assemblies: {
+    // constituencies where this party had a candidate lose their deposit
+    assemblyId: string
+    assemblyName: string
+    assemblySlug: string
+    districtName: string
+    districtSlug: string
+    candidateName: string
+    votes: number
+    votePct: number
+  }[]
+}
+
 export interface ElectionAnalysisResponse {
   year: number
   prevYear: number | null
@@ -87,6 +105,7 @@ export interface ElectionAnalysisResponse {
   constituencies: ConstituencyResult[]
   waveTimeline: WaveDataPoint[]
   districtGenderProfiles: DistrictGenderProfile[]
+  lostDeposits: LostDeposit[]
 }
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -153,6 +172,15 @@ export async function computeElectionAnalysis(
   const constituencies: ConstituencyResult[] = []
   let totalElectors = 0
   let totalVotesPolled = 0
+  // Deposit-loss tracking: votes ≤ 1/6 of valid votes polled → deposit forfeited
+  const depositLossMap: Record<
+    string,
+    {
+      lost: number
+      total: number
+      lostAssemblies: LostDeposit['assemblies']
+    }
+  > = {}
 
   for (const [assemblyId, records] of Object.entries(byAssembly)) {
     const sorted = [...records].sort((a, b) => (b.candidateVotes ?? 0) - (a.candidateVotes ?? 0))
@@ -172,6 +200,28 @@ export async function computeElectionAnalysis(
 
     totalElectors += electors
     totalVotesPolled += polled
+
+    // Deposit-loss: candidate votes ≤ 1/6 of valid votes polled → deposit forfeited
+    const depositThreshold = polled / 6
+    for (const candidate of sorted) {
+      const p = (candidate.candidateParty ?? 'IND') as string
+      if (!depositLossMap[p]) depositLossMap[p] = { lost: 0, total: 0, lostAssemblies: [] }
+      depositLossMap[p].total++
+      if ((candidate.candidateVotes ?? 0) <= depositThreshold) {
+        depositLossMap[p].lost++
+        depositLossMap[p].lostAssemblies.push({
+          assemblyId,
+          assemblyName: winner.assemblyName ?? assemblyId,
+          assemblySlug: assemblyInfo?.slug ?? assemblyId,
+          districtName: assemblyInfo?.districtName ?? '',
+          districtSlug,
+          candidateName: candidate.candidateName ?? '',
+          votes: candidate.candidateVotes ?? 0,
+          votePct:
+            polled > 0 ? Math.round(((candidate.candidateVotes ?? 0) / polled) * 1000) / 10 : 0,
+        })
+      }
+    }
 
     constituencies.push({
       assemblyId,
@@ -206,6 +256,19 @@ export async function computeElectionAnalysis(
   const prevYear = ELECTION_YEARS[ELECTION_YEARS.indexOf(year) - 1] ?? null
 
   // Fallback response builder (no prevYear comparison)
+  function buildLostDeposits(): LostDeposit[] {
+    return Object.entries(depositLossMap)
+      .map(([party, { lost, total, lostAssemblies }]) => ({
+        party,
+        lost,
+        total,
+        lostPct: total > 0 ? Math.round((lost / total) * 1000) / 10 : 0,
+        assemblies: lostAssemblies.sort((a, b) => a.votePct - b.votePct),
+      }))
+      .filter((d) => d.total > 0)
+      .sort((a, b) => b.lost - a.lost)
+  }
+
   function buildFallback(): ElectionAnalysisResponse {
     const currPartyVotes: Record<string, number> = {}
     const currSeats: Record<string, number> = {}
@@ -273,6 +336,7 @@ export async function computeElectionAnalysis(
       constituencies,
       waveTimeline: [],
       districtGenderProfiles: [],
+      lostDeposits: buildLostDeposits(),
     }
   }
 
@@ -503,5 +567,6 @@ export async function computeElectionAnalysis(
     constituencies,
     waveTimeline,
     districtGenderProfiles,
+    lostDeposits: buildLostDeposits(),
   }
 }

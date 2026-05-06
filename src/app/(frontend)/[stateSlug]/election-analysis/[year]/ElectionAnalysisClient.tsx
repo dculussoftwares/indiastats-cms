@@ -9,7 +9,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Users, Target, TrendingUp, Award, Zap } from 'lucide-react'
+import {
+  Users,
+  Target,
+  TrendingUp,
+  Award,
+  Zap,
+  ChevronDown,
+  ChevronRight,
+  ExternalLink,
+} from 'lucide-react'
+import Link from 'next/link'
 import { getPartyColor } from '@/lib/partyColors'
 import { MandateMeter } from '@/components/MandateMeter'
 import { SeatFlipSankey } from '@/components/SeatFlipSankey'
@@ -230,6 +240,202 @@ function VerdictHero({ data }: { data: ElectionAnalysisResponse }) {
   )
 }
 
+// ── Lost Deposits Card ────────────────────────────────────────────────────────
+// Gauge colour: green → yellow → orange → red based on % who lost deposit
+function gaugeColor(pct: number): string {
+  if (pct >= 80) return '#dc2626'
+  if (pct >= 55) return '#f97316'
+  if (pct >= 30) return '#eab308'
+  return '#22c55e'
+}
+
+function DepositGauge({
+  d,
+  seats,
+  selected,
+  onClick,
+}: {
+  d: { party: string; lost: number; total: number; lostPct: number }
+  seats: number
+  selected: boolean
+  onClick: () => void
+}) {
+  const cx = 60
+  const cy = 56
+  const r = 40
+  const sw = 9
+  const pct = Math.min(Math.max(d.lostPct, 0), 100)
+  const angle = Math.PI * (1 - pct / 100)
+  const ex = cx + r * Math.cos(angle)
+  const ey = cy - r * Math.sin(angle)
+  const bgPath = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`
+  const fillPath =
+    pct > 0 ? `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${ex.toFixed(2)} ${ey.toFixed(2)}` : null
+  const color = gaugeColor(pct)
+
+  return (
+    <button
+      onClick={onClick}
+      className={`flex flex-col items-center gap-0.5 rounded-lg p-1.5 transition-colors w-full ${
+        selected
+          ? 'bg-gray-100 dark:bg-gray-800 ring-1 ring-gray-300 dark:ring-gray-600'
+          : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+      }`}
+    >
+      {/* Logo above the SVG arc, as HTML so it doesn't interfere with arc geometry */}
+      <div className="h-7 w-7 flex items-center justify-center mb-0.5">
+        <img
+          src={`/images/${d.party}.png`}
+          alt={d.party}
+          className="max-w-[26px] max-h-[26px] object-contain"
+          onError={(e) => {
+            ;(e.target as HTMLImageElement).style.display = 'none'
+          }}
+        />
+      </div>
+      {/* Arc + text — viewBox tall enough for all text below baseline */}
+      <svg viewBox="0 0 120 90" className="w-full max-w-[140px]">
+        {/* Track arc */}
+        <path d={bgPath} fill="none" stroke="#e5e7eb" strokeWidth={sw} strokeLinecap="round" />
+        {/* Filled arc */}
+        {fillPath && (
+          <path d={fillPath} fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" />
+        )}
+        {/* Percentage */}
+        <text x={cx} y={cy - 8} textAnchor="middle" fontSize="13" fontWeight="800" fill={color}>
+          {pct}%
+        </text>
+        {/* Party name */}
+        <text x={cx} y={cy + 7} textAnchor="middle" fontSize="8" fontWeight="700" fill="#374151">
+          {d.party}
+        </text>
+        {/* Seats won */}
+        <text x={cx} y={cy + 18} textAnchor="middle" fontSize="7" fill="#6b7280">
+          {seats} seat{seats !== 1 ? 's' : ''} won
+        </text>
+        {/* lost/total */}
+        <text x={cx} y={cy + 28} textAnchor="middle" fontSize="6.5" fill="#9ca3af">
+          {d.lost}/{d.total} lost deposit
+        </text>
+      </svg>
+      {selected ? (
+        <ChevronDown className="h-3 w-3 text-muted-foreground" />
+      ) : (
+        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+      )}
+    </button>
+  )
+}
+
+function LostDepositsCard({
+  data,
+  stateSlug,
+}: {
+  data: ElectionAnalysisResponse
+  stateSlug: string
+}) {
+  const { lostDeposits, partyVoteShares } = data
+  if (!lostDeposits || lostDeposits.length === 0) return null
+
+  const [selected, setSelected] = React.useState<string | null>(null)
+
+  // Top 6 parties by vote share, sorted by lostPct descending, with seats attached
+  const top6 = partyVoteShares
+    .slice(0, 6)
+    .map((pvs) => {
+      const dep = lostDeposits.find((d) => d.party === pvs.party)
+      return dep ? { ...dep, seats: pvs.seats } : null
+    })
+    .filter(Boolean)
+    .sort((a, b) => b!.lostPct - a!.lostPct) as ((typeof lostDeposits)[0] & { seats: number })[]
+
+  const totalLost = lostDeposits.reduce((s, d) => s + d.lost, 0)
+  const totalCandidates = lostDeposits.reduce((s, d) => s + d.total, 0)
+  const selectedData = selected ? top6.find((d) => d.party === selected) : null
+
+  function getEn(name: string) {
+    return name.includes('/') ? name.split('/')[1]!.trim() : name
+  }
+
+  return (
+    <Card>
+      <CardContent className="pt-4 pb-4">
+        <div className="flex items-start justify-between mb-4">
+          <p className="text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">{totalLost}</span> of {totalCandidates}{' '}
+            candidates across all parties forfeited their deposit
+          </p>
+          <span className="text-[10px] text-muted-foreground bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded font-mono flex-shrink-0 ml-2">
+            threshold: 1/6 votes
+          </span>
+        </div>
+
+        {/* Gauges */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          {top6.map((d) => (
+            <DepositGauge
+              key={d.party}
+              d={d}
+              seats={d.seats}
+              selected={selected === d.party}
+              onClick={() => setSelected(selected === d.party ? null : d.party)}
+            />
+          ))}
+        </div>
+
+        {/* Accordion: assembly list for selected party */}
+        {selectedData && selectedData.assemblies.length > 0 && (
+          <div className="mt-4 border border-gray-100 dark:border-gray-800 rounded">
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800/50 rounded-t">
+              <PartyLogo party={selectedData.party} size={16} />
+              <span className="text-xs font-bold">{selectedData.party}</span>
+              <span className="text-xs text-muted-foreground ml-auto">
+                {selectedData.assemblies.length} constituencies where deposit was forfeited
+              </span>
+            </div>
+            <div className="divide-y divide-gray-50 dark:divide-gray-800">
+              {selectedData.assemblies.map((a) => {
+                const href = `/${stateSlug}/assembly/${a.districtSlug}/${a.assemblySlug}`
+                return (
+                  <div key={a.assemblyId} className="flex items-center gap-3 px-3 py-2">
+                    <div className="flex-1 min-w-0">
+                      <Link
+                        href={href}
+                        className="text-xs font-semibold hover:text-primary hover:underline inline-flex items-center gap-0.5"
+                      >
+                        {getEn(a.assemblyName)}
+                        <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5 flex-shrink-0" />
+                      </Link>
+                      <span className="text-[10px] text-muted-foreground ml-1.5">
+                        {getEn(a.districtName)}
+                      </span>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <span className="text-xs font-semibold tabular-nums">
+                        {a.votes.toLocaleString()}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground ml-1">votes</span>
+                      <span className="text-[10px] text-red-500 font-semibold ml-1.5 tabular-nums">
+                        {a.votePct}%
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        <p className="text-[10px] text-muted-foreground mt-3 pt-2 border-t border-gray-100 dark:border-gray-800">
+          Gauge shows % of a party&apos;s candidates who lost their security deposit. A candidate
+          forfeits if votes received &le; 1/6 (16.67%) of total valid votes polled in that
+          constituency. Click a gauge to see individual constituencies.
+        </p>
+      </CardContent>
+    </Card>
+  )
+}
+
 // ── Main client component ─────────────────────────────────────────────────────
 export function ElectionAnalysisClient({
   data,
@@ -343,7 +549,17 @@ export function ElectionAnalysisClient({
         <ConstituencyLeaderboard constituencies={data.constituencies} stateSlug={stateSlug} />
       </section>
 
-      {/* ⑦ Gender District Profile */}
+      {/* ⑦ Security Deposit Forfeitures */}
+      {data.lostDeposits && data.lostDeposits.length > 0 && (
+        <section>
+          <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+            Security Deposit Forfeitures
+          </h2>
+          <LostDepositsCard data={data} stateSlug={stateSlug} />
+        </section>
+      )}
+
+      {/* ⑧ Gender District Profile */}
       {data.districtGenderProfiles && data.districtGenderProfiles.length > 0 && (
         <section>
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
