@@ -245,20 +245,9 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 forfeitures.
               </p>
             </div>
-            <Link
-              href="/tamil-nadu/election-analysis/2021"
-              onClick={() => {
-                const pageContext = getPageContext()
-                trackClicked({
-                  name: 'link',
-                  page_name: pageContext.page_name || 'Homepage',
-                  link_name: 'election_analysis_hero_cta',
-                  link_location: 'election_analysis_feature',
-                })
-              }}
-            >
+            <Link href="/tamil-nadu/election-analysis/2026">
               <div className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white font-semibold px-5 py-3 rounded-lg text-sm whitespace-nowrap">
-                Explore 2021 Analysis
+                Explore 2026 Analysis
                 <ChevronRight className="h-4 w-4" />
               </div>
             </Link>
@@ -354,7 +343,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               return (
                 <Link
                   key={m.title}
-                  href="/tamil-nadu/election-analysis/2021"
+                  href="/tamil-nadu/election-analysis/2026"
                   className={`group p-4 rounded-xl border bg-white/[0.03] ${colorMap[m.color] ?? colorMap.red} hover:bg-white/[0.07] transition-all duration-200`}
                 >
                   <div className={`mb-2 ${iconColorMap[m.color] ?? iconColorMap.red}`}>
@@ -372,13 +361,17 @@ export function HomePageClient({ stats }: HomePageClientProps) {
           {/* Bottom strip: year switcher teaser */}
           <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-white/5">
             <span className="text-white/30 text-xs uppercase tracking-wider">Available for</span>
-            {[2021, 2016, 2011, 2006].map((y) => (
+            {[2026, 2021, 2016, 2011, 2006].map((y) => (
               <Link
                 key={y}
                 href={`/tamil-nadu/election-analysis/${y}`}
-                className="px-3 py-1 rounded-full border border-white/10 text-white/50 hover:border-red-500/50 hover:text-red-400 text-xs font-semibold transition-colors"
+                className={`px-3 py-1 rounded-full border text-xs font-semibold transition-colors ${
+                  y === 2026
+                    ? 'border-red-500/60 text-red-400 bg-red-600/10 hover:bg-red-600/20'
+                    : 'border-white/10 text-white/50 hover:border-red-500/50 hover:text-red-400'
+                }`}
               >
-                {y}
+                {y === 2026 ? '2026 ✦' : y}
               </Link>
             ))}
             <span className="text-white/20 text-xs">+ all Tamil Nadu elections</span>
@@ -568,6 +561,15 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             {/* Election Analysis */}
             <Link
               href="/tamil-nadu/election-analysis/2026"
+              onClick={() => {
+                const pageContext = getPageContext()
+                trackClicked({
+                  name: 'link',
+                  page_name: pageContext.page_name || 'Homepage',
+                  link_name: 'election_analysis_hero_cta',
+                  link_location: 'election_analysis_feature',
+                })
+              }}
               className="group"
               onClick={() => {
                 const pageContext = getPageContext()
