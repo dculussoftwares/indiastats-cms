@@ -31,6 +31,7 @@ import { HemicycleChart } from '@/components/HemicycleChart'
 import { trackViewed, setPageContext, PAGE_NAMES } from '@/analytics'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { ElectionAnalysisResponse } from '@/app/api/election-analysis/route'
+import type { ConstituencyResult } from '@/lib/electionAnalysis'
 
 interface ElectionAnalysisClientProps {
   data: ElectionAnalysisResponse
