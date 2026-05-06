@@ -392,9 +392,15 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(value: number, name: string) => {
+                        formatter={(
+                          value: number | string | undefined,
+                          name: string | undefined,
+                        ) => {
                           const entry = voteSharePie.find((e) => e.name === name)
-                          return [`${value.toLocaleString()} votes (${entry?.pct}%)`, name] as [string, string]
+                          return [
+                            `${Number(value ?? 0).toLocaleString()} votes (${entry?.pct ?? 0}%)`,
+                            name ?? '',
+                          ] as [string, string]
                         }}
                         contentStyle={{
                           fontSize: 11,
