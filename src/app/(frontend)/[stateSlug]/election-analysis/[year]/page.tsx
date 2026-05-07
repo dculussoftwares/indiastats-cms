@@ -22,13 +22,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const stateConfig = getStateBySlug(stateSlug)
   if (!stateConfig) return { title: 'Not Found' }
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const canonicalUrl = `${baseUrl}/${stateSlug}/election-analysis/${year}`
+  const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
+  const title = `${stateConfig.name} ${year} Election Analysis | IndiaStats`
+  const description = `Deep dive into the ${stateConfig.name} ${year} assembly election — vote shares, seat flips, closest races, turnout trends, and district-level insights.`
   return {
-    title: `${stateConfig.name} ${year} Election Analysis | IndiaStats`,
-    description: `Deep dive into the ${stateConfig.name} ${year} assembly election — vote shares, seat flips, closest races, turnout trends, and district-level insights.`,
-    alternates: { canonical: `${baseUrl}/${stateSlug}/election-analysis/${year}` },
+    title,
+    description,
+    keywords: [
+      `${stateConfig.name} election analysis ${year}`,
+      `${stateConfig.name} ${year} assembly election results`,
+      `${stateConfig.name} election data`,
+      'vote share analysis',
+      'seat flip analysis',
+      'election turnout trends',
+      `${stateConfig.name} election statistics`,
+    ],
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: `${stateConfig.name} ${year} Election — Full Analysis`,
-      description: `Comprehensive data analysis of the ${year} ${stateConfig.name} assembly election.`,
+      description,
+      type: 'website',
+      url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${stateConfig.name} ${year} Election Analysis`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${stateConfig.name} ${year} Election Analysis | IndiaStats`,
+      description,
+      images: [ogImageUrl],
     },
   }
 }

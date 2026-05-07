@@ -1,4 +1,5 @@
 import * as React from 'react'
+import type { Metadata } from 'next'
 import { redirect, notFound } from 'next/navigation'
 
 import { getStateBySlug } from '@/config/states'
@@ -8,6 +9,14 @@ export const revalidate = 3600
 
 interface Props {
   params: Promise<{ stateSlug: string; predictorId: string }>
+}
+
+// This route is a permanent redirect to the SEO-friendly slug URL.
+// Mark it noindex so search engines index only the canonical slug variant.
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    robots: { index: false, follow: true },
+  }
 }
 
 /**

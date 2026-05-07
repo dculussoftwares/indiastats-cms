@@ -23,16 +23,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-results`
+  const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
+  const title = `${stateConfig.name} Election Results 2026 — Live Count | IndiaStats`
+  const description = `Live assembly election results for ${stateConfig.name} 2026. Interactive TV-mode map with real-time seat counts, party tallies, and constituency-level results.`
 
   return {
-    title: `${stateConfig.name} Election Results 2026 — Live Count | IndiaStats`,
-    description: `Live assembly election results for ${stateConfig.name} 2026. Interactive TV-mode map with real-time seat counts, party tallies, and constituency-level results.`,
+    title,
+    description,
     keywords: [
       `${stateConfig.name} election results 2026`,
-      'live election count',
+      `${stateConfig.name} live election count`,
       'assembly results map',
-      'Tamil Nadu election 2026',
+      `${stateConfig.name} election 2026`,
       'seat tally live',
+      `${stateConfig.name} election seat count`,
     ],
     alternates: { canonical: canonicalUrl },
     openGraph: {
@@ -40,6 +44,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: `Interactive live results map for the ${stateConfig.name} assembly elections.`,
       type: 'website',
       url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${stateConfig.name} 2026 Election Results`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${stateConfig.name} 2026 Election Results — Live`,
+      description,
+      images: [ogImageUrl],
     },
   }
 }

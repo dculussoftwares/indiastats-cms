@@ -52,6 +52,50 @@ const getPagesSitemap = unstable_cache(
         loc: `${SITE_URL}/terms`,
         lastmod: dateFallback,
       },
+      // Top-level election data page
+      {
+        loc: `${SITE_URL}/election-data`,
+        lastmod: dateFallback,
+        priority: 0.8,
+        changefreq: 'weekly' as const,
+      },
+      // Tamil Nadu state pages
+      {
+        loc: `${SITE_URL}/tamil-nadu/dashboard`,
+        lastmod: dateFallback,
+        priority: 0.9,
+        changefreq: 'daily' as const,
+      },
+      {
+        loc: `${SITE_URL}/tamil-nadu/assembly-map`,
+        lastmod: dateFallback,
+        priority: 0.7,
+        changefreq: 'monthly' as const,
+      },
+      {
+        loc: `${SITE_URL}/tamil-nadu/caste-demographics`,
+        lastmod: dateFallback,
+        priority: 0.6,
+        changefreq: 'monthly' as const,
+      },
+      {
+        loc: `${SITE_URL}/tamil-nadu/election-results`,
+        lastmod: dateFallback,
+        priority: 0.9,
+        changefreq: 'hourly' as const,
+      },
+      {
+        loc: `${SITE_URL}/tamil-nadu/election-analysis/2026`,
+        lastmod: dateFallback,
+        priority: 0.8,
+        changefreq: 'weekly' as const,
+      },
+      {
+        loc: `${SITE_URL}/tamil-nadu/election-analysis/2021`,
+        lastmod: dateFallback,
+        priority: 0.7,
+        changefreq: 'monthly' as const,
+      },
     ]
 
     const sitemap = results.docs
