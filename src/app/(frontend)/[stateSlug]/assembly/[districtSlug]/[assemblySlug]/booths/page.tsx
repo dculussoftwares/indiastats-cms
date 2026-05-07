@@ -5,6 +5,41 @@ import { notFound } from 'next/navigation'
 import BoothsPageClient from './BoothsPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 
+// Revalidate every 24 hours (ISR)
+export const revalidate = 86400
+
+// Pre-generate all booth pages at build time to avoid cold-start 5xx
+export async function generateStaticParams() {
+  const payload = await getPayload({ config })
+
+  const assemblies = await payload.find({
+    collection: 'assemblies',
+    limit: 300,
+    select: { slug: true, districtId: true },
+  })
+
+  const districts = await payload.find({
+    collection: 'districts',
+    limit: 100,
+    select: { districtId: true, slug: true },
+  })
+
+  const districtIdToSlug = new Map<string, string>()
+  districts.docs.forEach((d: any) => {
+    if (d.districtId && d.slug) {
+      districtIdToSlug.set(d.districtId, d.slug)
+    }
+  })
+
+  return assemblies.docs
+    .filter((assembly: any) => assembly.slug && assembly.districtId)
+    .map((assembly: any) => ({
+      stateSlug: 'tamil-nadu',
+      districtSlug: districtIdToSlug.get(assembly.districtId) || assembly.districtId,
+      assemblySlug: assembly.slug,
+    }))
+}
+
 interface Props {
   params: Promise<{
     districtSlug: string
@@ -93,7 +128,10 @@ export default async function BoothsPage({ params }: Props) {
       <Breadcrumbs
         items={[
           {
-            name: stateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+            name: stateSlug
+              .split('-')
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' '),
             url: `/${stateSlug}/dashboard`,
           },
           {
