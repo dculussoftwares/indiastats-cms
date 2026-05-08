@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { getStateBySlug } from '@/config/states'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
@@ -94,12 +95,14 @@ export default async function ElectionAnalysisPage({ params }: Props) {
           },
         ]}
       />
-      <ElectionAnalysisClient
-        data={data}
-        stateSlug={stateSlug}
-        stateCode={stateConfig.code}
-        availableYears={electionYears}
-      />
+      <Suspense>
+        <ElectionAnalysisClient
+          data={data}
+          stateSlug={stateSlug}
+          stateCode={stateConfig.code}
+          availableYears={electionYears}
+        />
+      </Suspense>
     </div>
   )
 }
