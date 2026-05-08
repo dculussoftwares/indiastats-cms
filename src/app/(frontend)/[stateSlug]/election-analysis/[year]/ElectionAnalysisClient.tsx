@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   Select,
@@ -461,9 +461,24 @@ function RunnerUpCard({
   stateSlug: string
   sectionId?: string
 }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [showInfo, setShowInfo] = React.useState(false)
-  const [selectedParty, setSelectedParty] = React.useState<string | null>(null)
   const [showAll, setShowAll] = React.useState(false)
+
+  const selectedParty = searchParams.get('runnerParty')
+
+  function selectParty(party: string | null) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (party) {
+      params.set('runnerParty', party)
+    } else {
+      params.delete('runnerParty')
+    }
+    router.replace(`${pathname}?${params.toString()}#runner-up`, { scroll: false })
+    setShowAll(false)
+  }
 
   function getEn(name: string) {
     return name.includes('/') ? name.split('/')[1]!.trim() : name
@@ -541,10 +556,7 @@ function RunnerUpCard({
               return (
                 <div key={r.party}>
                   <button
-                    onClick={() => {
-                      setSelectedParty(isSelected ? null : r.party)
-                      setShowAll(false)
-                    }}
+                    onClick={() => selectParty(isSelected ? null : r.party)}
                     className={`w-full flex items-center gap-3 rounded p-1.5 transition-colors text-left ${
                       isSelected
                         ? 'bg-gray-100 dark:bg-gray-800 ring-1 ring-gray-300 dark:ring-gray-600'
@@ -671,6 +683,237 @@ function RunnerUpCard({
           <p className="text-[10px] text-muted-foreground mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
             Runner-up = finished 2nd by vote count. Avg margin = average votes by which runner-up
             lost. Click a party to see their closest near-miss constituencies.
+          </p>
+        </CardContent>
+      </Card>
+    </section>
+  )
+}
+
+// ── Closest Margin by Party ───────────────────────────────────────────────────
+// For each party that WON seats, show their tightest wins — where they nearly lost.
+function ClosestMarginByPartyCard({
+  constituencies,
+  stateSlug,
+  sectionId,
+}: {
+  constituencies: ConstituencyResult[]
+  stateSlug: string
+  sectionId?: string
+}) {
+  const [showInfo, setShowInfo] = React.useState(false)
+  const [selectedParty, setSelectedParty] = React.useState<string | null>(null)
+  const [showAll, setShowAll] = React.useState(false)
+
+  function getEn(name: string) {
+    return name.includes('/') ? name.split('/')[1]!.trim() : name
+  }
+
+  // Group winning constituencies by party
+  const partyMap: Record<string, { seats: ConstituencyResult[]; margins: number[] }> = {}
+  for (const c of constituencies) {
+    const p = c.winner.party
+    if (!partyMap[p]) partyMap[p] = { seats: [], margins: [] }
+    partyMap[p].seats.push(c)
+    partyMap[p].margins.push(c.margin)
+  }
+
+  const rows = Object.entries(partyMap)
+    .map(([party, { seats, margins }]) => {
+      const minMargin = Math.min(...margins)
+      const avgMargin = Math.round(margins.reduce((s, m) => s + m, 0) / margins.length)
+      const closestSeats = [...seats].sort((a, b) => a.margin - b.margin)
+      return { party, count: seats.length, minMargin, avgMargin, closestSeats }
+    })
+    .filter((r) => r.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 7)
+
+  const selectedData = selectedParty ? rows.find((r) => r.party === selectedParty) : null
+  const maxCount = Math.max(...rows.map((r) => r.count), 1)
+
+  return (
+    <section id={sectionId}>
+      <div className="flex items-center gap-2 mb-4">
+        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3">
+          Closest Margins by Party
+        </h2>
+        <button
+          onClick={() => setShowInfo(!showInfo)}
+          className="text-[10px] border border-gray-300 dark:border-gray-600 rounded px-1.5 py-0.5 text-muted-foreground hover:bg-gray-50 dark:hover:bg-gray-800 flex-shrink-0"
+        >
+          {showInfo ? 'hide info' : 'what is this?'}
+        </button>
+      </div>
+
+      {showInfo && (
+        <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded text-xs space-y-1.5">
+          <p className="font-bold text-sm">Where each party nearly lost</p>
+          <p>
+            Even winning parties hold some seats by razor-thin margins. These are their most
+            vulnerable constituencies — seats that could easily flip in the next election with a
+            small swing.
+          </p>
+          <p>
+            <span className="font-semibold">Closest margin</span> = the narrowest winning margin
+            among all seats that party won. <span className="font-semibold">Average margin</span> =
+            the typical cushion across all their wins. A large gap between the two signals a highly
+            uneven mandate.
+          </p>
+          <p>Click a party row to see their tightest wins, sorted smallest margin first.</p>
+        </div>
+      )}
+
+      <Card>
+        <CardContent className="pt-4 pb-4">
+          <div className="space-y-2.5">
+            {rows.map((r) => {
+              const color = getPartyColor(r.party)
+              const isSelected = selectedParty === r.party
+              return (
+                <div key={r.party}>
+                  <button
+                    onClick={() => {
+                      setSelectedParty(isSelected ? null : r.party)
+                      setShowAll(false)
+                    }}
+                    className={`w-full flex items-center gap-3 rounded p-1.5 transition-colors text-left ${
+                      isSelected
+                        ? 'bg-gray-100 dark:bg-gray-800 ring-1 ring-gray-300 dark:ring-gray-600'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-800/40'
+                    }`}
+                  >
+                    <div className="w-16 flex items-center gap-1 flex-shrink-0">
+                      <PartyLogo party={r.party} size={13} />
+                      <span className="text-[11px] font-bold truncate">{r.party}</span>
+                    </div>
+                    {/* Seats bar */}
+                    <div className="flex-1 h-4 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
+                      <div
+                        className="h-full rounded"
+                        style={{
+                          width: `${(r.count / maxCount) * 100}%`,
+                          backgroundColor: color,
+                          opacity: 0.7,
+                        }}
+                      />
+                    </div>
+                    {/* Stats */}
+                    <div className="flex gap-3 flex-shrink-0 text-right">
+                      <div>
+                        <p className="text-sm font-bold" style={{ color }}>
+                          {r.count}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">seats</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-amber-600 tabular-nums">
+                          {r.minMargin.toLocaleString()}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">closest win</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold tabular-nums">
+                          {r.avgMargin.toLocaleString()}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">avg margin</p>
+                      </div>
+                      {isSelected ? (
+                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground self-center" />
+                      ) : (
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground self-center" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Expanded: closest wins for this party */}
+                  {isSelected && selectedData && (
+                    <div className="mt-1 ml-2 border border-gray-100 dark:border-gray-800 rounded">
+                      <div className="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/30 rounded-t flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                          Closest wins — {selectedData.closestSeats.length} constituencies
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          margin ↑ smallest first
+                        </span>
+                      </div>
+                      <div className="divide-y divide-gray-50 dark:divide-gray-800">
+                        {(showAll
+                          ? selectedData.closestSeats
+                          : selectedData.closestSeats.slice(0, 12)
+                        ).map((c) => {
+                          const runnerColor = getPartyColor(c.runnerUp.party)
+                          const href = `/${stateSlug}/assembly/${c.districtSlug}/${c.assemblySlug}`
+                          return (
+                            <div key={c.assemblyId} className="flex items-center gap-2 px-3 py-1.5">
+                              <div className="flex-1 min-w-0">
+                                <Link
+                                  href={href}
+                                  className="text-xs font-semibold hover:underline inline-flex items-center gap-0.5"
+                                >
+                                  {getEn(c.assemblyName)}
+                                  <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5" />
+                                </Link>
+                                <span className="text-[10px] text-muted-foreground ml-1.5">
+                                  {getEn(c.districtName)}
+                                </span>
+                              </div>
+                              {c.runnerUp.party && (
+                                <span
+                                  className="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
+                                  style={{
+                                    backgroundColor: runnerColor + '22',
+                                    color: runnerColor,
+                                  }}
+                                >
+                                  vs {c.runnerUp.party}
+                                </span>
+                              )}
+                              <div className="text-right flex-shrink-0 w-24">
+                                <span className="text-xs font-bold text-amber-600 tabular-nums">
+                                  {c.margin.toLocaleString()}
+                                </span>
+                                <span className="text-[9px] text-muted-foreground ml-0.5">
+                                  votes
+                                </span>
+                              </div>
+                              <div className="text-right flex-shrink-0 w-12">
+                                <span className="text-[11px] tabular-nums text-muted-foreground">
+                                  {c.marginPct}%
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      {selectedData.closestSeats.length > 12 && (
+                        <button
+                          onClick={() => setShowAll(!showAll)}
+                          className="w-full py-2 text-[11px] text-primary hover:bg-gray-50 dark:hover:bg-gray-800/40 flex items-center justify-center gap-1 border-t border-gray-100 dark:border-gray-800"
+                        >
+                          {showAll ? (
+                            <>
+                              <ChevronDown className="h-3 w-3" /> Show less
+                            </>
+                          ) : (
+                            <>
+                              <ChevronRight className="h-3 w-3" /> Show all{' '}
+                              {selectedData.closestSeats.length}
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          <p className="text-[10px] text-muted-foreground mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+            Only parties that won at least one seat are shown (top 7 by seats). Closest win = seat
+            won by the narrowest margin. Avg margin = mean across all their won seats. Click a party
+            to see their most vulnerable wins.
           </p>
         </CardContent>
       </Card>
@@ -1785,7 +2028,14 @@ export function ElectionAnalysisClient({
         sectionId="runner-up"
       />
 
-      {/* ⑦c Security Deposit Forfeitures */}
+      {/* ⑦c Closest Margin by Party */}
+      <ClosestMarginByPartyCard
+        constituencies={data.constituencies}
+        stateSlug={stateSlug}
+        sectionId="closest-margin-by-party"
+      />
+
+      {/* ⑦d Security Deposit Forfeitures */}
       {data.lostDeposits && data.lostDeposits.length > 0 && (
         <section id="deposits">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
