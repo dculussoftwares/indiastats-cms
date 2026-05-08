@@ -62,7 +62,10 @@ function PartyChip({ party }: { party: string }) {
 // ── Verdict Hero ──────────────────────────────────────────────────────────────
 function VerdictHero({ data }: { data: ElectionAnalysisResponse }) {
   const { summary } = data
-  const winner = data.partyVoteShares[0]
+  const winner = data.partyVoteShares.reduce(
+    (best, p) => (p.seats > best.seats ? p : best),
+    data.partyVoteShares[0],
+  )
   const winnerColor = winner ? getPartyColor(winner.party) : '#BB1919'
   const majoritySeats = summary.majorityMark
   const winnerSeats = winner?.seats ?? 0
