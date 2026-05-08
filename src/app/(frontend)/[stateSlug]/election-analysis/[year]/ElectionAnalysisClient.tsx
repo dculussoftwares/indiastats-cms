@@ -1906,6 +1906,20 @@ export function ElectionAnalysisClient({
 }: ElectionAnalysisClientProps) {
   const router = useRouter()
 
+  // Auto-scroll to the section referenced by the hash once the page has hydrated.
+  // This is needed because client components mount after the browser's native
+  // hash scroll fires, so sections with dynamic content are missed.
+  React.useEffect(() => {
+    const hash = typeof window !== 'undefined' ? window.location.hash.slice(1) : ''
+    if (!hash) return
+    // Small delay to ensure all sections have rendered
+    const id = setTimeout(() => {
+      const el = document.getElementById(hash)
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 300)
+    return () => clearTimeout(id)
+  }, [])
+
   React.useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.ELECTION_ANALYSIS,
