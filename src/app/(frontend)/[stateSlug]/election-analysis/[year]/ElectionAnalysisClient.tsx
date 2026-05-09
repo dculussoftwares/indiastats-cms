@@ -30,6 +30,7 @@ import { GenderDistrictChart } from '@/components/GenderDistrictChart'
 import { HemicycleChart } from '@/components/HemicycleChart'
 import { trackViewed, setPageContext, PAGE_NAMES } from '@/analytics'
 import { PartyLogo } from '@/components/PartyLogo'
+import { ElectionAnalysisMap } from '@/components/ElectionAnalysisMap'
 import type { ElectionAnalysisResponse } from '@/app/api/election-analysis/route'
 import type { ConstituencyResult } from '@/lib/electionAnalysis'
 
@@ -1961,6 +1962,18 @@ export function ElectionAnalysisClient({
 
       {/* ① The Verdict */}
       <VerdictHero data={data} />
+
+      {/* ① Map — constituency results coloured by winning party */}
+      <section id="results-map">
+        <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
+          Constituency Results Map
+        </h2>
+        <ElectionAnalysisMap
+          constituencies={data.constituencies}
+          stateSlug={stateSlug}
+          year={data.year}
+        />
+      </section>
 
       {/* ② Parliament Hemicycle */}
       <section id="seat-distribution">
