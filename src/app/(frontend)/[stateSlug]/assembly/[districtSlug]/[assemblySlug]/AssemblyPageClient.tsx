@@ -35,6 +35,7 @@ import { TwitterCardModal } from '@/components/TwitterCardModal'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 import { AssemblyPageJsonLd } from '@/components/seo/JsonLd'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface Candidate {
   name: string
@@ -132,6 +133,7 @@ function formatNumber(num: number): string {
 }
 
 export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps) {
+  const state = useStateConfig()
   const [showAllWinningHistories, setShowAllWinningHistories] = React.useState(false)
 
   // Latest election vote-share pie
@@ -847,7 +849,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
         districtName={data.districtName.split(' / ')[1] || data.districtName}
         description={
           data.metaDescription ||
-          `Election data for ${data.name} assembly constituency, Tamil Nadu.`
+          `Election data for ${data.name} assembly constituency, ${state.name}.`
         }
         url={`https://indiastats.org/${stateSlug}/assembly/${data.districtSlug}/${data.assemblySlug}`}
       />

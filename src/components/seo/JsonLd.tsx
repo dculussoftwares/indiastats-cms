@@ -1,4 +1,3 @@
-
 // Types for structured data
 interface OrganizationSchema {
   '@context': 'https://schema.org'
@@ -169,11 +168,13 @@ export function AssemblyPageJsonLd({
   districtName,
   description,
   url,
+  stateName = 'Tamil Nadu',
 }: {
   assemblyName: string
   districtName: string
   description: string
   url: string
+  stateName?: string
 }) {
   const data = {
     '@context': 'https://schema.org',
@@ -194,7 +195,7 @@ export function AssemblyPageJsonLd({
         name: districtName,
         containedInPlace: {
           '@type': 'State',
-          name: 'Tamil Nadu',
+          name: stateName,
           containedInPlace: {
             '@type': 'Country',
             name: 'India',
@@ -215,11 +216,13 @@ export function DistrictPageJsonLd({
   description,
   url,
   assemblyCount,
+  stateName = 'Tamil Nadu',
 }: {
   districtName: string
   description: string
   url: string
   assemblyCount: number
+  stateName?: string
 }) {
   const data = {
     '@context': 'https://schema.org',
@@ -237,7 +240,7 @@ export function DistrictPageJsonLd({
       name: districtName,
       containedInPlace: {
         '@type': 'State',
-        name: 'Tamil Nadu',
+        name: stateName,
       },
       containsPlace: Array.from({ length: assemblyCount }, (_, i) => ({
         '@type': 'AdministrativeArea',

@@ -15,7 +15,7 @@ import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | IndiaStats.org` : 'IndiaStats.org - Tamil Nadu Election Data'
+  return doc?.title ? `${doc.title} | IndiaStats.org` : 'IndiaStats.org - India Election Data'
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
@@ -31,10 +31,10 @@ const generateDescription = ({ doc }: { doc: Post | Page }) => {
 
   // Otherwise generate from title
   if (doc?.title) {
-    return `Learn more about ${doc.title} on IndiaStats.org - Comprehensive election data, voter statistics, and political insights for Tamil Nadu.`
+    return `Learn more about ${doc.title} on IndiaStats.org - Comprehensive election data, voter statistics, and political insights for Indian elections.`
   }
 
-  return 'Comprehensive election data, voter statistics, and political insights for Tamil Nadu assembly constituencies.'
+  return 'Comprehensive election data, voter statistics, and political insights for Indian elections.'
 }
 
 export const plugins: Plugin[] = [
@@ -118,15 +118,15 @@ export const plugins: Plugin[] = [
   // Azure Blob Storage for media files (only in production when env vars are set)
   ...(process.env.AZURE_STORAGE_CONNECTION_STRING && process.env.AZURE_STORAGE_ACCOUNT_BASEURL
     ? [
-      azureStorage({
-        collections: {
-          media: true,
-        },
-        connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
-        containerName: process.env.AZURE_STORAGE_CONTAINER_NAME || 'indiastats-cms-media',
-        allowContainerCreate: true,
-        baseURL: process.env.AZURE_STORAGE_ACCOUNT_BASEURL,
-      }),
-    ]
+        azureStorage({
+          collections: {
+            media: true,
+          },
+          connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+          containerName: process.env.AZURE_STORAGE_CONTAINER_NAME || 'indiastats-cms-media',
+          allowContainerCreate: true,
+          baseURL: process.env.AZURE_STORAGE_ACCOUNT_BASEURL,
+        }),
+      ]
     : []),
 ]

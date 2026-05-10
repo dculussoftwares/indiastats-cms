@@ -247,8 +247,8 @@ export function getAssemblyRoute(ac: number): AssemblyRouteInfo | null {
   return ASSEMBLY_ROUTING_MAP[ac] || null
 }
 
-export function buildAssemblyUrl(ac: number): string | null {
+export function buildAssemblyUrl(ac: number, stateSlug: string = 'tamil-nadu'): string | null {
   const route = getAssemblyRoute(ac)
   if (!route) return null
-  return `/tamil-nadu/assembly/${route.district_id}/${route.slug}`
+  return `/${stateSlug}/assembly/${route.district_id}/${route.slug}`
 }

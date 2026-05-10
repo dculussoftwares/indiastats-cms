@@ -1,4 +1,5 @@
-'use client'
+import { useStateConfig } from '@/components/providers/StateProvider'
+;('use client')
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react'
@@ -1372,7 +1373,8 @@ export function ElectionPredictionMap({
                     updateUrl({ assembly: null })
                   }}
                   onNavigate={() => {
-                    const url = buildAssemblyUrl(popupContent.ac)
+                    const state = useStateConfig()
+                    const url = buildAssemblyUrl(popupContent.ac, state.slug)
                     if (url) {
                       trackClicked({
                         name: 'link',

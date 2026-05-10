@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChevronRight, Search } from 'lucide-react'
 import { trackClicked, getPageContext } from '@/analytics'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 export interface District {
   districtId: string
@@ -30,6 +31,7 @@ interface DistrictSearchProps {
 const LOCAL_STORAGE_DISTRICT_KEY = 'district-search:districtId'
 
 export const DistrictSearch: React.FC<DistrictSearchProps> = ({ districts, onSearch }) => {
+  const state = useStateConfig()
   const router = useRouter()
   const hasHydratedRef = useRef(false)
   const [selectedDistrict, setSelectedDistrict] = useState<District | undefined>(undefined)
@@ -76,7 +78,8 @@ export const DistrictSearch: React.FC<DistrictSearchProps> = ({ districts, onSea
     setSearchQuery(district.districtName)
     setIsOpen(false)
     const pageContext = getPageContext()
-    trackClicked({ name: 'search_result',
+    trackClicked({
+      name: 'search_result',
       page_name: pageContext.page_name || 'Search Results',
       search_query: district.districtName,
       result_id: district.districtId,
@@ -90,7 +93,8 @@ export const DistrictSearch: React.FC<DistrictSearchProps> = ({ districts, onSea
   const handleSearchClick = () => {
     if (selectedDistrict) {
       const pageContext = getPageContext()
-      trackClicked({ name: 'search',
+      trackClicked({
+        name: 'search',
         page_name: pageContext.page_name || 'Search Results',
         search_query: selectedDistrict.districtName,
         search_type: 'district',
@@ -101,7 +105,7 @@ export const DistrictSearch: React.FC<DistrictSearchProps> = ({ districts, onSea
         onSearch(selectedDistrict)
       }
       // Navigate to district page using slug
-      router.push(`/tamil-nadu/district/${selectedDistrict.districtSlug}`)
+      router.push(`/${state.slug}/district/${selectedDistrict.districtSlug}`)
     }
   }
 

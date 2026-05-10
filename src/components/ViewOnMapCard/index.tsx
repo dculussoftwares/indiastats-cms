@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { MapPin } from 'lucide-react'
 import Link from 'next/link'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface ViewOnMapCardProps {
   assemblyId: string
@@ -11,6 +12,7 @@ interface ViewOnMapCardProps {
 }
 
 export function ViewOnMapCard({ assemblyId, assemblyName }: ViewOnMapCardProps) {
+  const state = useStateConfig()
   // Extract numeric ID from assemblyId (e.g., "ac092" -> "092")
   const numericId = assemblyId.replace('ac', '')
 
@@ -29,7 +31,7 @@ export function ViewOnMapCard({ assemblyId, assemblyName }: ViewOnMapCardProps) 
               </p>
             </div>
           </div>
-          <Link href={`/tamil-nadu/assembly-map?ac=${numericId}`}>
+          <Link href={`/${state.slug}/assembly-map?ac=${numericId}`}>
             <Button variant="outline" size="sm" className="text-sm">
               Open Map
             </Button>
