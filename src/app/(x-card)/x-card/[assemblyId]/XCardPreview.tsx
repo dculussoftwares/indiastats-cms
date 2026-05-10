@@ -22,6 +22,7 @@ interface ElectionResult {
 interface CardData {
   assemblyId: string
   stateCode?: string
+  stateName: string
   name: string
   districtName: string
   districtId: string
@@ -846,7 +847,7 @@ function BoldClassic({ data, stats }: { data: CardData; stats: Stats }) {
             {data.name}
           </h2>
           <p style={{ fontSize: 16, fontWeight: 500, color: '#6b7280', margin: '4px 0 0 0' }}>
-            {cleanName(data.districtName)} District, Tamil Nadu
+            {cleanName(data.districtName)} District, {data.stateName}
           </p>
         </div>
 
@@ -1067,7 +1068,7 @@ function RedBanner({ data, stats }: { data: CardData; stats: Stats }) {
               {data.name}
             </h2>
             <p style={{ fontSize: 15, fontWeight: 500, color: '#fecaca', margin: '4px 0 0 0' }}>
-              {cleanName(data.districtName)} District, Tamil Nadu
+              {cleanName(data.districtName)} District, {data.stateName}
             </p>
           </div>
           <div
@@ -1378,7 +1379,7 @@ function FullDark({ data, stats }: { data: CardData; stats: Stats }) {
             {data.name}
           </h2>
           <p style={{ fontSize: 15, fontWeight: 500, color: '#64748b', margin: '4px 0 0 0' }}>
-            {cleanName(data.districtName)} District, Tamil Nadu
+            {cleanName(data.districtName)} District, {data.stateName}
           </p>
         </div>
 
@@ -1583,7 +1584,7 @@ function Newspaper({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 16, fontWeight: 600, color: '#dc2626', margin: '4px 0 0 0' }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
       </div>
 
@@ -1891,7 +1892,7 @@ function Scoreboard({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 14, fontWeight: 600, color: '#fecaca', margin: '2px 0 0 0' }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
       </div>
 
@@ -2091,7 +2092,7 @@ function DashboardGrid({ data, stats }: { data: CardData; stats: Stats }) {
             {data.name}
           </div>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#6b7280' }}>
-            {cleanName(data.districtName)} District, Tamil Nadu
+            {cleanName(data.districtName)} District, {data.stateName}
           </div>
         </div>
         <Badge isReserved={data.isReserved} />
@@ -2449,7 +2450,7 @@ function NeonPulse({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 14, fontWeight: 600, color: '#475569', margin: '4px 0 0 0' }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
       </div>
 
@@ -2783,7 +2784,7 @@ function Championship({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 14, fontWeight: 600, color: '#fbbf24', margin: '4px 0 0 0' }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
       </div>
 
@@ -3081,7 +3082,7 @@ function BreakingNews({ data, stats }: { data: CardData; stats: Stats }) {
               {data.name}
             </h2>
             <p style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8', margin: '4px 0 0 0' }}>
-              {cleanName(data.districtName)} District, Tamil Nadu
+              {cleanName(data.districtName)} District, {data.stateName}
             </p>
           </div>
           <Badge isReserved={data.isReserved} variant="dark" />
@@ -3411,7 +3412,7 @@ function SteelFrame({ data, stats }: { data: CardData; stats: Stats }) {
             {data.name}
           </h2>
           <p style={{ fontSize: 14, fontWeight: 500, color: '#6a6a9a', margin: '4px 0 0 0' }}>
-            {cleanName(data.districtName)} District, Tamil Nadu
+            {cleanName(data.districtName)} District, {data.stateName}
           </p>
         </div>
 
@@ -3674,7 +3675,7 @@ function Horizon({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 14, fontWeight: 600, color: '#475569', margin: '0 0 16px 0' }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
 
         {/* Horizontal bar comparison */}
@@ -3936,7 +3937,7 @@ function Tricolor({ data, stats }: { data: CardData; stats: Stats }) {
             {data.name}
           </h2>
           <p style={{ fontSize: 15, fontWeight: 600, color: '#6b7280', margin: '4px 0 0 0' }}>
-            {cleanName(data.districtName)} District, Tamil Nadu
+            {cleanName(data.districtName)} District, {data.stateName}
           </p>
         </div>
       </div>
@@ -4178,7 +4179,7 @@ function Analytics({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: '4px 0 14px 0' }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
 
         {/* Three-column chart row */}
@@ -4462,7 +4463,7 @@ function Comparison({ data, stats }: { data: CardData; stats: Stats }) {
               {data.name}
             </div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#64748b' }}>
-              {cleanName(data.districtName)} District, Tamil Nadu
+              {cleanName(data.districtName)} District, {data.stateName}
             </div>
           </div>
           <Badge isReserved={data.isReserved} />
@@ -4779,7 +4780,7 @@ function Spotlight({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: '0 0 16px 0' }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
 
         {/* Big leader spotlight with donut around it */}
@@ -4973,7 +4974,7 @@ function ElectionMap({ data, stats }: { data: CardData; stats: Stats }) {
             {data.name}
           </h2>
           <p style={{ fontSize: 13, fontWeight: 600, color: '#78716c', margin: '2px 0 0 0' }}>
-            {cleanName(data.districtName)} District, Tamil Nadu
+            {cleanName(data.districtName)} District, {data.stateName}
           </p>
         </div>
         <Badge isReserved={data.isReserved} />
@@ -5326,7 +5327,7 @@ function FightNight({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 14, fontWeight: 600, color: '#71717a', margin: '0 0 14px 0' }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
       </div>
 
@@ -5829,7 +5830,7 @@ function DidYouKnow({ data, stats }: { data: CardData; stats: Stats }) {
         }}
       >
         <span style={{ fontSize: 13, fontWeight: 700, color: '#92400e' }}>
-          Source: IndiaStats.org | {cleanName(data.districtName)} District, Tamil Nadu
+          Source: IndiaStats.org | {cleanName(data.districtName)} District, {data.stateName}
         </span>
         <span style={{ fontSize: 12, fontWeight: 600, color: '#d97706', marginLeft: 8 }}>
           {data.isReserved ? 'Reserved (SC/ST)' : 'General'}
@@ -5920,7 +5921,7 @@ function Verdict({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8', margin: 0 }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
       </div>
 
@@ -6215,7 +6216,7 @@ function PowerRanking({ data, stats }: { data: CardData; stats: Stats }) {
           {data.name}
         </h2>
         <p style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: '0 0 14px 0' }}>
-          {cleanName(data.districtName)} District, Tamil Nadu
+          {cleanName(data.districtName)} District, {data.stateName}
         </p>
 
         <p

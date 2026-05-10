@@ -82,7 +82,7 @@ export default async function ElectionResultsPage({ params }: Props) {
     depth: 0,
   })
 
-  const data = buildLiveResultsDataset(docs as unknown as LiveResultDoc[])
+  const data = buildLiveResultsDataset(docs as unknown as LiveResultDoc[], stateConfig)
 
   return (
     <div className="relative h-screen overflow-hidden">

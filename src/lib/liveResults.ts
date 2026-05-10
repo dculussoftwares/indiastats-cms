@@ -9,6 +9,7 @@
  */
 
 import type { ElectionResultsDataset, PartyTally, SeatResult } from '@/lib/electionResults'
+import type { StateConfig } from '@/config/states/types'
 
 // ── Raw shape coming out of Payload (live-election-results collection) ────────
 export interface LiveResultDoc {
@@ -67,7 +68,7 @@ function toSeatResult(doc: LiveResultDoc): SeatResult {
     assemblyId: doc.assemblyId,
     assemblyNo,
     assemblyName: doc.assemblyName,
-    districtName: doc.districtName ?? 'Tamil Nadu',
+    districtName: doc.districtName ?? 'Unknown',
     winnerName,
     winnerParty,
     winnerVotes,
@@ -115,6 +116,7 @@ function buildTickerItems(
   results: Record<string, SeatResult>,
   declared: number,
   totalSeats: number,
+  stateName: string,
 ): string[] {
   const items: string[] = []
 
@@ -136,7 +138,7 @@ function buildTickerItems(
   items.push(`${declared} of ${totalSeats} seats counted`)
 
   if (items.length === 0) {
-    items.push('Counting underway across Tamil Nadu — results coming soon')
+    items.push(`Counting underway across ${stateName} — results coming soon`)
     items.push('Stay tuned for live updates from all 234 constituencies')
   }
 
@@ -144,7 +146,12 @@ function buildTickerItems(
 }
 
 // ── Main transform ─────────────────────────────────────────────────────────
-export function buildLiveResultsDataset(docs: LiveResultDoc[]): ElectionResultsDataset {
+export function buildLiveResultsDataset(
+  docs: LiveResultDoc[],
+  stateConfig?: StateConfig,
+): ElectionResultsDataset {
+  const stateName = stateConfig?.name ?? 'Tamil Nadu'
+  const stateCode = stateConfig?.code ?? 'TN'
   const results: Record<string, SeatResult> = {}
 
   for (const doc of docs) {
@@ -161,8 +168,8 @@ export function buildLiveResultsDataset(docs: LiveResultDoc[]): ElectionResultsD
   const totalSeats = allSeats.length || 234
 
   return {
-    stateName: 'Tamil Nadu',
-    stateCode: 'TN',
+    stateName,
+    stateCode,
     electionYear: 2026,
     totalSeats,
     majorityMark: 118,
@@ -171,7 +178,7 @@ export function buildLiveResultsDataset(docs: LiveResultDoc[]): ElectionResultsD
     pending,
     partyTallies,
     results,
-    tickerItems: buildTickerItems(results, declared, totalSeats),
+    tickerItems: buildTickerItems(results, declared, totalSeats, stateName),
     lastUpdated: new Date().toISOString(),
   }
 }

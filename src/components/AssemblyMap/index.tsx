@@ -347,6 +347,7 @@ const NativeGeoJSON = ({
 export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: AssemblyMapProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const state = useStateConfig()
 
   useEffect(() => {
     setPageContext({
@@ -1626,7 +1627,6 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                       <button
                         className="w-full flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
                         onClick={() => {
-                          const state = useStateConfig()
                           const url = buildAssemblyUrl(popupContent.ac, state.slug)
                           if (url) router.push(url)
                         }}
@@ -1840,7 +1840,6 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                       <button
                         className="w-full flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
                         onClick={() => {
-                          const state = useStateConfig()
                           const url = buildAssemblyUrl(popupContent.ac, state.slug)
                           if (url) router.push(url)
                         }}
@@ -2128,7 +2127,6 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                     <button
                       className="w-full flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded transition-colors"
                       onClick={() => {
-                        const state = useStateConfig()
                         const url = buildAssemblyUrl(popupContent.ac, state.slug)
                         if (url) router.push(url)
                       }}

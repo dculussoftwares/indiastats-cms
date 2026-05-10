@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { getStateByCode } from '@/config/states'
 
 function cleanName(name: string): string {
   const parts = (name || '').split(' / ')
@@ -56,6 +57,7 @@ export async function GET(
   const name = cleanName(assembly.name)
   const districtName = cleanName(assembly.districtName)
   const districtId: string = assembly.districtId || 'dt7'
+  const stateSlug = getStateByCode(assembly.stateCode || 'TN')?.slug ?? 'tamil-nadu'
 
   return NextResponse.json({
     assemblyId: assembly.assemblyId,
@@ -64,9 +66,7 @@ export async function GET(
     districtId,
     isReserved: assembly.voters?.isReservedAc || false,
     totalVoters: Number(assembly.voters?.total) || 0,
-    lastElection: lastYear
-      ? { year: lastYear, winner: lastWinner, party: lastWinnerParty }
-      : null,
-    pageUrl: `/tamil-nadu/assembly/${districtId}/${assembly.assemblyId}`,
+    lastElection: lastYear ? { year: lastYear, winner: lastWinner, party: lastWinnerParty } : null,
+    pageUrl: `/${stateSlug}/assembly/${districtId}/${assembly.assemblyId}`,
   })
 }

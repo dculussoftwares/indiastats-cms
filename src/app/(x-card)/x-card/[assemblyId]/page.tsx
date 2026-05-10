@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { XCardPreview } from './XCardPreview'
+import { getStateByCode } from '@/config/states'
 
 interface PageProps {
   params: Promise<{ assemblyId: string }>
@@ -47,9 +48,10 @@ async function getAssemblyCardData(assemblyId: string) {
       const winner = candidates[0]
       const runnerUp = candidates[1]
       const margin = winner && runnerUp ? winner.votes - runnerUp.votes : 0
-      const turnout = winner?.votesPolled && winner?.totalVoters
-        ? ((winner.votesPolled / winner.totalVoters) * 100)
-        : 0
+      const turnout =
+        winner?.votesPolled && winner?.totalVoters
+          ? (winner.votesPolled / winner.totalVoters) * 100
+          : 0
       return {
         year,
         winner: winner?.name || 'Unknown',
@@ -88,7 +90,8 @@ async function getAssemblyCardData(assemblyId: string) {
     collection: 'alliances',
     limit: 500,
   })
-  const allianceData: Record<number, { allianceName: string; parties: { partyName: string }[] }[]> = {}
+  const allianceData: Record<number, { allianceName: string; parties: { partyName: string }[] }[]> =
+    {}
   alliancesResult.docs.forEach((a: any) => {
     if (!allianceData[a.electionYear]) allianceData[a.electionYear] = []
     allianceData[a.electionYear].push({
@@ -100,18 +103,23 @@ async function getAssemblyCardData(assemblyId: string) {
   return {
     assemblyId: assembly.assemblyId,
     stateCode: assembly.stateCode || 'TN',
+    stateName: getStateByCode(assembly.stateCode || 'TN')?.name ?? 'Tamil Nadu',
     name: assembly.name,
     districtName: assembly.districtName,
     districtId: assembly.districtId,
     isReserved: assembly.voters?.isReservedAc || false,
-    voters: assembly.voters ? {
-      male: Number(assembly.voters.male) || 0,
-      female: Number(assembly.voters.female) || 0,
-      total: Number(assembly.voters.total) || 0,
-    } : null,
-    lastElectionVoters: assembly.lastElectionVoters ? {
-      total: Number(assembly.lastElectionVoters.total) || 0,
-    } : null,
+    voters: assembly.voters
+      ? {
+          male: Number(assembly.voters.male) || 0,
+          female: Number(assembly.voters.female) || 0,
+          total: Number(assembly.voters.total) || 0,
+        }
+      : null,
+    lastElectionVoters: assembly.lastElectionVoters
+      ? {
+          total: Number(assembly.lastElectionVoters.total) || 0,
+        }
+      : null,
     electionHistory,
     topCastes,
     allianceData,

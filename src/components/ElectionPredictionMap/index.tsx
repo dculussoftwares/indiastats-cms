@@ -1,5 +1,4 @@
-import { useStateConfig } from '@/components/providers/StateProvider'
-;('use client')
+'use client'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react'
@@ -21,6 +20,7 @@ import {
 import '@/components/AssemblyMap/leaflet-style-import'
 import type { ElectionPredictionDataset, PredictionMapEntry } from '@/lib/electionPredictions'
 import { buildAssemblyUrl } from '@/lib/assemblyRouting'
+import { getStateByCode } from '@/config/states'
 import { getPartyColor } from '@/lib/partyColors'
 import { trackClicked, trackViewed, setPageContext, PAGE_NAMES } from '@/analytics'
 
@@ -1373,8 +1373,8 @@ export function ElectionPredictionMap({
                     updateUrl({ assembly: null })
                   }}
                   onNavigate={() => {
-                    const state = useStateConfig()
-                    const url = buildAssemblyUrl(popupContent.ac, state.slug)
+                    const stateSlug = getStateByCode(stateCode)?.slug ?? 'tamil-nadu'
+                    const url = buildAssemblyUrl(popupContent.ac, stateSlug)
                     if (url) {
                       trackClicked({
                         name: 'link',
