@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `${predictorName} election prediction`,
       `${stateName} election 2026 forecast`,
       `${stateName} assembly prediction map`,
-      'Tamil Nadu election predictor',
+      `${stateName} election predictor`,
       'seat forecast 2026',
       'assembly constituency prediction',
       predictorNameSlug(predictorName),

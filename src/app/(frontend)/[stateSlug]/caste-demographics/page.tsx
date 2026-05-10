@@ -2,25 +2,27 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
 import { CasteDemographicsClient } from './CasteDemographicsClient'
+import { getStateBySlug } from '@/config/states'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
+  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/caste-demographics`
 
   return {
-    title: 'Caste Demographics - Tamil Nadu Assembly Constituencies | IndiaStats',
-    description: 'Explore caste composition data across all 234 assembly constituencies in Tamil Nadu. Search, filter, and analyze demographic patterns.',
+    title: `Caste Demographics - ${stateName} Assembly Constituencies | IndiaStats`,
+    description: `Explore caste composition data across assembly constituencies in ${stateName}. Search, filter, and analyze demographic patterns.`,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: 'Tamil Nadu Caste Demographics - IndiaStats.org',
-      description: 'Explore caste composition data across all 234 assembly constituencies in Tamil Nadu.',
+      title: `${stateName} Caste Demographics - IndiaStats.org`,
+      description: `Explore caste composition data across assembly constituencies in ${stateName}.`,
       type: 'website',
       url: canonicalUrl,
       images: [
@@ -28,14 +30,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: 'Tamil Nadu Caste Demographics Profile',
+          alt: `${stateName} Caste Demographics Profile`,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Tamil Nadu Caste Demographics',
-      description: 'Detailed caste composition data for Tamil Nadu assembly constituencies.',
+      title: `${stateName} Caste Demographics`,
+      description: `Detailed caste composition data for ${stateName} assembly constituencies.`,
       images: [ogImageUrl],
     },
   }

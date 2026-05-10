@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { predictorHref } from '@/utilities/predictorUrl'
+import { getAllStates } from '@/config/states'
 
 const getPredictionsSitemap = unstable_cache(
   async () => {
@@ -24,24 +25,30 @@ const getPredictionsSitemap = unstable_cache(
     })
 
     const dateFallback = new Date().toISOString()
+    const allStates = getAllStates()
 
-    // Listing page (one per state — currently only TN)
-    const entries = [
-      {
-        loc: `${SITE_URL}/tamil-nadu/election-predictions`,
-        lastmod: dateFallback,
-        priority: 0.8,
-        changefreq: 'weekly' as const,
-      },
-    ]
+    // Listing page (one per registered state)
+    const entries: {
+      loc: string
+      lastmod: string
+      priority: number
+      changefreq: 'weekly' | 'hourly' | 'daily' | 'monthly'
+    }[] = allStates.map((state) => ({
+      loc: `${SITE_URL}/${state.slug}/election-predictions`,
+      lastmod: dateFallback,
+      priority: 0.8,
+      changefreq: 'weekly' as const,
+    }))
 
-    // One page per predictor using the SEO-friendly slug URL
+    // One page per predictor × state using the SEO-friendly slug URL
     predictorsResult.docs.forEach((predictor: any) => {
-      entries.push({
-        loc: `${SITE_URL}` + predictorHref('tamil-nadu', predictor.id, predictor.name ?? ''),
-        lastmod: predictor.updatedAt || dateFallback,
-        priority: 0.7,
-        changefreq: 'weekly' as const,
+      allStates.forEach((state) => {
+        entries.push({
+          loc: `${SITE_URL}` + predictorHref(state.slug, predictor.id, predictor.name ?? ''),
+          lastmod: predictor.updatedAt || dateFallback,
+          priority: 0.7,
+          changefreq: 'weekly' as const,
+        })
       })
     })
 

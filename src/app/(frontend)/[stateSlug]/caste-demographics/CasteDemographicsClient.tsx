@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ArrowLeft, Search, Users, TrendingUp, MapPin, Filter } from 'lucide-react'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface CasteData {
   id: string
@@ -43,6 +44,7 @@ export function CasteDemographicsClient({
   stateSlug,
   prefetchedData,
 }: CasteDemographicsClientProps) {
+  const state = useStateConfig()
   const [allData, setAllData] = React.useState<CasteData[]>([])
   const [filteredData, setFilteredData] = React.useState<CasteData[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
@@ -57,7 +59,8 @@ export function CasteDemographicsClient({
       page_path: window.location.pathname,
       ...getCurrentUTM(window.location.search),
     })
-    trackViewed({ name: 'caste_demographics_page',
+    trackViewed({
+      name: 'caste_demographics_page',
       page_name: PAGE_NAMES.CASTE_DEMOGRAPHICS,
       page_url: window.location.href,
       page_path: window.location.pathname,
@@ -238,7 +241,7 @@ export function CasteDemographicsClient({
           <div className="border-l-4 border-red-600 pl-4 py-2">
             <h1 className="text-3xl font-bold text-foreground">Caste Demographics</h1>
             <p className="text-muted-foreground text-sm">
-              Explore caste composition across all 234 Tamil Nadu assembly constituencies
+              Explore caste composition across {state.name} assembly constituencies
             </p>
           </div>
         </div>
@@ -311,7 +314,8 @@ export function CasteDemographicsClient({
                         <button
                           onClick={() => {
                             const pageContext = getPageContext()
-                            trackClicked({ name: 'search_filter',
+                            trackClicked({
+                              name: 'search_filter',
                               page_name: pageContext.page_name || 'Caste Demographics',
                               filter_name: 'caste',
                               filter_value: caste.caste,
@@ -365,7 +369,8 @@ export function CasteDemographicsClient({
                 size="sm"
                 onClick={() => {
                   const pageContext = getPageContext()
-                  trackClicked({ name: 'button',
+                  trackClicked({
+                    name: 'button',
                     page_name: pageContext.page_name || 'Caste Demographics',
                     button_name: 'sort_by_assembly',
                     button_label: 'A-Z',
@@ -380,7 +385,8 @@ export function CasteDemographicsClient({
                 size="sm"
                 onClick={() => {
                   const pageContext = getPageContext()
-                  trackClicked({ name: 'button',
+                  trackClicked({
+                    name: 'button',
                     page_name: pageContext.page_name || 'Caste Demographics',
                     button_name: 'sort_by_percentage',
                     button_label: 'By %',
@@ -432,7 +438,8 @@ export function CasteDemographicsClient({
                           className="hover:text-blue-600 hover:underline"
                           onClick={() => {
                             const pageContext = getPageContext()
-                            trackClicked({ name: 'link',
+                            trackClicked({
+                              name: 'link',
                               page_name: pageContext.page_name || 'Caste Demographics',
                               link_name: 'view_assembly_on_map',
                               link_location: 'caste_table',

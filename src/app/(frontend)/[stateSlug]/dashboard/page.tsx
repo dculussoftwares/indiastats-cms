@@ -5,22 +5,23 @@ import { unstable_cache } from 'next/cache'
 import { Map, MapPinned, Locate, UsersRound } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { DashboardClient } from './DashboardClient'
+import { getStateBySlug } from '@/config/states'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
+  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/dashboard`
 
   return {
     title: 'Dashboard | IndiaStats.org',
-    description:
-      'Comprehensive Tamil Nadu election data, assembly constituency analysis, and electoral insights.',
+    description: `Comprehensive ${stateName} election data, assembly constituency analysis, and electoral insights.`,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: 'Tamil Nadu Election Dashboard - IndiaStats.org',
+      title: `${stateName} Election Dashboard - IndiaStats.org`,
       description:
         'Explore state-wide election statistics, district-wise assembly constituencies, and voter data.',
       type: 'website',
@@ -30,13 +31,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: 'Tamil Nadu Election Data Dashboard',
+          alt: `${stateName} Election Data Dashboard`,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Tamil Nadu Election Data Dashboard',
+      title: `${stateName} Election Data Dashboard`,
       description: 'Explore state-wide election statistics and voter data on IndiaStats.org.',
       images: [ogImageUrl],
     },
@@ -127,13 +128,14 @@ interface Props {
 
 export default async function DashboardPage({ params }: Props) {
   const { stateSlug } = await params
+  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
   const { stats, assemblies, districts } = await getDashboardData()
 
   return (
     <div className="container py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Tamil Nadu Election Data Overview</p>
+        <p className="text-muted-foreground">{stateName} Election Data Overview</p>
       </div>
 
       {/* Statistics Section */}

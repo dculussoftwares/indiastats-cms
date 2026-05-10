@@ -2,6 +2,7 @@ import { getServerSideSitemap } from 'next-sitemap'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
+import { getAllStates } from '@/config/states'
 
 const getPagesSitemap = unstable_cache(
   async () => {
@@ -59,43 +60,45 @@ const getPagesSitemap = unstable_cache(
         priority: 0.8,
         changefreq: 'weekly' as const,
       },
-      // Tamil Nadu state pages
-      {
-        loc: `${SITE_URL}/tamil-nadu/dashboard`,
-        lastmod: dateFallback,
-        priority: 0.9,
-        changefreq: 'daily' as const,
-      },
-      {
-        loc: `${SITE_URL}/tamil-nadu/assembly-map`,
-        lastmod: dateFallback,
-        priority: 0.7,
-        changefreq: 'monthly' as const,
-      },
-      {
-        loc: `${SITE_URL}/tamil-nadu/caste-demographics`,
-        lastmod: dateFallback,
-        priority: 0.6,
-        changefreq: 'monthly' as const,
-      },
-      {
-        loc: `${SITE_URL}/tamil-nadu/election-results`,
-        lastmod: dateFallback,
-        priority: 0.9,
-        changefreq: 'hourly' as const,
-      },
-      {
-        loc: `${SITE_URL}/tamil-nadu/election-analysis/2026`,
-        lastmod: dateFallback,
-        priority: 0.8,
-        changefreq: 'weekly' as const,
-      },
-      {
-        loc: `${SITE_URL}/tamil-nadu/election-analysis/2021`,
-        lastmod: dateFallback,
-        priority: 0.7,
-        changefreq: 'monthly' as const,
-      },
+      // State-specific pages (one set per registered state)
+      ...getAllStates().flatMap((state) => [
+        {
+          loc: `${SITE_URL}/${state.slug}/dashboard`,
+          lastmod: dateFallback,
+          priority: 0.9,
+          changefreq: 'daily' as const,
+        },
+        {
+          loc: `${SITE_URL}/${state.slug}/assembly-map`,
+          lastmod: dateFallback,
+          priority: 0.7,
+          changefreq: 'monthly' as const,
+        },
+        {
+          loc: `${SITE_URL}/${state.slug}/caste-demographics`,
+          lastmod: dateFallback,
+          priority: 0.6,
+          changefreq: 'monthly' as const,
+        },
+        {
+          loc: `${SITE_URL}/${state.slug}/election-results`,
+          lastmod: dateFallback,
+          priority: 0.9,
+          changefreq: 'hourly' as const,
+        },
+        {
+          loc: `${SITE_URL}/${state.slug}/election-analysis/2026`,
+          lastmod: dateFallback,
+          priority: 0.8,
+          changefreq: 'weekly' as const,
+        },
+        {
+          loc: `${SITE_URL}/${state.slug}/election-analysis/2021`,
+          lastmod: dateFallback,
+          priority: 0.7,
+          changefreq: 'monthly' as const,
+        },
+      ]),
     ]
 
     const sitemap = results.docs

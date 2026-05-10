@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import BoothsPageClient from './BoothsPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { getStateBySlug } from '@/config/states'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -50,6 +51,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { assemblySlug, districtSlug, stateSlug } = await params
+  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
   const payload = await getPayload({ config })
 
   const assemblies = await payload.find({
@@ -67,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths`
 
   return {
-    title: `Polling Booths in ${cleanName} Assembly - Tamil Nadu`,
+    title: `Polling Booths in ${cleanName} Assembly - ${stateName}`,
     description: `Complete list of polling booths in ${cleanName} assembly constituency, ${assembly?.districtName || ''}. Find booth numbers, locations, and voter statistics.`,
     alternates: {
       canonical: canonicalUrl,

@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { getStateByCode } from '@/config/states'
 
 export const runtime = 'nodejs'
 export const revalidate = 3600
@@ -16,6 +17,8 @@ export async function GET(
 ) {
   try {
     const { predictorId } = await params
+    const stateCode = new URL(_request.url).searchParams.get('stateCode') ?? 'TN'
+    const stateName = getStateByCode(stateCode)?.name ?? 'India'
     const payload = await getPayload({ config })
 
     // Fetch predictor (depth:1 to populate image media)
@@ -33,7 +36,7 @@ export async function GET(
     const predictionsResult = await payload.find({
       collection: 'election-predictions',
       where: {
-        and: [{ predictor: { equals: predictor.id } }, { stateCode: { equals: 'TN' } }],
+        and: [{ predictor: { equals: predictor.id } }, { stateCode: { equals: stateCode } }],
       },
       limit: 5000,
       pagination: false,
@@ -212,7 +215,7 @@ export async function GET(
                   letterSpacing: '0.1em',
                 }}
               >
-                Tamil Nadu {latestYear ?? ''} Election Forecast
+                {stateName} {latestYear ?? ''} Election Forecast
               </span>
             </div>
           </div>

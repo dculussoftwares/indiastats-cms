@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import AssemblyMap from '@/components/AssemblyMap'
 import { TamilNaduGeoJson } from '@/components/AssemblyMap/staticData'
+import { getStateBySlug } from '@/config/states'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -14,20 +15,21 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
+  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/assembly-map`
 
   return {
-    title: 'Tamil Nadu Assembly Map - Interactive Constituency Visualization | IndiaStats',
-    description: 'Interactive map of Tamil Nadu assembly constituencies with detailed electoral data, geographical boundaries, and constituency information.',
-    keywords: 'Tamil Nadu assembly map, constituency map, electoral boundaries, assembly seats, district map',
+    title: `${stateName} Assembly Map - Interactive Constituency Visualization | IndiaStats`,
+    description: `Interactive map of ${stateName} assembly constituencies with detailed electoral data, geographical boundaries, and constituency information.`,
+    keywords: `${stateName} assembly map, constituency map, electoral boundaries, assembly seats, district map`,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: 'Interactive Tamil Nadu Assembly Map - IndiaStats.org',
-      description: 'Explore the Tamil Nadu assembly constituencies with our interactive map and detailed election data.',
+      title: `Interactive ${stateName} Assembly Map - IndiaStats.org`,
+      description: `Explore the ${stateName} assembly constituencies with our interactive map and detailed election data.`,
       type: 'website',
       url: canonicalUrl,
       images: [
@@ -35,13 +37,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: 'Tamil Nadu Assembly Map Visualization',
+          alt: `${stateName} Assembly Map Visualization`,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Interactive Tamil Nadu Assembly Map',
+      title: `Interactive ${stateName} Assembly Map`,
       description: 'Explore assembly constituencies and election data through our interactive map.',
       images: [ogImageUrl],
     },
@@ -185,6 +187,7 @@ async function getCasteData() {
 export default async function AssemblyMapPage({ params }: Props) {
   // Fetch data at build time (server-side)
   const { stateSlug } = await params
+  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
   const [mapStats, casteDataMap] = await Promise.all([getMapStats(), getCasteData()])
 
   return (
@@ -192,7 +195,7 @@ export default async function AssemblyMapPage({ params }: Props) {
       {/* BBC Style Header */}
       <div className="mb-6">
         <div className="border-l-4 border-red-600 pl-4 py-2">
-          <h1 className="text-2xl font-bold">Tamil Nadu Assembly Map</h1>
+          <h1 className="text-2xl font-bold">{stateName} Assembly Map</h1>
           <p className="text-sm text-muted-foreground">
             Interactive map showing all 234 assembly constituencies
           </p>

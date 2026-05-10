@@ -7,16 +7,16 @@ import { HomePageClient } from './HomePageClient'
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
 
 export const metadata: Metadata = {
-  title: 'IndiaStats.org - Tamil Nadu Election Data & Statistics',
+  title: 'IndiaStats.org - India Election Data & Statistics',
   description:
     "Explore detailed election history, constituency demographics, and voting patterns across India. Start with Tamil Nadu's 234 assembly constituencies, 50,000+ booths, and 6+ crore voters.",
   keywords: [
-    'Tamil Nadu elections',
+    'India elections',
     'assembly constituency',
     'voter data',
     'MLA history',
     'election statistics',
-    'India elections',
+    'Tamil Nadu elections',
     'Tamil Nadu MLAs',
     'booth data',
   ],
@@ -26,14 +26,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "IndiaStats.org - India's Most Comprehensive Election Data Platform",
     description:
-      "Explore detailed election history, constituency demographics, and voting patterns across Tamil Nadu's 234 assembly constituencies.",
+      'Explore detailed election history, constituency demographics, and voting patterns across Indian assembly constituencies.',
     type: 'website',
     url: baseUrl,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'IndiaStats.org - Tamil Nadu Election Data',
-    description: 'Comprehensive election data for 234 assembly constituencies in Tamil Nadu.',
+    title: 'IndiaStats.org - India Election Data',
+    description: 'Comprehensive election data for assembly constituencies across India.',
   },
 }
 

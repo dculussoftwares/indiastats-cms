@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import { AssemblyPageClient } from './AssemblyPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { getStateBySlug } from '@/config/states'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -33,7 +34,7 @@ export async function generateStaticParams() {
     }
   })
 
-  // Generate params for all assemblies in Tamil Nadu
+  // Generate params for all assemblies
   return assemblies.docs
     .filter((assembly: any) => assembly.slug && assembly.districtId)
     .map((assembly: any) => ({
@@ -49,6 +50,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { assemblySlug, districtSlug, stateSlug } = await params
+  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
   const payload = await getPayload({ config })
 
   const assembly = await payload.find({
@@ -74,11 +76,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${cleanName} Assembly - Voter Data & Election History`,
     description:
       assemblyDoc.metaDescription ||
-      `Complete election data for ${cleanName} assembly constituency, Tamil Nadu. Includes ${assemblyDoc.noOfBooths || 'multiple'} polling booths, voter statistics, MLA history since 1972, and demographic insights.`,
+      `Complete election data for ${cleanName} assembly constituency, ${stateName}. Includes ${assemblyDoc.noOfBooths || 'multiple'} polling booths, voter statistics, MLA history since 1972, and demographic insights.`,
     keywords: [
       `${cleanName} assembly`,
       `${cleanName} MLA`,
-      'Tamil Nadu elections',
+      `${stateName} elections`,
       `${assemblyDoc.districtName} district`,
       'voter data',
       'election history',
@@ -90,7 +92,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `${cleanName} Assembly - Election Data & Statistics`,
       description:
         assemblyDoc.metaDescription ||
-        `View election history, voter stats, and political insights for ${cleanName} Assembly, ${assemblyDoc.districtName} District, Tamil Nadu.`,
+        `View election history, voter stats, and political insights for ${cleanName} Assembly, ${assemblyDoc.districtName} District, ${stateName}.`,
       type: 'website',
       url: canonicalUrl,
       images: [
@@ -107,7 +109,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `${cleanName} Assembly - Election Data`,
       description:
         assemblyDoc.metaDescription ||
-        `View election history, voter stats, and political insights for ${cleanName} Assembly, Tamil Nadu.`,
+        `View election history, voter stats, and political insights for ${cleanName} Assembly, ${stateName}.`,
       images: [ogImageUrl],
     },
   }
