@@ -59,6 +59,17 @@ export async function GET(
   const districtId: string = assembly.districtId || 'dt7'
   const stateSlug = getStateByCode(assembly.stateCode || 'TN')?.slug ?? 'tamil-nadu'
 
+  // Look up the district slug so pageUrl uses the correct slug-based format
+  const districtResult = await payload.find({
+    collection: 'districts',
+    where: { districtId: { equals: districtId } },
+    limit: 1,
+    depth: 0,
+    select: { slug: true },
+  })
+  const districtSlug: string = (districtResult.docs[0] as any)?.slug || districtId
+  const assemblySlug: string = assembly.slug || assembly.assemblyId
+
   return NextResponse.json({
     assemblyId: assembly.assemblyId,
     name,
@@ -67,6 +78,6 @@ export async function GET(
     isReserved: assembly.voters?.isReservedAc || false,
     totalVoters: Number(assembly.voters?.total) || 0,
     lastElection: lastYear ? { year: lastYear, winner: lastWinner, party: lastWinnerParty } : null,
-    pageUrl: `/${stateSlug}/assembly/${districtId}/${assembly.assemblyId}`,
+    pageUrl: `/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`,
   })
 }

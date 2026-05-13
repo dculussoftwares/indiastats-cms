@@ -4,18 +4,24 @@ import type { NextRequest } from 'next/server'
 /**
  * Middleware to handle backwards-compatible redirects from old ID-based URLs
  * to new slug-based URLs.
- * 
- * Old format: /tamil-nadu/assembly/dt1/ac008/booths
+ *
+ * Old format (with stateSlug):    /tamil-nadu/assembly/dt1/ac008/booths
+ * Old format (without stateSlug): /assembly/dt1/ac008/booths
  * New format: /tamil-nadu/assembly/tiruvallur/ambattur/booths
- * 
+ *
  * Also handles district URLs:
- * Old format: /tamil-nadu/district/dt1
+ * Old format: /tamil-nadu/district/dt1 or /district/dt1
  * New format: /tamil-nadu/district/tiruvallur
  */
+
+const DEFAULT_STATE_SLUG = 'tamil-nadu'
 
 // Regex patterns to detect old ID-based URLs
 const OLD_ASSEMBLY_URL_PATTERN = /^\/([^/]+)\/assembly\/(dt\d+)\/(ac\d+)(\/.*)?$/
 const OLD_DISTRICT_URL_PATTERN = /^\/([^/]+)\/district\/(dt\d+)(\/.*)?$/
+// Same patterns without a stateSlug prefix (e.g. /assembly/dt13/ac123/booths)
+const OLD_ASSEMBLY_NO_STATE_PATTERN = /^\/assembly\/(dt\d+)\/(ac\d+)(\/.*)?$/
+const OLD_DISTRICT_NO_STATE_PATTERN = /^\/district\/(dt\d+)(\/.*)?$/
 
 // Cache for ID to slug mappings (populated on first request)
 let districtIdToSlug: Map<string, string> | null = null
@@ -60,6 +66,44 @@ async function loadSlugMappings() {
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
+
+    // Handle old URLs that are missing the stateSlug entirely (e.g. /assembly/dt13/ac123/booths)
+    const assemblyNoStateMatch = pathname.match(OLD_ASSEMBLY_NO_STATE_PATTERN)
+    if (assemblyNoStateMatch) {
+        const [, districtId, assemblyId, rest = ''] = assemblyNoStateMatch
+
+        await loadSlugMappings()
+
+        const districtSlug = districtIdToSlug?.get(districtId)
+        const assemblySlug = assemblyIdToSlug?.get(assemblyId)
+
+        if (districtSlug && assemblySlug) {
+            const newUrl = new URL(
+                `/${DEFAULT_STATE_SLUG}/assembly/${districtSlug}/${assemblySlug}${rest}`,
+                request.url,
+            )
+            newUrl.search = request.nextUrl.search
+            return NextResponse.redirect(newUrl, { status: 301 })
+        }
+    }
+
+    const districtNoStateMatch = pathname.match(OLD_DISTRICT_NO_STATE_PATTERN)
+    if (districtNoStateMatch) {
+        const [, districtId, rest = ''] = districtNoStateMatch
+
+        await loadSlugMappings()
+
+        const districtSlug = districtIdToSlug?.get(districtId)
+
+        if (districtSlug) {
+            const newUrl = new URL(
+                `/${DEFAULT_STATE_SLUG}/district/${districtSlug}${rest}`,
+                request.url,
+            )
+            newUrl.search = request.nextUrl.search
+            return NextResponse.redirect(newUrl, { status: 301 })
+        }
+    }
 
     // Check if this is an old assembly URL
     const assemblyMatch = pathname.match(OLD_ASSEMBLY_URL_PATTERN)
@@ -108,9 +152,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    // Only run middleware on frontend routes that might contain old IDs
+    // Run middleware on frontend routes that might contain old IDs
     matcher: [
         '/:stateSlug/assembly/dt:districtNum/:path*',
         '/:stateSlug/district/dt:districtNum/:path*',
+        // Old URLs without a stateSlug prefix
+        '/assembly/dt:districtNum/:path*',
+        '/district/dt:districtNum/:path*',
     ],
 }
