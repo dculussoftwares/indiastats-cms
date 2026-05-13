@@ -1,6 +1,6 @@
-import { useStateConfig } from '@/components/providers/StateProvider'
-;('use client')
+'use client'
 
+import { useStateConfig } from '@/components/providers/StateProvider'
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter, useSearchParams } from 'next/navigation'
