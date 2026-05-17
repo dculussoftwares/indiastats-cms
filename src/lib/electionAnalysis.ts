@@ -80,6 +80,23 @@ export interface LostDeposit {
   }[]
 }
 
+export interface SecondPlace {
+  party: string
+  count: number // number of 2nd place finishes
+  total: number // total candidates fielded by this party
+  secondPct: number // % of party's candidates who placed 2nd
+  assemblies: {
+    assemblyId: string
+    assemblyName: string
+    assemblySlug: string
+    districtName: string
+    districtSlug: string
+    candidateName: string
+    votes: number
+    votePct: number
+  }[]
+}
+
 export interface ThirdPlace {
   party: string
   count: number // number of 3rd place finishes
@@ -123,6 +140,7 @@ export interface ElectionAnalysisResponse {
   waveTimeline: WaveDataPoint[]
   districtGenderProfiles: DistrictGenderProfile[]
   lostDeposits: LostDeposit[]
+  secondPlaces: SecondPlace[]
   thirdPlaces: ThirdPlace[]
 }
 
@@ -200,6 +218,16 @@ export async function computeElectionAnalysis(
     }
   > = {}
 
+  // 2nd place tracking
+  const secondPlaceMap: Record<
+    string,
+    {
+      count: number
+      total: number
+      assemblies: SecondPlace['assemblies']
+    }
+  > = {}
+
   // 3rd place tracking
   const thirdPlaceMap: Record<
     string,
@@ -249,6 +277,28 @@ export async function computeElectionAnalysis(
             polled > 0 ? Math.round(((candidate.candidateVotes ?? 0) / polled) * 1000) / 10 : 0,
         })
       }
+    }
+
+    // 2nd place tracking
+    const second = sorted[1]
+    for (const candidate of sorted) {
+      const p = (candidate.candidateParty ?? 'IND') as string
+      if (!secondPlaceMap[p]) secondPlaceMap[p] = { count: 0, total: 0, assemblies: [] }
+      secondPlaceMap[p].total++
+    }
+    if (second) {
+      const p = (second.candidateParty ?? 'IND') as string
+      secondPlaceMap[p].count++
+      secondPlaceMap[p].assemblies.push({
+        assemblyId,
+        assemblyName: winner.assemblyName ?? assemblyId,
+        assemblySlug: assemblyInfo?.slug ?? assemblyId,
+        districtName: assemblyInfo?.districtName ?? '',
+        districtSlug,
+        candidateName: second.candidateName ?? '',
+        votes: second.candidateVotes ?? 0,
+        votePct: polled > 0 ? Math.round(((second.candidateVotes ?? 0) / polled) * 1000) / 10 : 0,
+      })
     }
 
     // 3rd place tracking
@@ -317,6 +367,19 @@ export async function computeElectionAnalysis(
       }))
       .filter((d) => d.total > 0)
       .sort((a, b) => b.lost - a.lost)
+  }
+
+  function buildSecondPlaces(): SecondPlace[] {
+    return Object.entries(secondPlaceMap)
+      .map(([party, { count, total, assemblies }]) => ({
+        party,
+        count,
+        total,
+        secondPct: total > 0 ? Math.round((count / total) * 1000) / 10 : 0,
+        assemblies: assemblies.sort((a, b) => b.votes - a.votes),
+      }))
+      .filter((d) => d.count > 0)
+      .sort((a, b) => b.count - a.count)
   }
 
   function buildThirdPlaces(): ThirdPlace[] {
@@ -400,6 +463,7 @@ export async function computeElectionAnalysis(
       waveTimeline: [],
       districtGenderProfiles: [],
       lostDeposits: buildLostDeposits(),
+      secondPlaces: buildSecondPlaces(),
       thirdPlaces: buildThirdPlaces(),
     }
   }
@@ -632,6 +696,7 @@ export async function computeElectionAnalysis(
     waveTimeline,
     districtGenderProfiles,
     lostDeposits: buildLostDeposits(),
+    secondPlaces: buildSecondPlaces(),
     thirdPlaces: buildThirdPlaces(),
   }
 }
