@@ -5,14 +5,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ```bash
-pnpm dev                # Dev server on http://localhost:3001
+pnpm dev                # Dev server on http://localhost:3010
+pnpm dev:prod           # Clean build + start (local production test)
 pnpm build              # Production build (output: standalone for Docker)
 pnpm lint               # ESLint
 pnpm lint:fix           # ESLint with auto-fix
 pnpm generate:types     # Regenerate PayloadCMS types → src/payload-types.ts
 pnpm test:int           # Vitest unit/integration tests
 pnpm test:e2e           # Playwright end-to-end tests
+pnpm test:smoke         # Playwright smoke tests only (fast subset)
 pnpm test               # Run both int + e2e
+pnpm eci:push           # Scrape ECI website and push live election results to DB
 ```
 
 Run a single integration test: `pnpm exec vitest run --config ./vitest.config.mts path/to/file.test.ts`
@@ -36,7 +39,7 @@ pnpm remotion:thumbnail # Render thumbnail → out/thumbnail.png
 
 3. **Client/Server page split**: Pages follow the pattern of a server component (`page.tsx`) that fetches data via Payload Local API, passing it to a `*Client.tsx` component for interactivity (e.g., `AssemblyPageClient.tsx`, `HomePageClient.tsx`).
 
-4. **PayloadCMS collections** (`src/collections/`): 13 collections registered in `src/payload.config.ts`. Election data collections (Assemblies, Districts, Booths, ElectionHistory) are read-only public. CMS collections (Pages, Posts, Media) use Payload's admin panel with live preview.
+4. **PayloadCMS collections** (`src/collections/`): 16 collections registered in `src/payload.config.ts`. Election data collections (Assemblies, Districts, Booths, ElectionHistory, ElectionPredictions, LiveElectionResults) are read-only public. `LiveElectionResults` also allows bearer-token writes via `CRON_SECRET` for the ECI push script. CMS collections (Pages, Posts, Media) use Payload's admin panel with live preview. Globals: `Header`, `Footer`, `SiteSettings`.
 
 5. **Plugins** (`src/plugins/index.ts`): SEO, redirects, nested docs, form builder, search (Posts only), and Azure Blob Storage (conditional — only active when `AZURE_STORAGE_CONNECTION_STRING` is set).
 
@@ -47,17 +50,23 @@ pnpm remotion:thumbnail # Render thumbnail → out/thumbnail.png
 ### Frontend Route Structure
 
 ```
-/                                          # Landing/redirect
-/[stateSlug]/                              # State home (e.g., /tamil-nadu)
-/[stateSlug]/assembly/[district]/[assembly] # Assembly detail
-/[stateSlug]/assembly/.../booths           # Booth listing
-/[stateSlug]/district/[districtSlug]       # District detail
-/[stateSlug]/assembly-map                  # Interactive map (Leaflet)
-/[stateSlug]/caste-demographics            # Caste census data
-/[stateSlug]/dashboard                     # Dashboard view
-/election-data                             # Cross-state election data table
-/posts/, /pages/, /search, /privacy-policy # CMS content
+/                                                    # Landing/redirect
+/[stateSlug]/                                        # State home (e.g., /tamil-nadu)
+/[stateSlug]/assembly/[districtSlug]/[assemblySlug]  # Assembly detail
+/[stateSlug]/assembly/.../booths                     # Booth listing
+/[stateSlug]/district/[districtSlug]                 # District detail
+/[stateSlug]/assembly-map                            # Interactive map (Leaflet)
+/[stateSlug]/caste-demographics                      # Caste census data
+/[stateSlug]/dashboard                               # Dashboard view
+/[stateSlug]/election-analysis/[year]                # Election analysis by year
+/[stateSlug]/election-predictions/[predictorId]      # Predictor-specific predictions
+/[stateSlug]/election-results                        # Live/final results map
+/election-data                                       # Cross-state election data table
+/posts/, /pages/, /search, /privacy-policy           # CMS content
+/(x-card)/x-card/[assemblyId]                        # Social share card preview (standalone, no Header/Footer)
 ```
+
+**URL migration**: The middleware (`src/middleware.ts`) intercepts old ID-based URLs (e.g., `/tamil-nadu/assembly/dt1/ac008`) and 301-redirects to slug-based URLs (`/tamil-nadu/assembly/tiruvallur/ambattur`). Mappings are fetched once from `/api/slug-mappings` and cached in memory.
 
 ### Infrastructure
 
@@ -74,10 +83,12 @@ pnpm remotion:thumbnail # Render thumbnail → out/thumbnail.png
 Districts (38)
   └── Assemblies (234)
         ├── Booths (~45k)
-        └── ElectionHistory (~15.7k candidate records)
+        ├── ElectionHistory (~15.7k candidate records)
+        ├── ElectionPredictions (per candidate per predictor)
+        └── LiveElectionResults (counting-day live data, one record per assembly per year)
 ```
 
-Additional collections: `States`, `Zones`, `Alliances`, `CasteCensus`
+Additional collections: `States`, `Zones`, `Alliances`, `CasteCensus`, `Predictors`
 
 ### Key Data Conventions
 
@@ -95,6 +106,24 @@ GET /api/assemblies?where[districtName][contains]=Chennai
 GET /api/election-history?where[assemblyId][equals]=ac001&where[electionYear][equals]=2021
 GET /api/booths?where[assemblyId][equals]=ac001
 ```
+
+## Live Election Counting Workflow
+
+For counting day (e.g., 2026 election):
+
+```bash
+# Before counting day: seed with constituency metadata + electors
+pnpm exec tsx scripts/seed-election-results-2026.mts
+
+# On counting day: scrape ECI website (bypasses Akamai WAF via Playwright) + push to DB
+pnpm eci:push                   # defaults to current year
+pnpm eci:push --year=2026       # explicit year
+
+# For future elections: seed live-election-results collection
+pnpm exec tsx scripts/seed-live-election-results.mts --year=2031
+```
+
+`LiveElectionResults` writes bypass Payload auth if the request carries `Authorization: Bearer <CRON_SECRET>`.
 
 ## Migration Scripts
 
