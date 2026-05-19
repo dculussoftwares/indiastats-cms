@@ -19,18 +19,18 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
   const stateConfig = getStateBySlug(stateSlug)
-  const stateName = stateConfig?.name ?? 'Tamil Nadu'
+  const stateName = stateConfig?.name ?? ''
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-predictions`
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
 
   return {
     title: `${stateName} Election Predictions 2026 | IndiaStats`,
-    description: `Browse 2026 ${stateName} assembly election prediction maps from multiple expert predictors. Compare seat forecasts, close contests, and party-wise call distributions across all 234 constituencies.`,
+    description: `Browse 2026 ${stateName} assembly election prediction maps from multiple expert predictors. Compare seat forecasts, close contests, and party-wise call distributions across all ${stateConfig?.assemblyCount ?? ''} constituencies.`,
     keywords: [
       `${stateName} election predictions 2026`,
       `${stateName} assembly election forecast`,
-      'Tamil Nadu election 2026',
+      `${stateName} election 2026`,
       'election predictor',
       'assembly constituency forecast',
       'seat prediction',
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     openGraph: {
       title: `${stateName} Election Predictions 2026 | IndiaStats`,
-      description: `Explore assembly-level 2026 election forecasts from multiple predictors — seat calls, close contests, and party distributions across all 234 ${stateName} constituencies.`,
+      description: `Explore assembly-level 2026 election forecasts from multiple predictors — seat calls, close contests, and party distributions across all ${stateConfig?.assemblyCount ?? ''} ${stateName} constituencies.`,
       type: 'website',
       url: canonicalUrl,
       images: [
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: `${stateName} Election Predictions 2026 | IndiaStats`,
-      description: `Browse interactive prediction maps from multiple expert predictors for all 234 ${stateName} assembly constituencies.`,
+      description: `Browse interactive prediction maps from multiple expert predictors for all ${stateConfig?.assemblyCount ?? ''} ${stateName} assembly constituencies.`,
       images: [ogImageUrl],
     },
   }
@@ -66,7 +66,7 @@ export default async function ElectionPredictionsListingPage({ params }: Props) 
   const { stateSlug } = await params
   const stateConfig = getStateBySlug(stateSlug)
 
-  if (!stateConfig || stateConfig.code !== 'TN') {
+  if (!stateConfig) {
     notFound()
   }
 

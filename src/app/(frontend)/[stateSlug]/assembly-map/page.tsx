@@ -1,10 +1,13 @@
 import * as React from 'react'
 import { Metadata } from 'next'
+import { readFileSync } from 'fs'
+import { join } from 'path'
+import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import AssemblyMap from '@/components/AssemblyMap'
-import { TamilNaduGeoJson } from '@/components/AssemblyMap/staticData'
 import { getStateBySlug } from '@/config/states'
+import type { StateConfig } from '@/config/states/types'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -13,9 +16,19 @@ interface Props {
   params: Promise<{ stateSlug: string }>
 }
 
+function getGeoJson(stateConfig: StateConfig): object | null {
+  try {
+    const filePath = join(process.cwd(), 'public', stateConfig.mapGeoJson.replace(/^\//, ''))
+    return JSON.parse(readFileSync(filePath, 'utf-8'))
+  } catch {
+    return null
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
-  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
+  const stateConfig = getStateBySlug(stateSlug)
+  const stateName = stateConfig?.name ?? stateSlug
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/assembly-map`
@@ -51,14 +64,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 // Fetch map stats at build time
-async function getMapStats() {
+async function getMapStats(stateCode: string) {
   const payload = await getPayload({ config })
-  const stateCode = 'TN'
 
   const assembliesResult = await payload.find({
     collection: 'assemblies',
     where: { stateCode: { equals: stateCode } },
-    limit: 300,
+    limit: 500,
   })
 
   const assemblies = assembliesResult.docs
@@ -138,9 +150,8 @@ async function getMapStats() {
 }
 
 // Fetch caste data at build time
-async function getCasteData() {
+async function getCasteData(stateCode: string) {
   const payload = await getPayload({ config })
-  const stateCode = 'TN'
 
   const casteData = await payload.find({
     collection: 'caste-census',
@@ -149,7 +160,6 @@ async function getCasteData() {
     sort: 'assemblyName',
   })
 
-  // Transform to the map format expected by AssemblyMap
   const casteDataMap: Record<
     string,
     {
@@ -185,24 +195,32 @@ async function getCasteData() {
 }
 
 export default async function AssemblyMapPage({ params }: Props) {
-  // Fetch data at build time (server-side)
   const { stateSlug } = await params
-  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
-  const [mapStats, casteDataMap] = await Promise.all([getMapStats(), getCasteData()])
+  const stateConfig = getStateBySlug(stateSlug)
+
+  if (!stateConfig) {
+    notFound()
+  }
+
+  const geoJson = getGeoJson(stateConfig)
+  const [mapStats, casteDataMap] = await Promise.all([
+    getMapStats(stateConfig.code),
+    getCasteData(stateConfig.code),
+  ])
 
   return (
     <div className="container mx-auto py-6">
       {/* BBC Style Header */}
       <div className="mb-6">
         <div className="border-l-4 border-red-600 pl-4 py-2">
-          <h1 className="text-2xl font-bold">{stateName} Assembly Map</h1>
+          <h1 className="text-2xl font-bold">{stateConfig.name} Assembly Map</h1>
           <p className="text-sm text-muted-foreground">
-            Interactive map showing all 234 assembly constituencies
+            Interactive map showing all {mapStats.totalAssemblies} assembly constituencies
           </p>
         </div>
       </div>
       <AssemblyMap
-        map={TamilNaduGeoJson}
+        map={geoJson}
         prefetchedMapStats={mapStats}
         prefetchedCasteData={casteDataMap}
       />

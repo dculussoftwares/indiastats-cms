@@ -4,6 +4,8 @@ export const tamilNaduConfig: StateConfig = {
   code: 'TN',
   slug: 'tamil-nadu',
   name: 'Tamil Nadu',
+  assemblyCount: 234,
+  districtCount: 38,
 
   majorParties: ['TVK', 'DMK', 'AIADMK', 'PMK', 'BJP', 'INC', 'VCK', 'MDMK', 'CPI', 'CPI(M)'],
 

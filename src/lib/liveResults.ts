@@ -117,6 +117,7 @@ function buildTickerItems(
   declared: number,
   totalSeats: number,
   stateName: string,
+  majorityMark: number,
 ): string[] {
   const items: string[] = []
 
@@ -124,7 +125,7 @@ function buildTickerItems(
   const leader = tallies[0]
   if (leader) {
     items.push(
-      `${leader.party} leading in ${leader.total} seats${leader.total >= 118 ? ' — majority secured!' : ''}`,
+      `${leader.party} leading in ${leader.total} seats${leader.total >= majorityMark ? ' — majority secured!' : ''}`,
     )
   }
 
@@ -139,7 +140,7 @@ function buildTickerItems(
 
   if (items.length === 0) {
     items.push(`Counting underway across ${stateName} — results coming soon`)
-    items.push('Stay tuned for live updates from all 234 constituencies')
+    items.push(`Stay tuned for live updates from all ${totalSeats} constituencies`)
   }
 
   return items
@@ -150,8 +151,8 @@ export function buildLiveResultsDataset(
   docs: LiveResultDoc[],
   stateConfig?: StateConfig,
 ): ElectionResultsDataset {
-  const stateName = stateConfig?.name ?? 'Tamil Nadu'
-  const stateCode = stateConfig?.code ?? 'TN'
+  const stateName = stateConfig?.name ?? ''
+  const stateCode = stateConfig?.code ?? ''
   const results: Record<string, SeatResult> = {}
 
   for (const doc of docs) {
@@ -165,20 +166,21 @@ export function buildLiveResultsDataset(
   const pending = allSeats.filter((r) => r.status === 'pending').length
 
   const partyTallies = buildPartyTallies(results)
-  const totalSeats = allSeats.length || 234
+  const totalSeats = stateConfig?.assemblyCount ?? allSeats.length
+  const majorityMark = Math.floor(totalSeats / 2) + 1
 
   return {
     stateName,
     stateCode,
     electionYear: 2026,
     totalSeats,
-    majorityMark: 118,
+    majorityMark,
     declared,
     counting,
     pending,
     partyTallies,
     results,
-    tickerItems: buildTickerItems(results, declared, totalSeats, stateName),
+    tickerItems: buildTickerItems(results, declared, totalSeats, stateName, majorityMark),
     lastUpdated: new Date().toISOString(),
   }
 }

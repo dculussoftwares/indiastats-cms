@@ -1895,7 +1895,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                       Loading {selectedElectionYear} Election Results
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Fetching data for 234 assemblies...
+                      Fetching election data...
                     </p>
                   </div>
                 </div>

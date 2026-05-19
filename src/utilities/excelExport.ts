@@ -8,6 +8,8 @@ export interface ExcelExportOptions {
     filename: string
     sheetName?: string
     columnWidths?: number[]
+    statsLine?: string  // e.g. "234 Assembly Constituencies  |  38 Districts  |  50,000+ Booths"
+    electionYearRange?: string  // e.g. "1967 to 2026"
 }
 
 /**
@@ -17,10 +19,17 @@ export function exportToExcel(
     data: ExcelExportRow[],
     options: ExcelExportOptions
 ): void {
-    const { filename, sheetName = 'Data', columnWidths } = options
+    const { filename, sheetName = 'Data', columnWidths, statsLine, electionYearRange } = options
 
     // Create workbook
     const workbook = XLSX.utils.book_new()
+
+    const statsRow = statsLine
+        ? `✅  ${statsLine}`
+        : '✅  Assembly Constituencies  |  Districts  |  50,000+ Booths'
+    const yearRow = electionYearRange
+        ? `✅  Election Results from ${electionYearRange}  |  Interactive Maps  |  Caste Demographics`
+        : '✅  Historical Election Results  |  Interactive Maps  |  Caste Demographics'
 
     // Create branding header rows with marketing content
     const brandingRows = [
@@ -32,8 +41,8 @@ export function exportToExcel(
         { '': '🌐  WEBSITE:  https://indiastats.org' },
         { '': '🐦  TWITTER/X:  @india_stats_org' },
         { '': '' },
-        { '': '✅  234 Assembly Constituencies  |  38 Districts  |  50,000+ Booths' },
-        { '': '✅  Election Results from 1967 to 2021  |  Interactive Maps  |  Caste Demographics' },
+        { '': statsRow },
+        { '': yearRow },
         { '': '' },
         { '': `📅  Data Exported: ${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} at ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` },
         { '': '═══════════════════════════════════════════════════════════════════════════════' },

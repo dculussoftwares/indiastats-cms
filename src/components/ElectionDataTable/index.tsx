@@ -456,7 +456,7 @@ export function ElectionDataTable() {
     const yearLabel = selectedYear === 'all' ? 'AllYears' : selectedYear
     const districtLabel = selectedDistrict === 'all' ? '' : `_${selectedDistrict}`
     exportToExcel(flatData, {
-      filename: `TN_Election_Data_${yearLabel}${districtLabel}`,
+      filename: `Election_Data_${yearLabel}${districtLabel}`,
       sheetName: 'Election Data',
     })
   }

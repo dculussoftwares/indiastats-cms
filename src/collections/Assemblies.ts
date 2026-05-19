@@ -16,7 +16,6 @@ export const Assemblies: CollectionConfig = {
             type: 'text',
             required: true,
             index: true,
-            defaultValue: 'TN',
             admin: {
                 description: 'State code (e.g., TN, KA, AP)',
             },

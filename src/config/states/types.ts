@@ -21,6 +21,8 @@ export interface StateConfig {
     code: string           // "TN", "KA", etc.
     slug: string           // "tamil-nadu", "karnataka"
     name: string           // "Tamil Nadu", "Karnataka"
+    assemblyCount: number  // total assembly seats (e.g. 234 for TN)
+    districtCount: number  // total districts (e.g. 38 for TN)
 
     // Political configuration
     majorParties: string[]
