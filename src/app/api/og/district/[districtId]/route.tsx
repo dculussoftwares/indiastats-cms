@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { getStateByCode } from '@/config/states'
 
 export const runtime = 'nodejs'
 export const revalidate = 86400 // Cache for 24 hours
@@ -39,7 +40,7 @@ export async function GET(
       ? rawName.split(' / ').find((s: string) => !/[\u0B80-\u0BFF]/.test(s))?.trim() || rawName
       : rawName
 
-    const stateCode = district.stateCode || 'TN'
+    const stateCode = district.stateCode || ''
 
     // Get state name
     const stateResult = await payload.find({
@@ -48,7 +49,7 @@ export async function GET(
       limit: 1,
       depth: 0,
     })
-    const rawStateName = (stateResult.docs[0] as any)?.name || 'Tamil Nadu'
+    const rawStateName = (stateResult.docs[0] as any)?.name || getStateByCode(stateCode)?.name || ''
     const cleanStateName = rawStateName.includes(' / ')
       ? rawStateName.split(' / ').find((s: string) => !/[\u0B80-\u0BFF]/.test(s.trim()))?.trim() || rawStateName
       : rawStateName

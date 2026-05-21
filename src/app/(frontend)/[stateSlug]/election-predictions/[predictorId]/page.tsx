@@ -28,7 +28,7 @@ export default async function PredictorRedirectPage({ params }: Props) {
   const { stateSlug, predictorId } = await params
   const stateConfig = getStateBySlug(stateSlug)
 
-  if (!stateConfig || stateConfig.code !== 'TN') {
+  if (!stateConfig) {
     notFound()
   }
 

@@ -1,7 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
-import { getStateByCode } from '@/config/states'
+import { getStateByCode, stateCodeToSlug } from '@/config/states'
 
 interface SearchResult {
   id: string
@@ -105,8 +105,9 @@ export async function GET(request: NextRequest) {
       const cleanName = doc.name?.split(' / ')[1] || doc.name || 'Unknown Assembly'
       const districtSlug = districtIdToSlug.get(doc.districtId || '') || doc.districtId || 'unknown'
       const assemblySlug = doc.slug || doc.assemblyId
-      const stateSlug = getStateByCode(doc.stateCode || 'TN')?.slug ?? 'tamil-nadu'
-      const stateName = getStateByCode(doc.stateCode || 'TN')?.name ?? 'Tamil Nadu'
+      const stateConfig = getStateByCode(doc.stateCode || '')
+      const stateSlug = stateConfig?.slug ?? stateCodeToSlug(doc.stateCode || '')
+      const stateName = stateConfig?.name ?? ''
       return {
         id: doc.assemblyId || String(doc.id),
         title: cleanName,
@@ -119,8 +120,9 @@ export async function GET(request: NextRequest) {
     const districts: SearchResult[] = districtsSearchResult.docs.map((doc) => {
       const cleanName = doc.districtName?.split(' / ')[1] || doc.districtName || 'Unknown District'
       const districtSlug = doc.slug || doc.districtId
-      const stateSlug = getStateByCode(doc.stateCode || 'TN')?.slug ?? 'tamil-nadu'
-      const stateName = getStateByCode(doc.stateCode || 'TN')?.name ?? 'Tamil Nadu'
+      const stateConfig = getStateByCode(doc.stateCode || '')
+      const stateSlug = stateConfig?.slug ?? stateCodeToSlug(doc.stateCode || '')
+      const stateName = stateConfig?.name ?? ''
       return {
         id: doc.districtId || String(doc.id),
         title: cleanName,

@@ -117,8 +117,8 @@ function buildTickerItems(
   declared: number,
   totalSeats: number,
   stateName: string,
-  majorityMark: number,
 ): string[] {
+  const majorityMark = totalSeats > 0 ? Math.floor(totalSeats / 2) + 1 : Infinity
   const items: string[] = []
 
   const tallies = buildPartyTallies(results)
@@ -167,7 +167,7 @@ export function buildLiveResultsDataset(
 
   const partyTallies = buildPartyTallies(results)
   const totalSeats = stateConfig?.assemblyCount ?? allSeats.length
-  const majorityMark = Math.floor(totalSeats / 2) + 1
+  const majorityMark = totalSeats > 0 ? Math.floor(totalSeats / 2) + 1 : Infinity
 
   return {
     stateName,
@@ -180,7 +180,7 @@ export function buildLiveResultsDataset(
     pending,
     partyTallies,
     results,
-    tickerItems: buildTickerItems(results, declared, totalSeats, stateName, majorityMark),
+    tickerItems: buildTickerItems(results, declared, totalSeats, stateName),
     lastUpdated: new Date().toISOString(),
   }
 }

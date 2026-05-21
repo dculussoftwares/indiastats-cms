@@ -125,7 +125,7 @@ function SortableHeader({ column, children }: { column: any; children: React.Rea
   )
 }
 
-export function ElectionDataTable() {
+export function ElectionDataTable({ stateCode = 'TN' }: { stateCode?: string }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -352,7 +352,7 @@ export function ElectionDataTable() {
     async function fetchInitialYears() {
       try {
         // Fetch without year filter to get all available years
-        const response = await fetch('/api/election-data-table')
+        const response = await fetch(`/api/election-data-table?stateCode=${encodeURIComponent(stateCode)}`)
         if (response.ok) {
           const result: ElectionDataTableResponse = await response.json()
           setInitialYears(result.filters.years)
@@ -378,7 +378,7 @@ export function ElectionDataTable() {
       setLoading(true)
       setError(null)
       try {
-        const params = new URLSearchParams()
+        const params = new URLSearchParams({ stateCode })
         if (selectedYear !== 'all') {
           params.set('year', selectedYear)
         }

@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { CasteDemographicsClient } from './CasteDemographicsClient'
 import { getStateBySlug } from '@/config/states'
 
@@ -63,9 +64,8 @@ interface Props {
   params: Promise<{ stateSlug: string }>
 }
 
-async function getCasteData(): Promise<CasteData[]> {
+async function getCasteData(stateCode: string): Promise<CasteData[]> {
   const payload = await getPayload({ config })
-  const stateCode = 'TN'
 
   const casteData = await payload.find({
     collection: 'caste-census',
@@ -93,9 +93,13 @@ async function getCasteData(): Promise<CasteData[]> {
 
 export default async function CasteDemographicsPage({ params }: Props) {
   const { stateSlug } = await params
+  const stateConfig = getStateBySlug(stateSlug)
 
-  // Fetch data at build time (server-side)
-  const casteData = await getCasteData()
+  if (!stateConfig) {
+    notFound()
+  }
+
+  const casteData = await getCasteData(stateConfig.code)
 
   return <CasteDemographicsClient stateSlug={stateSlug} prefetchedData={casteData} />
 }

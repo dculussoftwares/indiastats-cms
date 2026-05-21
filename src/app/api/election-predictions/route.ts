@@ -5,7 +5,7 @@ import { getElectionPredictionsData } from '@/lib/electionPredictions'
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const stateCode = searchParams.get('stateCode') || 'TN'
+    const stateCode = searchParams.get('stateCode') || ''
     const predictorId = searchParams.get('predictorId')
     const electionYearParam = searchParams.get('electionYear')
     const electionYear = electionYearParam ? Number(electionYearParam) : undefined

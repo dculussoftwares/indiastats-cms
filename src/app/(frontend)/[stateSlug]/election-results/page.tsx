@@ -4,8 +4,8 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 
-import { TamilNaduGeoJson } from '@/components/AssemblyMap/staticData'
 import { getStateBySlug } from '@/config/states'
+import { loadStateGeoJson } from '@/lib/loadStateGeoJson'
 import { ElectionResultsMap } from '@/components/ElectionResultsMap'
 import { buildLiveResultsDataset, type LiveResultDoc } from '@/lib/liveResults'
 
@@ -66,7 +66,7 @@ export default async function ElectionResultsPage({ params }: Props) {
   const { stateSlug } = await params
   const stateConfig = getStateBySlug(stateSlug)
 
-  if (!stateConfig || stateConfig.code !== 'TN') {
+  if (!stateConfig) {
     notFound()
   }
 
@@ -86,7 +86,7 @@ export default async function ElectionResultsPage({ params }: Props) {
 
   return (
     <div className="relative h-screen overflow-hidden">
-      <ElectionResultsMap data={data} geoJson={TamilNaduGeoJson} />
+      <ElectionResultsMap data={data} geoJson={loadStateGeoJson(stateConfig)} />
     </div>
   )
 }

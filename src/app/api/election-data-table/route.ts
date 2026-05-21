@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         const districtParam = searchParams.get('district')
         const partyParam = searchParams.get('party')
         const assemblyIdParam = searchParams.get('assemblyId')
-        const stateCode = searchParams.get('stateCode') || 'TN'
+        const stateCode = searchParams.get('stateCode') || ''
 
         const payload = await getPayload({ config })
 

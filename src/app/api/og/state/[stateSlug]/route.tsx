@@ -41,7 +41,7 @@ export async function GET(
       ? rawName.split(' / ').find((s: string) => !/[\u0B80-\u0BFF]/.test(s))?.trim() || rawName
       : rawName
 
-    const stateCode = stateDoc?.stateCode || staticConfig?.code || 'TN'
+    const stateCode = stateDoc?.stateCode || staticConfig?.code || ''
 
     // Get aggregate stats filtered by state
     const [districtsResult, assembliesResult] =

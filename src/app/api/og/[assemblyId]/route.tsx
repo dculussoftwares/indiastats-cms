@@ -40,7 +40,7 @@ export async function GET(
       ? rawName.split(' / ').find((s: string) => !/[\u0B80-\u0BFF]/.test(s))?.trim() || rawName
       : rawName
 
-    const stateCode = assembly.stateCode || 'TN'
+    const stateCode = assembly.stateCode || ''
     const districtName = assembly.districtName || ''
     const cleanDistrictName = districtName.includes(' / ')
       ? districtName.split(' / ').find((s: string) => !/[\u0B80-\u0BFF]/.test(s))?.trim() || districtName

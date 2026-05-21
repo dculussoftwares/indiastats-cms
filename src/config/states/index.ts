@@ -66,6 +66,13 @@ export function getLeaderImage(stateCode: string, partyCode: string): string | n
 }
 
 /**
+ * Derive a URL slug from a state code. Falls back to lowercased code.
+ */
+export function stateCodeToSlug(code: string): string {
+    return getStateByCode(code)?.slug ?? code.toLowerCase()
+}
+
+/**
  * Get bloc configuration for a state
  */
 export function getBlocs(stateCode: string) {

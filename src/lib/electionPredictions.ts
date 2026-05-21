@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { getPayload } from 'payload'
 
 import config from '@payload-config'
@@ -183,7 +184,7 @@ export async function getPredictorsWithSummaries({
   return summaries
 }
 
-export async function getElectionPredictionsData({
+export const getElectionPredictionsData = cache(async function getElectionPredictionsData({
   electionYear,
   predictorId,
   stateCode = 'TN',
@@ -374,4 +375,4 @@ export async function getElectionPredictionsData({
       tooCloseToCall,
     },
   }
-}
+})

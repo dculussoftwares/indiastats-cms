@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import ElectionPredictionMap from '@/components/ElectionPredictionMap'
-import { TamilNaduGeoJson } from '@/components/AssemblyMap/staticData'
 import { getStateBySlug } from '@/config/states'
+import { loadStateGeoJson } from '@/lib/loadStateGeoJson'
 import {
   getElectionPredictionsData,
   predictorNameSlug,
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug, predictorId } = await params
   const stateConfig = getStateBySlug(stateSlug)
 
-  if (!stateConfig || stateConfig.code !== 'TN') {
+  if (!stateConfig) {
     return { title: 'Not Found' }
   }
 
@@ -36,7 +36,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const predictorName = predictor.name
   const stateName = stateConfig.name
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
-  // Canonical URL always includes the name slug
   const canonicalUrl = `${baseUrl}` + predictorHref(stateSlug, predictorId, predictorName)
 
   const ogImageUrl = `${baseUrl}/api/og/prediction/${predictorId}`
@@ -87,7 +86,7 @@ export default async function PredictorPredictionMapPage({ params }: Props) {
   const { stateSlug, predictorId } = await params
   const stateConfig = getStateBySlug(stateSlug)
 
-  if (!stateConfig || stateConfig.code !== 'TN') {
+  if (!stateConfig) {
     notFound()
   }
 
@@ -104,7 +103,7 @@ export default async function PredictorPredictionMapPage({ params }: Props) {
     <div className="relative h-[100dvh] overflow-hidden">
       <ElectionPredictionMap
         initialData={initialData}
-        map={TamilNaduGeoJson}
+        map={loadStateGeoJson(stateConfig)}
         stateCode={stateConfig.code}
         stateName={stateConfig.name}
       />

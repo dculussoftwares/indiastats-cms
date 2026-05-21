@@ -113,9 +113,10 @@ interface KnownBusinesses {
 interface DistrictPageClientProps {
   data: DistrictData
   stateSlug: string
+  stateName: string
 }
 
-export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps) {
+export function DistrictPageClient({ data, stateSlug, stateName }: DistrictPageClientProps) {
   React.useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.DISTRICT_DETAIL,
@@ -832,7 +833,7 @@ export function DistrictPageClient({ data, stateSlug }: DistrictPageClientProps)
       <DistrictPageJsonLd
         districtName={data.districtName.split(' / ')[1] || data.districtName}
         description={
-          data.metaDescription || `Election data for ${data.districtName} district, Tamil Nadu.`
+          data.metaDescription || `Election data for ${data.districtName} district, ${stateName}.`
         }
         url={`https://indiastats.org/${stateSlug}/district/${data.districtSlug}`}
         assemblyCount={data.noOfAssemblies}

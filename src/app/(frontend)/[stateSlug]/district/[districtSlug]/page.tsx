@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import { DistrictPageClient } from './DistrictPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { getStateByCode, getStateBySlug } from '@/config/states'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -15,15 +16,18 @@ export async function generateStaticParams() {
 
   const districts = await payload.find({
     collection: 'districts',
-    limit: 100,
-    select: { slug: true },
+    limit: 500,
+    select: { slug: true, stateCode: true },
   })
 
-  // Generate params for all districts in Tamil Nadu
+  if (districts.totalDocs > districts.docs.length) {
+    console.warn(`generateStaticParams: fetched ${districts.docs.length}/${districts.totalDocs} districts — increase limit`)
+  }
+
   return districts.docs
-    .filter((district: any) => district.slug)
+    .filter((district: any) => district.slug && district.stateCode)
     .map((district: any) => ({
-      stateSlug: 'tamil-nadu',
+      stateSlug: getStateByCode(district.stateCode)?.slug ?? district.stateCode.toLowerCase(),
       districtSlug: district.slug,
     }))
 }
@@ -35,6 +39,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { districtSlug, stateSlug } = await params
   const payload = await getPayload({ config })
+  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
 
   const district = await payload.find({
     collection: 'districts',
@@ -57,10 +62,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${cleanName} District - Assembly Constituencies & Election Data`,
     description:
       districtDoc.metaDescription ||
-      `Complete election data for ${cleanName} district, Tamil Nadu. Explore all assembly constituencies, voter statistics, MLA history, and booth-level information.`,
+      `Complete election data for ${cleanName} district, ${stateName}. Explore all assembly constituencies, voter statistics, MLA history, and booth-level information.`,
     keywords: [
       `${cleanName} district`,
-      'Tamil Nadu elections',
+      `${stateName} elections`,
       'assembly constituencies',
       'voter data',
       'MLA history',
@@ -69,10 +74,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: `${cleanName} District - Tamil Nadu Election Data`,
+      title: `${cleanName} District - ${stateName} Election Data`,
       description:
         districtDoc.metaDescription ||
-        `View all assembly constituencies and election history for ${cleanName} district, Tamil Nadu.`,
+        `View all assembly constituencies and election history for ${cleanName} district, ${stateName}.`,
       type: 'website',
       url: canonicalUrl,
       images: [
@@ -282,6 +287,7 @@ const getDistrictData = (districtSlug: string) =>
 
 export default async function DistrictPage({ params }: PageProps) {
   const { districtSlug, stateSlug } = await params
+  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
   const data = await getDistrictData(districtSlug)
 
   if (!data) {
@@ -292,20 +298,14 @@ export default async function DistrictPage({ params }: PageProps) {
     <div className="container py-6">
       <Breadcrumbs
         items={[
-          {
-            name: stateSlug
-              .split('-')
-              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(' '),
-            url: `/${stateSlug}/dashboard`,
-          },
+          { name: stateName, url: `/${stateSlug}/dashboard` },
           {
             name: data.districtName.split(' / ')[1] || data.districtName,
             url: `/${stateSlug}/district/${districtSlug}`,
           },
         ]}
       />
-      <DistrictPageClient data={data} stateSlug={stateSlug} />
+      <DistrictPageClient data={data} stateSlug={stateSlug} stateName={stateName} />
     </div>
   )
 }

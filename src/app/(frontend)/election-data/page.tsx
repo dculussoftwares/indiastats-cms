@@ -34,7 +34,7 @@ export default function ElectionDataPage() {
             </div>
           }
         >
-          <ElectionDataTable />
+          <ElectionDataTable stateCode="TN" />
         </Suspense>
       </div>
     </main>

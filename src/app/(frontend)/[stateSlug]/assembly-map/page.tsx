@@ -1,28 +1,17 @@
 import * as React from 'react'
 import { Metadata } from 'next'
-import { readFileSync } from 'fs'
-import { join } from 'path'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import AssemblyMap from '@/components/AssemblyMap'
 import { getStateBySlug } from '@/config/states'
-import type { StateConfig } from '@/config/states/types'
+import { loadStateGeoJson } from '@/lib/loadStateGeoJson'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
 
 interface Props {
   params: Promise<{ stateSlug: string }>
-}
-
-function getGeoJson(stateConfig: StateConfig): object | null {
-  try {
-    const filePath = join(process.cwd(), 'public', stateConfig.mapGeoJson.replace(/^\//, ''))
-    return JSON.parse(readFileSync(filePath, 'utf-8'))
-  } catch {
-    return null
-  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -63,7 +52,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-// Fetch map stats at build time
 async function getMapStats(stateCode: string) {
   const payload = await getPayload({ config })
 
@@ -149,7 +137,6 @@ async function getMapStats(stateCode: string) {
   }
 }
 
-// Fetch caste data at build time
 async function getCasteData(stateCode: string) {
   const payload = await getPayload({ config })
 
@@ -202,11 +189,11 @@ export default async function AssemblyMapPage({ params }: Props) {
     notFound()
   }
 
-  const geoJson = getGeoJson(stateConfig)
   const [mapStats, casteDataMap] = await Promise.all([
     getMapStats(stateConfig.code),
     getCasteData(stateConfig.code),
   ])
+  const geoJson = loadStateGeoJson(stateConfig)
 
   return (
     <div className="container mx-auto py-6">

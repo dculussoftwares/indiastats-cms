@@ -14,7 +14,7 @@ export type {
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams
   const year = parseInt(sp.get('year') ?? '2026', 10)
-  const stateCode = sp.get('stateCode') ?? 'TN'
+  const stateCode = sp.get('stateCode') ?? ''
 
   try {
     const data = await computeElectionAnalysis(year, stateCode)

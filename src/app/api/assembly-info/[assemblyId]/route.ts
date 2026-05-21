@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { getStateByCode } from '@/config/states'
+import { getStateByCode, stateCodeToSlug } from '@/config/states'
 
 function cleanName(name: string): string {
   const parts = (name || '').split(' / ')
@@ -57,7 +57,7 @@ export async function GET(
   const name = cleanName(assembly.name)
   const districtName = cleanName(assembly.districtName)
   const districtId: string = assembly.districtId || 'dt7'
-  const stateSlug = getStateByCode(assembly.stateCode || 'TN')?.slug ?? 'tamil-nadu'
+  const stateSlug = getStateByCode(assembly.stateCode || '')?.slug ?? stateCodeToSlug(assembly.stateCode || '')
 
   // Look up the district slug so pageUrl uses the correct slug-based format
   const districtResult = await payload.find({
