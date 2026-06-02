@@ -358,7 +358,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
           <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {(showAllWinningHistories
               ? data.electionHistory
-              : data.electionHistory.filter((e) => e.year >= 1977).slice(0, 3)
+              : data.electionHistory.filter((e) => e.year >= state.historyStartYear).slice(0, 3)
             ).map((election) => (
               <Card key={election.year}>
                 <CardContent className="pt-4 pb-4">
@@ -392,7 +392,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
 
           {/* View all button */}
           {!showAllWinningHistories &&
-            data.electionHistory.filter((e) => e.year >= 1977).length > 3 && (
+            data.electionHistory.filter((e) => e.year >= state.historyStartYear).length > 3 && (
               <div className="mt-4 flex justify-center">
                 <Button
                   variant="outline"
