@@ -539,6 +539,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
                 rank: idx + 1,
               })),
             }))}
+            stateCode="TN"
             allianceData={data.allianceData}
           />
         </section>

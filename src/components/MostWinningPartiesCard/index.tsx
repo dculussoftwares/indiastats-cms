@@ -47,7 +47,7 @@ interface AllianceData {
 
 interface MostWinningPartiesCardProps {
   historicData: ElectionData[]
-  stateCode?: string // Optional, defaults to 'TN'
+  stateCode: string // Required - no default
   allianceData: Record<number, AllianceData[]> // Required - pre-fetched from server
 }
 
@@ -78,20 +78,24 @@ const getLeaderImage = (stateCode: string, name: string, isAlliance?: boolean): 
 
 export function MostWinningPartiesCard({
   historicData,
-  stateCode = 'TN',
+  stateCode,
   allianceData,
 }: MostWinningPartiesCardProps) {
   const [viewMode, setViewMode] = React.useState<'party' | 'alliance'>('party')
 
   if (!historicData || historicData.length === 0) return null
 
+  // Get state config to retrieve historyStartYear
+  const stateConfig = getStateByCode(stateCode)
+  const historyStartYear = stateConfig?.historyStartYear ?? 1977
+
   // Calculate most winning parties (individual)
   const calculateMostWinningParties = (): PartyWins[] => {
     const partyWins: Record<string, PartyWins> = {}
 
-    // Only consider years >= 1977 (since ADMK formed)
+    // Only consider years >= historyStartYear
     historicData
-      .filter((d) => d.year >= 1977)
+      .filter((d) => d.year >= historyStartYear)
       .forEach((data) => {
         const winner = data.candidates.find((candidate) => candidate.rank === 1)
         if (winner) {
@@ -144,9 +148,9 @@ export function MostWinningPartiesCard({
       aiadmk: {},
     }
 
-    // Only consider years >= 1977
+    // Only consider years >= historyStartYear
     historicData
-      .filter((d) => d.year >= 1977)
+      .filter((d) => d.year >= historyStartYear)
       .forEach((data) => {
         const winner = data.candidates.find((candidate) => candidate.rank === 1)
         if (!winner) return

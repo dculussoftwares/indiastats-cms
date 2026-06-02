@@ -539,6 +539,7 @@ export function DistrictPageClient({ data, stateSlug, stateName }: DistrictPageC
           </h2>
           <MostWinningPartiesCard
             historicData={data.electionHistory}
+            stateCode="TN"
             allianceData={data.allianceData}
           />
         </section>
