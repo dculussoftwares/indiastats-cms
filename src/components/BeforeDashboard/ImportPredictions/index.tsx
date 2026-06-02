@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { toast } from '@payloadcms/ui'
 
 import type { ImportPredictionsResult } from '@/lib/importPredictions'
+import { getAllStates } from '@/config/states'
 
 import './index.scss'
 
@@ -31,7 +32,7 @@ export const ImportPredictions: React.FC = () => {
   const [newPredictorName, setNewPredictorName] = useState('')
   const [newPredictorBio, setNewPredictorBio] = useState('')
   const [newPredictorImage, setNewPredictorImage] = useState('')
-  const [stateCode, setStateCode] = useState('TN')
+  const [stateCode, setStateCode] = useState(() => getAllStates()[0]?.code ?? 'TN')
   const [electionYear, setElectionYear] = useState(2026)
   const [parsedFile, setParsedFile] = useState<ParsedFile | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
