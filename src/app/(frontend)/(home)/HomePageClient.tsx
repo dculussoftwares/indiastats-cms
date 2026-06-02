@@ -326,7 +326,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               {
                 icon: <Activity className="h-5 w-5" />,
                 title: 'Nail-biters & Landslides',
-                desc: 'Margin scatter across all 234 constituencies',
+                desc: `Margin scatter across all ${stats.totalAssemblies} constituencies`,
                 color: 'rose',
                 hash: 'nail-biters',
               },
@@ -469,7 +469,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-red-400 transition-colors">
                   District Explorer
                 </h3>
-                <p className="text-white/50 text-sm mb-4">Deep dive into 38 districts data</p>
+                <p className="text-white/50 text-sm mb-4">Deep dive into {stats.totalDistricts} districts data</p>
                 <div className="flex items-center text-red-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Explore <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
@@ -648,7 +648,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
 
             <p>
               The platform currently covers all{' '}
-              <strong className="text-foreground">234 assembly constituencies in Tamil Nadu</strong>
+              <strong className="text-foreground">{stats.totalAssemblies} assembly constituencies in Tamil Nadu</strong>
               , with detailed records spanning elections from 1967 to 2021. Each constituency page
               shows vote counts, winning margins, candidate lists, voter turnout, and demographic
               breakdowns — all sourced from official Election Commission of India data.
@@ -658,11 +658,11 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               <div className="border border-border rounded p-5">
                 <div className="text-2xl font-bold text-red-600 mb-1">15+ Elections</div>
                 <p className="text-sm text-muted-foreground">
-                  Historical data from 1967 to 2021 across all 234 Tamil Nadu constituencies
+                  {`Historical data from 1967 to 2021 across all ${stats.totalAssemblies} Tamil Nadu constituencies`}
                 </p>
               </div>
               <div className="border border-border rounded p-5">
-                <div className="text-2xl font-bold text-red-600 mb-1">50,000+ Booths</div>
+                <div className="text-2xl font-bold text-red-600 mb-1">{stats.totalBooths.toLocaleString('en-IN')}+ Booths</div>
                 <p className="text-sm text-muted-foreground">
                   Polling booth-level voter data including male, female, and third-gender counts
                 </p>
@@ -716,15 +716,15 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-center gap-3 text-sm">
                       <Vote className="h-4 w-4 text-red-600" />
-                      <span>234 Assembly Constituencies</span>
+                      <span>{stats.totalAssemblies} Assembly Constituencies</span>
                     </li>
                     <li className="flex items-center gap-3 text-sm">
                       <MapPinned className="h-4 w-4 text-blue-600" />
-                      <span>38 Districts Covered</span>
+                      <span>{stats.totalDistricts} Districts Covered</span>
                     </li>
                     <li className="flex items-center gap-3 text-sm">
                       <Locate className="h-4 w-4 text-green-600" />
-                      <span>50,000+ Polling Booths</span>
+                      <span>{stats.totalBooths.toLocaleString('en-IN')}+ Polling Booths</span>
                     </li>
                   </ul>
 
