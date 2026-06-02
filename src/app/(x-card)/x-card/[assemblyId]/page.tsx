@@ -104,6 +104,7 @@ async function getAssemblyCardData(assemblyId: string) {
     assemblyId: assembly.assemblyId,
     stateCode: assembly.stateCode || 'TN',
     stateName: getStateByCode(assembly.stateCode || 'TN')?.name ?? 'Tamil Nadu',
+    historyStartYear: getStateByCode(assembly.stateCode || 'TN')?.historyStartYear ?? 1977,
     name: assembly.name,
     districtName: assembly.districtName,
     districtId: assembly.districtId,

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { identifyBloc } from '@/utilities/blocs'
+import { getStateByCode } from '@/config/states'
 
 // ─── Types ───────────────────────────────────────────────────
 interface ElectionResult {
@@ -22,6 +23,7 @@ interface ElectionResult {
 interface CardData {
   assemblyId: string
   stateCode?: string
+  historyStartYear: number
   stateName: string
   name: string
   districtName: string
@@ -41,13 +43,10 @@ interface Props {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-const getLeaderImage = (partyName: string): string | null => {
-  if (partyName === 'ADMK' || partyName === 'AIADMK') return '/images/EPS.jpg'
-  if (partyName === 'DMK') return '/images/Stalin.png'
-  if (partyName === 'INC' || partyName === 'CONG') return '/images/karkae.jpg'
-  if (partyName === 'BJP') return '/images/modi.png'
-  if (partyName === 'PMK') return '/images/PMK.jpg'
-  return null
+const getLeaderImage = (partyName: string, stateCode: string): string | null => {
+  const config = getStateByCode(stateCode)
+  if (!config) return null
+  return config.leaderImages[partyName] ?? config.leaderImages[partyName.toUpperCase()] ?? null
 }
 
 const formatNum = (n: number) => {
@@ -267,7 +266,7 @@ const MiniBarChart = ({
 
 function deriveStats(data: CardData) {
   const elections = data.electionHistory
-    .filter((e) => e.year >= 1977)
+    .filter((e) => e.year >= data.historyStartYear)
     .sort((a, b) => a.year - b.year)
   const partyWins: Record<string, number> = {}
   let dmkBlocWins = 0
@@ -299,6 +298,9 @@ function deriveStats(data: CardData) {
 
   const winDiff = party1 && party2 ? party1.wins - party2.wins : 0
 
+  const lastYear = elections.at(-1)?.year ?? data.historyStartYear
+  const historyYearRange = `${data.historyStartYear}-${lastYear}`
+
   return {
     elections,
     partyWins,
@@ -310,6 +312,7 @@ function deriveStats(data: CardData) {
     dmkBlocBreakdown,
     aiadmkBlocBreakdown,
     voterGrowth,
+    historyYearRange,
   }
 }
 
@@ -410,16 +413,18 @@ const Badge = ({
 /* eslint-disable @next/next/no-img-element */
 const LeaderCircle = ({
   party,
+  stateCode = 'TN',
   size = 80,
   borderColor = '#ef4444',
   borderWidth = 3,
 }: {
   party: string
+  stateCode?: string
   size?: number
   borderColor?: string
   borderWidth?: number
 }) => {
-  const leader = getLeaderImage(party)
+  const leader = getLeaderImage(party, stateCode)
   return (
     <div
       style={{
@@ -871,7 +876,7 @@ function BoldClassic({ data, stats }: { data: CardData; stats: Stats }) {
               margin: '0 0 14px 0',
             }}
           >
-            MOST WINNING PARTIES (1977-2021)
+            {`MOST WINNING PARTIES (${stats.historyYearRange})`}
           </p>
 
           {party1 && party2 && (
@@ -1100,7 +1105,7 @@ function RedBanner({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '0 0 12px 0',
           }}
         >
-          MOST WINNING PARTIES (1977-2021)
+          {`MOST WINNING PARTIES (${stats.historyYearRange})`}
         </p>
 
         {party1 && party2 && (
@@ -1394,7 +1399,7 @@ function FullDark({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '0 0 14px 0',
           }}
         >
-          MOST WINNING PARTIES (1977-2021)
+          {`MOST WINNING PARTIES (${stats.historyYearRange})`}
         </p>
 
         {party1 && party2 && (
@@ -1605,7 +1610,7 @@ function Newspaper({ data, stats }: { data: CardData; stats: Stats }) {
               display: 'inline-block',
             }}
           >
-            Most Winning (1977-2021)
+            {`Most Winning (${stats.historyYearRange})`}
           </p>
 
           {party1 && (
@@ -2007,7 +2012,7 @@ function Scoreboard({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '12px 0',
           }}
         >
-          WINS SINCE 1977
+          {`WINS SINCE ${data.historyStartYear}`}
         </p>
 
         {/* Bloc pills */}
@@ -2112,7 +2117,7 @@ function DashboardGrid({ data, stats }: { data: CardData; stats: Stats }) {
               margin: '0 0 10px 0',
             }}
           >
-            Most Winning (1977-2021)
+            {`Most Winning (${stats.historyYearRange})`}
           </p>
           {party1 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -2465,7 +2470,7 @@ function NeonPulse({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '0 0 14px 0',
           }}
         >
-          MOST WINNING PARTIES (1977-2021)
+          {`MOST WINNING PARTIES (${stats.historyYearRange})`}
         </p>
 
         {party1 && party2 && (
@@ -2841,7 +2846,7 @@ function Championship({ data, stats }: { data: CardData; stats: Stats }) {
                     letterSpacing: 1,
                   }}
                 >
-                  Most Wins (1977-2021)
+                  {`Most Wins (${stats.historyYearRange})`}
                 </span>
               </div>
               <div style={{ textAlign: 'center' }}>
@@ -3244,7 +3249,7 @@ function BreakingNews({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '0 0 10px 0',
           }}
         >
-          ALLIANCE PERFORMANCE (1977-2021)
+          {`ALLIANCE PERFORMANCE (${stats.historyYearRange})`}
         </p>
 
         {/* Bloc pills */}
@@ -3427,7 +3432,7 @@ function SteelFrame({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '0 0 12px 0',
           }}
         >
-          MOST WINNING PARTIES (1977-2021)
+          {`MOST WINNING PARTIES (${stats.historyYearRange})`}
         </p>
 
         {party1 && party2 && (
@@ -3689,7 +3694,7 @@ function Horizon({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '0 0 10px 0',
           }}
         >
-          MOST WINNING PARTIES (1977-2021)
+          {`MOST WINNING PARTIES (${stats.historyYearRange})`}
         </p>
 
         {party1 && (
@@ -3956,7 +3961,7 @@ function Tricolor({ data, stats }: { data: CardData; stats: Stats }) {
               margin: '0 0 10px 0',
             }}
           >
-            Most Winning (1977-2021)
+            {`Most Winning (${stats.historyYearRange})`}
           </p>
           {party1 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -4559,7 +4564,7 @@ function Comparison({ data, stats }: { data: CardData; stats: Stats }) {
                     letterSpacing: 1,
                   }}
                 >
-                  Wins Since 1977
+                  {`Wins Since ${data.historyStartYear}`}
                 </span>
                 <span style={{ fontSize: 32, fontWeight: 900, color: '#94a3b8' }}>
                   {party2.wins}
@@ -4817,9 +4822,9 @@ function Spotlight({ data, stats }: { data: CardData; stats: Stats }) {
                   justifyContent: 'center',
                 }}
               >
-                {getLeaderImage(party1.name) ? (
+                {getLeaderImage(party1.name, data.stateCode ?? 'TN') ? (
                   <img
-                    src={getLeaderImage(party1.name)!}
+                    src={getLeaderImage(party1.name, data.stateCode ?? 'TN')!}
                     alt=""
                     style={{ width: 76, height: 76, objectFit: 'cover' }}
                   />
@@ -4849,7 +4854,7 @@ function Spotlight({ data, stats }: { data: CardData; stats: Stats }) {
                 {party1.wins}
               </span>
               <span style={{ fontSize: 14, fontWeight: 600, color: '#64748b' }}>
-                wins since 1977
+                {`wins since ${data.historyStartYear}`}
               </span>
             </div>
 
@@ -4992,7 +4997,7 @@ function ElectionMap({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '0 0 12px 0',
           }}
         >
-          Most Winning Parties (1977-2021)
+          {`Most Winning Parties (${stats.historyYearRange})`}
         </p>
 
         {party1 && party2 && (
@@ -5665,7 +5670,7 @@ function DidYouKnow({ data, stats }: { data: CardData; stats: Stats }) {
                   elections
                 </span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#92400e' }}>
-                  {party1.wins} out of {elections.length} elections since 1977
+                  {`${party1.wins} out of ${elections.length} elections since ${data.historyStartYear}`}
                 </span>
               </div>
             </div>
@@ -6229,7 +6234,7 @@ function PowerRanking({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '0 0 10px 0',
           }}
         >
-          POWER RANKINGS (1977-2021)
+          {`POWER RANKINGS (${stats.historyYearRange})`}
         </p>
 
         {/* Ranking rows */}
@@ -6483,7 +6488,7 @@ function Timeline({ data, stats }: { data: CardData; stats: Stats }) {
             margin: '0 0 10px 0',
           }}
         >
-          ELECTION TIMELINE (1977-2021)
+          {`ELECTION TIMELINE (${stats.historyYearRange})`}
         </p>
 
         <div style={{ position: 'relative', marginBottom: 14 }}>
