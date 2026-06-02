@@ -1,6 +1,8 @@
 'use client'
 import * as React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
+import { useStateConfig } from '@/components/providers/StateProvider'
+import { getPartyColor as getConfigPartyColor } from '@/lib/partyColors'
 
 interface TooltipState {
   visible: boolean
@@ -16,30 +18,14 @@ interface TooltipState {
   prevYear?: number
 }
 
-const PARTY_COLORS: Record<string, string> = {
-  TVK: '#F5C518',
-  DMK: '#E7191E',
-  AIADMK: '#10663D',
-  ADMK: '#10663D',
-  INC: '#00bcd4',
-  BJP: '#FF9933',
-  PMK: '#D4A017',
-  VCK: '#c2185b',
-  NTK: '#4caf50',
-  DMDK: '#7b1fa2',
-  CPI: '#f44336',
-  'CPI(M)': '#e91e63',
-  CPIM: '#e91e63',
-  AMMK: '#FF6B35',
-  MNM: '#009688',
-  IND: '#9e9e9e',
-  NOTA: '#607d8b',
-}
-
 const FALLBACK_COLORS = ['#1976d2', '#0288d1', '#c2185b', '#ffa000', '#455a64', '#558b2f']
 
-function getPartyColor(party: string, fallbackIndex: number): string {
-  return PARTY_COLORS[party] ?? FALLBACK_COLORS[fallbackIndex % FALLBACK_COLORS.length]
+function makeGetColor(stateCode: string) {
+  return (party: string, fallbackIndex: number): string => {
+    const color = getConfigPartyColor(party, stateCode)
+    if (color !== '#607d8b') return color
+    return FALLBACK_COLORS[fallbackIndex % FALLBACK_COLORS.length]
+  }
 }
 
 function fmtVotes(v: number): string {
@@ -83,6 +69,7 @@ function buildAlluvialNodes(
   election: ElectionYear,
   baseline: number,
   usableH: number,
+  getPartyColor: (party: string, fallbackIndex: number) => string,
 ): AlluvialNode[] {
   const top3 = election.candidates.slice(0, 3)
   const top3Sum = top3.reduce((s, c) => s + c.votes, 0)
@@ -125,6 +112,9 @@ function ribbonPath(
 }
 
 export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
+  const state = useStateConfig()
+  const getPartyColor = makeGetColor(state.code)
+
   const svgRef = React.useRef<SVGSVGElement>(null)
   const touchTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const [tooltip, setTooltip] = React.useState<TooltipState>({
@@ -147,8 +137,8 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
   const baseline = Math.max(recent.totalVoters, prev.totalVoters, 1)
   const usableH = SVG_H - MARGIN_Y * 2
 
-  const leftNodes = buildAlluvialNodes(prev, baseline, usableH)
-  const rightNodes = buildAlluvialNodes(recent, baseline, usableH)
+  const leftNodes = buildAlluvialNodes(prev, baseline, usableH, getPartyColor)
+  const rightNodes = buildAlluvialNodes(recent, baseline, usableH, getPartyColor)
 
   // Ribbons: connect same-named parties from left to right
   const ribbons: { path: string; color: string; party: string; lVotes: number; rVotes: number }[] =
