@@ -12,13 +12,12 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { getPartyColor } from '@/lib/partyColors'
+import { useStateConfig } from '@/components/providers/StateProvider'
 import type { WaveDataPoint } from '@/app/api/election-analysis/route'
 
 interface WaveTimelineProps {
   waveTimeline: WaveDataPoint[]
 }
-
-const MAJOR_PARTIES = ['TVK', 'DMK', 'AIADMK', 'INC', 'BJP', 'PMK', 'VCK', 'NTK']
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
@@ -43,6 +42,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 }
 
 export function WaveTimeline({ waveTimeline }: WaveTimelineProps) {
+  const state = useStateConfig()
+  const MAJOR_PARTIES = state.majorParties
+
   if (!waveTimeline || waveTimeline.length < 2) return null
 
   // Determine which parties to show (present across any year with ≥1%)
