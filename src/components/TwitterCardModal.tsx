@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Download, Loader2, Eye } from 'lucide-react'
 import { trackClicked, getPageContext } from '@/analytics'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface TwitterCardData {
   assemblyId: string
@@ -32,6 +33,7 @@ interface TwitterCardData {
   aiadmkBlocBreakdown?: Record<string, number>
   voterGrowth: number | null
   topCastes: { name: string; percentage: number }[]
+  lastYear: number
 }
 
 interface CasteData {
@@ -131,6 +133,7 @@ export function TwitterCardModal({
   data,
   trigger,
 }: TwitterCardModalProps) {
+  const state = useStateConfig()
   const [isOpen, setIsOpen] = React.useState(false)
   const cardRef = React.useRef<HTMLDivElement>(null)
 
@@ -152,8 +155,8 @@ export function TwitterCardModal({
 
     // Process data to match TwitterCardData interface
     const voters = data.voters
-    const electionsFrom1977 = data.electionHistory
-      .filter((e) => e.year >= 1977)
+    const electionsFromStart = data.electionHistory
+      .filter((e) => e.year >= state.historyStartYear)
       .sort((a, b) => b.year - a.year)
 
     const partyWins: Record<string, number> = {}
@@ -162,7 +165,7 @@ export function TwitterCardModal({
     const dmkBlocBreakdown: Record<string, number> = {}
     const aiadmkBlocBreakdown: Record<string, number> = {}
 
-    electionsFrom1977.forEach((election) => {
+    electionsFromStart.forEach((election) => {
       const winnerParty = election.winnerParty
       partyWins[winnerParty] = (partyWins[winnerParty] || 0) + 1
 
@@ -239,9 +242,9 @@ export function TwitterCardModal({
       totalVoters: voters ? formatNumber(voters.total) : 'N/A',
       maleVoters: voters ? formatNumber(voters.male) : 'N/A',
       femaleVoters: voters ? formatNumber(voters.female) : 'N/A',
-      currentMla: electionsFrom1977[0]?.winner || '',
-      currentParty: electionsFrom1977[0]?.winnerParty || '',
-      totalElections: electionsFrom1977.length,
+      currentMla: electionsFromStart[0]?.winner || '',
+      currentParty: electionsFromStart[0]?.winnerParty || '',
+      totalElections: electionsFromStart.length,
       party1,
       party2,
       dmkBlocWins,
@@ -250,8 +253,9 @@ export function TwitterCardModal({
       aiadmkBlocBreakdown,
       voterGrowth,
       topCastes,
+      lastYear: electionsFromStart[0]?.year ?? state.historyStartYear,
     }
-  }, [data, assemblyId])
+  }, [data, assemblyId, state.historyStartYear])
 
   const isLoading = false
   const error = null
@@ -302,7 +306,7 @@ export function TwitterCardModal({
       `🟢 AIADMK Bloc: ${cardData?.aiadmkBlocWins} wins\n` +
       `🏆 ${dmkWinner ? 'DMK' : 'AIADMK'} Bloc leads!\n\n` +
       `Explore more at IndiaStats.org\n\n` +
-      `#TamilNadu #TNElections #TamilNaduPolitics #IndiaStats #DMK #AIADMK #TNPolls #ElectionData #TVK #Vijay #Stalin #EPS #BJP #Modi #INC #RahulGandhi`
+      state.defaultHashtags.map((t) => `#${t}`).join(' ')
 
     // Try Web Share API with image file
     if (navigator.share && cardRef.current) {
@@ -497,7 +501,7 @@ export function TwitterCardModal({
                           margin: '0 0 12px 0',
                         }}
                       >
-                        🏆 MOST WINNING PARTIES (1977-2021)
+                        {`🏆 MOST WINNING PARTIES (${state.historyStartYear}-${cardData.lastYear})`}
                       </p>
 
                       {cardData.party1 && cardData.party2 && (
