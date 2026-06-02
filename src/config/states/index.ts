@@ -46,18 +46,6 @@ export function getAllStates(): StateConfig[] {
 }
 
 /**
- * Get party color for a specific state
- */
-export function getPartyColor(stateCode: string, partyCode: string): string {
-    const config = getStateByCode(stateCode)
-    if (config?.partyColors[partyCode]) {
-        return config.partyColors[partyCode]
-    }
-    // Default gray for unknown parties
-    return '#808080'
-}
-
-/**
  * Get leader image for a party in a specific state
  */
 export function getLeaderImage(stateCode: string, partyCode: string): string | null {

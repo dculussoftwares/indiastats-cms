@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Trophy, Users } from 'lucide-react'
 import {
   getLeaderImage as getLeaderImageFromConfig,
-  getPartyColor,
   getBlocs,
   getStateByCode,
 } from '@/config/states'

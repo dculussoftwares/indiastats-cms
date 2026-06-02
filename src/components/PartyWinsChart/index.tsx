@@ -1,7 +1,7 @@
 'use client'
 import * as React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { getPartyColor } from '@/config/states'
+import { getPartyColor } from '@/lib/partyColors'
 import {
   BarChart,
   Bar,
@@ -75,7 +75,7 @@ export function PartyWinsChart({ historicData, stateCode = 'TN' }: PartyWinsChar
     })
 
   // Get party colors from state config
-  const getColor = (party: string) => getPartyColor(stateCode, party)
+  const getColor = (party: string) => getPartyColor(party, stateCode)
 
   return (
     <Card>
