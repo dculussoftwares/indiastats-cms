@@ -3,41 +3,38 @@ import config from '@payload-config'
 import { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import { HomePageClient } from './HomePageClient'
+import { tamilNaduConfig } from '@/config/states'
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { stats } = await getHomePageData()
-  const boothsFormatted = (Math.floor(stats.totalBooths / 1000) * 1000).toLocaleString('en-IN')
-  return {
-    title: 'IndiaStats.org - India Election Data & Statistics',
-    description: `Explore detailed election history, constituency demographics, and voting patterns across India. Start with Tamil Nadu's ${stats.totalAssemblies} assembly constituencies, ${boothsFormatted}+ booths, and ${(stats.totalVoters / 10000000).toFixed(0)}+ crore voters.`,
-    keywords: [
-      'India elections',
-      'assembly constituency',
-      'voter data',
-      'MLA history',
-      'election statistics',
-      'Tamil Nadu elections',
-      'Tamil Nadu MLAs',
-      'booth data',
-    ],
-    alternates: {
-      canonical: baseUrl,
-    },
-    openGraph: {
-      title: "IndiaStats.org - India's Most Comprehensive Election Data Platform",
-      description:
-        'Explore detailed election history, constituency demographics, and voting patterns across Indian assembly constituencies.',
-      type: 'website',
-      url: baseUrl,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: 'IndiaStats.org - India Election Data',
-      description: 'Comprehensive election data for assembly constituencies across India.',
-    },
-  }
+export const metadata: Metadata = {
+  title: 'IndiaStats.org - India Election Data & Statistics',
+  description: `Explore detailed election history, constituency demographics, and voting patterns across India. Start with Tamil Nadu's ${tamilNaduConfig.assemblyCount} assembly constituencies, ${tamilNaduConfig.boothCountLabel} booths, and ${tamilNaduConfig.voterCountLabel} voters.`,
+  keywords: [
+    'India elections',
+    'assembly constituency',
+    'voter data',
+    'MLA history',
+    'election statistics',
+    'Tamil Nadu elections',
+    'Tamil Nadu MLAs',
+    'booth data',
+  ],
+  alternates: {
+    canonical: baseUrl,
+  },
+  openGraph: {
+    title: "IndiaStats.org - India's Most Comprehensive Election Data Platform",
+    description:
+      'Explore detailed election history, constituency demographics, and voting patterns across Indian assembly constituencies.',
+    type: 'website',
+    url: baseUrl,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'IndiaStats.org - India Election Data',
+    description: 'Comprehensive election data for assembly constituencies across India.',
+  },
 }
 
 async function _getHomePageData() {
