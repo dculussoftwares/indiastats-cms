@@ -29,6 +29,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 import { DistrictPageJsonLd } from '@/components/seo/JsonLd'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface Assembly {
   assemblyId: string
@@ -117,6 +118,7 @@ interface DistrictPageClientProps {
 }
 
 export function DistrictPageClient({ data, stateSlug, stateName }: DistrictPageClientProps) {
+  const state = useStateConfig()
   React.useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.DISTRICT_DETAIL,
@@ -539,7 +541,7 @@ export function DistrictPageClient({ data, stateSlug, stateName }: DistrictPageC
           </h2>
           <MostWinningPartiesCard
             historicData={data.electionHistory}
-            stateCode="TN"
+            stateCode={state.code}
             allianceData={data.allianceData}
           />
         </section>

@@ -109,14 +109,9 @@ const getBlocType = (
   return 'other'
 }
 
-// Get party leader image
-const getLeaderImage = (partyName: string): string | null => {
-  if (partyName === 'ADMK' || partyName === 'AIADMK') return '/images/EPS.jpg'
-  if (partyName === 'DMK') return '/images/Stalin.png'
-  if (partyName === 'INC' || partyName === 'CONG') return '/images/karkae.jpg'
-  if (partyName === 'BJP') return '/images/modi.png'
-  if (partyName === 'PMK') return '/images/PMK.jpg'
-  return null
+// Get party leader image from state config
+const getLeaderImage = (state: any, partyName: string): string | null => {
+  return state.leaderImages[partyName] ?? state.leaderImages[partyName.toUpperCase()] ?? null
 }
 
 const formatBreakdown = (breakdown?: Record<string, number>) => {
@@ -343,8 +338,8 @@ export function TwitterCardModal({
     window.open(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`, '_blank')
   }
 
-  const leader1 = cardData?.party1 ? getLeaderImage(cardData.party1.name) : null
-  const leader2 = cardData?.party2 ? getLeaderImage(cardData.party2.name) : null
+  const leader1 = cardData?.party1 ? getLeaderImage(state, cardData.party1.name) : null
+  const leader2 = cardData?.party2 ? getLeaderImage(state, cardData.party2.name) : null
   const winDiff =
     cardData?.party1 && cardData?.party2 ? cardData.party1.wins - cardData.party2.wins : 0
 
