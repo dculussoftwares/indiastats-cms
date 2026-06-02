@@ -11,6 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface Candidate {
   name: string
@@ -27,42 +28,19 @@ interface VotesSharesChartProps {
   electionHistory: ElectionYear[]
 }
 
-// Color palette for parties
-const PARTY_COLORS: Record<string, string> = {
-  DMK: '#b71c1c', // Deep Red
-  ADMK: '#388e3c', // Green
-  AIADMK: '#388e3c', // Green
-  INC: '#00bcd4',
-  BJP: '#ff9800',
-  PMK: '#fbc02d',
-  DMDK: '#7b1fa2',
-  VCK: '#c2185b',
-  CPI: '#f44336',
-  CPM: '#e91e63',
-  CPIM: '#e91e63',
-  NTK: '#4caf50',
-  MNM: '#009688',
-  IND: '#9e9e9e',
-  OTH: '#607d8b',
-}
-
-// Generate color for unknown parties
-const getPartyColor = (party: string, index: number): string => {
-  if (PARTY_COLORS[party]) return PARTY_COLORS[party]
-  const colors = [
-    '#1976d2',
-    '#388e3c',
-    '#fbc02d',
-    '#d32f2f',
-    '#7b1fa2',
-    '#0288d1',
-    '#c2185b',
-    '#ffa000',
-    '#455a64',
-    '#8bc34a',
-  ]
-  return colors[index % colors.length]
-}
+// Fallback colors for unknown parties (index-based)
+const FALLBACK_COLORS = [
+  '#1976d2',
+  '#388e3c',
+  '#fbc02d',
+  '#d32f2f',
+  '#7b1fa2',
+  '#0288d1',
+  '#c2185b',
+  '#ffa000',
+  '#455a64',
+  '#8bc34a',
+]
 
 // Format number for display
 const formatNumber = (value: number) => {
@@ -106,6 +84,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 }
 
 export function VotesSharesChart({ electionHistory }: VotesSharesChartProps) {
+  const state = useStateConfig()
+
+  // Generate color for a party using state config, falling back to index-based palette
+  const getPartyColor = (party: string, index: number): string => {
+    if (state.partyColors[party]) return state.partyColors[party]
+    return FALLBACK_COLORS[index % FALLBACK_COLORS.length]
+  }
+
   if (!electionHistory || electionHistory.length === 0) return null
 
   // Get all unique parties and their total votes

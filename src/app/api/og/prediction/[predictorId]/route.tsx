@@ -76,25 +76,9 @@ export async function GET(
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
 
-    // Party colour map (matches app config)
-    const PARTY_COLORS: Record<string, string> = {
-      DMK: '#E7191E',
-      AIADMK: '#10663D',
-      ADMK: '#10663D',
-      BJP: '#FF9933',
-      INC: '#00BFFF',
-      CONG: '#00BFFF',
-      PMK: '#FFCC00',
-      VCK: '#FFA500',
-      CPI: '#CC0000',
-      'CPI(M)': '#CC0000',
-      CPM: '#CC0000',
-      MDMK: '#FF6600',
-      DMDK: '#0066CC',
-      TVK: '#7C3AED',
-      AMMK: '#059669',
-    }
-    const getColor = (p: string) => PARTY_COLORS[p] ?? '#64748b'
+    // Party colour map from state config
+    const stateConfig = getStateByCode(stateCode)
+    const getColor = (p: string) => stateConfig?.partyColors[p] ?? '#64748b'
 
     // Load assets
     const logoBuffer = readFileSync(join(process.cwd(), 'public/indiastats-logo-1024.png'))

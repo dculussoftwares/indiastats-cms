@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Trophy, TrendingUp, Target, Flame, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/utilities/ui'
 import { trackClicked, getPageContext } from '@/analytics'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface Candidate {
   name: string
@@ -28,28 +29,6 @@ interface PastWinningHistoriesProps {
   electionHistory: ElectionYear[]
 }
 
-// Party color mapping
-const PARTY_COLORS: Record<string, string> = {
-  TVK: '#F5C518', // Yellow/Gold
-  DMK: '#b71c1c', // Deep Red
-  ADMK: '#388e3c', // Green
-  AIADMK: '#388e3c', // Green
-  INC: '#00bcd4',
-  BJP: '#ff9800',
-  PMK: '#fbc02d',
-  DMDK: '#7b1fa2',
-  VCK: '#c2185b',
-  CPI: '#f44336',
-  CPM: '#e91e63',
-  CPIM: '#e91e63',
-  NTK: '#4caf50',
-  MNM: '#009688',
-  IND: '#9e9e9e',
-}
-
-const getPartyColor = (party: string): string => {
-  return PARTY_COLORS[party] || '#607d8b'
-}
 
 function formatNumber(num: number): string {
   if (num >= 100000) return (num / 100000).toFixed(1) + 'L'
@@ -112,7 +91,12 @@ function calculateStats(electionHistory: ElectionYear[]) {
 }
 
 export function PastWinningHistories({ electionHistory }: PastWinningHistoriesProps) {
+  const state = useStateConfig()
   const [expandedYear, setExpandedYear] = useState<number | null>(null)
+
+  const getPartyColor = (party: string): string => {
+    return state.partyColors[party] || '#607d8b'
+  }
 
   if (!electionHistory || electionHistory.length === 0) return null
 
