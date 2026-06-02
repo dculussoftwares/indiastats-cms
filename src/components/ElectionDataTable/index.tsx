@@ -32,6 +32,7 @@ import {
 import { exportToExcel, flattenElectionDataForExcel } from '@/utilities/excelExport'
 import { getPartyColor } from '@/lib/partyColors'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
+import { stateCodeToSlug } from '@/config/states'
 import {
   Download,
   ChevronUp,
@@ -125,7 +126,7 @@ function SortableHeader({ column, children }: { column: any; children: React.Rea
   )
 }
 
-export function ElectionDataTable({ stateCode = 'TN' }: { stateCode?: string }) {
+export function ElectionDataTable({ stateCode }: { stateCode: string }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -227,7 +228,7 @@ export function ElectionDataTable({ stateCode = 'TN' }: { stateCode?: string }) 
         header: ({ column }) => <SortableHeader column={column}>AC Name</SortableHeader>,
         cell: (info) => {
           const row = info.row.original
-          const url = `/tamil-nadu/assembly/${row.districtSlug}/${row.assemblySlug}`
+          const url = `/${stateCodeToSlug(stateCode)}/assembly/${row.districtSlug}/${row.assemblySlug}`
           return (
             <Link
               href={url}
@@ -253,7 +254,7 @@ export function ElectionDataTable({ stateCode = 'TN' }: { stateCode?: string }) 
         header: ({ column }) => <SortableHeader column={column}>District</SortableHeader>,
         cell: (info) => {
           const row = info.row.original
-          const url = `/tamil-nadu/district/${row.districtSlug}`
+          const url = `/${stateCodeToSlug(stateCode)}/district/${row.districtSlug}`
           return (
             <Link
               href={url}
