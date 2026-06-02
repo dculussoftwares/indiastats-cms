@@ -60,4 +60,48 @@ export const tamilNaduConfig: StateConfig = {
   mapGeoJson: '/geojson/tamil-nadu-assemblies.json',
 
   electionYears: [1972, 1977, 1980, 1984, 1989, 1991, 1996, 2001, 2006, 2011, 2016, 2021, 2026],
+
+  historyStartYear: 1977,
+
+  partyNameMap: {
+    'TAMILAGA VETTRI KAZHAGAM': 'TVK',
+    'DRAVIDA MUNNETRA KAZHAGAM': 'DMK',
+    'ALL INDIA ANNA DRAVIDA MUNNETRA KAZHAGAM': 'AIADMK',
+    'ANNA DRAVIDA MUNNETRA KAZHAGAM': 'AIADMK',
+    'INDIAN NATIONAL CONGRESS': 'INC',
+    'BHARATIYA JANATA PARTY': 'BJP',
+    'PATTALI MAKKAL KATCHI': 'PMK',
+    'VIDUTHALAI CHIRUTHAIGAL KATCHI': 'VCK',
+    'INDIAN UNION MUSLIM LEAGUE': 'IUML',
+    'COMMUNIST PARTY OF INDIA (MARXIST)': 'CPI(M)',
+    'COMMUNIST PARTY OF INDIA': 'CPI',
+    'AMMA MAKKAL MUNNETTRA KAZAGAM': 'AMMK',
+    'DESIYA MURPOKKU DRAVIDA KAZHAGAM': 'DMDK',
+    'NAAM TAMILAR KATCHI': 'NTK',
+    'MAKKAL NEEDHI MAIAM': 'MNM',
+    'MARUMALARCHI DRAVIDA MUNNETRA KAZHAGAM': 'MDMK',
+    'KERALA CONGRESS (M)': 'KC(M)',
+  },
+
+  defaultHashtags: [
+    'TamilNadu',
+    'TNElections',
+    'TamilNaduPolitics',
+    'IndiaStats',
+    'DMK',
+    'AIADMK',
+    'TNPolls',
+    'ElectionData',
+    'TVK',
+    'Vijay',
+    'Stalin',
+    'EPS',
+    'BJP',
+    'Modi',
+    'INC',
+    'RahulGandhi',
+  ],
+
+  boothCountLabel: '50,000+',
+  voterCountLabel: '6+ crore',
 }

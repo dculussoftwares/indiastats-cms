@@ -37,6 +37,19 @@ export interface StateConfig {
 
     // Election configuration
     electionYears: number[]
+
+    // History configuration - replaces >= 1977 hardcoded filter
+    historyStartYear: number
+
+    // Party name mapping - replaces PARTY_NAME_MAP in src/lib/partyColors.ts
+    partyNameMap: Record<string, string>
+
+    // Default hashtags - replaces hardcoded hashtag string in TwitterCardModal
+    defaultHashtags: string[]
+
+    // Booth and voter labels - replaces hardcoded UI text
+    boothCountLabel: string
+    voterCountLabel: string
 }
 
 // Default colors for common parties (can be overridden per state)
