@@ -56,6 +56,7 @@ export async function GET(
 
     const stateDoc = stateResult.docs[0] as any
     const staticConfig = getStateByCode(stateCode)
+    const historyStartYear = staticConfig?.historyStartYear ?? 1977
 
     // Get election history
     const historyResult = await payload.find({
@@ -72,7 +73,7 @@ export async function GET(
     const historyByYear = new Map<number, any[]>()
     historyResult.docs.forEach((record: any) => {
       const year = record.electionYear
-      if (year >= 1977) {
+      if (year >= historyStartYear) {
         if (!historyByYear.has(year)) {
           historyByYear.set(year, [])
         }
@@ -210,7 +211,7 @@ export async function GET(
                 marginBottom: 24,
               }}
             >
-              Election History (Since 1977)
+              {`Election History (Since ${historyStartYear})`}
             </span>
 
             <div
