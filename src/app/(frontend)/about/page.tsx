@@ -2,13 +2,13 @@ import { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Database, Map, Users, BarChart3, Globe, ShieldCheck } from 'lucide-react'
+import { tamilNaduConfig } from '@/config/states'
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
 
 export const metadata: Metadata = {
   title: 'About Us | IndiaStats.org',
-  description:
-    'Learn about IndiaStats.org — an independent platform dedicated to making Indian election data transparent and accessible. Explore 234 Tamil Nadu assembly constituencies, 50,000+ booths, and election history since 1977.',
+  description: `Learn about IndiaStats.org — an independent platform dedicated to making Indian election data transparent and accessible. Explore ${tamilNaduConfig.assemblyCount} Tamil Nadu assembly constituencies, ${tamilNaduConfig.boothCountLabel} booths, and election history since 1977.`,
   alternates: {
     canonical: `${baseUrl}/about`,
   },
@@ -140,8 +140,9 @@ export default async function AboutPage() {
               alliance, AIADMK alliance) for each election year, with colour-coded visual summaries.
             </li>
             <li>
-              <strong>Interactive constituency map</strong> — a GeoJSON-based map of all 234 Tamil
-              Nadu assembly segments, filterable by district and party performance.
+              <strong>Interactive constituency map</strong> — a GeoJSON-based map of all{' '}
+              {tamilNaduConfig.assemblyCount} Tamil Nadu assembly segments, filterable by district
+              and party performance.
             </li>
           </ul>
           <p className="mt-4">
