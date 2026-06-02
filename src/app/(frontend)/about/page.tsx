@@ -8,7 +8,7 @@ const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
 
 export const metadata: Metadata = {
   title: 'About Us | IndiaStats.org',
-  description: `Learn about IndiaStats.org — an independent platform dedicated to making Indian election data transparent and accessible. Explore ${tamilNaduConfig.assemblyCount} Tamil Nadu assembly constituencies, ${tamilNaduConfig.boothCountLabel} booths, and election history since 1977.`,
+  description: `Learn about IndiaStats.org — an independent platform dedicated to making Indian election data transparent and accessible. Explore ${tamilNaduConfig.assemblyCount} Tamil Nadu assembly constituencies, ${tamilNaduConfig.boothCountLabel} booths, and election history since ${tamilNaduConfig.historyStartYear}.`,
   alternates: {
     canonical: `${baseUrl}/about`,
   },
@@ -118,7 +118,7 @@ export default async function AboutPage() {
           </p>
           <ul className="list-disc pl-6 space-y-2 mt-4">
             <li>
-              <strong>Complete election history since 1977</strong> — every candidate, their party,
+              <strong>Complete election history since {tamilNaduConfig.historyStartYear}</strong> — every candidate, their party,
               votes received, and winning margin for each assembly election cycle.
             </li>
             <li>

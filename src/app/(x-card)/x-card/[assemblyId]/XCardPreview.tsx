@@ -892,7 +892,7 @@ function BoldClassic({ data, stats }: { data: CardData; stats: Stats }) {
               <div
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
               >
-                <LeaderCircle party={party1.name} size={80} borderColor="#ef4444" borderWidth={4} />
+                <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={80} borderColor="#ef4444" borderWidth={4} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
                   <PartyLogo party={party1.name} size={28} />
                   <span style={{ fontSize: 18, fontWeight: 700, color: '#ffffff' }}>
@@ -947,7 +947,7 @@ function BoldClassic({ data, stats }: { data: CardData; stats: Stats }) {
               <div
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
               >
-                <LeaderCircle party={party2.name} size={80} borderColor="#6b7280" borderWidth={4} />
+                <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={80} borderColor="#6b7280" borderWidth={4} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
                   <PartyLogo party={party2.name} size={28} />
                   <span style={{ fontSize: 18, fontWeight: 700, color: '#d1d5db' }}>
@@ -1123,7 +1123,7 @@ function RedBanner({ data, stats }: { data: CardData; stats: Stats }) {
                 border: '2px solid #fecaca',
               }}
             >
-              <LeaderCircle party={party1.name} size={64} borderColor="#dc2626" borderWidth={3} />
+              <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={64} borderColor="#dc2626" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <PartyLogo party={party1.name} size={24} />
@@ -1170,7 +1170,7 @@ function RedBanner({ data, stats }: { data: CardData; stats: Stats }) {
                 border: '2px solid #e5e7eb',
               }}
             >
-              <LeaderCircle party={party2.name} size={64} borderColor="#6b7280" borderWidth={3} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={64} borderColor="#6b7280" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <PartyLogo party={party2.name} size={24} />
@@ -1415,7 +1415,7 @@ function FullDark({ data, stats }: { data: CardData; stats: Stats }) {
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
             >
               <div style={{ boxShadow: '0 0 24px rgba(239,68,68,0.5)', borderRadius: 44 }}>
-                <LeaderCircle party={party1.name} size={80} borderColor="#ef4444" borderWidth={4} />
+                <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={80} borderColor="#ef4444" borderWidth={4} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
                 <PartyLogo party={party1.name} size={28} />
@@ -1470,7 +1470,7 @@ function FullDark({ data, stats }: { data: CardData; stats: Stats }) {
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
             >
               <div style={{ boxShadow: '0 0 16px rgba(148,163,184,0.3)', borderRadius: 44 }}>
-                <LeaderCircle party={party2.name} size={80} borderColor="#64748b" borderWidth={4} />
+                <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={80} borderColor="#64748b" borderWidth={4} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
                 <PartyLogo party={party2.name} size={28} />
@@ -1615,7 +1615,7 @@ function Newspaper({ data, stats }: { data: CardData; stats: Stats }) {
 
           {party1 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-              <LeaderCircle party={party1.name} size={60} borderColor="#dc2626" borderWidth={3} />
+              <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={60} borderColor="#dc2626" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <PartyLogo party={party1.name} size={22} />
@@ -1651,7 +1651,7 @@ function Newspaper({ data, stats }: { data: CardData; stats: Stats }) {
 
           {party2 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
-              <LeaderCircle party={party2.name} size={60} borderColor="#9ca3af" borderWidth={3} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={60} borderColor="#9ca3af" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <PartyLogo party={party2.name} size={22} />
@@ -1915,7 +1915,7 @@ function Scoreboard({ data, stats }: { data: CardData; stats: Stats }) {
               backgroundColor: '#1e293b',
             }}
           >
-            <LeaderCircle party={party1.name} size={64} borderColor="#ef4444" borderWidth={3} />
+            <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={64} borderColor="#ef4444" borderWidth={3} />
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <PartyLogo party={party1.name} size={22} />
@@ -1968,7 +1968,7 @@ function Scoreboard({ data, stats }: { data: CardData; stats: Stats }) {
               flexDirection: 'row-reverse',
             }}
           >
-            <LeaderCircle party={party2.name} size={64} borderColor="#64748b" borderWidth={3} />
+            <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={64} borderColor="#64748b" borderWidth={3} />
             <div style={{ textAlign: 'right' }}>
               <div
                 style={{
@@ -2121,7 +2121,7 @@ function DashboardGrid({ data, stats }: { data: CardData; stats: Stats }) {
           </p>
           {party1 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <LeaderCircle party={party1.name} size={50} borderColor="#ef4444" borderWidth={3} />
+              <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={50} borderColor="#ef4444" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <PartyLogo party={party1.name} size={20} />
@@ -2156,7 +2156,7 @@ function DashboardGrid({ data, stats }: { data: CardData; stats: Stats }) {
           </div>
           {party2 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
-              <LeaderCircle party={party2.name} size={50} borderColor="#64748b" borderWidth={3} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={50} borderColor="#64748b" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <PartyLogo party={party2.name} size={20} />
@@ -2493,7 +2493,7 @@ function NeonPulse({ data, stats }: { data: CardData; stats: Stats }) {
                   boxShadow: '0 0 30px rgba(239,68,68,0.4)',
                 }}
               >
-                <LeaderCircle party={party1.name} size={76} borderColor="#020617" borderWidth={3} />
+                <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={76} borderColor="#020617" borderWidth={3} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
                 <PartyLogo party={party1.name} size={26} />
@@ -2564,7 +2564,7 @@ function NeonPulse({ data, stats }: { data: CardData; stats: Stats }) {
                   boxShadow: '0 0 20px rgba(148,163,184,0.25)',
                 }}
               >
-                <LeaderCircle party={party2.name} size={76} borderColor="#020617" borderWidth={3} />
+                <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={76} borderColor="#020617" borderWidth={3} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
                 <PartyLogo party={party2.name} size={26} />
@@ -2811,7 +2811,7 @@ function Championship({ data, stats }: { data: CardData; stats: Stats }) {
               }}
             >
               <div style={{ position: 'relative' }}>
-                <LeaderCircle party={party1.name} size={80} borderColor="#d97706" borderWidth={4} />
+                <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={80} borderColor="#d97706" borderWidth={4} />
                 <div
                   style={{
                     position: 'absolute',
@@ -2878,7 +2878,7 @@ function Championship({ data, stats }: { data: CardData; stats: Stats }) {
                 border: '1px solid #e2e8f0',
               }}
             >
-              <LeaderCircle party={party2.name} size={52} borderColor="#9ca3af" borderWidth={3} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={52} borderColor="#9ca3af" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <PartyLogo party={party2.name} size={20} />
@@ -3118,7 +3118,7 @@ function BreakingNews({ data, stats }: { data: CardData; stats: Stats }) {
                 backgroundColor: '#1e293b',
               }}
             >
-              <LeaderCircle party={party1.name} size={56} borderColor="#ef4444" borderWidth={3} />
+              <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={56} borderColor="#ef4444" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <PartyLogo party={party1.name} size={20} />
@@ -3187,7 +3187,7 @@ function BreakingNews({ data, stats }: { data: CardData; stats: Stats }) {
                 flexDirection: 'row-reverse',
               }}
             >
-              <LeaderCircle party={party2.name} size={56} borderColor="#64748b" borderWidth={3} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={56} borderColor="#64748b" borderWidth={3} />
               <div style={{ flex: 1, textAlign: 'right' }}>
                 <div
                   style={{
@@ -3455,7 +3455,7 @@ function SteelFrame({ data, stats }: { data: CardData; stats: Stats }) {
                   background: 'linear-gradient(135deg, #3a3a5c, #2a2a4a)',
                 }}
               >
-                <LeaderCircle party={party1.name} size={72} borderColor="#1a1a2e" borderWidth={2} />
+                <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={72} borderColor="#1a1a2e" borderWidth={2} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
                 <PartyLogo party={party1.name} size={26} />
@@ -3517,7 +3517,7 @@ function SteelFrame({ data, stats }: { data: CardData; stats: Stats }) {
                   background: 'linear-gradient(135deg, #3a3a5c, #2a2a4a)',
                 }}
               >
-                <LeaderCircle party={party2.name} size={72} borderColor="#1a1a2e" borderWidth={2} />
+                <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={72} borderColor="#1a1a2e" borderWidth={2} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
                 <PartyLogo party={party2.name} size={26} />
@@ -3700,7 +3700,7 @@ function Horizon({ data, stats }: { data: CardData; stats: Stats }) {
         {party1 && (
           <div style={{ marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-              <LeaderCircle party={party1.name} size={44} borderColor="#ef4444" borderWidth={2} />
+              <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={44} borderColor="#ef4444" borderWidth={2} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <PartyLogo party={party1.name} size={20} />
                 <span style={{ fontSize: 15, fontWeight: 700, color: '#f8fafc' }}>
@@ -3735,7 +3735,7 @@ function Horizon({ data, stats }: { data: CardData; stats: Stats }) {
         {party2 && (
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-              <LeaderCircle party={party2.name} size={44} borderColor="#64748b" borderWidth={2} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={44} borderColor="#64748b" borderWidth={2} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <PartyLogo party={party2.name} size={20} />
                 <span style={{ fontSize: 15, fontWeight: 700, color: '#94a3b8' }}>
@@ -3965,7 +3965,7 @@ function Tricolor({ data, stats }: { data: CardData; stats: Stats }) {
           </p>
           {party1 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <LeaderCircle party={party1.name} size={56} borderColor="#f97316" borderWidth={3} />
+              <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={56} borderColor="#f97316" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <PartyLogo party={party1.name} size={20} />
@@ -3999,7 +3999,7 @@ function Tricolor({ data, stats }: { data: CardData; stats: Stats }) {
           </div>
           {party2 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
-              <LeaderCircle party={party2.name} size={56} borderColor="#9ca3af" borderWidth={3} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={56} borderColor="#9ca3af" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <PartyLogo party={party2.name} size={20} />
@@ -4347,7 +4347,7 @@ function Analytics({ data, stats }: { data: CardData; stats: Stats }) {
               padding: '10px 14px',
             }}
           >
-            <LeaderCircle party={party1.name} size={52} borderColor="#ef4444" borderWidth={3} />
+            <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={52} borderColor="#ef4444" borderWidth={3} />
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <PartyLogo party={party1.name} size={20} />
@@ -4386,7 +4386,7 @@ function Analytics({ data, stats }: { data: CardData; stats: Stats }) {
                 <PartyLogo party={party2.name} size={20} />
               </div>
             </div>
-            <LeaderCircle party={party2.name} size={52} borderColor="#64748b" borderWidth={3} />
+            <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={52} borderColor="#64748b" borderWidth={3} />
             {winDiff > 0 && (
               <div
                 style={{
@@ -4486,7 +4486,7 @@ function Comparison({ data, stats }: { data: CardData; stats: Stats }) {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-                <LeaderCircle party={party1.name} size={64} borderColor="#dc2626" borderWidth={3} />
+                <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={64} borderColor="#dc2626" borderWidth={3} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <PartyLogo party={party1.name} size={22} />
@@ -4528,7 +4528,7 @@ function Comparison({ data, stats }: { data: CardData; stats: Stats }) {
                   flexDirection: 'row-reverse',
                 }}
               >
-                <LeaderCircle party={party2.name} size={64} borderColor="#94a3b8" borderWidth={3} />
+                <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={64} borderColor="#94a3b8" borderWidth={3} />
                 <div style={{ textAlign: 'right' }}>
                   <div
                     style={{
@@ -4862,7 +4862,7 @@ function Spotlight({ data, stats }: { data: CardData; stats: Stats }) {
 
             {/* Party 2 compact */}
             <div style={{ textAlign: 'center' }}>
-              <LeaderCircle party={party2.name} size={56} borderColor="#64748b" borderWidth={2} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={56} borderColor="#64748b" borderWidth={2} />
               <div
                 style={{
                   display: 'flex',
@@ -5004,7 +5004,7 @@ function ElectionMap({ data, stats }: { data: CardData; stats: Stats }) {
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-                <LeaderCircle party={party1.name} size={60} borderColor="#dc2626" borderWidth={3} />
+                <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={60} borderColor="#dc2626" borderWidth={3} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <PartyLogo party={party1.name} size={22} />
@@ -5043,7 +5043,7 @@ function ElectionMap({ data, stats }: { data: CardData; stats: Stats }) {
                   flexDirection: 'row-reverse',
                 }}
               >
-                <LeaderCircle party={party2.name} size={60} borderColor="#78716c" borderWidth={3} />
+                <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={60} borderColor="#78716c" borderWidth={3} />
                 <div style={{ textAlign: 'right' }}>
                   <div
                     style={{
@@ -5365,7 +5365,7 @@ function FightNight({ data, stats }: { data: CardData; stats: Stats }) {
                 RED CORNER
               </p>
               <div style={{ boxShadow: '0 0 30px rgba(220,38,38,0.6)', borderRadius: 48 }}>
-                <LeaderCircle party={party1.name} size={88} borderColor="#dc2626" borderWidth={4} />
+                <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={88} borderColor="#dc2626" borderWidth={4} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
                 <PartyLogo party={party1.name} size={28} />
@@ -5454,7 +5454,7 @@ function FightNight({ data, stats }: { data: CardData; stats: Stats }) {
                 BLUE CORNER
               </p>
               <div style={{ boxShadow: '0 0 20px rgba(100,116,139,0.4)', borderRadius: 48 }}>
-                <LeaderCircle party={party2.name} size={88} borderColor="#64748b" borderWidth={4} />
+                <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={88} borderColor="#64748b" borderWidth={4} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
                 <PartyLogo party={party2.name} size={28} />
@@ -5662,7 +5662,7 @@ function DidYouKnow({ data, stats }: { data: CardData; stats: Stats }) {
                 border: '1px solid #fde68a',
               }}
             >
-              <LeaderCircle party={party1.name} size={56} borderColor="#d97706" borderWidth={3} />
+              <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={56} borderColor="#d97706" borderWidth={3} />
               <div style={{ flex: 1 }}>
                 <span style={{ fontSize: 15, fontWeight: 800, color: '#111827', display: 'block' }}>
                   {party1.name} has won{' '}
@@ -5947,7 +5947,7 @@ function Verdict({ data, stats }: { data: CardData; stats: Stats }) {
             }}
           >
             <div style={{ position: 'relative' }}>
-              <LeaderCircle party={party1.name} size={80} borderColor="#f59e0b" borderWidth={4} />
+              <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={80} borderColor="#f59e0b" borderWidth={4} />
               <div
                 style={{
                   position: 'absolute',
@@ -6038,7 +6038,7 @@ function Verdict({ data, stats }: { data: CardData; stats: Stats }) {
             }}
           >
             <div style={{ position: 'relative' }}>
-              <LeaderCircle party={party2.name} size={80} borderColor="#94a3b8" borderWidth={3} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={80} borderColor="#94a3b8" borderWidth={3} />
               <div
                 style={{
                   position: 'absolute',
@@ -6266,6 +6266,7 @@ function PowerRanking({ data, stats }: { data: CardData; stats: Stats }) {
               {/* Leader */}
               <LeaderCircle
                 party={party}
+                stateCode={data.stateCode ?? 'TN'}
                 size={38}
                 borderColor={i === 0 ? '#f59e0b' : '#475569'}
                 borderWidth={2}
@@ -6583,7 +6584,7 @@ function Timeline({ data, stats }: { data: CardData; stats: Stats }) {
                 gap: 8,
               }}
             >
-              <LeaderCircle party={party1.name} size={48} borderColor="#dc2626" borderWidth={3} />
+              <LeaderCircle party={party1.name} stateCode={data.stateCode ?? 'TN'} size={48} borderColor="#dc2626" borderWidth={3} />
               <PartyLogo party={party1.name} size={24} />
               <span style={{ fontSize: 30, fontWeight: 900, color: '#dc2626' }}>{party1.wins}</span>
             </div>
@@ -6629,7 +6630,7 @@ function Timeline({ data, stats }: { data: CardData; stats: Stats }) {
             >
               <span style={{ fontSize: 30, fontWeight: 900, color: '#94a3b8' }}>{party2.wins}</span>
               <PartyLogo party={party2.name} size={24} />
-              <LeaderCircle party={party2.name} size={48} borderColor="#94a3b8" borderWidth={3} />
+              <LeaderCircle party={party2.name} stateCode={data.stateCode ?? 'TN'} size={48} borderColor="#94a3b8" borderWidth={3} />
             </div>
           </div>
         )}
