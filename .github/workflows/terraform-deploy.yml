@@ -160,7 +160,8 @@ jobs:
       - name: Push schema to DB (direct connection, bypasses PgBouncer)
         run: pnpm exec tsx scripts/push-db-schema.ts
         timeout-minutes: 5
-        continue-on-error: true
+        # Removed continue-on-error: schema failures must block deployment.
+        # A failed push means the app would start against a stale schema and crash.
         env:
           # Uses direct PostgreSQL URL — not PgBouncer — so advisory locks work
           DATABASE_URI: ${{ secrets.DATABASE_URL_DIRECT }}

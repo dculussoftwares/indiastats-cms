@@ -1,7 +1,9 @@
 /**
  * Push Payload schema changes to the database.
  * This ensures new columns exist before `next build` prerenders pages.
- * Used in Docker build to sync schema with production DB.
+ * Used in CI to sync schema with production DB via a direct PostgreSQL connection
+ * (DATABASE_URI must point to the DB directly, NOT to PgBouncer — Drizzle advisory
+ * locks used during push are session-scoped and break under PgBouncer transaction mode).
  */
 import { getPayload } from 'payload'
 import config from '../src/payload.config'
@@ -14,6 +16,6 @@ async function pushSchema() {
 }
 
 pushSchema().catch((e) => {
-  console.error('Schema push failed (non-fatal):', e.message)
-  process.exit(0) // non-fatal — build should still attempt
+  console.error('Schema push failed:', e.message)
+  process.exit(1) // fail the CI step — do not deploy with a stale schema
 })
