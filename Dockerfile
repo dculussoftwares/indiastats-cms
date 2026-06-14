@@ -27,6 +27,9 @@ COPY . .
 
 # Build-time arguments for Payload CMS
 ARG DATABASE_URI
+# Direct PostgreSQL URL (bypasses PgBouncer) — used only for schema push during build.
+# PgBouncer transaction mode breaks Drizzle advisory locks used during push.
+ARG DATABASE_URI_DIRECT
 ARG PAYLOAD_SECRET
 ARG NEXT_PUBLIC_SERVER_URL
 
@@ -40,6 +43,7 @@ ARG NEXT_PUBLIC_ADSENSE_CLIENT_ID
 
 # Set environment variables for the build
 ENV DATABASE_URI=$DATABASE_URI
+ENV DATABASE_URI_DIRECT=$DATABASE_URI_DIRECT
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 ENV NEXT_PUBLIC_CLARITY_ID=$NEXT_PUBLIC_CLARITY_ID
@@ -50,8 +54,9 @@ ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 ENV NEXT_PUBLIC_ADSENSE_CLIENT_ID=$NEXT_PUBLIC_ADSENSE_CLIENT_ID
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Push schema changes to DB before build (new columns must exist for prerender)
-RUN corepack enable pnpm && pnpm exec tsx scripts/push-db-schema.ts || true
+# Push schema changes to DB before build (new columns must exist for prerender).
+# Use DATABASE_URI_DIRECT (direct PostgreSQL) — not PgBouncer — so Drizzle advisory locks work.
+RUN corepack enable pnpm && DATABASE_URI=${DATABASE_URI_DIRECT:-$DATABASE_URI} pnpm exec tsx scripts/push-db-schema.ts || true
 
 # Regenerate Payload import map so all plugin components (e.g. AzureClientUploadHandler)
 # are included regardless of which env vars are set at build time.

@@ -107,6 +107,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             DATABASE_URI=${{ secrets.DATABASE_URL }}
+            DATABASE_URI_DIRECT=${{ secrets.DATABASE_URL_DIRECT }}
             PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
             NEXT_PUBLIC_SERVER_URL=https://indiastats.org
             NEXT_PUBLIC_CLARITY_ID=${{ secrets.NEXT_PUBLIC_CLARITY_ID }}
@@ -159,7 +160,7 @@ jobs:
 
       - name: Push schema to DB (direct connection, bypasses PgBouncer)
         run: pnpm exec tsx scripts/push-db-schema.ts
-        timeout-minutes: 5
+        timeout-minutes: 10
         # Removed continue-on-error: schema failures must block deployment.
         # A failed push means the app would start against a stale schema and crash.
         env:
@@ -168,6 +169,10 @@ jobs:
           PAYLOAD_SCHEMA_PUSH: "true"
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_PUBLIC_SERVER_URL: https://indiastats.org
+          # Placeholder Azure Storage creds so the storage plugin initialises without hanging.
+          # Real creds are only needed at runtime, not during schema push.
+          AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=placeholder;AccountKey=cGxhY2Vob2xkZXI=;EndpointSuffix=core.windows.net"
+          AZURE_STORAGE_ACCOUNT_BASEURL: "https://placeholder.blob.core.windows.net/"
 
   terraform:
     name: Terraform Apply
