@@ -17,7 +17,6 @@ on:
       - 'tsconfig.json'
       - '.github/workflows/terraform-deploy.yml'
       - 'public/**'
-      - 'functions/**'
   workflow_dispatch:
 
 env:
@@ -42,7 +41,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       app: ${{ steps.filter.outputs.app }}
-      functions: ${{ steps.filter.outputs.functions }}
     steps:
       - uses: actions/checkout@v4
       - id: filter
@@ -60,8 +58,6 @@ jobs:
               - 'public/**'
               - 'infra/**'
               - '.github/workflows/terraform-deploy.yml'
-            functions:
-              - 'functions/**'
 
   build-and-push:
     name: Build & Push Docker Image
@@ -246,60 +242,6 @@ jobs:
       - name: Get Container App URL
         run: |
           echo "🚀 Deployment Complete!"
-
-  deploy-function:
-    name: Deploy ECI Scraper Function
-    runs-on: ubuntu-latest
-    needs: [changes, terraform]
-    if: |
-      always() &&
-      (needs.terraform.result == 'success' || needs.terraform.result == 'skipped') &&
-      (github.event_name == 'workflow_dispatch' || needs.changes.outputs.functions == 'true')
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Azure Login (OIDC)
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-          run_install: false
-
-      - name: Install function dependencies
-        working-directory: functions
-        run: pnpm install --frozen-lockfile
-
-      - name: Build & bundle function
-        working-directory: functions
-        run: |
-          pnpm exec tsc --noEmit
-          node esbuild.config.mjs
-
-      - name: Zip function app (bundle only — no node_modules)
-        working-directory: functions
-        run: |
-          zip ../function.zip host.json package.json dist/bundle.js
-
-      - name: Deploy to Azure Function App
-        uses: Azure/functions-action@v1
-        with:
-          app-name: func-indiastats-eci-scraper
-          package: function.zip
-          scm-do-build-during-deployment: false
-          enable-oryx-build: false
 
   smoke-test:
     name: Smoke Test
