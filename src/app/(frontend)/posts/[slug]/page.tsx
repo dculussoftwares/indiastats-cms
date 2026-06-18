@@ -50,7 +50,7 @@ export default async function Post({ params: paramsPromise }: Args) {
         title={post.title}
         description={post.meta?.description}
         url={postUrl}
-        datePublished={post.createdAt}
+        datePublished={(post as any).publishedAt || post.createdAt}
         dateModified={post.updatedAt}
         imageUrl={imageUrl}
       />

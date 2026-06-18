@@ -7,6 +7,7 @@ import { StatCard } from '@/components/StatCard'
 import { DashboardClient } from './DashboardClient'
 import { getStateBySlug } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
+import { JsonLd } from '@/components/seo/JsonLd'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/${stateSlug}/dashboard`
 
   return {
-    title: 'Dashboard | IndiaStats.org',
+    title: `${stateName} Election Data | IndiaStats.org`,
     description: `Comprehensive ${stateName} election data, assembly constituency analysis, and electoral insights.`,
     alternates: {
       canonical: canonicalUrl,
@@ -134,9 +135,28 @@ export default async function DashboardPage({ params }: Props) {
 
   return (
     <div className="container py-8">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: `${stateName} Election Data — IndiaStats.org`,
+        description: `${stats.totalAssemblies} assembly constituencies, ${stats.totalDistricts} districts, ${stats.totalBooths.toLocaleString()}+ polling booths. Complete ${stateName} election statistics.`,
+        url: `${getServerSideURL()}/${stateSlug}/dashboard`,
+        about: {
+          '@type': 'AdministrativeArea',
+          name: stateName,
+          containedInPlace: { '@type': 'Country', name: 'India' },
+        },
+        isPartOf: {
+          '@type': 'WebSite',
+          name: 'IndiaStats.org',
+          url: 'https://indiastats.org',
+        },
+      }} />
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">{stateName} Election Data Overview</p>
+        <h1 className="text-3xl font-bold tracking-tight">{stateName} Election Data</h1>
+        <p className="text-muted-foreground">
+          {stats.totalAssemblies} assembly constituencies · {stats.totalDistricts} districts · {stats.totalBooths.toLocaleString()} polling booths
+        </p>
       </div>
 
       {/* Statistics Section */}

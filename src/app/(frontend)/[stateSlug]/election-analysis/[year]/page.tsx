@@ -7,6 +7,7 @@ import { ElectionAnalysisClient } from './ElectionAnalysisClient'
 import { computeElectionAnalysis } from '@/lib/electionAnalysis'
 import type { ElectionAnalysisResponse } from '@/lib/electionAnalysis'
 import { getServerSideURL } from '@/utilities/getURL'
+import { JsonLd } from '@/components/seo/JsonLd'
 
 interface Props {
   params: Promise<{ stateSlug: string; year: string }>
@@ -96,6 +97,42 @@ export default async function ElectionAnalysisPage({ params }: Props) {
           },
         ]}
       />
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: `${stateConfig.name} ${year} Election Analysis`,
+        description: `Deep dive into the ${stateConfig.name} ${year} assembly election — vote shares, seat flips, closest races, and turnout insights.`,
+        url: `${getServerSideURL()}/${stateSlug}/election-analysis/${year}`,
+        datePublished: `${year}-05-04T00:00:00.000Z`,
+        author: {
+          '@type': 'Organization',
+          '@id': 'https://indiastats.org/#organization',
+          name: 'IndiaStats.org',
+          url: 'https://indiastats.org',
+        },
+        publisher: {
+          '@type': 'Organization',
+          '@id': 'https://indiastats.org/#organization',
+          name: 'IndiaStats.org',
+          url: 'https://indiastats.org',
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://indiastats.org/icon.png',
+            width: 192,
+            height: 192,
+          },
+        },
+        about: {
+          '@type': 'AdministrativeArea',
+          name: stateConfig.name,
+          containedInPlace: { '@type': 'Country', name: 'India' },
+        },
+        isPartOf: {
+          '@type': 'WebSite',
+          name: 'IndiaStats.org',
+          url: 'https://indiastats.org',
+        },
+      }} />
       <Suspense>
         <ElectionAnalysisClient
           data={data}

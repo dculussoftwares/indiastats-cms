@@ -75,10 +75,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalUrl = `${baseUrl}/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`
 
   return {
-    title: `${cleanName} Assembly - Voter Data & Election History`,
+    title: `${cleanName} Assembly Election Results 2026 | IndiaStats.org`,
     description:
       assemblyDoc.metaDescription ||
-      `Complete election data for ${cleanName} assembly constituency, ${stateName}. Includes ${assemblyDoc.noOfBooths || 'multiple'} polling booths, voter statistics, MLA history since 1972, and demographic insights.`,
+      `${cleanName} assembly constituency, Tamil Nadu. 2026 election results, candidate vote shares, MLA history since 1977, booth data, and caste demographics.`,
     keywords: [
       `${cleanName} assembly`,
       `${cleanName} MLA`,
