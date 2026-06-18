@@ -9,6 +9,7 @@ interface ImageObject {
 interface OrganizationSchema {
   '@context': 'https://schema.org'
   '@type': 'Organization'
+  '@id'?: string
   name: string
   url: string
   logo?: ImageObject
@@ -48,6 +49,7 @@ interface BreadcrumbSchema {
 const ORGANIZATION_DATA: OrganizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': 'https://indiastats.org/#organization',
   name: 'IndiaStats.org',
   url: 'https://indiastats.org',
   logo: {
@@ -163,7 +165,7 @@ export function AssemblyPageJsonLd({
         '@type': 'AdministrativeArea',
         name: districtName,
         containedInPlace: {
-          '@type': 'State',
+          '@type': 'AdministrativeArea',
           name: stateName,
           containedInPlace: {
             '@type': 'Country',
@@ -208,7 +210,7 @@ export function DistrictPageJsonLd({
       '@type': 'AdministrativeArea',
       name: districtName,
       containedInPlace: {
-        '@type': 'State',
+        '@type': 'AdministrativeArea',
         name: stateName,
       },
       containsPlace: assemblies.map((a) => ({
@@ -302,7 +304,14 @@ export function BlogPostingJsonLd({
         height: 192,
       },
     },
-    ...(imageUrl && { image: { '@type': 'ImageObject', url: imageUrl } }),
+    ...(imageUrl && {
+      image: {
+        '@type': 'ImageObject',
+        url: imageUrl,
+        width: imageUrl.includes('indiastats-logo') ? 1024 : 1200,
+        height: imageUrl.includes('indiastats-logo') ? 1024 : 630,
+      },
+    }),
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': url,
@@ -357,7 +366,7 @@ export function DatasetJsonLd({
         '@type': 'AdministrativeArea',
         name: districtName,
         containedInPlace: {
-          '@type': 'State',
+          '@type': 'AdministrativeArea',
           name: stateName,
           containedInPlace: { '@type': 'Country', name: 'India' },
         },
@@ -403,7 +412,7 @@ export function DataCatalogJsonLd({
       url: BASE_URL,
     },
     spatialCoverage: {
-      '@type': 'State',
+      '@type': 'AdministrativeArea',
       name: 'Tamil Nadu',
       containedInPlace: { '@type': 'Country', name: 'India' },
     },
