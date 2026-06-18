@@ -1,0 +1,51 @@
+# IndiaStats.org
+
+> India's most comprehensive assembly election data platform. Covers all 234 Tamil Nadu assembly constituencies with election results from 1977–2026, booth-level voter data, caste demographics, and live counting-day results. Data sourced from the Election Commission of India.
+
+## Key Facts
+
+- 234 assembly constituencies across 38 districts in Tamil Nadu
+- 50,000+ polling booths with voter-level data
+- Election history: 1977, 1980, 1984, 1989, 1991, 1996, 2001, 2006, 2011, 2016, 2021, 2026
+- 2026 Tamil Nadu results: TVK won 108 seats; DMK 59; AIADMK 47; INC 5
+- 6+ crore registered voters
+- Primary data source: Election Commission of India (eci.gov.in)
+- Platform: Free, open-source, non-partisan
+
+## Core Data Pages
+
+- [Tamil Nadu Home](/tamil-nadu): State overview with 2026 results and historical trends
+- [Assembly Constituencies](/tamil-nadu/assembly-map): Interactive map of all 234 constituencies
+- [Election Data Table](/election-data): Full cross-constituency dataset, filterable by year and party
+- [Election Results](/tamil-nadu/election-results): Live and final result maps
+- [Caste Demographics](/tamil-nadu/caste-demographics): Constituency-level caste composition data
+- [Election Analysis 2026](/tamil-nadu/election-analysis/2026): Deep analysis of the 2026 Tamil Nadu assembly elections
+- [Election Analysis 2021](/tamil-nadu/election-analysis/2021): Analysis of the 2021 Tamil Nadu assembly elections
+
+## Blog & Analysis
+
+- [Posts](/posts): In-depth articles on Tamil Nadu election history and party analysis
+- [Tamil Nadu 2026 Election Preview](/posts/tamil-nadu-2026-assembly-election-preview)
+- [DMK vs AIADMK: 50-Year Rivalry](/posts/dmk-vs-aiadmk-50-year-rivalry-tamil-nadu)
+- [How to Read Tamil Nadu Election Data](/posts/how-to-read-tamil-nadu-election-data-guide)
+- [Chennai Constituencies Guide](/posts/chennai-assembly-constituencies-guide)
+- [SC/ST Reserved Constituencies](/posts/sc-st-reserved-constituencies-tamil-nadu)
+
+## About
+
+- [About IndiaStats.org](/about): Mission, data sources, methodology, and team
+- [Contact](/contact): Reach the team for data corrections or collaboration
+
+## API Access
+
+The platform exposes a public REST API via PayloadCMS:
+- `GET /api/assemblies?where[districtName][contains]=Chennai`
+- `GET /api/election-history?where[assemblyId][equals]=ac001&where[electionYear][equals]=2021`
+- `GET /api/booths?where[assemblyId][equals]=ac001`
+
+## Contact
+
+- Site: https://indiastats.org
+- Email: contact@indiastats.org
+- X/Twitter: @IndiaStatsOrg
+- GitHub: Open-source project
