@@ -25,6 +25,20 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.clarity.ms https://cdn.clarity.ms",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: https: blob:",
+              "font-src 'self' data:",
+              "connect-src 'self' https://region1.analytics.google.com https://www.google-analytics.com https://t.indiastats.org https://api.mixpanel.com https://api-js.mixpanel.com wss://t.indiastats.org",
+              "frame-src 'none'",
+              "object-src 'none'",
+              "base-uri 'self'",
+            ].join('; '),
+          },
         ],
       },
       // Party logos and static images — immutable assets, 1 year cache

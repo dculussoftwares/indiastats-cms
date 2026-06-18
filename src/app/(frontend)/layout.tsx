@@ -28,8 +28,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://t.indiastats.org" />
+        <link rel="preconnect" href="https://www.clarity.ms" />
+        <link rel="dns-prefetch" href="https://www.clarity.ms" />
+        <link rel="dns-prefetch" href="https://region1.analytics.google.com" />
         {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
-          <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+          <>
+            <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
+            <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+          </>
         )}
         {/* Google Tag Manager */}
         <Script
