@@ -35,8 +35,7 @@ if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_MIXPANEL_TOKEN) {
     track_pageview: true,
     persistence: 'localStorage',
     autocapture: true,
-    record_sessions_percent: 100,
-    ignore_dnt: true,
+    record_sessions_percent: 5,
     // Disable data masking on recordings per official Mixpanel docs
     // Empty strings ensure no text/input masking is applied
     record_mask_text_class: '',

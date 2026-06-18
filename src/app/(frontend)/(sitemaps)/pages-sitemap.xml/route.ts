@@ -61,6 +61,12 @@ const getPagesSitemap = unstable_cache(
       // State-specific pages (one set per registered state)
       ...getAllStates().flatMap((state) => [
         {
+          loc: `${SITE_URL}/${state.slug}`,
+          lastmod: dateFallback,
+          priority: 1.0,
+          changefreq: 'daily' as const,
+        },
+        {
           loc: `${SITE_URL}/${state.slug}/dashboard`,
           lastmod: dateFallback,
           priority: 0.9,

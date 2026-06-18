@@ -4,13 +4,17 @@ import { Loader2 } from 'lucide-react'
 import { ElectionDataTable } from '@/components/ElectionDataTable'
 
 export const metadata: Metadata = {
-  title: 'Tamil Nadu Election Data | IndiaStats',
+  title: 'Tamil Nadu Election Data',
   description:
     'Explore comprehensive Tamil Nadu election data. Filter by year, district, and party. Download as Excel.',
+  alternates: {
+    canonical: 'https://indiastats.org/election-data',
+  },
   openGraph: {
     title: 'Tamil Nadu Election Data | IndiaStats',
     description:
       'Explore comprehensive Tamil Nadu election data. Filter by year, district, and party. Download as Excel.',
+    url: 'https://indiastats.org/election-data',
   },
 }
 

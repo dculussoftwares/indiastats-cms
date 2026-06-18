@@ -21,8 +21,9 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
 
 export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | null
+  path?: string
 }): Promise<Metadata> => {
-  const { doc } = args
+  const { doc, path } = args
 
   const docMeta = doc?.meta as
     | {
@@ -35,11 +36,17 @@ export const generateMeta = async (args: {
 
   const ogImage = getImageURL(docMeta?.image)
 
-  const title = docMeta?.title ? docMeta?.title + ' | IndiaStats.org' : 'IndiaStats.org'
+  // Do not append site name — root layout title template adds it automatically.
+  // Returning the bare title prevents triple-duplication like "Title | IndiaStats.org | IndiaStats.org".
+  const title = docMeta?.title || 'IndiaStats.org'
+
+  const serverUrl = getServerSideURL()
+  const canonicalUrl = path ? `${serverUrl}${path}` : undefined
 
   return {
     description: docMeta?.description,
     keywords: docMeta?.keywords,
+    ...(canonicalUrl && { alternates: { canonical: canonicalUrl } }),
     openGraph: mergeOpenGraph({
       description: docMeta?.description || '',
       images: ogImage
@@ -50,7 +57,7 @@ export const generateMeta = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      ...(canonicalUrl && { url: canonicalUrl }),
     }),
     title,
   }

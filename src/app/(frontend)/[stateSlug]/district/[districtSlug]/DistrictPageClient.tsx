@@ -839,7 +839,7 @@ export function DistrictPageClient({ data, stateSlug, stateName }: DistrictPageC
           data.metaDescription || `Election data for ${data.districtName} district, ${stateName}.`
         }
         url={`https://indiastats.org/${stateSlug}/district/${data.districtSlug}`}
-        assemblyCount={data.noOfAssemblies}
+        assemblies={data.assemblies.map((a) => ({ name: a.name.split(' / ')[1] || a.name }))}
       />
     </div>
   )
