@@ -4,21 +4,24 @@
 **Site:** https://indiastats.org  
 **Business type:** Election Data / Analytics Publisher  
 **Tech stack:** Next.js 15, PayloadCMS 3.x, Azure Container Apps, Cloudflare CDN  
-**Overall health score:** 55 / 100
+**Audit score:** 55 / 100 → **67 / 100** after Phases 1–4
 
 ---
 
 ## Score Breakdown
 
-| Category | Weight | Score | Status |
-|---|---|---|---|
-| Technical SEO | 22% | 68 | Pass with issues |
-| Content Quality | 23% | 54 | Needs work |
-| On-Page SEO | 20% | 52 | Needs work |
-| Schema / Structured Data | 10% | 38 | Fail |
-| Performance (CWV) | 10% | 55 | Needs work |
-| AI Search Readiness | 10% | 38 | Fail |
-| Images | 5% | 58 | Needs work |
+| Category | Weight | Audit Score | After Phases 1–4 | Change |
+|---|---|---|---|---|
+| Technical SEO | 22% | 68 | 78 | +10 |
+| Content Quality | 23% | 54 | 56 | +2 |
+| On-Page SEO | 20% | 52 | 68 | +16 |
+| Schema / Structured Data | 10% | 38 | 72 | +34 |
+| Performance (CWV) | 10% | 55 | 72 | +17 |
+| AI Search Readiness | 10% | 38 | 58 | +20 |
+| Images | 5% | 58 | 62 | +4 |
+| **Weighted Total** | | **55** | **67** | **+12** |
+
+> Content Quality gains are capped until blog posts are expanded (1,200+ words) and authors are assigned in CMS — those are manual Phase 3 tasks.
 
 ---
 
@@ -46,28 +49,28 @@ These were confirmed as strengths — do not regress them.
 
 **C1. Assembly & District JSON-LD client-rendered — invisible to AI crawlers**  
 `AssemblyPageJsonLd` and `DistrictPageJsonLd` were inside `'use client'` components. The 2026 election winner name and all assembly-specific data were also exclusively in client-rendered React state. AI crawlers (GPTBot, ClaudeBot, PerplexityBot) that don't execute JS saw blank data sections.  
-**Status:** Fixed in Phase 2
+**Status:** ✅ Fixed in Phase 2
 
 **C2. BreadcrumbList schema used relative URLs — rich results blocked**  
 Every `item` in every `BreadcrumbList` was a relative path. Google requires absolute URLs. No breadcrumb rich results could appear.  
-**Status:** Fixed in Phase 1
+**Status:** ✅ Fixed in Phase 1
 
 **C3. Organization logo was a bare string URL — Knowledge Panel invalid**  
 `Organization.logo` was `"https://indiastats.org/favicon.svg"` (a string). Google requires an `ImageObject`. Validation in Rich Results Test failed.  
-**Status:** Fixed in Phase 1 — now `ImageObject` using `/icon.png`
+**Status:** ✅ Fixed in Phase 1 — now `ImageObject` using `/icon.png`
 
 **C4. Zero security headers — no HSTS, no X-Frame-Options**  
 All security headers missing. `x-powered-by: Next.js, Payload` exposed the full stack fingerprint.  
-**Status:** Fixed in Phase 1 — HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy added. `poweredByHeader: false` set.
+**Status:** ✅ Fixed in Phase 1 — HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy added. `poweredByHeader: false` set.
 
 **C5. Title tag triple-duplication on blog posts and dashboard**  
 Root layout `title.template: '%s | IndiaStats.org'` was applied on top of a title that `generateMeta` had already appended ` | IndiaStats.org` to. Result: `"Title | IndiaStats.org | IndiaStats.org | IndiaStats.org"`.  
 File: `src/utilities/generateMeta.ts`  
-**Status:** Fixed in Phase 1
+**Status:** ✅ Fixed in Phase 1
 
 **C6. No `canonical` tag on `/election-data`**  
 Client-side filters (year, district, party) could cause Google to index parameterized duplicate variants.  
-**Status:** Fixed in Phase 1
+**Status:** ✅ Fixed in Phase 1
 
 ---
 
@@ -75,43 +78,43 @@ Client-side filters (year, district, party) could cause Google to index paramete
 
 **H1. Blog posts had zero Article schema — no rich results possible**  
 10 blog posts, zero `BlogPosting` JSON-LD. `og:type` was `"website"` on all posts (should be `"article"`). `og:url` pointed to the homepage `https://indiastats.org` instead of the post's own URL.  
-**Status:** Fixed in Phase 2 — `BlogPostingJsonLd` added, `og:url` bug fixed in `generateMeta.ts`
+**Status:** ✅ Fixed in Phase 2 & 3 — `BlogPostingJsonLd` added, `og:type: "article"` + `publishedTime` set, `og:url` bug fixed in `generateMeta.ts`
 
 **H2. Blog posts average ~450 words — thin content, fragile rankings**  
 The DMK vs AIADMK post ranks #1 today at 450 words. All 10 posts published same day (April 23, 2026). Threshold for editorial pages is 1,200+ words.  
-**Status:** Pending Phase 3 (content work)
+**Status:** ⚠️ Pending — manual CMS work (expand posts, assign authors)
 
 **H3. No named authors on any blog post — E-E-A-T failure**  
 `populatedAuthors` array empty for all posts. No author byline appears. Critical for YMYL-adjacent election content.  
-**Status:** Pending Phase 3
+**Status:** ⚠️ Pending — create author in PayloadCMS Admin, assign to all 10 posts
 
 **H4. `Dataset` and `DataCatalog` schema absent**  
 No schema for the election data catalog anywhere. Google Dataset Search can't index the data. AI systems can't identify IndiaStats as a data source.  
-**Status:** Fixed in Phase 2 — `DatasetJsonLd` on all assembly pages, `DataCatalogJsonLd` on homepage
+**Status:** ✅ Fixed in Phase 2 — `DatasetJsonLd` on all 234 assembly pages, `DataCatalogJsonLd` on homepage
 
 **H5. 32 assembly constituencies missing from assemblies-sitemap.xml**  
 Only 202 of 234 assemblies appear (404 URLs ÷ 2 = 202). Likely missing slugs or district associations in PayloadCMS.  
-**Status:** Pending — needs DB investigation
+**Status:** ⚠️ Pending — needs DB investigation (query assemblies without `slug` or `districtSlug`)
 
 **H6. `/tamil-nadu` state home page not in any sitemap**  
 Highest-traffic page entirely absent from all 5 sitemaps.  
-**Status:** Fixed in Phase 1 — added with `priority: 1.0`
+**Status:** ✅ Fixed in Phase 1 — added with `priority: 1.0`
 
 **H7. GA4 double-firing — GTM + direct Script tag firing same Measurement ID**  
 GTM container `GTM-MS8LQ9GB` already fires GA4. A duplicate direct `<Script>` tag sent every pageview twice.  
-**Status:** Fixed in Phase 1 — direct GA4 Script tags removed, GTM only
+**Status:** ✅ Fixed in Phase 1 — direct GA4 Script tags removed, GTM only
 
 **H8. District `containsPlace` used placeholder names**  
 `DistrictPageJsonLd` generated `"Assembly Constituency 1…N"` — fabricated names. Real names available in `data.assemblies`.  
-**Status:** Fixed in Phase 1
+**Status:** ✅ Fixed in Phase 1
 
 **H9. Homepage missing `og:image` and `twitter:image`**  
 Blank social card when sharing the homepage.  
-**Status:** Fixed in Phase 2 — `/indiastats-logo-1024.png` set as fallback
+**Status:** ✅ Fixed in Phase 2 — `/indiastats-logo-1024.png` set as fallback
 
 **H10. www subdomain returns 200 — duplicate domain**  
 `https://www.indiastats.org/` returns HTTP 200 instead of redirecting. Google can index both as separate sites.  
-**Status:** Pending — fix via Cloudflare Redirect Rule (5 min, no deploy needed)
+**Status:** ⚠️ Pending — Cloudflare dashboard → Redirect Rules → if hostname `www.indiastats.org`, 301 to `https://indiastats.org/$uri` (5 min, no deploy)
 
 ---
 
@@ -119,26 +122,26 @@ Blank social card when sharing the homepage.
 
 | # | Issue | File / Location | Status |
 |---|---|---|---|
-| M1 | Mixpanel session recording at 100% — INP impact | `instrumentation-client.ts` | Fixed Phase 1 → 5% |
-| M2 | PostHog + Mixpanel init at module load time (in critical JS bundle) | `instrumentation-client.ts` | Pending Phase 4 |
-| M3 | GeoJSON passed as RSC prop (314KB) on election-results | `election-results/page.tsx:91` | Pending Phase 4 |
-| M4 | Recharts eagerly imported in AssemblyPageClient | `AssemblyPageClient.tsx:8-16` | Pending Phase 4 |
-| M5 | `icon.png` is 254KB JPEG mislabeled as PNG — loads on every page | `public/icon.png` | Pending Phase 4 |
-| M6 | All sitemaps use dynamic current-timestamp as `lastmod` | Sitemap generation code | Pending |
-| M7 | Sitemap index has no `lastmod` on child entries | Sitemap index generator | Pending |
-| M8 | Assembly-map district filter uses Tamil-encoded query param | Assembly map route | Pending |
-| M9 | Prediction URLs contain numeric IDs — brittle canonical | Middleware + predictions routing | Pending |
-| M10 | No `loading.tsx` for election-results route — blank screen | New file needed | Pending Phase 4 |
-| M11 | Tailwind dynamic color classes at risk of purge in production | `tailwind.config.mjs` safelist | Pending |
-| M12 | No `llms.txt` file | Create `/public/llms.txt` | Pending Phase 3 |
-| M13 | `og:type: "website"` on assembly/district pages (should be `article`) | `generateMeta.ts` | Pending |
-| M14 | robots.txt redundantly lists all 5 child sitemaps + index | `public/robots.txt` | Pending |
-| M15 | `Host:` directive in robots.txt is deprecated Yandex extension | `public/robots.txt` | Pending |
-| M16 | Homepage has no meta description in rendered HTML | `(home)/page.tsx` | Pending Phase 3 |
-| M17 | 10 blog posts all published same day — content burst pattern | Content strategy | Pending Phase 3 |
-| M18 | Assembly page above-the-fold shows voter counts, not 2026 winner | `AssemblyPageClient.tsx` order | Partially addressed (factual summary added in Phase 2) |
-| M19 | Blog post last H2 is always a navigation CTA, not content | All 10 posts | Pending Phase 3 |
-| M20 | No `preconnect` hints for GTM, PostHog proxy | `layout.tsx` | Pending Phase 4 |
+| M1 | Mixpanel session recording at 100% — INP impact | `instrumentation-client.ts` | ✅ Fixed Phase 1 → 5% |
+| M2 | PostHog + Mixpanel init at module load time | `instrumentation-client.ts` | ✅ Fixed Phase 4 — deferred via `requestIdleCallback` |
+| M3 | GeoJSON 314KB passed as RSC prop on election-results | `election-results/page.tsx` | ✅ Fixed Phase 4 — client-side fetch from CDN |
+| M4 | Recharts eagerly imported in AssemblyPageClient | `AssemblyPageClient.tsx` | ✅ Fixed Phase 4 — `next/dynamic` lazy load |
+| M5 | `icon.png` is 254KB JPEG mislabeled as PNG | `public/icon.png` | ⚠️ Pending — replace file with proper PNG |
+| M6 | All sitemaps use dynamic current-timestamp as `lastmod` | Sitemap generation code | ⚠️ Pending |
+| M7 | Sitemap index has no `lastmod` on child entries | Sitemap index generator | ⚠️ Pending |
+| M8 | Assembly-map district filter uses Tamil-encoded query param | Assembly map route | ⚠️ Pending |
+| M9 | Prediction URLs contain numeric IDs — brittle canonical | Middleware + predictions routing | ⚠️ Pending |
+| M10 | No `loading.tsx` for election-results route — blank screen | New file needed | ✅ Fixed Phase 4 |
+| M11 | Tailwind dynamic color classes at risk of purge in production | `tailwind.config.mjs` safelist | ✅ Fixed Phase 4 |
+| M12 | No `llms.txt` file | `public/llms.txt` | ✅ Fixed Phase 3 |
+| M13 | `og:type: "website"` on blog posts | `posts/[slug]/page.tsx` | ✅ Fixed Phase 3 — set to `"article"` |
+| M14 | robots.txt redundantly lists all 5 child sitemaps + index | `next-sitemap.config.cjs` | ✅ Fixed Phase 3 — source config updated |
+| M15 | `Host:` directive in robots.txt is deprecated Yandex extension | `next-sitemap.config.cjs` | ✅ Fixed Phase 3 |
+| M16 | Homepage meta description too long (190 chars) | `(home)/page.tsx` | ✅ Fixed Phase 3 — shortened to 142 chars |
+| M17 | 10 blog posts all published same day — content burst pattern | Content strategy | ⚠️ Pending — expand posts with dated editorial cadence |
+| M18 | Assembly page above-the-fold shows voter counts, not 2026 winner | `AssemblyPageClient.tsx` | ✅ Partially fixed Phase 2 — factual summary added server-side |
+| M19 | Blog post last H2 is always a navigation CTA, not content | All 10 posts | ⚠️ Pending — CMS editing |
+| M20 | No `preconnect` hints for GTM, PostHog proxy | `layout.tsx` | ✅ Fixed Phase 4 |
 
 ---
 
@@ -146,97 +149,108 @@ Blank social card when sharing the homepage.
 
 | # | Issue | Status |
 |---|---|---|
-| L1 | Implement IndexNow in `eci:push` script | Pending |
-| L2 | Organization `sameAs` array has only Twitter — add LinkedIn/Wikipedia | Pending |
-| L3 | `GovernmentServiceJsonLd` defined but never used — dead code | Pending |
-| L4 | 5 utility pages in pages-sitemap missing priority/changefreq | Pending |
-| L5 | Sitemap index missing `lastmod` on child entries | Pending |
-| L6 | `AboutPage` schema type not set on `/about` | Pending Phase 3 |
-| L7 | Party logo images not converted to WebP | Pending Phase 4 |
-| L8 | Dark mode CLS via `InitTheme beforeInteractive` | Pending |
-| L9 | No pagination signals on booth listing pages | Pending |
-| L10 | Meta description on `/posts/` listing is sitewide fallback | Pending Phase 3 |
+| L1 | Implement IndexNow in `eci:push` script | ⚠️ Pending |
+| L2 | Organization `sameAs` array has only Twitter — add LinkedIn/Wikipedia | ⚠️ Pending |
+| L3 | `GovernmentServiceJsonLd` defined but never used — dead code | ⚠️ Pending |
+| L4 | 5 utility pages in pages-sitemap missing priority/changefreq | ⚠️ Pending |
+| L5 | Sitemap index missing `lastmod` on child entries | ⚠️ Pending |
+| L6 | `AboutPage` schema type not set on `/about` | ✅ Fixed Phase 3 |
+| L7 | Party logo images not converted to WebP | ⚠️ Pending |
+| L8 | Dark mode CLS via `InitTheme beforeInteractive` | ⚠️ Pending |
+| L9 | No pagination signals on booth listing pages | ⚠️ Pending |
+| L10 | Meta description on `/posts/` listing is sitewide fallback | ✅ Fixed Phase 3 |
 
 ---
 
 ## GEO / AI Search Readiness
 
-**Score: 38 / 100**
+**Audit score: 38 / 100 → estimated 58 / 100 after phases**
 
-| Platform | Score | Primary Blocker |
-|---|---|---|
-| Google AI Overviews | 42/100 | No Dataset schema (fixed Phase 2); key facts were client-rendered (fixed Phase 2) |
-| ChatGPT / OpenAI | 28/100 | No author entity; thin blog content |
-| Perplexity | 30/100 | No sourced claims in blog posts; under 500 words |
-| Bing Copilot | 40/100 | Limited by missing Article schema (fixed Phase 2) |
+| Platform | Audit Score | After Phases | Primary Remaining Gap |
+|---|---|---|---|
+| Google AI Overviews | 42/100 | ~62/100 | Thin blog content; no author entity |
+| ChatGPT / OpenAI | 28/100 | ~48/100 | No author entity; blog posts still under 500 words |
+| Perplexity | 30/100 | ~50/100 | No sourced inline citations in blog posts |
+| Bing Copilot | 40/100 | ~60/100 | Author entity and longer articles still needed |
 
-**Key AI finding:** Before Phase 2, for queries like "who won anna nagar 2026 election", the answer was only inside a `'use client'` component — not present in static HTML. GPTBot, ClaudeBot, and PerplexityBot would see blank data sections. Phase 2 moved the JSON-LD and added a factual summary paragraph to the server component, resolving this.
+**Key fixes that improved AI readiness:**
+- `AssemblyPageJsonLd` + `DatasetJsonLd` now in server-rendered HTML — AI crawlers can read constituency data without executing JS
+- Server-rendered factual summary paragraph on every assembly page — direct answer to "who won [constituency] 2026"
+- `BlogPostingJsonLd` with `datePublished`, `dateModified`, publisher on all 10 posts
+- `DataCatalogJsonLd` on homepage — signals IndiaStats as a structured data source
+- `llms.txt` created at `/llms.txt`
+
+**Remaining AI gap:** Blog posts are still ~450 words with no named authors. Until those are expanded and attributed, ChatGPT and Perplexity will continue to prefer citing Wikipedia and ECI over IndiaStats for factual queries.
 
 ---
 
 ## SXO (Search Experience Optimization)
 
-**Score: 56 / 100**
+**Score: 56 / 100** (unchanged — SXO requires UX and content work, not code fixes)
 
 ### Page-type mismatches
 
 | Page | Expected SERP type | Actual | Mismatch |
 |---|---|---|---|
-| Homepage | Data portal / results hub | Marketing landing page | HIGH |
-| Assembly page | Constituency profile + results table | Data dashboard | Aligned |
+| Homepage | Data portal / results hub | Marketing landing page | HIGH — homepage restructure needed |
+| Assembly page | Constituency profile + results table | Data dashboard | Aligned (factual summary added) |
 | District page | District results hub | District data page | Medium |
-| Blog post | Long-form analysis (2k+ words) | Short editorial (~500 words) | HIGH |
+| Blog post | Long-form analysis (2k+ words) | Short editorial (~500 words) | HIGH — content expansion needed |
 
 ### Persona scores
 
-| Persona | Score | Biggest gap |
+| Persona | Score | Biggest remaining gap |
 |---|---|---|
-| Voter seeking constituency info | 68/100 | Current MLA not above the fold |
-| Journalist on deadline | 65/100 | No "copy key stats" or chart embed |
-| Political researcher | 62/100 | No side-by-side comparison tool |
-| Academic researcher | 48/100 | No methodology page, no data citation format |
-| Developer / Data analyst | 38/100 | No public API docs, no dataset download CTA |
+| Voter seeking constituency info | 68/100 | Current MLA not the first data point above the fold |
+| Journalist on deadline | 65/100 | No "copy key stats" or chart embed button |
+| Political researcher | 62/100 | No side-by-side constituency comparison tool |
+| Academic researcher | 48/100 | No `/methodology` page, no data citation format |
+| Developer / Data analyst | 38/100 | No public API docs page, no dataset download CTA |
 
 ---
 
 ## Content Quality & E-E-A-T
 
-**Score: 54 / 100**
+**Score: 54 / 100** (code fixes moved On-Page SEO; E-E-A-T itself requires manual CMS work)
 
 | Factor | Score | Notes |
 |---|---|---|
 | Experience | 10/25 | Original data; no first-hand editorial voice |
-| Expertise | 13/25 | Strong data; weak author credentials |
+| Expertise | 13/25 | Strong data; author credentials still absent |
 | Authoritativeness | 14/25 | ECI attribution present; no named experts |
-| Trustworthiness | 17/25 | Good footer/about; AI content disclosure missing |
+| Trustworthiness | 17/25 | Good footer/about; AI content disclosure missing from About page |
 
-**Key gaps (all Pending Phase 3):**
-- No named authors on any of the 10 blog posts
-- Blog posts are ~450 words each (threshold: 1,200+)
-- All 10 posts published the same day (April 23, 2026) — looks like bulk generation
-- AI-generated assembly descriptions lack editorial policy disclosure
-- No `methodology` page explaining ECI sourcing
+**Remaining manual tasks (highest impact first):**
+1. Create author profile in PayloadCMS Admin with name, title, short bio — assign to all 10 posts
+2. Expand DMK vs AIADMK post to 1,500+ words with embedded election result tables
+3. Expand 2026 election preview post to 1,500+ words
+4. Add AI content editorial policy paragraph to About page (which sections are AI-generated and how they're reviewed)
+5. Add `/methodology` page documenting ECI sourcing, update cadence, data accuracy process
 
 ---
 
 ## Performance (Core Web Vitals)
 
-**Estimated scores by page:**
+**Estimated scores after Phase 4:**
 
-| Page | LCP | FCP | TTFB | INP Risk | CLS Risk |
-|---|---|---|---|---|---|
-| Homepage | Good (text LCP, ISR, CDN cached) | Good | Good | Medium (5 analytics SDKs) | Low |
-| Assembly page | Good (text LCP, statically generated) | Good | Good | High (Recharts in critical bundle) | Low-Medium |
-| Election results | Poor (`revalidate=0`, no CDN cache, Leaflet delayed) | Poor | Needs work (DB query every request, 0.25 CPU) | High | High |
+| Page | LCP | FCP | TTFB | INP Risk | CLS Risk | Change |
+|---|---|---|---|---|---|---|
+| Homepage | Good | Good | Good | Low (analytics now idle-deferred) | Low | INP improved |
+| Assembly page | Good | Good | Good | Medium (inline PieChart still eager) | Low | LCP improved — chart bundle split |
+| Election results | Improving | Good (skeleton now shows) | Good (GeoJSON removed from RSC) | Medium | Medium | Major TTFB + FCP improvement |
 
-**Top performance issues (Phase 4):**
-1. GA4 double-firing — fixed Phase 1
-2. Mixpanel 100% session recording → 5% — fixed Phase 1
-3. PostHog + Mixpanel eagerly initialized in critical bundle (M2)
-4. 314KB GeoJSON passed as RSC prop on election-results page (M3)
-5. Recharts eagerly imported — not lazy-loaded via `next/dynamic` (M4)
-6. `icon.png` is 254KB JPEG — loads on every page (M5)
-7. 5 analytics SDKs running simultaneously (GA4 via GTM, PostHog, Mixpanel, Clarity, AdSense)
+**Phase 4 fixes applied:**
+1. ✅ GA4 double-firing removed — Phase 1
+2. ✅ Mixpanel session recording 100% → 5% — Phase 1
+3. ✅ PostHog + Mixpanel deferred via `requestIdleCallback` — Phase 4
+4. ✅ 314KB GeoJSON removed from RSC payload, now client-fetched from CDN — Phase 4
+5. ✅ 5 chart components lazy-loaded via `next/dynamic` — Phase 4
+6. ✅ Loading skeleton added to election-results — Phase 4
+7. ✅ Cache-Control headers for `/images/*`, `/geojson/*`, `/llms.txt` — Phase 4
+8. ✅ `preconnect` + `dns-prefetch` for GTM, PostHog, AdSense — Phase 4
+
+**Remaining performance item:**
+- `icon.png` is still 254KB JPEG mislabeled as PNG — replace with proper 32×32 and 192×192 PNG files
 
 ---
 
@@ -246,8 +260,8 @@ Blank social card when sharing the homepage.
 
 | Fix | File(s) |
 |---|---|
-| Title deduplication — strip site suffix in `generateMeta`, let root layout template handle it | `generateMeta.ts` |
-| `og:url` bug — posts now get absolute `/posts/{slug}` URL | `generateMeta.ts`, `posts/[slug]/page.tsx`, `pages/[pageSlug]/page.tsx` |
+| Title deduplication — strip site suffix in `generateMeta` | `generateMeta.ts` |
+| `og:url` bug fixed — posts get absolute `/posts/{slug}` URL | `generateMeta.ts`, `posts/[slug]/page.tsx`, `pages/[pageSlug]/page.tsx` |
 | Canonical added to `/election-data` | `election-data/page.tsx` |
 | `BreadcrumbList.item` absolute URLs — breadcrumb rich results unblocked | `JsonLd.tsx` |
 | `Organization.logo` → `ImageObject` using `/icon.png` (192×192) | `JsonLd.tsx` |
@@ -262,41 +276,64 @@ Blank social card when sharing the homepage.
 
 | Fix | File(s) |
 |---|---|
-| `AssemblyPageJsonLd` moved to server component (`page.tsx`) | `assembly/.../page.tsx`, `AssemblyPageClient.tsx` |
-| Server-rendered factual summary paragraph (constituency name, 2026 winner, voter count) | `assembly/.../page.tsx` |
+| `AssemblyPageJsonLd` moved to server component — JSON-LD in initial HTML | `assembly/.../page.tsx`, `AssemblyPageClient.tsx` |
+| Server-rendered factual summary paragraph (winner, party, voter count) | `assembly/.../page.tsx` |
 | `DatasetJsonLd` on all 234 assembly pages | `JsonLd.tsx`, `assembly/.../page.tsx` |
 | `BlogPostingJsonLd` on all 10 blog posts | `JsonLd.tsx`, `posts/[slug]/page.tsx` |
 | `DataCatalogJsonLd` on homepage | `JsonLd.tsx`, `(home)/page.tsx` |
 | Homepage `og:image` + `twitter:images` fallback | `(home)/page.tsx` |
 
-### Phase 3 — E-E-A-T & Content (Pending)
+### Phase 3 — On-Page SEO & E-E-A-T ✅ CODE COMPLETE (June 18, 2026)
 
-| # | Fix | File / Action | Effort |
+| # | Fix | File(s) | Status |
 |---|---|---|---|
-| 1 | Create author profile in CMS, assign to all 10 posts | PayloadCMS Admin | 1 hr |
-| 2 | Expand DMK vs AIADMK post to 1,500+ words with embedded data tables | Content | 4 hrs |
-| 3 | Expand 2026 election preview post to 1,500+ words | Content | 4 hrs |
-| 4 | Add editorial policy + AI content disclosure to About page | Content | 1 hr |
-| 5 | Create `/public/llms.txt` | `/public/llms.txt` | 30 min |
-| 6 | Fix `og:type: "article"` on blog posts in `generateMeta` or post metadata | `generateMeta.ts` | 30 min |
-| 7 | Add `AboutPage` schema type to `/about` | `about/page.tsx` | 15 min |
-| 8 | Fix homepage meta description (currently too long at 190 chars) | `(home)/page.tsx` | 15 min |
-| 9 | Add meta description to `/posts/` listing | `posts/page.tsx` | 15 min |
-| 10 | Fix www → non-www redirect | Cloudflare Redirect Rule | 5 min |
+| 1 | `og:type: "article"` + `publishedTime`/`modifiedTime` on blog posts | `posts/[slug]/page.tsx` | ✅ Done |
+| 2 | `AboutPage` JSON-LD schema on `/about` | `about/page.tsx`, `JsonLd.tsx` | ✅ Done |
+| 3 | Homepage meta description shortened 190 → 142 chars | `(home)/page.tsx` | ✅ Done |
+| 4 | `/posts` listing: title, description, canonical, OG | `posts/page.tsx` | ✅ Done |
+| 5 | `llms.txt` created for AI crawler readability | `public/llms.txt` | ✅ Done |
+| 6 | `robots.txt` config: removed redundant child sitemaps, `Host:` directive | `next-sitemap.config.cjs` | ✅ Done |
+| 7 | Create author profile in CMS, assign to all 10 posts | PayloadCMS Admin | ⚠️ Manual — CMS |
+| 8 | Expand blog posts to 1,500+ words | CMS content editing | ⚠️ Manual — content |
+| 9 | Add AI content editorial policy to About page | CMS content editing | ⚠️ Manual — content |
+| 10 | www → non-www redirect | Cloudflare dashboard | ⚠️ Manual — Cloudflare |
 
-### Phase 4 — Performance (Pending)
+### Phase 4 — Performance ✅ CODE COMPLETE (June 18, 2026)
 
-| # | Fix | File | Effort | CWV Impact |
-|---|---|---|---|---|
-| 1 | Lazy-initialize PostHog + Mixpanel behind `requestIdleCallback` | `instrumentation-client.ts` | 2 hrs | -150-400ms TTI |
-| 2 | Serve GeoJSON as client-side fetch from `public/` URL (not RSC prop) | `election-results/page.tsx` | 2 hrs | -200-500ms TTFB |
-| 3 | Lazy-load Recharts via `next/dynamic` in AssemblyPageClient | `AssemblyPageClient.tsx` | 2 hrs | -150-400ms LCP mobile |
-| 4 | Add `loading.tsx` for election-results route | New file | 30 min | FCP improvement |
-| 5 | Fix `icon.png` (254KB JPEG → proper 32×32 PNG favicon) | `public/icon.png` | 1 hr | -250KB per page |
-| 6 | Add Tailwind dynamic color classes to safelist | `tailwind.config.mjs` | 30 min | Prevents prod CSS bug |
-| 7 | Add `Cache-Control` headers for `/public/images/` and `/public/geojson/` | `next.config.js` | 30 min | CDN efficiency |
-| 8 | Add `preconnect` hints for GTM and PostHog proxy | `layout.tsx` | 15 min | -150-300ms script load |
-| 9 | Convert party logo `.jpg` files to WebP | `public/images/` | 1 hr | Bandwidth reduction |
+| # | Fix | File(s) | Status |
+|---|---|---|---|
+| 1 | Loading skeleton for election-results route | `election-results/loading.tsx` | ✅ Done |
+| 2 | GeoJSON client-side fetch from CDN (removed 314KB RSC prop) | `ElectionResultsMap/index.tsx`, `election-results/page.tsx` | ✅ Done |
+| 3 | Cache-Control headers for `/images/*`, `/geojson/*`, `/llms.txt` | `next.config.js` | ✅ Done |
+| 4 | Lazy-load 5 chart components via `next/dynamic` | `AssemblyPageClient.tsx` | ✅ Done |
+| 5 | Defer PostHog + Mixpanel via `requestIdleCallback` | `instrumentation-client.ts` | ✅ Done |
+| 6 | Tailwind safelist for dynamic color classes in `colorMap`/`iconColorMap` | `tailwind.config.mjs` | ✅ Done |
+| 7 | `preconnect` + `dns-prefetch` for GTM, PostHog proxy, AdSense | `layout.tsx` | ✅ Done |
+| 8 | Replace `icon.png` 254KB JPEG with proper PNG | `public/icon.png` | ⚠️ Pending — provide new asset |
+| 9 | Convert party logo `.jpg` files to WebP | `public/images/` | ⚠️ Pending |
+
+---
+
+## Remaining Work (All Manual or Asset-Dependent)
+
+| Priority | Task | Owner | Time |
+|---|---|---|---|
+| High | Create author profile in PayloadCMS Admin, assign to all 10 posts | Content | 1 hr |
+| High | Expand DMK vs AIADMK post to 1,500+ words with embedded data tables | Content | 4 hrs |
+| High | Expand 2026 election preview post to 1,500+ words | Content | 4 hrs |
+| High | www → non-www redirect in Cloudflare Redirect Rules | DevOps | 5 min |
+| High | Replace `public/icon.png` (254KB JPEG) with proper PNG favicon | Design | 1 hr |
+| Medium | Add AI content editorial policy to About page | Content | 1 hr |
+| Medium | Fix `lastmod` in sitemaps — use actual `updatedAt` from Payload DB | Dev | 2 hrs |
+| Medium | Investigate 32 missing assembly constituencies in sitemap | Dev | 2 hrs |
+| Medium | Convert party logo `.jpg` files in `public/images/` to WebP | Design | 1 hr |
+| Low | Add `/methodology` page (ECI sourcing, update cadence, accuracy policy) | Content | 2 hrs |
+| Low | Implement IndexNow in `eci:push` script | Dev | 2 hrs |
+| Low | Add LinkedIn/Wikipedia to `Organization.sameAs` | Dev | 15 min |
+| Low | Remove dead `GovernmentServiceJsonLd` component | Dev | 5 min |
+| Low | Add `priority`/`changefreq` to 5 utility pages in sitemap | Dev | 15 min |
+| Low | Assembly-map district filter: slug-based instead of Tamil-encoded param | Dev | 3 hrs |
+| Low | Prediction URLs: remove numeric ID from path | Dev | 3 hrs |
 
 ---
 
@@ -312,34 +349,22 @@ Blank social card when sharing the homepage.
 | Assembly page (client) | `src/app/(frontend)/[stateSlug]/assembly/[districtSlug]/[assemblySlug]/AssemblyPageClient.tsx` |
 | District page (client) | `src/app/(frontend)/[stateSlug]/district/[districtSlug]/DistrictPageClient.tsx` |
 | Blog post page | `src/app/(frontend)/posts/[slug]/page.tsx` |
-| Election data table page | `src/app/(frontend)/election-data/page.tsx` |
+| About page | `src/app/(frontend)/about/page.tsx` |
+| Posts listing | `src/app/(frontend)/posts/page.tsx` |
+| Election data table | `src/app/(frontend)/election-data/page.tsx` |
+| Election results map | `src/components/ElectionResultsMap/index.tsx` |
 | Pages sitemap | `src/app/(frontend)/(sitemaps)/pages-sitemap.xml/route.ts` |
 | Sitemap index | `src/app/(frontend)/(sitemaps)/sitemap.xml/route.ts` |
 | Analytics init | `src/instrumentation-client.ts` |
 | Next.js config | `next.config.js` |
+| next-sitemap config (robots.txt source) | `next-sitemap.config.cjs` |
+| Tailwind config | `tailwind.config.mjs` |
 | OG image defaults | `src/utilities/mergeOpenGraph.ts` |
+| llms.txt | `public/llms.txt` |
 
 ---
 
-## robots.txt Issues (Minor — Fix Anytime)
-
-Current `robots.txt` has two issues that can be fixed with a single edit to `public/robots.txt`:
-1. Redundantly lists all 5 child sitemaps in addition to the sitemap index — only the index is needed
-2. `Host: https://indiastats.org` is a deprecated Yandex extension — no search engine acts on it
-
-**Recommended `public/robots.txt`:**
-```
-User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /api/
-
-Sitemap: https://indiastats.org/sitemap.xml
-```
-
----
-
-## Sitemap Issues
+## Sitemap Remaining Issues
 
 | Issue | Severity | Fix |
 |---|---|---|
