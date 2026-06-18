@@ -51,13 +51,3 @@ export interface StateConfig {
     boothCountLabel: string
     voterCountLabel: string
 }
-
-// Default colors for common parties (can be overridden per state)
-export const DEFAULT_PARTY_COLORS: Record<string, string> = {
-    BJP: '#FF9933',    // Saffron
-    INC: '#00BFFF',    // Congress blue
-    'CPI': '#CC0000',  // Communist red
-    'CPI(M)': '#CC0000',
-    NOTA: '#808080',   // Gray
-    IND: '#808080',    // Gray for Independents
-}
