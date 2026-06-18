@@ -57,6 +57,17 @@ export default async function Page() {
 
 export function generateMetadata(): Metadata {
   return {
-    title: `IndiaStats.org Posts`,
+    title: 'Tamil Nadu Election Analysis & Guides',
+    description:
+      'In-depth analysis of Tamil Nadu elections — party rivalries, constituency histories, demographic breakdowns, and data-backed political journalism from IndiaStats.org.',
+    alternates: {
+      canonical: 'https://indiastats.org/posts',
+    },
+    openGraph: {
+      title: 'Tamil Nadu Election Analysis & Guides | IndiaStats.org',
+      description:
+        'In-depth analysis of Tamil Nadu elections — party rivalries, constituency histories, demographic breakdowns, and data-backed political journalism.',
+      url: 'https://indiastats.org/posts',
+    },
   }
 }
