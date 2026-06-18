@@ -37,7 +37,7 @@ if (typeof window !== 'undefined') {
 // ── Types ────────────────────────────────────────────────────────────────────
 export type ElectionResultsMapProps = {
   data: ElectionResultsDataset
-  geoJson: any
+  geoJsonUrl: string
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -678,8 +678,9 @@ function StatusBarRow({
 }
 
 // ── Main component ───────────────────────────────────────────────────────────
-export function ElectionResultsMap({ data, geoJson }: ElectionResultsMapProps) {
+export function ElectionResultsMap({ data, geoJsonUrl }: ElectionResultsMapProps) {
   const mapRef = useRef<any>(null)
+  const [geoJson, setGeoJson] = useState<any>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [popupPos, setPopupPos] = useState<[number, number] | null>(null)
   const [activeParty, setActiveParty] = useState<string | null>(null)
@@ -700,6 +701,14 @@ export function ElectionResultsMap({ data, geoJson }: ElectionResultsMapProps) {
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
   }, [])
+
+  // Fetch GeoJSON client-side from Cloudflare CDN instead of embedding in RSC payload
+  useEffect(() => {
+    fetch(geoJsonUrl)
+      .then((r) => r.json())
+      .then(setGeoJson)
+      .catch(() => {/* map renders without boundaries on error */})
+  }, [geoJsonUrl])
 
   // Dismiss tooltip after first seat click or after 8s
   useEffect(() => {

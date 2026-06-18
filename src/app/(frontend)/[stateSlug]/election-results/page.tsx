@@ -5,7 +5,6 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 
 import { getStateBySlug } from '@/config/states'
-import { loadStateGeoJson } from '@/lib/loadStateGeoJson'
 import { ElectionResultsMap } from '@/components/ElectionResultsMap'
 import { buildLiveResultsDataset, type LiveResultDoc } from '@/lib/liveResults'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -87,7 +86,7 @@ export default async function ElectionResultsPage({ params }: Props) {
 
   return (
     <div className="relative h-screen overflow-hidden">
-      <ElectionResultsMap data={data} geoJson={loadStateGeoJson(stateConfig)} />
+      <ElectionResultsMap data={data} geoJsonUrl={stateConfig.mapGeoJson} />
     </div>
   )
 }
