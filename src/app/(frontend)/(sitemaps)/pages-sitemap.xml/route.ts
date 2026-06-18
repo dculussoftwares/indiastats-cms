@@ -28,77 +28,62 @@ const getPagesSitemap = unstable_cache(
       },
     })
 
-    const dateFallback = new Date().toISOString()
+    // Use current timestamp only for pages that genuinely update frequently.
+    // Static pages use a stable date so Google doesn't see spurious "modified" signals.
+    const now = new Date().toISOString()
+    const stableDate = '2026-04-23T21:10:30.000Z' // last major content update
 
     const defaultSitemap = [
-      {
-        loc: `${SITE_URL}/search`,
-        lastmod: dateFallback,
-      },
-      {
-        loc: `${SITE_URL}/posts`,
-        lastmod: dateFallback,
-      },
-      {
-        loc: `${SITE_URL}/about`,
-        lastmod: dateFallback,
-      },
-      {
-        loc: `${SITE_URL}/contact`,
-        lastmod: dateFallback,
-      },
-      {
-        loc: `${SITE_URL}/terms`,
-        lastmod: dateFallback,
-      },
+      // Utility / info pages — low priority, infrequent change
+      { loc: `${SITE_URL}/search`,         lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
+      { loc: `${SITE_URL}/posts`,          lastmod: stableDate, priority: 0.5, changefreq: 'monthly' as const },
+      { loc: `${SITE_URL}/about`,          lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
+      { loc: `${SITE_URL}/contact`,        lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
+      { loc: `${SITE_URL}/terms`,          lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
+      { loc: `${SITE_URL}/privacy-policy`, lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
       // Top-level election data page
-      {
-        loc: `${SITE_URL}/election-data`,
-        lastmod: dateFallback,
-        priority: 0.8,
-        changefreq: 'weekly' as const,
-      },
+      { loc: `${SITE_URL}/election-data`,  lastmod: stableDate, priority: 0.8, changefreq: 'weekly' as const },
       // State-specific pages (one set per registered state)
       ...getAllStates().flatMap((state) => [
         {
           loc: `${SITE_URL}/${state.slug}`,
-          lastmod: dateFallback,
+          lastmod: now,
           priority: 1.0,
           changefreq: 'daily' as const,
         },
         {
           loc: `${SITE_URL}/${state.slug}/dashboard`,
-          lastmod: dateFallback,
+          lastmod: now,
           priority: 0.9,
           changefreq: 'daily' as const,
         },
         {
           loc: `${SITE_URL}/${state.slug}/assembly-map`,
-          lastmod: dateFallback,
+          lastmod: stableDate,
           priority: 0.7,
           changefreq: 'monthly' as const,
         },
         {
           loc: `${SITE_URL}/${state.slug}/caste-demographics`,
-          lastmod: dateFallback,
+          lastmod: stableDate,
           priority: 0.6,
           changefreq: 'monthly' as const,
         },
         {
           loc: `${SITE_URL}/${state.slug}/election-results`,
-          lastmod: dateFallback,
+          lastmod: now,
           priority: 0.9,
           changefreq: 'hourly' as const,
         },
         {
           loc: `${SITE_URL}/${state.slug}/election-analysis/2026`,
-          lastmod: dateFallback,
+          lastmod: now,
           priority: 0.8,
           changefreq: 'weekly' as const,
         },
         {
           loc: `${SITE_URL}/${state.slug}/election-analysis/2021`,
-          lastmod: dateFallback,
+          lastmod: '2021-05-02T00:00:00.000Z',
           priority: 0.7,
           changefreq: 'monthly' as const,
         },
