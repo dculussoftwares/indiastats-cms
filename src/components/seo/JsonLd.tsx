@@ -44,23 +44,6 @@ interface BreadcrumbSchema {
   }[]
 }
 
-interface GovernmentServiceSchema {
-  '@context': 'https://schema.org'
-  '@type': 'GovernmentService'
-  name: string
-  description: string
-  serviceType: string
-  areaServed: {
-    '@type': 'AdministrativeArea'
-    name: string
-  }
-  provider?: {
-    '@type': 'Organization'
-    name: string
-    url: string
-  }
-}
-
 // Default organization data
 const ORGANIZATION_DATA: OrganizationSchema = {
   '@context': 'https://schema.org',
@@ -138,38 +121,6 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
       // Ensure absolute URLs — Google requires them for breadcrumb rich results
       item: item.url.startsWith('http') ? item.url : `${BASE_URL}${item.url}`,
     })),
-  }
-
-  return <JsonLd data={data} />
-}
-
-/**
- * Government Service schema for election data pages
- */
-export function GovernmentServiceJsonLd({
-  name,
-  description,
-  areaName,
-}: {
-  name: string
-  description: string
-  areaName: string
-}) {
-  const data: GovernmentServiceSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'GovernmentService',
-    name,
-    description,
-    serviceType: 'Election Statistics',
-    areaServed: {
-      '@type': 'AdministrativeArea',
-      name: areaName,
-    },
-    provider: {
-      '@type': 'Organization',
-      name: 'IndiaStats.org',
-      url: 'https://indiastats.org',
-    },
   }
 
   return <JsonLd data={data} />
