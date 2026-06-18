@@ -9,9 +9,9 @@ export async function GET(request: Request) {
     const all = searchParams.get('all')
     const stateCode = searchParams.get('stateCode') || 'TN' // Default to TN
 
-    const payload = await getPayload({ config })
-
     try {
+        const payload = await getPayload({ config })
+
         // Fetch all caste data
         if (all === 'true') {
             const casteData = await payload.find({
