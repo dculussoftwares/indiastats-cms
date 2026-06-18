@@ -4,6 +4,7 @@ import * as React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Users } from 'lucide-react'
+import { getEnglishName } from '@/utilities/bilingualName'
 
 interface CasteData {
   assemblyId: string
@@ -36,14 +37,6 @@ export function CasteComparisonTable({ assemblyCasteData }: CasteComparisonTable
   // Pure display component - no fetch logic
   if (!assemblyCasteData || assemblyCasteData.length === 0) {
     return null
-  }
-
-  // Helper to extract English name
-  const getEnglishName = (name: string) => {
-    if (name.includes('/')) {
-      return name.split('/')[1].trim()
-    }
-    return name
   }
 
   // Helper to render caste cell with Shadcn tooltip

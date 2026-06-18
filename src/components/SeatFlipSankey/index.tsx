@@ -6,6 +6,7 @@ import { getPartyColor } from '@/lib/partyColors'
 import { PartyLogo } from '@/components/PartyLogo'
 import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
 import type { SeatFlip } from '@/app/api/election-analysis/route'
+import { getEnglishName } from '@/utilities/bilingualName'
 
 interface SeatFlipSankeyProps {
   seatFlips: SeatFlip[]
@@ -63,10 +64,6 @@ function FlipTable({
   const [expanded, setExpanded] = React.useState<string | null>(null)
   const displayed = showAll ? seatFlips : seatFlips.slice(0, 8)
   const total = seatFlips.reduce((s, f) => s + f.count, 0)
-
-  function getEnglishName(name: string) {
-    return name.includes('/') ? name.split('/')[1]!.trim() : name
-  }
 
   return (
     <div className="mt-4 space-y-1">

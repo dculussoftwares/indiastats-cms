@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getStateByCode, stateCodeToSlug } from '@/config/states'
-
-function cleanName(name: string): string {
-  const parts = (name || '').split(' / ')
-  return parts.length > 1 ? parts[1].trim() : (name || '').trim()
-}
+import { getEnglishName } from '@/utilities/bilingualName'
 
 export async function GET(
   _request: NextRequest,
@@ -55,8 +51,8 @@ export async function GET(
       lastWinnerParty = top.candidateParty || null
     }
 
-    const name = cleanName(assembly.name)
-    const districtName = cleanName(assembly.districtName)
+    const name = getEnglishName(assembly.name)
+    const districtName = getEnglishName(assembly.districtName)
     const districtId: string = assembly.districtId || 'dt7'
     const stateSlug = getStateByCode(assembly.stateCode || '')?.slug ?? stateCodeToSlug(assembly.stateCode || '')
 

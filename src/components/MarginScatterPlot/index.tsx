@@ -14,6 +14,7 @@ import {
 import { getPartyColor } from '@/lib/partyColors'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { ConstituencyResult } from '@/app/api/election-analysis/route'
+import { getEnglishName } from '@/utilities/bilingualName'
 
 interface MarginScatterPlotProps {
   constituencies: ConstituencyResult[]
@@ -37,7 +38,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-md p-3 text-xs max-w-[220px]">
       <p className="font-bold text-sm border-b pb-1 mb-1" style={{ color }}>
-        {d.assemblyName.includes('/') ? d.assemblyName.split('/')[1].trim() : d.assemblyName}
+        {getEnglishName(d.assemblyName)}
       </p>
       <div className="space-y-0.5">
         <p>

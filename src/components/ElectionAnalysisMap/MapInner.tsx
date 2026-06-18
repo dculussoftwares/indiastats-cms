@@ -12,6 +12,7 @@ import { TamilNaduGeoJson } from '@/components/AssemblyMap/staticData'
 import type { ConstituencyResult } from '@/lib/electionAnalysis'
 import { PartyLogo } from '@/components/PartyLogo'
 import { formatNumber } from '@/utilities/formatNumber'
+import { getEnglishName } from '@/utilities/bilingualName'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const L = require('leaflet') as any
@@ -144,10 +145,8 @@ function ConstituencyPopup({
 }) {
   const winnerColor = getPartyColor(c.winner.party)
   const runnerColor = getPartyColor(c.runnerUp.party)
-  const name = c.assemblyName.includes('/') ? c.assemblyName.split('/')[1]!.trim() : c.assemblyName
-  const district = c.districtName.includes('/')
-    ? c.districtName.split('/')[1]!.trim()
-    : c.districtName
+  const name = getEnglishName(c.assemblyName)
+  const district = getEnglishName(c.districtName)
   const href = `/${stateSlug}/assembly/${c.districtSlug}/${c.assemblySlug}`
 
   return (

@@ -8,6 +8,7 @@ import { getPartyColor } from '@/lib/partyColors'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { ConstituencyResult } from '@/app/api/election-analysis/route'
 import { formatNumber } from '@/utilities/formatNumber'
+import { getEnglishName } from '@/utilities/bilingualName'
 
 interface ConstituencyLeaderboardProps {
   constituencies: ConstituencyResult[]
@@ -23,10 +24,6 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: 'lowTurnout', label: 'Low Turnout', icon: <TrendingDown className="h-3 w-3" /> },
   { key: 'mostCandidates', label: 'Most Candidates', icon: <Users className="h-3 w-3" /> },
 ]
-
-function getEnglishName(name: string): string {
-  return name.includes('/') ? name.split('/')[1].trim() : name
-}
 
 export function ConstituencyLeaderboard({
   constituencies,

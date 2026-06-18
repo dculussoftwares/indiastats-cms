@@ -4,13 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getPartyColor } from '@/lib/partyColors'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { DistrictGenderProfile } from '@/app/api/election-analysis/route'
+import { getEnglishName } from '@/utilities/bilingualName'
 
 interface GenderDistrictChartProps {
   profiles: DistrictGenderProfile[]
-}
-
-function getEnglishName(name: string): string {
-  return name.includes('/') ? name.split('/')[1].trim() : name
 }
 
 export function GenderDistrictChart({ profiles }: GenderDistrictChartProps) {
