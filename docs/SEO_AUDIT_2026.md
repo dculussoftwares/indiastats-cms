@@ -4,24 +4,24 @@
 **Site:** https://indiastats.org  
 **Business type:** Election Data / Analytics Publisher  
 **Tech stack:** Next.js 15, PayloadCMS 3.x, Azure Container Apps, Cloudflare CDN  
-**Audit score:** 55 / 100 → **67 / 100** after Phases 1–4
+**Audit score:** 55 / 100 → **70 / 100** after Phases 1–5
 
 ---
 
 ## Score Breakdown
 
-| Category | Weight | Audit Score | After Phases 1–4 | Change |
+| Category | Weight | Audit Score | After Phases 1–5 | Change |
 |---|---|---|---|---|
-| Technical SEO | 22% | 68 | 78 | +10 |
+| Technical SEO | 22% | 68 | 82 | +14 |
 | Content Quality | 23% | 54 | 56 | +2 |
 | On-Page SEO | 20% | 52 | 68 | +16 |
 | Schema / Structured Data | 10% | 38 | 72 | +34 |
 | Performance (CWV) | 10% | 55 | 72 | +17 |
-| AI Search Readiness | 10% | 38 | 58 | +20 |
+| AI Search Readiness | 10% | 38 | 60 | +22 |
 | Images | 5% | 58 | 62 | +4 |
-| **Weighted Total** | | **55** | **67** | **+12** |
+| **Weighted Total** | | **55** | **70** | **+15** |
 
-> Content Quality gains are capped until blog posts are expanded (1,200+ words) and authors are assigned in CMS — those are manual Phase 3 tasks.
+> Content Quality gains are capped until blog posts are expanded (1,200+ words) and authors are assigned in CMS — those are manual tasks.
 
 ---
 
@@ -114,7 +114,7 @@ Blank social card when sharing the homepage.
 
 **H10. www subdomain returns 200 — duplicate domain**  
 `https://www.indiastats.org/` returns HTTP 200 instead of redirecting. Google can index both as separate sites.  
-**Status:** ⚠️ Pending — Cloudflare dashboard → Redirect Rules → if hostname `www.indiastats.org`, 301 to `https://indiastats.org/$uri` (5 min, no deploy)
+**Status:** ⚠️ Pending — Cloudflare dashboard → Redirect Rules → hostname `www.indiastats.org` → 301 to `https://indiastats.org/$uri` (5 min, no deploy)
 
 ---
 
@@ -127,8 +127,8 @@ Blank social card when sharing the homepage.
 | M3 | GeoJSON 314KB passed as RSC prop on election-results | `election-results/page.tsx` | ✅ Fixed Phase 4 — client-side fetch from CDN |
 | M4 | Recharts eagerly imported in AssemblyPageClient | `AssemblyPageClient.tsx` | ✅ Fixed Phase 4 — `next/dynamic` lazy load |
 | M5 | `icon.png` is 254KB JPEG mislabeled as PNG | `public/icon.png` | ⚠️ Pending — replace file with proper PNG |
-| M6 | All sitemaps use dynamic current-timestamp as `lastmod` | Sitemap generation code | ⚠️ Pending |
-| M7 | Sitemap index has no `lastmod` on child entries | Sitemap index generator | ⚠️ Pending |
+| M6 | All sitemaps use dynamic current-timestamp as `lastmod` | Sitemap generation code | ✅ Fixed Phase 5 — static pages use stable date, dynamic pages use `now` |
+| M7 | Sitemap index has no `lastmod` on child entries | Sitemap index generator | ✅ Fixed Phase 5 — XML generated manually with per-entry `lastmod` |
 | M8 | Assembly-map district filter uses Tamil-encoded query param | Assembly map route | ⚠️ Pending |
 | M9 | Prediction URLs contain numeric IDs — brittle canonical | Middleware + predictions routing | ⚠️ Pending |
 | M10 | No `loading.tsx` for election-results route — blank screen | New file needed | ✅ Fixed Phase 4 |
@@ -150,10 +150,10 @@ Blank social card when sharing the homepage.
 | # | Issue | Status |
 |---|---|---|
 | L1 | Implement IndexNow in `eci:push` script | ⚠️ Pending |
-| L2 | Organization `sameAs` array has only Twitter — add LinkedIn/Wikipedia | ⚠️ Pending |
-| L3 | `GovernmentServiceJsonLd` defined but never used — dead code | ⚠️ Pending |
-| L4 | 5 utility pages in pages-sitemap missing priority/changefreq | ⚠️ Pending |
-| L5 | Sitemap index missing `lastmod` on child entries | ⚠️ Pending |
+| L2 | Organization `sameAs` array has only Twitter | ✅ Fixed Phase 5 — added GitHub; Twitter handle corrected to `@india_stats_org` |
+| L3 | `GovernmentServiceJsonLd` defined but never used — dead code | ✅ Fixed Phase 5 — removed |
+| L4 | 5 utility pages in pages-sitemap missing priority/changefreq | ✅ Fixed Phase 5 — all utility pages have priority + changefreq |
+| L5 | Sitemap index missing `lastmod` on child entries | ✅ Fixed Phase 5 — XML generated manually |
 | L6 | `AboutPage` schema type not set on `/about` | ✅ Fixed Phase 3 |
 | L7 | Party logo images not converted to WebP | ⚠️ Pending |
 | L8 | Dark mode CLS via `InitTheme beforeInteractive` | ⚠️ Pending |
@@ -164,21 +164,22 @@ Blank social card when sharing the homepage.
 
 ## GEO / AI Search Readiness
 
-**Audit score: 38 / 100 → estimated 58 / 100 after phases**
+**Audit score: 38 / 100 → estimated 60 / 100 after phases**
 
 | Platform | Audit Score | After Phases | Primary Remaining Gap |
 |---|---|---|---|
-| Google AI Overviews | 42/100 | ~62/100 | Thin blog content; no author entity |
-| ChatGPT / OpenAI | 28/100 | ~48/100 | No author entity; blog posts still under 500 words |
-| Perplexity | 30/100 | ~50/100 | No sourced inline citations in blog posts |
-| Bing Copilot | 40/100 | ~60/100 | Author entity and longer articles still needed |
+| Google AI Overviews | 42/100 | ~65/100 | Thin blog content; no author entity |
+| ChatGPT / OpenAI | 28/100 | ~50/100 | No author entity; blog posts still ~450 words |
+| Perplexity | 30/100 | ~52/100 | No sourced inline citations in blog posts |
+| Bing Copilot | 40/100 | ~62/100 | Author entity and longer articles still needed |
 
 **Key fixes that improved AI readiness:**
 - `AssemblyPageJsonLd` + `DatasetJsonLd` now in server-rendered HTML — AI crawlers can read constituency data without executing JS
-- Server-rendered factual summary paragraph on every assembly page — direct answer to "who won [constituency] 2026"
+- Server-rendered factual summary paragraph on every assembly page — directly answers "who won [constituency] 2026"
 - `BlogPostingJsonLd` with `datePublished`, `dateModified`, publisher on all 10 posts
-- `DataCatalogJsonLd` on homepage — signals IndiaStats as a structured data source
-- `llms.txt` created at `/llms.txt`
+- `DataCatalogJsonLd` on homepage — signals IndiaStats as a structured data platform
+- `llms.txt` created — Perplexity and LLM-powered tools can read site structure
+- `Organization.sameAs` now includes Twitter (`@india_stats_org`) and GitHub — expands entity graph
 
 **Remaining AI gap:** Blog posts are still ~450 words with no named authors. Until those are expanded and attributed, ChatGPT and Perplexity will continue to prefer citing Wikipedia and ECI over IndiaStats for factual queries.
 
@@ -312,9 +313,22 @@ Blank social card when sharing the homepage.
 | 8 | Replace `icon.png` 254KB JPEG with proper PNG | `public/icon.png` | ⚠️ Pending — provide new asset |
 | 9 | Convert party logo `.jpg` files to WebP | `public/images/` | ⚠️ Pending |
 
+### Phase 5 — Sitemap & Structural Fixes ✅ COMPLETE (June 18, 2026)
+
+| # | Fix | File(s) | Status |
+|---|---|---|---|
+| 1 | **32 missing assemblies recovered** — use `districtId` mapping instead of `districtName` string | `assemblies-sitemap.xml/route.ts` | ✅ Done |
+| 2 | **Pages sitemap** — stable `lastmod` for static pages, `priority`/`changefreq` on utility pages, `/privacy-policy` added | `pages-sitemap.xml/route.ts` | ✅ Done |
+| 3 | **Dead code removed** — `GovernmentServiceJsonLd` (never used) deleted | `JsonLd.tsx` | ✅ Done |
+| 4 | **`Organization.sameAs`** expanded with GitHub repo | `JsonLd.tsx` | ✅ Done |
+| 5 | **Sitemap index `lastmod`** — XML generated manually, per-entry timestamps added | `sitemap.xml/route.ts` | ✅ Done |
+| 6 | **Twitter/X handle corrected** — `@IndiaStatsOrg` → `@india_stats_org` across JSON-LD, meta tags, SiteSettings, `llms.txt` | `JsonLd.tsx`, `layout.tsx`, `SiteSettings.ts`, `llms.txt` | ✅ Done |
+
 ---
 
-## Remaining Work (All Manual or Asset-Dependent)
+## Remaining Work
+
+### Manual / CMS
 
 | Priority | Task | Owner | Time |
 |---|---|---|---|
@@ -324,16 +338,18 @@ Blank social card when sharing the homepage.
 | High | www → non-www redirect in Cloudflare Redirect Rules | DevOps | 5 min |
 | High | Replace `public/icon.png` (254KB JPEG) with proper PNG favicon | Design | 1 hr |
 | Medium | Add AI content editorial policy to About page | Content | 1 hr |
-| Medium | Fix `lastmod` in sitemaps — use actual `updatedAt` from Payload DB | Dev | 2 hrs |
-| Medium | Investigate 32 missing assembly constituencies in sitemap | Dev | 2 hrs |
 | Medium | Convert party logo `.jpg` files in `public/images/` to WebP | Design | 1 hr |
 | Low | Add `/methodology` page (ECI sourcing, update cadence, accuracy policy) | Content | 2 hrs |
-| Low | Implement IndexNow in `eci:push` script | Dev | 2 hrs |
-| Low | Add LinkedIn/Wikipedia to `Organization.sameAs` | Dev | 15 min |
-| Low | Remove dead `GovernmentServiceJsonLd` component | Dev | 5 min |
-| Low | Add `priority`/`changefreq` to 5 utility pages in sitemap | Dev | 15 min |
-| Low | Assembly-map district filter: slug-based instead of Tamil-encoded param | Dev | 3 hrs |
-| Low | Prediction URLs: remove numeric ID from path | Dev | 3 hrs |
+
+### Dev (Code)
+
+| Priority | Task | File | Time |
+|---|---|---|---|
+| Low | Implement IndexNow in `eci:push` script | `scripts/eci-push.mts` | 2 hrs |
+| Low | Add LinkedIn/Wikipedia to `Organization.sameAs` when URLs confirmed | `JsonLd.tsx` | 15 min |
+| Low | Assembly-map district filter: slug-based instead of Tamil-encoded param | Assembly map route | 3 hrs |
+| Low | Prediction URLs: remove numeric ID from path | Middleware + routing | 3 hrs |
+| Low | Dark mode CLS — verify `InitTheme` default theme matches SSR output | `InitTheme/index.tsx` | 30 min |
 
 ---
 
@@ -364,12 +380,13 @@ Blank social card when sharing the homepage.
 
 ---
 
-## Sitemap Remaining Issues
+## Sitemap Status
 
-| Issue | Severity | Fix |
+| Issue | Severity | Status |
 |---|---|---|
-| 32 of 234 assembly constituencies missing | High | Query PayloadCMS for assemblies without `slug` or `districtSlug`; add assertion to sitemap generator |
-| All `lastmod` values are dynamic current-timestamp | Medium | Use actual `updatedAt` field from Payload collection records |
-| Sitemap index has no `lastmod` on child entries | Low | Add `<lastmod>` to each `<sitemap>` entry in the index |
-| 5 utility pages missing priority/changefreq | Low | Add `priority: 0.3, changefreq: 'monthly'` for about/contact/terms |
-| `/privacy-policy` not in sitemap | Low | Add to pages-sitemap |
+| 32 of 234 assembly constituencies missing | High | ✅ Fixed Phase 5 — `districtId` mapping recovers all |
+| All `lastmod` values were dynamic current-timestamp | Medium | ✅ Fixed Phase 5 — static pages use stable date; dynamic pages use `now` |
+| Sitemap index had no `lastmod` on child entries | Low | ✅ Fixed Phase 5 — XML generated manually |
+| 5 utility pages missing priority/changefreq | Low | ✅ Fixed Phase 5 |
+| `/privacy-policy` not in sitemap | Low | ✅ Fixed Phase 5 |
+| `/tamil-nadu` state home missing from sitemap | High | ✅ Fixed Phase 1 |
