@@ -51,10 +51,58 @@ async function fixMissingSerialSequences(connectionString: string) {
   }
 }
 
+/**
+ * payload_locked_documents_rels may have rows for collection FK columns that were
+ * added by a previous partial schema push, but pointing to IDs that no longer exist
+ * (e.g. after a collection rename via raw SQL migration). PostgreSQL rejects ADD
+ * CONSTRAINT when orphaned rows exist. These are ephemeral admin lock records — safe
+ * to delete.
+ */
+async function fixOrphanedLockRels(connectionString: string) {
+  const sql = postgres(connectionString, { max: 1, ssl: { rejectUnauthorized: false } })
+  try {
+    // Find FK columns in payload_locked_documents_rels (pattern: *_id, excluding _parent_id)
+    const fkCols = await sql<{ column_name: string }[]>`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name   = 'payload_locked_documents_rels'
+        AND column_name  LIKE '%_id'
+        AND column_name != 'id'
+        AND column_name != 'parent_id'
+    `
+    for (const { column_name } of fkCols) {
+      // Derive the referenced table name: strip trailing _id, replace _ with original
+      const refTable = column_name.replace(/_id$/, '')
+      // Check the referenced table exists before trying to join against it
+      const exists = await sql<{ exists: boolean }[]>`
+        SELECT EXISTS (
+          SELECT 1 FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_name = ${refTable}
+        ) AS exists
+      `
+      if (!exists[0]?.exists) continue
+      const result = await sql.unsafe(
+        `DELETE FROM payload_locked_documents_rels
+         WHERE "${column_name}" IS NOT NULL
+           AND "${column_name}" NOT IN (SELECT id FROM "${refTable}")`
+      )
+      if ((result as any).count > 0) {
+        console.log(`  Removed ${(result as any).count} orphaned lock rows for ${column_name}`)
+      }
+    }
+    console.log('  Lock relation cleanup done.')
+  } finally {
+    await sql.end()
+  }
+}
+
 async function pushSchema() {
   const connectionString = process.env.DATABASE_URI || ''
   console.log('Pre-check: fixing any id columns missing serial sequences...')
   await fixMissingSerialSequences(connectionString)
+  console.log('Pre-check: cleaning up orphaned payload_locked_documents_rels rows...')
+  await fixOrphanedLockRels(connectionString)
 
   console.log('Pushing schema to database...')
   const payload = await getPayload({ config })
