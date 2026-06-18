@@ -14,6 +14,7 @@ import {
 import { getPartyColor } from '@/lib/partyColors'
 import { useStateConfig } from '@/components/providers/StateProvider'
 import type { WaveDataPoint } from '@/app/api/election-analysis/route'
+import { SectionAccent } from '@/components/ui/section-accent'
 
 interface WaveTimelineProps {
   waveTimeline: WaveDataPoint[]
@@ -66,7 +67,7 @@ export function WaveTimeline({ waveTimeline }: WaveTimelineProps) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <span className="inline-block w-1 h-5 bg-red-600 rounded-sm" />
+          <SectionAccent />
           Vote Share Wave — 2011 to {waveTimeline[waveTimeline.length - 1]?.year}
         </CardTitle>
         <p className="text-xs text-muted-foreground mt-1">

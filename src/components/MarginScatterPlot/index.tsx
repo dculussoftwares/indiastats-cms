@@ -15,6 +15,7 @@ import { getPartyColor } from '@/lib/partyColors'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { ConstituencyResult } from '@/app/api/election-analysis/route'
 import { getEnglishName } from '@/utilities/bilingualName'
+import { SectionAccent } from '@/components/ui/section-accent'
 
 interface MarginScatterPlotProps {
   constituencies: ConstituencyResult[]
@@ -98,7 +99,7 @@ export function MarginScatterPlot({ constituencies, year, stateSlug }: MarginSca
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <span className="inline-block w-1 h-5 bg-red-600 rounded-sm" />
+          <SectionAccent />
           Nail-biters vs Landslides
         </CardTitle>
         <p className="text-xs text-muted-foreground mt-1">

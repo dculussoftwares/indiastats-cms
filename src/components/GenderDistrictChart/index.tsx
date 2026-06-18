@@ -5,6 +5,7 @@ import { getPartyColor } from '@/lib/partyColors'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { DistrictGenderProfile } from '@/app/api/election-analysis/route'
 import { getEnglishName } from '@/utilities/bilingualName'
+import { SectionAccent } from '@/components/ui/section-accent'
 
 interface GenderDistrictChartProps {
   profiles: DistrictGenderProfile[]
@@ -21,7 +22,7 @@ export function GenderDistrictChart({ profiles }: GenderDistrictChartProps) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <span className="inline-block w-1 h-5 bg-red-600 rounded-sm" />
+          <SectionAccent />
           Gender Electorate Profile by District
         </CardTitle>
         <p className="text-xs text-muted-foreground mt-1">

@@ -9,6 +9,7 @@ import { PartyLogo } from '@/components/PartyLogo'
 import type { ConstituencyResult } from '@/app/api/election-analysis/route'
 import { formatNumber } from '@/utilities/formatNumber'
 import { getEnglishName } from '@/utilities/bilingualName'
+import { SectionAccent } from '@/components/ui/section-accent'
 
 interface ConstituencyLeaderboardProps {
   constituencies: ConstituencyResult[]
@@ -59,7 +60,7 @@ export function ConstituencyLeaderboard({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <span className="inline-block w-1 h-5 bg-red-600 rounded-sm" />
+          <SectionAccent />
           Constituency Leaderboards
         </CardTitle>
       </CardHeader>

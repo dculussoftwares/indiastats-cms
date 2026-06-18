@@ -7,6 +7,7 @@ import { PartyLogo } from '@/components/PartyLogo'
 import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
 import type { SeatFlip } from '@/app/api/election-analysis/route'
 import { getEnglishName } from '@/utilities/bilingualName'
+import { SectionAccent } from '@/components/ui/section-accent'
 
 interface SeatFlipSankeyProps {
   seatFlips: SeatFlip[]
@@ -257,7 +258,7 @@ export function SeatFlipSankey({ seatFlips, year, prevYear, stateSlug }: SeatFli
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <span className="inline-block w-1 h-5 bg-red-600 rounded-sm" />
+          <SectionAccent />
           Power Shift — {prevYear} → {year} Seat Flips
         </CardTitle>
         <p className="text-xs text-muted-foreground mt-1">

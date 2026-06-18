@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getPartyColor } from '@/lib/partyColors'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { PartyVoteShare } from '@/lib/electionAnalysis'
+import { SectionAccent } from '@/components/ui/section-accent'
 
 interface HemicycleChartProps {
   partyVoteShares: PartyVoteShare[]
@@ -90,7 +91,7 @@ export function HemicycleChart({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <span className="inline-block w-1 h-5 bg-red-600 rounded-sm" />
+          <SectionAccent />
           Assembly Composition — {year}
         </CardTitle>
         <p className="text-xs text-muted-foreground mt-1">
