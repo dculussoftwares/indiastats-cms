@@ -7,6 +7,7 @@ import { AssemblyPageClient } from './AssemblyPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { getStateBySlug } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
+import { AssemblyPageJsonLd, DatasetJsonLd } from '@/components/seo/JsonLd'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -314,8 +315,40 @@ export default async function AssemblyPage({ params }: PageProps) {
     notFound()
   }
 
+  const stateName = getStateBySlug(stateSlug)?.name ?? 'Tamil Nadu'
+  const cleanName = data.name.split(' / ')[1] || data.name
+  const cleanDistrictName = data.districtName.split(' / ')[1] || data.districtName
+  const baseUrl = getServerSideURL()
+  const pageUrl = `${baseUrl}/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`
+  const latestElection = data.electionHistory[0]
+  const oldestElectionYear = data.electionHistory[data.electionHistory.length - 1]?.year ?? latestElection?.year
+  const temporalCoverage = oldestElectionYear
+    ? `${oldestElectionYear}/${latestElection?.year ?? oldestElectionYear}`
+    : '1977/2026'
+
   return (
     <div className="container py-6">
+      {/* Server-rendered JSON-LD — visible to AI crawlers that don't execute JS */}
+      <AssemblyPageJsonLd
+        assemblyName={cleanName}
+        districtName={cleanDistrictName}
+        description={
+          data.metaDescription ||
+          `Election data for ${cleanName} assembly constituency, ${stateName}.`
+        }
+        url={pageUrl}
+        stateName={stateName}
+      />
+      <DatasetJsonLd
+        name={`${cleanName} Assembly Constituency — Election & Voter Data`}
+        description={`Complete election history for ${cleanName} constituency from ${oldestElectionYear ?? 1977}–${latestElection?.year ?? 2026}, including candidate-level results, voter turnout, and demographic data.`}
+        url={pageUrl}
+        temporalCoverage={temporalCoverage}
+        assemblyName={cleanName}
+        districtName={cleanDistrictName}
+        stateName={stateName}
+      />
+
       <Breadcrumbs
         items={[
           {
@@ -326,15 +359,27 @@ export default async function AssemblyPage({ params }: PageProps) {
             url: `/${stateSlug}/dashboard`,
           },
           {
-            name: data.districtName.split(' / ')[1] || data.districtName,
+            name: cleanDistrictName,
             url: `/${stateSlug}/district/${districtSlug}`,
           },
           {
-            name: data.name.split(' / ')[1] || data.name,
+            name: cleanName,
             url: `/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`,
           },
         ]}
       />
+
+      {/* Factual summary — server-rendered, citable by AI crawlers */}
+      {latestElection && (
+        <p className="text-xs text-muted-foreground mt-1 mb-1">
+          {cleanName} · {cleanDistrictName} District, {stateName}
+          {' · '}{latestElection.year} winner: {latestElection.winner} ({latestElection.winnerParty}
+          {data.voters?.total
+            ? `) · ${data.voters.total.toLocaleString()} registered voters`
+            : ')'}
+        </p>
+      )}
+
       <AssemblyPageClient data={data} stateSlug={stateSlug} />
     </div>
   )

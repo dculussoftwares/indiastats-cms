@@ -34,7 +34,6 @@ import {
 import { TwitterCardModal } from '@/components/TwitterCardModal'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
-import { AssemblyPageJsonLd } from '@/components/seo/JsonLd'
 import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface Candidate {
@@ -844,16 +843,6 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
         </section>
       )}
 
-      {/* Structured Data for SEO */}
-      <AssemblyPageJsonLd
-        assemblyName={data.name.split(' / ')[1] || data.name}
-        districtName={data.districtName.split(' / ')[1] || data.districtName}
-        description={
-          data.metaDescription ||
-          `Election data for ${data.name} assembly constituency, ${state.name}.`
-        }
-        url={`https://indiastats.org/${stateSlug}/assembly/${data.districtSlug}/${data.assemblySlug}`}
-      />
     </div>
   )
 }
