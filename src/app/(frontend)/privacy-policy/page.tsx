@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
           <p>
-            Welcome to IndiaStats.org ("we," "our," or "us"). IndiaStats.org is a platform dedicated
+            Welcome to IndiaStats.org (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). IndiaStats.org is a platform dedicated
             to providing comprehensive electoral statistics, assembly constituency data, election
             history, and demographic information for India. We are committed to protecting your
             privacy and ensuring the security of any information you may provide while using our
@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
           <h3 className="text-xl font-medium mb-2">
             3.1 Information Stored Locally (Browser Storage)
           </h3>
-          <p>We use your browser's local storage to enhance your experience:</p>
+          <p>We use your browser&apos;s local storage to enhance your experience:</p>
           <ul className="list-disc pl-6 space-y-2 mt-2">
             <li>
               <strong>Theme Preference:</strong> Your chosen display mode (light/dark/system) is
@@ -82,7 +82,7 @@ export default function PrivacyPolicyPage() {
               Personal identification information (name, email, phone) - unless you voluntarily
               contact us
             </li>
-            <li>Location data beyond what's derived from IP address</li>
+            <li>Location data beyond what&apos;s derived from IP address</li>
             <li>Financial or payment information</li>
             <li>Social media account details</li>
           </ul>
@@ -179,13 +179,13 @@ export default function PrivacyPolicyPage() {
           </p>
           <ul className="list-disc pl-6 space-y-2 mt-2">
             <li>
-              Using your browser's cookie settings to block or limit third-party cookies
+              Using your browser&apos;s cookie settings to block or limit third-party cookies
             </li>
             <li>
               Using privacy-focused browser extensions or opt-out services
             </li>
             <li>
-              Visiting Google's Ads Settings (https://adssettings.google.com) to manage
+              Visiting Google&apos;s Ads Settings (https://adssettings.google.com) to manage
               personalized ads
             </li>
           </ul>
@@ -238,11 +238,11 @@ export default function PrivacyPolicyPage() {
           <p>You have control over your data:</p>
           <ul className="list-disc pl-6 space-y-2 mt-2">
             <li>
-              <strong>Clear Local Storage:</strong> You can clear your browser's local storage at
+              <strong>Clear Local Storage:</strong> You can clear your browser&apos;s local storage at
               any time to remove theme preferences and search history
             </li>
             <li>
-              <strong>Browser Settings:</strong> Manage cookies through your browser's privacy
+              <strong>Browser Settings:</strong> Manage cookies through your browser&apos;s privacy
               settings
             </li>
             <li>
@@ -277,7 +277,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4">11. Children's Privacy</h2>
+          <h2 className="text-2xl font-semibold mb-4">11. Children&apos;s Privacy</h2>
           <p>
             Our platform provides educational electoral information suitable for all ages. We do not
             knowingly collect personal information from children under 13. The electoral data
@@ -289,7 +289,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-2xl font-semibold mb-4">12. Changes to This Policy</h2>
           <p>
             We may update this Privacy Policy as our platform evolves. Changes will be posted on
-            this page with an updated "Last updated" date. We encourage you to review this policy
+            this page with an updated &quot;Last updated&quot; date. We encourage you to review this policy
             periodically.
           </p>
         </section>
