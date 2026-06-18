@@ -9,7 +9,7 @@ const getAssembliesSitemap = unstable_cache(
     const payload = await getPayload({ config })
     const SITE_URL = getServerSideURL()
 
-    // First get all districts to map districtName to districtId
+    // Map districtId → slug (more reliable than districtName which can differ in bilingual strings)
     const districtsResult = await payload.find({
       collection: 'districts',
       overrideAccess: false,
@@ -18,15 +18,14 @@ const getAssembliesSitemap = unstable_cache(
       pagination: false,
       select: {
         districtId: true,
-        districtName: true,
         slug: true,
       },
     })
 
-    const districtNameToSlugMap: Record<string, string> = {}
+    const districtIdToSlugMap: Record<string, string> = {}
     districtsResult.docs.forEach((d: any) => {
-      if (d.districtName && d.slug) {
-        districtNameToSlugMap[d.districtName] = d.slug
+      if (d.districtId && d.slug) {
+        districtIdToSlugMap[d.districtId] = d.slug
       }
     })
 
@@ -50,7 +49,7 @@ const getAssembliesSitemap = unstable_cache(
       }
     })
 
-    // Get all assemblies
+    // Get all assemblies — select districtId (not districtName) for reliable slug resolution
     const results = await payload.find({
       collection: 'assemblies',
       overrideAccess: false,
@@ -60,7 +59,7 @@ const getAssembliesSitemap = unstable_cache(
       select: {
         assemblyId: true,
         name: true,
-        districtName: true,
+        districtId: true,
         slug: true,
         stateCode: true,
         updatedAt: true,
@@ -80,7 +79,7 @@ const getAssembliesSitemap = unstable_cache(
       results.docs
         .filter((assembly: any) => Boolean(assembly?.slug))
         .forEach((assembly: any) => {
-          const districtSlug = districtNameToSlugMap[assembly.districtName]
+          const districtSlug = districtIdToSlugMap[assembly.districtId]
           const stateSlug = stateCodeToSlugMap[assembly.stateCode] || 'tamil-nadu'
 
           // Skip if districtSlug couldn't be resolved — would produce a 404 URL
