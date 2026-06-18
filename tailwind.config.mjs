@@ -25,6 +25,17 @@ const config = {
     'bg-success/30',
     'border-warning',
     'bg-warning/30',
+    // Dynamic color classes in HomePageClient colorMap / iconColorMap
+    // These are in JS object values — Tailwind's scanner can't detect them statically
+    'bg-red-600/15', 'border-red-600/20', 'group-hover:border-red-500/50', 'text-red-400',
+    'bg-orange-600/15', 'border-orange-600/20', 'group-hover:border-orange-500/50', 'text-orange-400',
+    'bg-violet-600/15', 'border-violet-600/20', 'group-hover:border-violet-500/50', 'text-violet-400',
+    'bg-blue-600/15', 'border-blue-600/20', 'group-hover:border-blue-500/50', 'text-blue-400',
+    'bg-indigo-600/15', 'border-indigo-600/20', 'group-hover:border-indigo-500/50', 'text-indigo-400',
+    'bg-teal-600/15', 'border-teal-600/20', 'group-hover:border-teal-500/50', 'text-teal-400',
+    'bg-amber-600/15', 'border-amber-600/20', 'group-hover:border-amber-500/50', 'text-amber-400',
+    'bg-emerald-600/15', 'border-emerald-600/20', 'group-hover:border-emerald-500/50', 'text-emerald-400',
+    'bg-rose-600/15', 'border-rose-600/20', 'group-hover:border-rose-500/50', 'text-rose-400',
   ],
   theme: {
     container: {
