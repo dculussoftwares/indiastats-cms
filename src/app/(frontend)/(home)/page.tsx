@@ -5,12 +5,13 @@ import { unstable_cache } from 'next/cache'
 import { HomePageClient } from './HomePageClient'
 import { tamilNaduConfig } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
+import { DataCatalogJsonLd } from '@/components/seo/JsonLd'
 
 const baseUrl = getServerSideURL()
 
 export const metadata: Metadata = {
   title: 'IndiaStats.org - India Election Data & Statistics',
-  description: `Explore detailed election history, constituency demographics, and voting patterns across India. Start with Tamil Nadu's ${tamilNaduConfig.assemblyCount} assembly constituencies, ${tamilNaduConfig.boothCountLabel} booths, and ${tamilNaduConfig.voterCountLabel} voters.`,
+  description: `Explore Tamil Nadu's ${tamilNaduConfig.assemblyCount} assembly constituencies — election history, voter data, booth statistics, and political analysis from ${tamilNaduConfig.historyStartYear} to 2026.`,
   keywords: [
     'India elections',
     'assembly constituency',
@@ -30,11 +31,20 @@ export const metadata: Metadata = {
       'Explore detailed election history, constituency demographics, and voting patterns across Indian assembly constituencies.',
     type: 'website',
     url: baseUrl,
+    images: [
+      {
+        url: `${baseUrl}/indiastats-logo-1024.png`,
+        width: 1024,
+        height: 1024,
+        alt: 'IndiaStats.org — India Election Data Platform',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'IndiaStats.org - India Election Data',
     description: 'Comprehensive election data for assembly constituencies across India.',
+    images: [`${baseUrl}/indiastats-logo-1024.png`],
   },
 }
 
@@ -76,5 +86,13 @@ const getHomePageData = unstable_cache(_getHomePageData, ['home-page-data'], {
 
 export default async function HomePage() {
   const { stats } = await getHomePageData()
-  return <HomePageClient stats={stats} />
+  return (
+    <>
+      <DataCatalogJsonLd
+        totalAssemblies={stats.totalAssemblies}
+        totalBooths={stats.totalBooths}
+      />
+      <HomePageClient stats={stats} />
+    </>
+  )
 }
