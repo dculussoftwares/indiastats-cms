@@ -28,7 +28,6 @@ import { getPartyColor } from '@/lib/partyColors'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
-import { DistrictPageJsonLd } from '@/components/seo/JsonLd'
 import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface Assembly {
@@ -831,16 +830,6 @@ export function DistrictPageClient({ data, stateSlug, stateName }: DistrictPageC
           </div>
         </section>
       )}
-
-      {/* Structured Data for SEO */}
-      <DistrictPageJsonLd
-        districtName={data.districtName.split(' / ')[1] || data.districtName}
-        description={
-          data.metaDescription || `Election data for ${data.districtName} district, ${stateName}.`
-        }
-        url={`https://indiastats.org/${stateSlug}/district/${data.districtSlug}`}
-        assemblies={data.assemblies.map((a) => ({ name: a.name.split(' / ')[1] || a.name }))}
-      />
     </div>
   )
 }

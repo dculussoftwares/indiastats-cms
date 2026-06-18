@@ -7,6 +7,7 @@ import { DistrictPageClient } from './DistrictPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { getStateByCode, getStateBySlug } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
+import { DistrictPageJsonLd } from '@/components/seo/JsonLd'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -305,6 +306,14 @@ export default async function DistrictPage({ params }: PageProps) {
             url: `/${stateSlug}/district/${districtSlug}`,
           },
         ]}
+      />
+      <DistrictPageJsonLd
+        districtName={data.districtName.split(' / ')[1] || data.districtName}
+        description={
+          data.metaDescription || `Election data for ${data.districtName} district, ${stateName}.`
+        }
+        url={`https://indiastats.org/${stateSlug}/district/${districtSlug}`}
+        assemblies={data.assemblies.map((a) => ({ name: a.name.split(' / ')[1] || a.name }))}
       />
       <DistrictPageClient data={data} stateSlug={stateSlug} stateName={stateName} />
     </div>
