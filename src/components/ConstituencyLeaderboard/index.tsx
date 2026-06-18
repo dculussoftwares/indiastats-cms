@@ -7,6 +7,7 @@ import { ExternalLink, Trophy, Target, TrendingUp, TrendingDown, Users } from 'l
 import { getPartyColor } from '@/lib/partyColors'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { ConstituencyResult } from '@/app/api/election-analysis/route'
+import { formatNumber } from '@/utilities/formatNumber'
 
 interface ConstituencyLeaderboardProps {
   constituencies: ConstituencyResult[]
@@ -25,12 +26,6 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
 
 function getEnglishName(name: string): string {
   return name.includes('/') ? name.split('/')[1].trim() : name
-}
-
-function fmtV(v: number): string {
-  if (v >= 1e5) return (v / 1e5).toFixed(1) + 'L'
-  if (v >= 1000) return (v / 1000).toFixed(0) + 'K'
-  return v.toLocaleString()
 }
 
 export function ConstituencyLeaderboard({
@@ -106,7 +101,7 @@ export function ConstituencyLeaderboard({
               case 'closest':
                 metric = (
                   <span className="text-right">
-                    <span className="font-bold text-sm">{fmtV(c.margin)}</span>
+                    <span className="font-bold text-sm">{formatNumber(c.margin)}</span>
                     <span className="text-[10px] text-muted-foreground ml-1">({c.marginPct}%)</span>
                   </span>
                 )

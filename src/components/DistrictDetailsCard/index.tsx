@@ -3,6 +3,7 @@ import * as React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Building2, Users, User, UserCircle2, UsersRound } from 'lucide-react'
+import { formatNumber } from '@/utilities/formatNumber'
 
 export interface DistrictVoters {
   male: number
@@ -20,16 +21,6 @@ export interface DistrictDetailsData {
 
 interface DistrictDetailsCardProps {
   data: DistrictDetailsData
-}
-
-function formatNumber(num: number): string {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M'
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K'
-  }
-  return num.toString()
 }
 
 interface DetailItemProps {

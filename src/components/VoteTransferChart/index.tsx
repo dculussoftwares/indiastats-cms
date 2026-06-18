@@ -3,6 +3,7 @@ import * as React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { useStateConfig } from '@/components/providers/StateProvider'
 import { getPartyColor as getConfigPartyColor } from '@/lib/partyColors'
+import { formatNumber } from '@/utilities/formatNumber'
 
 interface TooltipState {
   visible: boolean
@@ -26,12 +27,6 @@ function makeGetColor(stateCode: string) {
     if (color !== '#607d8b') return color
     return FALLBACK_COLORS[fallbackIndex % FALLBACK_COLORS.length]
   }
-}
-
-function fmtVotes(v: number): string {
-  if (v >= 100000) return (v / 100000).toFixed(1) + 'L'
-  if (v >= 1000) return (v / 1000).toFixed(0) + 'K'
-  return v.toString()
 }
 
 interface Candidate {
@@ -326,7 +321,7 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
                     fill="#9ca3af"
                     className="select-none"
                   >
-                    {fmtVotes(node.votes)}
+                    {formatNumber(node.votes)}
                   </text>
                 )}
               </g>
@@ -378,7 +373,7 @@ export function VoteTransferChart({ electionHistory }: VoteTransferChartProps) {
                     fill="#9ca3af"
                     className="select-none"
                   >
-                    {fmtVotes(node.votes)}
+                    {formatNumber(node.votes)}
                   </text>
                 )}
               </g>

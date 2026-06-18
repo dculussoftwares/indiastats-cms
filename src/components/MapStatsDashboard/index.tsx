@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Building2, MapPin, Users, User, UserCircle2, Shield, ShieldCheck } from 'lucide-react'
+import { formatNumber } from '@/utilities/formatNumber'
 
 interface QuickStat {
   name: string
@@ -34,19 +35,6 @@ interface MapStats {
 interface MapStatsDashboardProps {
   stats: MapStats | null
   isLoading?: boolean
-}
-
-function formatNumber(num: number): string {
-  if (num >= 10000000) {
-    return (num / 10000000).toFixed(2) + ' Cr'
-  }
-  if (num >= 100000) {
-    return (num / 100000).toFixed(2) + ' L'
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K'
-  }
-  return num.toLocaleString()
 }
 
 export function MapStatsDashboard({ stats, isLoading }: MapStatsDashboardProps) {

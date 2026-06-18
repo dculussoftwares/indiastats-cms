@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
 import { User, UserCircle2, Users } from 'lucide-react'
+import { formatNumber } from '@/utilities/formatNumber'
 
 interface GenderChartProps {
   voters: {
@@ -18,16 +19,6 @@ const COLORS = {
   male: 'hsl(220, 70%, 50%)',
   female: 'hsl(340, 75%, 55%)',
   trans: 'hsl(280, 65%, 60%)',
-}
-
-function formatNumber(num: number): string {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M'
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K'
-  }
-  return num.toString()
 }
 
 export function GenderChart({ voters }: GenderChartProps) {

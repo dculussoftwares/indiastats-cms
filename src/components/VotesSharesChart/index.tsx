@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { useStateConfig } from '@/components/providers/StateProvider'
+import { formatNumber } from '@/utilities/formatNumber'
 
 interface Candidate {
   name: string
@@ -41,13 +42,6 @@ const FALLBACK_COLORS = [
   '#455a64',
   '#8bc34a',
 ]
-
-// Format number for display
-const formatNumber = (value: number) => {
-  if (value >= 100000) return (value / 100000).toFixed(1) + 'L'
-  if (value >= 1000) return (value / 1000).toFixed(1) + 'K'
-  return value.toString()
-}
 
 // Custom tooltip that filters out parties with 0 votes
 const CustomTooltip = ({ active, payload, label }: any) => {

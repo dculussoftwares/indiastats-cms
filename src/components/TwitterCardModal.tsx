@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Download, Loader2, Eye } from 'lucide-react'
 import { trackClicked, getPageContext } from '@/analytics'
 import { useStateConfig } from '@/components/providers/StateProvider'
+import { formatNumber } from '@/utilities/formatNumber'
 
 interface TwitterCardData {
   assemblyId: string
@@ -221,12 +222,6 @@ export function TwitterCardModal({
     const party2 = sortedParties[1]
       ? { name: sortedParties[1][0], wins: sortedParties[1][1] }
       : null
-
-    const formatNumber = (num: number) => {
-      if (num >= 100000) return (num / 100000).toFixed(1) + 'L'
-      if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-      return num.toLocaleString()
-    }
 
     return {
       assemblyId: data.assemblyId,

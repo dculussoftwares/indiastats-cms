@@ -11,6 +11,7 @@ import { getPartyColor } from '@/lib/partyColors'
 import { TamilNaduGeoJson } from '@/components/AssemblyMap/staticData'
 import type { ConstituencyResult } from '@/lib/electionAnalysis'
 import { PartyLogo } from '@/components/PartyLogo'
+import { formatNumber } from '@/utilities/formatNumber'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const L = require('leaflet') as any
@@ -24,10 +25,6 @@ const Popup = dynamic(() => import('react-leaflet').then((m) => m.Popup), {
 
 function acToId(ac: number): string {
   return `ac${String(ac).padStart(3, '0')}`
-}
-
-function fmtNum(n: number): string {
-  return n.toLocaleString('en-IN')
 }
 
 export type ElectionAnalysisMapProps = {
@@ -186,7 +183,7 @@ function ConstituencyPopup({
           >
             {c.winner.party}
           </span>
-          <span className="text-[11px] font-semibold tabular-nums">{fmtNum(c.winner.votes)}</span>
+          <span className="text-[11px] font-semibold tabular-nums">{formatNumber(c.winner.votes)}</span>
         </div>
       </div>
 
@@ -204,7 +201,7 @@ function ConstituencyPopup({
               {c.runnerUp.party}
             </span>
             <span className="text-[11px] tabular-nums text-gray-600">
-              {fmtNum(c.runnerUp.votes)}
+              {formatNumber(c.runnerUp.votes)}
             </span>
           </div>
         </div>
@@ -212,7 +209,7 @@ function ConstituencyPopup({
 
       <div className="grid grid-cols-3 gap-1 mb-2 text-center">
         <div className="bg-gray-50 rounded px-1 py-1">
-          <p className="text-[11px] font-bold text-gray-800">{fmtNum(c.margin)}</p>
+          <p className="text-[11px] font-bold text-gray-800">{formatNumber(c.margin)}</p>
           <p className="text-[9px] text-gray-500">margin</p>
         </div>
         <div className="bg-gray-50 rounded px-1 py-1">

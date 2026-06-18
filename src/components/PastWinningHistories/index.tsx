@@ -8,6 +8,7 @@ import { Trophy, TrendingUp, Target, Flame, ChevronDown, ChevronUp } from 'lucid
 import { cn } from '@/utilities/ui'
 import { trackClicked, getPageContext } from '@/analytics'
 import { useStateConfig } from '@/components/providers/StateProvider'
+import { formatNumber } from '@/utilities/formatNumber'
 
 interface Candidate {
   name: string
@@ -29,12 +30,6 @@ interface PastWinningHistoriesProps {
   electionHistory: ElectionYear[]
 }
 
-
-function formatNumber(num: number): string {
-  if (num >= 100000) return (num / 100000).toFixed(1) + 'L'
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-  return num.toString()
-}
 
 // Calculate quick stats
 function calculateStats(electionHistory: ElectionYear[]) {

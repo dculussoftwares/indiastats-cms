@@ -4,18 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getPartyColor } from '@/lib/partyColors'
 import { PartyLogo } from '@/components/PartyLogo'
 import type { PartyVoteShare } from '@/app/api/election-analysis/route'
+import { formatNumber } from '@/utilities/formatNumber'
 
 interface MandateMeterProps {
   partyVoteShares: PartyVoteShare[]
   year: number
   prevYear: number | null
-}
-
-function fmtV(v: number): string {
-  if (v >= 1e7) return (v / 1e7).toFixed(2) + 'Cr'
-  if (v >= 1e5) return (v / 1e5).toFixed(1) + 'L'
-  if (v >= 1000) return (v / 1000).toFixed(0) + 'K'
-  return v.toLocaleString()
 }
 
 export function MandateMeter({ partyVoteShares, year, prevYear }: MandateMeterProps) {
@@ -77,7 +71,7 @@ export function MandateMeter({ partyVoteShares, year, prevYear }: MandateMeterPr
                     )}
                     <span className="font-bold w-[44px] text-right">{p.votePct}%</span>
                     <span className="text-muted-foreground w-[40px] text-right">
-                      {fmtV(p.votes)}
+                      {formatNumber(p.votes)}
                     </span>
                   </div>
                 </div>
@@ -99,7 +93,7 @@ export function MandateMeter({ partyVoteShares, year, prevYear }: MandateMeterPr
                 {/* Prev pct label under ghost */}
                 {prevYear && p.prevVotePct > 0 && (
                   <div className="text-[10px] text-muted-foreground text-right">
-                    {prevYear}: {p.prevVotePct}% · {fmtV(p.prevVotes)}
+                    {prevYear}: {p.prevVotePct}% · {formatNumber(p.prevVotes)}
                   </div>
                 )}
               </div>

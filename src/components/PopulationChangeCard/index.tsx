@@ -3,22 +3,13 @@ import * as React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { User, UserCircle2, Users, UsersRound } from 'lucide-react'
+import { formatNumber } from '@/utilities/formatNumber'
 
 interface PopulationChangeItemProps {
   title: string
   currentCount: number
   previousCount: number
   icon: React.ReactNode
-}
-
-function formatNumber(num: number): string {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M'
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K'
-  }
-  return num.toString()
 }
 
 const PopulationChangeItem: React.FC<PopulationChangeItemProps> = ({

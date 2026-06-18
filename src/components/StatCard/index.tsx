@@ -3,6 +3,7 @@ import * as React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/utilities/ui'
 import { Map, MapPinned, Locate, UsersRound, LucideIcon } from 'lucide-react'
+import { formatNumber } from '@/utilities/formatNumber'
 
 export interface StatCardProps {
   title: string
@@ -10,16 +11,6 @@ export interface StatCardProps {
   icon: React.ReactNode
   description?: string
   className?: string
-}
-
-function formatNumber(num: number): string {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M'
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K'
-  }
-  return num.toString()
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
