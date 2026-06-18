@@ -10,7 +10,7 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
-      <p className="text-muted-foreground mb-8">Last updated: December 27, 2024</p>
+      <p className="text-muted-foreground mb-8">Last updated: June 18, 2026</p>
 
       <div className="prose prose-lg dark:prose-invert max-w-none space-y-8">
         <section>
@@ -125,7 +125,7 @@ export default function PrivacyPolicyPage() {
 
         <section>
           <h2 className="text-2xl font-semibold mb-4">6. Cookies and Tracking Technologies</h2>
-          <p>IndiaStats.org uses minimal cookies and tracking:</p>
+          <p>IndiaStats.org uses cookies and tracking technologies to improve our platform:</p>
           <ul className="list-disc pl-6 space-y-2 mt-2">
             <li>
               <strong>Essential Cookies:</strong> Required for basic website functionality
@@ -134,10 +134,65 @@ export default function PrivacyPolicyPage() {
               <strong>Local Storage:</strong> Used for theme preferences and search history (as
               described above)
             </li>
+            <li>
+              <strong>Analytics & Advertising Cookies:</strong> Third-party services may set
+              cookies for analytics and advertising purposes (see section 8 below)
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">6.1 Third-Party Analytics and Advertising Services</h2>
+          <p>
+            We use the following third-party analytics and advertising services to understand how
+            visitors use IndiaStats.org and to support the free platform:
+          </p>
+          <ul className="list-disc pl-6 space-y-2 mt-2">
+            <li>
+              <strong>Google Tag Manager:</strong> Manages and deploys analytics and advertising tags
+            </li>
+            <li>
+              <strong>Google Analytics 4 (GA4):</strong> Measures page views, user engagement, traffic
+              sources, and user behavior to improve our platform
+            </li>
+            <li>
+              <strong>Microsoft Clarity:</strong> Captures session recordings, heatmaps, and user
+              interaction data for UX improvement and conversion analysis
+            </li>
+            <li>
+              <strong>PostHog:</strong> Provides product analytics and feature usage tracking to help
+              us understand how users interact with our platform
+            </li>
+            <li>
+              <strong>Google AdSense:</strong> Displays advertising on our platform to support free
+              access to electoral data and services
+            </li>
           </ul>
           <p className="mt-4">
-            We do not currently use third-party analytics services or advertising trackers. If this
-            changes in the future, we will update this policy accordingly.
+            These services may set cookies and collect data including your IP address, browser type,
+            operating system, pages visited, time spent on pages, referring URLs, and device
+            information. This data is used primarily for analytics and advertising purposes.
+          </p>
+          <p className="mt-4">
+            <strong>Your Choices:</strong> You can control cookies through your browser settings. We
+            recommend:
+          </p>
+          <ul className="list-disc pl-6 space-y-2 mt-2">
+            <li>
+              Using your browser's cookie settings to block or limit third-party cookies
+            </li>
+            <li>
+              Using privacy-focused browser extensions or opt-out services
+            </li>
+            <li>
+              Visiting Google's Ads Settings (https://adssettings.google.com) to manage
+              personalized ads
+            </li>
+          </ul>
+          <p className="mt-4">
+            <strong>Data Sharing:</strong> We do not sell your personal data to third parties. These
+            analytics and advertising services have their own privacy policies that govern how they
+            collect and use data.
           </p>
         </section>
 
@@ -157,11 +212,11 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4">8. Third-Party Services</h2>
-          <p>Our platform may use the following third-party services:</p>
+          <h2 className="text-2xl font-semibold mb-4">8. Additional Third-Party Services</h2>
+          <p>Our platform also uses the following third-party services:</p>
           <ul className="list-disc pl-6 space-y-2 mt-2">
             <li>
-              <strong>Vercel:</strong> Website hosting and deployment
+              <strong>Azure Container Apps:</strong> Website hosting and deployment
             </li>
             <li>
               <strong>Azure Blob Storage:</strong> Media and image storage
