@@ -25,15 +25,11 @@ module.exports = {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/*', '/api/*'],
+        disallow: ['/admin/', '/api/'],
       },
     ],
-    additionalSitemaps: [
-      `${SITE_URL}/pages-sitemap.xml`,
-      `${SITE_URL}/posts-sitemap.xml`,
-      `${SITE_URL}/districts-sitemap.xml`,
-      `${SITE_URL}/assemblies-sitemap.xml`,
-      `${SITE_URL}/predictions-sitemap.xml`,
-    ],
+    // Only reference the sitemap index — it already lists all child sitemaps.
+    // Listing child sitemaps individually here is redundant and creates a maintenance hazard.
+    additionalSitemaps: [],
   },
 }
