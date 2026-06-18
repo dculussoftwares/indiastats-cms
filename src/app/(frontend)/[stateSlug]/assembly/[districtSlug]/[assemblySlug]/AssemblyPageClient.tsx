@@ -153,6 +153,7 @@ function formatNumber(num: number): string {
 
 export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps) {
   const state = useStateConfig()
+  const cleanAssemblyName = data.name.split(' / ')[1] || data.name
   const [showAllWinningHistories, setShowAllWinningHistories] = React.useState(false)
 
   // Latest election vote-share pie
@@ -253,7 +254,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {data.voters && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Assembly Overview
+            {cleanAssemblyName} Assembly Overview
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Link
@@ -352,7 +353,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {data.electionHistory.length >= 2 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Vote Transfer: Last 2 Elections
+            Vote Transfer in {cleanAssemblyName}: Last 2 Elections
           </h2>
           <VoteTransferChart electionHistory={data.electionHistory} />
         </section>
@@ -362,7 +363,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Past Winning Histories
+            Past Winning Histories in {cleanAssemblyName}
           </h2>
           <PastWinningHistories electionHistory={data.electionHistory} />
         </section>
@@ -372,7 +373,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Winning Histories since ADMK formed
+            {cleanAssemblyName}: Winning Histories since ADMK formed
           </h2>
           <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {(showAllWinningHistories
@@ -438,7 +439,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Vote Shares by Party
+            Vote Shares by Party in {cleanAssemblyName}
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             {/* Pie: latest election */}
@@ -517,7 +518,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {data.voters && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Gender Distribution
+            Gender Distribution in {cleanAssemblyName}
           </h2>
           <GenderChart voters={data.voters} />
         </section>
@@ -526,7 +527,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {/* Caste Demographics */}
       <section className="mb-8">
         <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-          Caste Demographics
+          Caste Demographics in {cleanAssemblyName}
         </h2>
         <CasteDemographicsCard casteData={data.casteData} />
       </section>
@@ -545,7 +546,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {data.electionHistory.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Most Winning Parties since ADMK formed
+            {cleanAssemblyName}: Most Winning Parties since ADMK formed
           </h2>
           <MostWinningPartiesCard
             historicData={data.electionHistory.map((e) => ({
@@ -568,7 +569,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {data.description && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            About this Constituency
+            About {cleanAssemblyName} Constituency
           </h2>
           <Card>
             <CardContent className="pt-5 pb-4">
@@ -599,7 +600,7 @@ export function AssemblyPageClient({ data, stateSlug }: AssemblyPageClientProps)
       {data.knownBusinesses && (
         <section className="mb-8">
           <h2 className="text-lg font-bold border-l-4 border-red-600 pl-3 mb-4">
-            Economy & Local Information
+            {cleanAssemblyName}: Economy & Local Information
           </h2>
 
           {/* Business Summary */}
