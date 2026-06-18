@@ -130,6 +130,10 @@ export async function GET(request: NextRequest) {
             partyChanges,
             flippedSeats,
             totalFlipped: flippedSeats.length,
+        }, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+            },
         })
     } catch (error) {
         console.error('Error fetching election insights:', error)
