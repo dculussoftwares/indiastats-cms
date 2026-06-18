@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Building2, MapPin, Users, User, UserCircle2, Shield, ShieldCheck } from 'lucide-react'
 import { formatNumber } from '@/utilities/formatNumber'
 
@@ -42,9 +43,9 @@ export function MapStatsDashboard({ stats, isLoading }: MapStatsDashboardProps) 
     return (
       <div className="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-6 mb-6">
         {[...Array(6)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
+          <Card key={i}>
             <CardContent className="pt-4 pb-4">
-              <div className="h-16 bg-gray-200 dark:bg-gray-800 rounded" />
+              <Skeleton className="h-16" />
             </CardContent>
           </Card>
         ))}

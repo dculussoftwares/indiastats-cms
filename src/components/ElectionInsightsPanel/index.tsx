@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { ArrowRight, TrendingUp, TrendingDown, Minus, RefreshCcw } from 'lucide-react'
 import { getPartyColor } from '@/lib/partyColors'
 
@@ -72,9 +73,9 @@ export function ElectionInsightsPanel({ year1, year2, isVisible }: ElectionInsig
     return (
       <Card className="mt-4">
         <CardContent className="pt-4">
-          <div className="animate-pulse space-y-3">
-            <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-1/3" />
-            <div className="h-20 bg-gray-200 dark:bg-gray-800 rounded" />
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-1/3" />
+            <Skeleton className="h-20" />
           </div>
         </CardContent>
       </Card>
