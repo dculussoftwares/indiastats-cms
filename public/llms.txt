@@ -48,4 +48,4 @@ The platform exposes a public REST API via PayloadCMS:
 - Site: https://indiastats.org
 - Email: contact@indiastats.org
 - X/Twitter: @IndiaStatsOrg
-- GitHub: Open-source project
+- GitHub: https://github.com/dculussoftwares/indiastats-cms
