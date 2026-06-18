@@ -1,17 +1,37 @@
 'use client'
 import * as React from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PopulationChangeCard } from '@/components/PopulationChangeCard'
-import { GenderChart } from '@/components/GenderChart'
-import { MostWinningPartiesCard } from '@/components/MostWinningPartiesCard'
-import { VotesSharesChart } from '@/components/VotesSharesChart'
 import { getPartyColor } from '@/lib/partyColors'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
-import { VoteTransferChart } from '@/components/VoteTransferChart'
-import { PastWinningHistories } from '@/components/PastWinningHistories'
+import { Skeleton } from '@/components/ui/skeleton'
+
+// Below-the-fold chart components — split into separate JS chunks to reduce initial bundle.
+// Recharts (~80KB gzipped) loads only when these components enter the viewport.
+const GenderChart = dynamic(() => import('@/components/GenderChart').then((m) => m.GenderChart), {
+  loading: () => <Skeleton className="h-48 w-full" />,
+  ssr: false,
+})
+const MostWinningPartiesCard = dynamic(
+  () => import('@/components/MostWinningPartiesCard').then((m) => m.MostWinningPartiesCard),
+  { loading: () => <Skeleton className="h-48 w-full" />, ssr: false },
+)
+const VotesSharesChart = dynamic(
+  () => import('@/components/VotesSharesChart').then((m) => m.VotesSharesChart),
+  { loading: () => <Skeleton className="h-48 w-full" />, ssr: false },
+)
+const VoteTransferChart = dynamic(
+  () => import('@/components/VoteTransferChart').then((m) => m.VoteTransferChart),
+  { loading: () => <Skeleton className="h-48 w-full" />, ssr: false },
+)
+const PastWinningHistories = dynamic(
+  () => import('@/components/PastWinningHistories').then((m) => m.PastWinningHistories),
+  { loading: () => <Skeleton className="h-64 w-full" />, ssr: false },
+)
 import { ViewOnMapCard } from '@/components/ViewOnMapCard'
 import { CasteDemographicsCard } from '@/components/CasteDemographicsCard'
 import {
