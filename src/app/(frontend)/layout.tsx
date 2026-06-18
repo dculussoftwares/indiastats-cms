@@ -24,6 +24,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
       <head>
+        {/* Preconnect to critical third-party origins — saves ~150-300ms on first script load */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://t.indiastats.org" />
+        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+          <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+        )}
         {/* Google Tag Manager */}
         <Script
           id="gtm-script"
