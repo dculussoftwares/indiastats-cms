@@ -59,7 +59,7 @@ const ORGANIZATION_DATA: OrganizationSchema = {
   description:
     'Comprehensive election data, voter statistics, and political insights for Tamil Nadu assembly constituencies.',
   sameAs: [
-    'https://twitter.com/IndiaStatsOrg',
+    'https://x.com/india_stats_org',
     'https://github.com/dculussoftwares/indiastats-cms',
   ],
 }

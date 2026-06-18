@@ -100,8 +100,8 @@ export const metadata: Metadata = {
   openGraph: mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',
-    creator: '@IndiaStatsOrg',
-    site: '@IndiaStatsOrg',
+    creator: '@india_stats_org',
+    site: '@india_stats_org',
   },
   robots: {
     index: true,

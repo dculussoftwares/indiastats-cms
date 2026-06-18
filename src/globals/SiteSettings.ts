@@ -47,7 +47,7 @@ export const SiteSettings: GlobalConfig = {
                         {
                             name: 'twitterHandle',
                             type: 'text',
-                            defaultValue: '@IndiaStatsOrg',
+                            defaultValue: '@india_stats_org',
                             admin: {
                                 description: 'Twitter handle (include @)',
                             },
