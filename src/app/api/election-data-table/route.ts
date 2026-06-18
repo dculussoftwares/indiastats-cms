@@ -64,18 +64,29 @@ export async function GET(request: NextRequest) {
             whereClause.assemblyId = { equals: assemblyIdParam }
         }
 
+        // Fetch assemblies for district mapping (scope to district if provided)
+        const assembliesWhere: Record<string, any> = { stateCode: { equals: stateCode } }
+        if (districtParam) {
+            assembliesWhere.districtName = { equals: districtParam }
+        }
+
+        const assemblies = await payload.find({
+            collection: 'assemblies',
+            where: assembliesWhere,
+            limit: 500,
+        })
+
+        // If district filtered, scope history to only those assemblyIds
+        if (districtParam && assemblies.docs.length > 0) {
+            const ids = assemblies.docs.map((a: any) => a.assemblyId)
+            whereClause.assemblyId = { in: ids }
+        }
+
         // Fetch all election records
         const electionRecords = await payload.find({
             collection: 'election-history',
             where: whereClause,
             limit: 50000, // Get all records
-        })
-
-        // Fetch all assemblies for district mapping
-        const assemblies = await payload.find({
-            collection: 'assemblies',
-            where: { stateCode: { equals: stateCode } },
-            limit: 500,
         })
 
         // Fetch all districts to create districtName -> districtId lookup
@@ -142,11 +153,6 @@ export async function GET(request: NextRequest) {
             const districtSlug = assemblyInfo?.districtSlug || districtId
             const districtName = assemblyInfo?.districtName || firstRecord.districtName || 'Unknown'
             const assemblySlug = assemblyInfo?.assemblySlug || assemblyId
-
-            // Apply district filter
-            if (districtParam && districtName !== districtParam) {
-                return
-            }
 
             // Sort candidates by votes (descending)
             const sortedRecords = [...records].sort((a, b) => (b.candidateVotes || 0) - (a.candidateVotes || 0))
