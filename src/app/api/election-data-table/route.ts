@@ -53,7 +53,11 @@ export async function GET(request: NextRequest) {
         }
 
         if (yearParam) {
-            whereClause.electionYear = { equals: parseInt(yearParam, 10) }
+            const year = parseInt(yearParam, 10)
+            if (!Number.isFinite(year) || year < 1950 || year > 2100) {
+                return NextResponse.json({ error: 'Invalid year parameter' }, { status: 400 })
+            }
+            whereClause.electionYear = { equals: year }
         }
 
         if (assemblyIdParam) {
