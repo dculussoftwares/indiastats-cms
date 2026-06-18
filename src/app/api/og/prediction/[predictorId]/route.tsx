@@ -11,6 +11,11 @@ export const revalidate = 3600
 const WIDTH = 1200
 const HEIGHT = 630
 
+// Module-level cache — loaded once per server process
+const _logoBase64 = `data:image/png;base64,${readFileSync(join(process.cwd(), 'public/indiastats-logo-1024.png')).toString('base64')}`
+const _fontRegular = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Regular.ttf'))
+const _fontBold = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Bold.ttf'))
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ predictorId: string }> },
@@ -80,11 +85,9 @@ export async function GET(
     const stateConfig = getStateByCode(stateCode)
     const getColor = (p: string) => stateConfig?.partyColors[p] ?? '#64748b'
 
-    // Load assets
-    const logoBuffer = readFileSync(join(process.cwd(), 'public/indiastats-logo-1024.png'))
-    const logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`
-    const fontRegular = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Regular.ttf'))
-    const fontBold = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Bold.ttf'))
+    const logoBase64 = _logoBase64
+    const fontRegular = _fontRegular
+    const fontBold = _fontBold
 
     // Load predictor image if available
     let predictorImgBase64: string | null = null

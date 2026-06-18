@@ -12,6 +12,11 @@ export const revalidate = 86400 // Cache for 24 hours
 const WIDTH = 1200
 const HEIGHT = 630
 
+// Module-level cache — loaded once per server process
+const _logoBase64 = `data:image/png;base64,${readFileSync(join(process.cwd(), 'public/indiastats-logo-1024.png')).toString('base64')}`
+const _fontRegular = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Regular.ttf'))
+const _fontBold = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Bold.ttf'))
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ assemblyId: string }> },
@@ -107,14 +112,9 @@ export async function GET(
       : 'N/A'
     const booths = assembly.noOfBooths?.toLocaleString('en-IN') || 'N/A'
 
-    // Get Logo
-    const logoPath = join(process.cwd(), 'public/indiastats-logo-1024.png')
-    const logoBuffer = readFileSync(logoPath)
-    const logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`
-
-    // Load fonts
-    const fontRegular = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Regular.ttf'))
-    const fontBold = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Bold.ttf'))
+    const logoBase64 = _logoBase64
+    const fontRegular = _fontRegular
+    const fontBold = _fontBold
 
     // Generate the OG image
     return new ImageResponse(
