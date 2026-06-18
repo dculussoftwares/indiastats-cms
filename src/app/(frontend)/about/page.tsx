@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { Database, Map, Users, BarChart3, Globe, ShieldCheck } from 'lucide-react'
 import { tamilNaduConfig } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
+import { AboutPageJsonLd } from '@/components/seo/JsonLd'
 
 const baseUrl = getServerSideURL()
 
@@ -57,6 +58,10 @@ export default async function AboutPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <AboutPageJsonLd
+        description={`IndiaStats.org makes Indian electoral data open and accessible. Covers ${stats.assemblies} Tamil Nadu assembly constituencies, ${stats.districts} districts, ${stats.booths.toLocaleString()} polling booths, and election history since ${tamilNaduConfig.historyStartYear}.`}
+        url={`${baseUrl}/about`}
+      />
       {/* Page header */}
       <div className="border-l-4 border-red-600 pl-4 mb-10">
         <h1 className="text-3xl md:text-4xl font-bold">About IndiaStats.org</h1>

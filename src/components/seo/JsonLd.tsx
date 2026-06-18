@@ -1,10 +1,17 @@
 // Types for structured data
+interface ImageObject {
+  '@type': 'ImageObject'
+  url: string
+  width: number
+  height: number
+}
+
 interface OrganizationSchema {
   '@context': 'https://schema.org'
   '@type': 'Organization'
   name: string
   url: string
-  logo?: string
+  logo?: ImageObject
   sameAs?: string[]
   description?: string
 }
@@ -60,7 +67,12 @@ const ORGANIZATION_DATA: OrganizationSchema = {
   '@type': 'Organization',
   name: 'IndiaStats.org',
   url: 'https://indiastats.org',
-  logo: 'https://indiastats.org/favicon.svg',
+  logo: {
+    '@type': 'ImageObject',
+    url: 'https://indiastats.org/icon.png',
+    width: 192,
+    height: 192,
+  },
   description:
     'Comprehensive election data, voter statistics, and political insights for Tamil Nadu assembly constituencies.',
   sameAs: ['https://twitter.com/IndiaStatsOrg'],
@@ -113,6 +125,8 @@ export function WebsiteJsonLd() {
 /**
  * Breadcrumb schema component
  */
+const BASE_URL = 'https://indiastats.org'
+
 export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
   const data: BreadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -121,7 +135,8 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: item.url,
+      // Ensure absolute URLs — Google requires them for breadcrumb rich results
+      item: item.url.startsWith('http') ? item.url : `${BASE_URL}${item.url}`,
     })),
   }
 
@@ -215,13 +230,13 @@ export function DistrictPageJsonLd({
   districtName,
   description,
   url,
-  assemblyCount,
+  assemblies,
   stateName = 'Tamil Nadu',
 }: {
   districtName: string
   description: string
   url: string
-  assemblyCount: number
+  assemblies: { name: string }[]
   stateName?: string
 }) {
   const data = {
@@ -242,11 +257,211 @@ export function DistrictPageJsonLd({
         '@type': 'State',
         name: stateName,
       },
-      containsPlace: Array.from({ length: assemblyCount }, (_, i) => ({
+      containsPlace: assemblies.map((a) => ({
         '@type': 'AdministrativeArea',
-        name: `Assembly Constituency ${i + 1}`,
+        name: a.name,
       })),
     },
+  }
+
+  return <JsonLd data={data} />
+}
+
+/**
+ * AboutPage schema for the /about page
+ */
+export function AboutPageJsonLd({
+  description,
+  url,
+}: {
+  description: string
+  url: string
+}) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'About IndiaStats.org',
+    description,
+    url,
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'IndiaStats.org',
+      url: BASE_URL,
+      description:
+        'Comprehensive election data, voter statistics, and political insights for Tamil Nadu assembly constituencies.',
+      foundingLocation: {
+        '@type': 'Place',
+        name: 'Tamil Nadu, India',
+      },
+      knowsAbout: [
+        'Tamil Nadu elections',
+        'Indian assembly elections',
+        'Voter data',
+        'Election Commission of India',
+        'Political analytics',
+      ],
+    },
+  }
+
+  return <JsonLd data={data} />
+}
+
+/**
+ * BlogPosting schema for blog post pages
+ */
+export function BlogPostingJsonLd({
+  title,
+  description,
+  url,
+  datePublished,
+  dateModified,
+  imageUrl,
+}: {
+  title: string
+  description?: string | null
+  url: string
+  datePublished: string
+  dateModified: string
+  imageUrl?: string | null
+}) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: title,
+    ...(description && { description }),
+    url,
+    datePublished,
+    dateModified,
+    author: {
+      '@type': 'Organization',
+      name: 'IndiaStats.org',
+      url: BASE_URL,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'IndiaStats.org',
+      url: BASE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${BASE_URL}/icon.png`,
+        width: 192,
+        height: 192,
+      },
+    },
+    ...(imageUrl && { image: { '@type': 'ImageObject', url: imageUrl } }),
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url,
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'IndiaStats.org',
+      url: BASE_URL,
+    },
+  }
+
+  return <JsonLd data={data} />
+}
+
+/**
+ * Dataset schema for assembly and district data pages
+ */
+export function DatasetJsonLd({
+  name,
+  description,
+  url,
+  temporalCoverage,
+  assemblyName,
+  districtName,
+  stateName = 'Tamil Nadu',
+}: {
+  name: string
+  description: string
+  url: string
+  temporalCoverage: string
+  assemblyName: string
+  districtName: string
+  stateName?: string
+}) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name,
+    description,
+    url,
+    creator: {
+      '@type': 'Organization',
+      name: 'IndiaStats.org',
+      url: BASE_URL,
+    },
+    license: `${BASE_URL}/terms`,
+    temporalCoverage,
+    spatialCoverage: {
+      '@type': 'AdministrativeArea',
+      name: assemblyName,
+      containedInPlace: {
+        '@type': 'AdministrativeArea',
+        name: districtName,
+        containedInPlace: {
+          '@type': 'State',
+          name: stateName,
+          containedInPlace: { '@type': 'Country', name: 'India' },
+        },
+      },
+    },
+    variableMeasured: [
+      'Registered voters',
+      'Votes polled',
+      'Candidate vote shares',
+      'Booth-level voter data',
+      'Constituency MLA history',
+    ],
+    measurementTechnique: 'Election Commission of India official results',
+    isPartOf: {
+      '@type': 'DataCatalog',
+      name: 'IndiaStats.org Election Data Catalog',
+      url: BASE_URL,
+    },
+  }
+
+  return <JsonLd data={data} />
+}
+
+/**
+ * DataCatalog schema for the homepage
+ */
+export function DataCatalogJsonLd({
+  totalAssemblies,
+  totalBooths,
+}: {
+  totalAssemblies: number
+  totalBooths: number
+}) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'DataCatalog',
+    name: 'IndiaStats.org — India Election Data Catalog',
+    description: `Comprehensive election data covering ${totalAssemblies} Tamil Nadu assembly constituencies, 38 districts, ${totalBooths.toLocaleString()}+ polling booths. Includes MLA history, voter statistics, and caste demographics.`,
+    url: BASE_URL,
+    publisher: {
+      '@type': 'Organization',
+      name: 'IndiaStats.org',
+      url: BASE_URL,
+    },
+    spatialCoverage: {
+      '@type': 'State',
+      name: 'Tamil Nadu',
+      containedInPlace: { '@type': 'Country', name: 'India' },
+    },
+    temporalCoverage: '1967/2026',
+    keywords: [
+      'Tamil Nadu elections',
+      'assembly constituency data',
+      'voter statistics',
+      'MLA history',
+      'India election data',
+    ],
+    license: `${BASE_URL}/terms`,
   }
 
   return <JsonLd data={data} />
