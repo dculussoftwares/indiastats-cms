@@ -85,7 +85,7 @@ export async function GET(
     // Get Logo
     const logoPath = join(process.cwd(), 'public/indiastats-logo-1024.png')
     const logoBuffer = readFileSync(logoPath)
-    const logoBase64 = `data:image/jpeg;base64,${logoBuffer.toString('base64')}`
+    const logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`
 
     // Load fonts
     const fontRegular = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Regular.ttf'))
