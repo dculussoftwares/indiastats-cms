@@ -1,7 +1,8 @@
 import { Metadata } from 'next'
 import { Mail, MapPin, Clock, Database, AlertCircle, FileQuestion } from 'lucide-react'
+import { getServerSideURL } from '@/utilities/getURL'
 
-const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+const baseUrl = getServerSideURL()
 
 export const metadata: Metadata = {
   title: 'Contact Us | IndiaStats.org',

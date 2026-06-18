@@ -9,6 +9,7 @@ import { getStateBySlug } from '@/config/states'
 import { getPredictorsWithSummaries } from '@/lib/electionPredictions'
 import { predictorHref } from '@/utilities/predictorUrl'
 import { getPartyColor } from '@/lib/partyColors'
+import { getServerSideURL } from '@/utilities/getURL'
 
 export const revalidate = 3600
 
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
   const stateConfig = getStateBySlug(stateSlug)
   const stateName = stateConfig?.name ?? ''
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-predictions`
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
 

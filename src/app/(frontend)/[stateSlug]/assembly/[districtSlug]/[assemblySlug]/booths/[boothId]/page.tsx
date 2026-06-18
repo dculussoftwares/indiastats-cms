@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import BoothPageClient from './BoothPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { getServerSideURL } from '@/utilities/getURL'
 
 interface Props {
   params: Promise<{
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const assemblyName = assembly?.name || 'Assembly'
   const cleanName = assemblyName.split(' / ')[1] || assemblyName
 
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const ogImageUrl = `${baseUrl}/api/og/${assembly.assemblyId}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/assembly/${districtSlug}/${assemblySlug}/booths/${boothId}`
 

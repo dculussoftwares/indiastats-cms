@@ -3,8 +3,9 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Database, Map, Users, BarChart3, Globe, ShieldCheck } from 'lucide-react'
 import { tamilNaduConfig } from '@/config/states'
+import { getServerSideURL } from '@/utilities/getURL'
 
-const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+const baseUrl = getServerSideURL()
 
 export const metadata: Metadata = {
   title: 'About Us | IndiaStats.org',

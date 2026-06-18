@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { buildFriendShareLink, buildUTMUrl, SHARE_PRESETS } from '@/utilities/utm'
+import { getClientSideURL } from '@/utilities/getURL'
 import {
   Copy,
   Check,
@@ -39,7 +40,7 @@ interface CopiedState {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'https://indiastats.org'
+const BASE_URL = getClientSideURL()
 
 const DESTINATION_PAGES = [
   { label: 'Home', path: '/' },

@@ -6,11 +6,12 @@ import { Map, MapPinned, Locate, UsersRound } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { DashboardClient } from './DashboardClient'
 import { getStateBySlug } from '@/config/states'
+import { getServerSideURL } from '@/utilities/getURL'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
   const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/dashboard`
 

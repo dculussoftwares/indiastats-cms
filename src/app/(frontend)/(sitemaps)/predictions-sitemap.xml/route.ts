@@ -4,14 +4,12 @@ import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { predictorHref } from '@/utilities/predictorUrl'
 import { getAllStates } from '@/config/states'
+import { getServerSideURL } from '@/utilities/getURL'
 
 const getPredictionsSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
-    const SITE_URL =
-      process.env.NEXT_PUBLIC_SERVER_URL ||
-      process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-      'https://indiastats.org'
+    const SITE_URL = getServerSideURL()
 
     // Get all active predictors — include name so we can build the slug URL
     const predictorsResult = await payload.find({

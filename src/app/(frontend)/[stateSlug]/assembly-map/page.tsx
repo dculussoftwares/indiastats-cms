@@ -6,6 +6,7 @@ import config from '@payload-config'
 import AssemblyMap from '@/components/AssemblyMap'
 import { getStateBySlug } from '@/config/states'
 import { loadStateGeoJson } from '@/lib/loadStateGeoJson'
+import { getServerSideURL } from '@/utilities/getURL'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
   const stateConfig = getStateBySlug(stateSlug)
   const stateName = stateConfig?.name ?? stateSlug
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/assembly-map`
 

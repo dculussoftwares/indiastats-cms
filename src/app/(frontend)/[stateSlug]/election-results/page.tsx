@@ -8,6 +8,7 @@ import { getStateBySlug } from '@/config/states'
 import { loadStateGeoJson } from '@/lib/loadStateGeoJson'
 import { ElectionResultsMap } from '@/components/ElectionResultsMap'
 import { buildLiveResultsDataset, type LiveResultDoc } from '@/lib/liveResults'
+import { getServerSideURL } from '@/utilities/getURL'
 
 // Full-screen TV page — always fresh (no ISR cache)
 export const revalidate = 0
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const stateConfig = getStateBySlug(stateSlug)
   if (!stateConfig) return { title: 'Not Found' }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-results`
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const title = `${stateConfig.name} Election Results 2026 — Live Count | IndiaStats`

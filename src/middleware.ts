@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getServerSideURL } from '@/utilities/getURL'
 
 /**
  * Middleware to handle backwards-compatible redirects from old ID-based URLs
@@ -34,7 +35,7 @@ async function loadSlugMappings() {
 
     try {
         // Fetch from internal API endpoints
-        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+        const baseUrl = getServerSideURL()
 
         // Load district mappings
         const districtRes = await fetch(`${baseUrl}/api/slug-mappings?type=districts`, {

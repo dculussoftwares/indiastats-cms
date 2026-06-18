@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
+import { getServerSideURL } from '@/utilities/getURL'
 
-const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+const baseUrl = getServerSideURL()
 
 export const metadata: Metadata = {
   title: 'Terms of Service | IndiaStats.org',

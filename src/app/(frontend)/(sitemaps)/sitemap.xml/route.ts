@@ -1,10 +1,8 @@
 import { getServerSideSitemapIndex } from 'next-sitemap'
+import { getServerSideURL } from '@/utilities/getURL'
 
 export async function GET() {
-  const SITE_URL =
-    process.env.NEXT_PUBLIC_SERVER_URL ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-    'https://indiastats.org'
+  const SITE_URL = getServerSideURL()
 
   const sitemaps = [
     `${SITE_URL}/pages-sitemap.xml`,

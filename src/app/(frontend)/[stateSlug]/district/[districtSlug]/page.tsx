@@ -6,6 +6,7 @@ import { unstable_cache } from 'next/cache'
 import { DistrictPageClient } from './DistrictPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { getStateByCode, getStateBySlug } from '@/config/states'
+import { getServerSideURL } from '@/utilities/getURL'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -54,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const districtDoc = district.docs[0] as any
   const districtName = districtDoc.districtName
   const cleanName = districtName.split(' / ')[1] || districtName
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const ogImageUrl = `${baseUrl}/api/og/district/${districtDoc.districtId}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/district/${districtSlug}`
 

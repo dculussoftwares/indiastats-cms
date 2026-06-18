@@ -6,6 +6,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { ElectionAnalysisClient } from './ElectionAnalysisClient'
 import { computeElectionAnalysis } from '@/lib/electionAnalysis'
 import type { ElectionAnalysisResponse } from '@/lib/electionAnalysis'
+import { getServerSideURL } from '@/utilities/getURL'
 
 interface Props {
   params: Promise<{ stateSlug: string; year: string }>
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug, year } = await params
   const stateConfig = getStateBySlug(stateSlug)
   if (!stateConfig) return { title: 'Not Found' }
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-analysis/${year}`
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const title = `${stateConfig.name} ${year} Election Analysis | IndiaStats`

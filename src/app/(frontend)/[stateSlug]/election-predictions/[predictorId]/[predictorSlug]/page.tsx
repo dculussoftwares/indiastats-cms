@@ -10,6 +10,7 @@ import {
   predictorNameSlug,
   predictorHref,
 } from '@/lib/electionPredictions'
+import { getServerSideURL } from '@/utilities/getURL'
 
 export const revalidate = 3600
 
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const predictorName = predictor.name
   const stateName = stateConfig.name
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const canonicalUrl = `${baseUrl}` + predictorHref(stateSlug, predictorId, predictorName)
 
   const ogImageUrl = `${baseUrl}/api/og/prediction/${predictorId}`

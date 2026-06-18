@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { CasteDemographicsClient } from './CasteDemographicsClient'
 import { getStateBySlug } from '@/config/states'
+import { getServerSideURL } from '@/utilities/getURL'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -11,7 +12,7 @@ export const revalidate = 86400
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
   const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/caste-demographics`
 

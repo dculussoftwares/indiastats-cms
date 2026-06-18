@@ -4,8 +4,9 @@ import { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import { HomePageClient } from './HomePageClient'
 import { tamilNaduConfig } from '@/config/states'
+import { getServerSideURL } from '@/utilities/getURL'
 
-const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+const baseUrl = getServerSideURL()
 
 export const metadata: Metadata = {
   title: 'IndiaStats.org - India Election Data & Statistics',

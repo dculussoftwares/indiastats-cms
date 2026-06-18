@@ -6,6 +6,7 @@ import { unstable_cache } from 'next/cache'
 import { AssemblyPageClient } from './AssemblyPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { getStateBySlug } from '@/config/states'
+import { getServerSideURL } from '@/utilities/getURL'
 
 // Revalidate every 24 hours (ISR)
 export const revalidate = 86400
@@ -68,7 +69,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const cleanName = assemblyName.split(' / ')[1] || assemblyName
 
   // Generate OG image URL
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://indiastats.org'
+  const baseUrl = getServerSideURL()
   const ogImageUrl = `${baseUrl}/api/og/${assemblyDoc.assemblyId}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`
 
