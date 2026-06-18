@@ -33,6 +33,7 @@ import { PartyLogo } from '@/components/PartyLogo'
 import { ElectionAnalysisMap } from '@/components/ElectionAnalysisMap'
 import type { ElectionAnalysisResponse } from '@/app/api/election-analysis/route'
 import type { ConstituencyResult } from '@/lib/electionAnalysis'
+import { getEnglishName } from '@/utilities/bilingualName'
 
 interface ElectionAnalysisClientProps {
   data: ElectionAnalysisResponse
@@ -205,9 +206,7 @@ function VerdictHero({ data }: { data: ElectionAnalysisResponse }) {
               <span className="text-sm font-normal text-muted-foreground ml-1">votes</span>
             </p>
             <p className="text-xs font-medium truncate mt-0.5">
-              {summary.closestConstituency.includes('/')
-                ? summary.closestConstituency.split('/')[1].trim()
-                : summary.closestConstituency}
+              {getEnglishName(summary.closestConstituency)}
             </p>
             <div className="flex items-center gap-1 mt-1">
               <PartyChip party={summary.closestWinnerParty} />
@@ -231,9 +230,7 @@ function VerdictHero({ data }: { data: ElectionAnalysisResponse }) {
               <span className="text-sm font-normal text-muted-foreground ml-1">margin</span>
             </p>
             <p className="text-xs font-medium truncate mt-0.5">
-              {summary.biggestConstituency.includes('/')
-                ? summary.biggestConstituency.split('/')[1].trim()
-                : summary.biggestConstituency}
+              {getEnglishName(summary.biggestConstituency)}
             </p>
             <div className="flex items-center gap-1 mt-1">
               <PartyChip party={summary.biggestWinnerParty} />
@@ -297,7 +294,7 @@ function ContestIntensityCard({
   const mostContested = constituencies
     .filter((c) => (c.numCandidates ?? 0) === maxCandidates)
     .map((c) =>
-      c.assemblyName.includes('/') ? c.assemblyName.split('/')[1]!.trim() : c.assemblyName,
+      getEnglishName(c.assemblyName),
     )
     .join(', ')
 
@@ -406,18 +403,14 @@ function ContestIntensityCard({
           </p>
           <div className="divide-y divide-gray-50 dark:divide-gray-800">
             {mostContestedList.map((c) => {
-              const label = c.assemblyName.includes('/')
-                ? c.assemblyName.split('/')[1]!.trim()
-                : c.assemblyName
+              const label = getEnglishName(c.assemblyName)
               const color = getPartyColor(c.winner.party)
               return (
                 <div key={c.assemblyId} className="flex items-center gap-3 py-1.5">
                   <div className="flex-1 min-w-0">
                     <span className="text-xs font-semibold">{label}</span>
                     <span className="text-[10px] text-muted-foreground ml-1.5">
-                      {c.districtName.includes('/')
-                        ? c.districtName.split('/')[1]!.trim()
-                        : c.districtName}
+                      {getEnglishName(c.districtName)}
                     </span>
                   </div>
                   <span
@@ -481,9 +474,6 @@ function RunnerUpCard({
     setShowAll(false)
   }
 
-  function getEn(name: string) {
-    return name.includes('/') ? name.split('/')[1]!.trim() : name
-  }
 
   // Tally runner-up finishes + margins per party
   const runnerMap: Record<
@@ -632,11 +622,11 @@ function RunnerUpCard({
                                   href={href}
                                   className="text-xs font-semibold hover:underline inline-flex items-center gap-0.5"
                                 >
-                                  {getEn(c.assemblyName)}
+                                  {getEnglishName(c.assemblyName)}
                                   <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5" />
                                 </Link>
                                 <span className="text-[10px] text-muted-foreground ml-1.5">
-                                  {getEn(c.districtName)}
+                                  {getEnglishName(c.districtName)}
                                 </span>
                               </div>
                               <span
@@ -706,9 +696,6 @@ function ClosestMarginByPartyCard({
   const [selectedParty, setSelectedParty] = React.useState<string | null>(null)
   const [showAll, setShowAll] = React.useState(false)
 
-  function getEn(name: string) {
-    return name.includes('/') ? name.split('/')[1]!.trim() : name
-  }
 
   // Group winning constituencies by party
   const partyMap: Record<string, { seats: ConstituencyResult[]; margins: number[] }> = {}
@@ -852,11 +839,11 @@ function ClosestMarginByPartyCard({
                                   href={href}
                                   className="text-xs font-semibold hover:underline inline-flex items-center gap-0.5"
                                 >
-                                  {getEn(c.assemblyName)}
+                                  {getEnglishName(c.assemblyName)}
                                   <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5" />
                                 </Link>
                                 <span className="text-[10px] text-muted-foreground ml-1.5">
-                                  {getEn(c.districtName)}
+                                  {getEnglishName(c.districtName)}
                                 </span>
                               </div>
                               {c.runnerUp.party && (
@@ -935,9 +922,6 @@ function DistrictDominanceCard({
 }) {
   const [showInfo, setShowInfo] = React.useState(false)
 
-  function getEn(name: string) {
-    return name.includes('/') ? name.split('/')[1]!.trim() : name
-  }
 
   // Group by district
   const districtMap: Record<
@@ -962,7 +946,7 @@ function DistrictDominanceCard({
       const dominancePct = seats.length > 0 ? topPartyCount / seats.length : 0
       // seats sorted by assembly name
       const sortedSeats = [...seats].sort((a, b) =>
-        getEn(a.assemblyName).localeCompare(getEn(b.assemblyName)),
+        getEnglishName(a.assemblyName).localeCompare(getEnglishName(b.assemblyName)),
       )
       return { name, slug, seats: sortedSeats, parties, topParty, topPartyCount, dominancePct }
     })
@@ -1011,7 +995,7 @@ function DistrictDominanceCard({
                   {/* District name + dominant party */}
                   <div className="w-28 flex-shrink-0 pt-0.5">
                     <p className="text-[11px] font-semibold truncate leading-tight">
-                      {getEn(name)}
+                      {getEnglishName(name)}
                     </p>
                     <p className="text-[9px] text-muted-foreground truncate">
                       {topPartyCount}/{seats.length}
@@ -1040,7 +1024,7 @@ function DistrictDominanceCard({
                         <Link
                           key={c.assemblyId}
                           href={href}
-                          title={`${getEn(c.assemblyName)} — ${c.winner.party} (${c.marginPct}% margin)`}
+                          title={`${getEnglishName(c.assemblyName)} — ${c.winner.party} (${c.marginPct}% margin)`}
                           className="w-4 h-4 rounded-full transition-transform hover:scale-125 flex-shrink-0"
                           style={{ backgroundColor: color }}
                         />
@@ -1102,9 +1086,6 @@ function PluralityWinnersCard({
   const [showInfo, setShowInfo] = React.useState(false)
   const [expanded, setExpanded] = React.useState(false)
 
-  function getEn(name: string) {
-    return name.includes('/') ? name.split('/')[1]!.trim() : name
-  }
 
   // A plurality win = winner got < 50% of valid votes polled
   const pluralitySeats = constituencies.filter(
@@ -1291,11 +1272,11 @@ function PluralityWinnersCard({
                           href={href}
                           className="text-xs font-semibold hover:underline inline-flex items-center gap-0.5"
                         >
-                          {getEn(c.assemblyName)}
+                          {getEnglishName(c.assemblyName)}
                           <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5" />
                         </Link>
                         <span className="text-[10px] text-muted-foreground ml-1.5">
-                          {getEn(c.districtName)}
+                          {getEnglishName(c.districtName)}
                         </span>
                       </div>
                       <span
@@ -1622,9 +1603,6 @@ function SecondPlaceCard({
   const totalSecond = secondPlaces.reduce((s, d) => s + d.count, 0)
   const selectedData = selected ? top6.find((d) => d.party === selected) : null
 
-  function getEn(name: string) {
-    return name.includes('/') ? name.split('/')[1]!.trim() : name
-  }
 
   return (
     <Card>
@@ -1669,11 +1647,11 @@ function SecondPlaceCard({
                         href={href}
                         className="text-xs font-semibold hover:text-primary hover:underline inline-flex items-center gap-0.5"
                       >
-                        {getEn(a.assemblyName)}
+                        {getEnglishName(a.assemblyName)}
                         <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5 flex-shrink-0" />
                       </Link>
                       <span className="text-[10px] text-muted-foreground ml-1.5">
-                        {getEn(a.districtName)}
+                        {getEnglishName(a.districtName)}
                       </span>
                     </div>
                     <div className="text-right flex-shrink-0">
@@ -1796,9 +1774,6 @@ function ThirdPlaceCard({
   const totalThird = thirdPlaces.reduce((s, d) => s + d.count, 0)
   const selectedData = selected ? top6.find((d) => d.party === selected) : null
 
-  function getEn(name: string) {
-    return name.includes('/') ? name.split('/')[1]!.trim() : name
-  }
 
   return (
     <Card>
@@ -1843,11 +1818,11 @@ function ThirdPlaceCard({
                         href={href}
                         className="text-xs font-semibold hover:text-primary hover:underline inline-flex items-center gap-0.5"
                       >
-                        {getEn(a.assemblyName)}
+                        {getEnglishName(a.assemblyName)}
                         <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5 flex-shrink-0" />
                       </Link>
                       <span className="text-[10px] text-muted-foreground ml-1.5">
-                        {getEn(a.districtName)}
+                        {getEnglishName(a.districtName)}
                       </span>
                     </div>
                     <div className="text-right flex-shrink-0">
@@ -1988,9 +1963,6 @@ function LostDepositsCard({
   const totalCandidates = lostDeposits.reduce((s, d) => s + d.total, 0)
   const selectedData = selected ? top6.find((d) => d.party === selected) : null
 
-  function getEn(name: string) {
-    return name.includes('/') ? name.split('/')[1]!.trim() : name
-  }
 
   return (
     <Card>
@@ -2038,11 +2010,11 @@ function LostDepositsCard({
                         href={href}
                         className="text-xs font-semibold hover:text-primary hover:underline inline-flex items-center gap-0.5"
                       >
-                        {getEn(a.assemblyName)}
+                        {getEnglishName(a.assemblyName)}
                         <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5 flex-shrink-0" />
                       </Link>
                       <span className="text-[10px] text-muted-foreground ml-1.5">
-                        {getEn(a.districtName)}
+                        {getEnglishName(a.districtName)}
                       </span>
                     </div>
                     <div className="text-right flex-shrink-0">

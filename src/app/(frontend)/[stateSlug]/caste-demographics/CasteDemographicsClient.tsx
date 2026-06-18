@@ -10,6 +10,7 @@ import { ArrowLeft, Search, Users, TrendingUp, MapPin, Filter } from 'lucide-rea
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
 import { useStateConfig } from '@/components/providers/StateProvider'
+import { getEnglishName } from '@/utilities/bilingualName'
 
 interface CasteData {
   id: string
@@ -178,13 +179,6 @@ export function CasteDemographicsClient({
 
     setFilteredData(filtered)
   }, [allData, searchQuery, casteFilter, sortBy])
-
-  const getEnglishName = (name: string) => {
-    if (name.includes('/')) {
-      return name.split('/')[1].trim()
-    }
-    return name
-  }
 
   const renderCasteCell = (caste: string | null, percentage: number | null, colorIndex: number) => {
     if (!caste) return <span className="text-gray-400">-</span>
