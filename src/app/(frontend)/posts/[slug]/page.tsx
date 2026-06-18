@@ -14,6 +14,8 @@ import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { BlogPostingJsonLd } from '@/components/seo/JsonLd'
+import { getServerSideURL } from '@/utilities/getURL'
 
 // Force dynamic rendering - Payload CMS requires database at runtime
 export const dynamic = 'force-dynamic'
@@ -34,8 +36,24 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   if (!post) return <PayloadRedirects url={url} />
 
+  const baseUrl = getServerSideURL()
+  const postUrl = `${baseUrl}/posts/${decodedSlug}`
+  const metaImage = post.meta?.image
+  const imageUrl =
+    metaImage && typeof metaImage === 'object' && 'url' in metaImage
+      ? `${baseUrl}${(metaImage as any).sizes?.og?.url ?? (metaImage as any).url}`
+      : `${baseUrl}/indiastats-logo-1024.png`
+
   return (
     <article className="pt-16 pb-16">
+      <BlogPostingJsonLd
+        title={post.title}
+        description={post.meta?.description}
+        url={postUrl}
+        datePublished={post.createdAt}
+        dateModified={post.updatedAt}
+        imageUrl={imageUrl}
+      />
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -62,11 +80,20 @@ export default async function Post({ params: paramsPromise }: Args) {
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { slug = '' } = await paramsPromise
-  // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const post = await queryPostBySlug({ slug: decodedSlug })
 
-  return generateMeta({ doc: post })
+  const base = await generateMeta({ doc: post, path: `/posts/${decodedSlug}` })
+
+  return {
+    ...base,
+    openGraph: {
+      ...base.openGraph,
+      type: 'article',
+      ...(post?.createdAt && { publishedTime: post.createdAt }),
+      ...(post?.updatedAt && { modifiedTime: post.updatedAt }),
+    },
+  }
 }
 
 const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
