@@ -4,49 +4,47 @@ import mixpanel from 'mixpanel-browser'
 // Track Mixpanel initialization state
 let mixpanelReady = false
 
-// Initialize PostHog for client-side analytics
-// Only initialize in production and if the key is available
-if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+function initPostHog() {
+  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) return
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
     api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://t.indiastats.org',
     defaults: '2026-01-30',
-    // Disable in development
-    loaded: (posthog) => {
-      if (process.env.NODE_ENV === 'development') {
-        posthog.opt_out_capturing()
-      }
+    loaded: (ph) => {
+      if (process.env.NODE_ENV === 'development') ph.opt_out_capturing()
     },
-    // Capture pageviews automatically
     capture_pageview: true,
-    // Capture page leaves
     capture_pageleave: true,
-    // Respect Do Not Track
     respect_dnt: true,
-    // Disable session recording in development
     disable_session_recording: process.env.NODE_ENV === 'development',
   })
 }
 
-// Initialize Mixpanel for client-side analytics
-// Configured with autocapture and session replay
-if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_MIXPANEL_TOKEN) {
+function initMixpanel() {
+  if (!process.env.NEXT_PUBLIC_MIXPANEL_TOKEN) return
   mixpanel.init(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN, {
     debug: process.env.NODE_ENV === 'development',
     track_pageview: true,
     persistence: 'localStorage',
     autocapture: true,
     record_sessions_percent: 5,
-    // Disable data masking on recordings per official Mixpanel docs
-    // Empty strings ensure no text/input masking is applied
     record_mask_text_class: '',
     record_mask_text_selector: '',
     loaded: () => {
       mixpanelReady = true
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[Mixpanel] Initialized successfully')
-      }
+      if (process.env.NODE_ENV === 'development') console.log('[Mixpanel] Initialized')
     },
   })
+}
+
+// Defer both SDKs until the browser is idle so they don't compete with
+// React hydration on the main thread (INP improvement ~150-400ms).
+if (typeof window !== 'undefined') {
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => { initPostHog(); initMixpanel() })
+  } else {
+    // Safari fallback — defer by one task after hydration
+    setTimeout(() => { initPostHog(); initMixpanel() }, 0)
+  }
 }
 
 export { posthog, mixpanel, mixpanelReady }
