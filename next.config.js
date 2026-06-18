@@ -29,12 +29,15 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.clarity.ms https://cdn.clarity.ms",
+              // AdSense also loads scripts from partner.googleadservices.com, tpc.googlesyndication.com, adservice.google.com
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://adservice.google.com https://www.googletagmanager.com https://www.googletagservices.com https://www.clarity.ms https://cdn.clarity.ms",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' https://region1.analytics.google.com https://www.google-analytics.com https://t.indiastats.org https://api.mixpanel.com https://api-js.mixpanel.com wss://t.indiastats.org",
-              "frame-src 'none'",
+              // AdSense connects to doubleclick and adservice domains for ad requests
+              "connect-src 'self' https://region1.analytics.google.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://adservice.google.com https://pagead2.googlesyndication.com https://t.indiastats.org https://api.mixpanel.com https://api-js.mixpanel.com wss://t.indiastats.org",
+              // AdSense renders ad creatives inside iframes hosted on these domains
+              "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com",
               "object-src 'none'",
               "base-uri 'self'",
             ].join('; '),
