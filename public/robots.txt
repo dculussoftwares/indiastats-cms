@@ -1,0 +1,21 @@
+# All bots
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Explicit AI search crawler opt-ins (improves inclusion probability)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Sitemaps
+Sitemap: https://indiastats.org/sitemap.xml
