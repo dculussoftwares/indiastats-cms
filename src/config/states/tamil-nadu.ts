@@ -26,15 +26,15 @@ export const tamilNaduConfig: StateConfig = {
       name: 'AIADMK Bloc',
       parties: ['AIADMK', 'BJP', 'PMK', 'DMDK', 'TMC(M)'],
       leaderImage: '/images/EPS.jpg',
-      color: '#10663D',
+      color: '#2fdf89',
     },
   ],
 
   partyColors: {
     TVK: '#F5C518', // Yellow/Gold
     DMK: '#E7191E', // Red
-    AIADMK: '#10663D', // Green
-    ADMK: '#10663D', // Alias
+    AIADMK: '#2fdf89', // Green
+    ADMK: '#2fdf89', // Alias
     BJP: '#FF9933', // Saffron
     INC: '#00BFFF', // Blue
     CONG: '#00BFFF', // Alias

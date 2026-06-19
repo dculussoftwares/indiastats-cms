@@ -802,7 +802,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             {[
               { party: 'TVK', seats: 108, prev: 0, color: '#F5C518', note: 'Debut election' },
               { party: 'DMK', seats: 59, prev: 133, color: '#E7191E', note: 'Outgoing govt' },
-              { party: 'AIADMK', seats: 47, prev: 68, color: '#10663D', note: '' },
+              { party: 'AIADMK', seats: 47, prev: 68, color: '#2fdf89', note: '' },
               { party: 'INC', seats: 5, prev: 18, color: '#00bcd4', note: '' },
             ].map((p) => (
               <div
