@@ -227,9 +227,6 @@ export function HomePageClient({ stats, states }: HomePageClientProps) {
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {states.map((state) => {
               const now = new Date().getFullYear()
-              const lastYear =
-                [...state.electionYears].reverse().find((y) => y <= now) ??
-                state.electionYears[state.electionYears.length - 1]
               const nextYear = state.electionYears.find((y) => y > now)
               const topParties = state.majorParties.slice(0, 4)
               return (
