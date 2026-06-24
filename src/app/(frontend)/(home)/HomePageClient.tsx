@@ -6,19 +6,14 @@ import Image from 'next/image'
 import {
   Map,
   MapPinned,
-  UsersRound,
-  Locate,
   ChevronRight,
   BarChart3,
   Users,
-  Vote,
   TrendingUp,
   Github,
   Star,
   Search,
-  ExternalLink,
   Download,
-  User,
   Activity,
   FlaskConical,
   Zap,
@@ -29,10 +24,11 @@ import {
   Target,
   Trophy,
 } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { trackViewed, trackClicked, getPageContext, setPageContext, PAGE_NAMES } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
+import type { StateConfig } from '@/config/states/types'
+
 interface HomePageClientProps {
   stats: {
     totalDistricts: number
@@ -40,6 +36,7 @@ interface HomePageClientProps {
     totalBooths: number
     totalVoters: number
   }
+  states: StateConfig[]
 }
 
 // Animated counter hook
@@ -100,7 +97,7 @@ function StatCounter({ value, label }: { value: number; label: string }) {
   )
 }
 
-export function HomePageClient({ stats }: HomePageClientProps) {
+export function HomePageClient({ stats, states }: HomePageClientProps) {
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.HOMEPAGE,
@@ -207,7 +204,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             {/* Right: Stats Grid */}
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-8">
               <h3 className="text-white/50 text-sm uppercase tracking-wider mb-6 text-center">
-                Tamil Nadu at a Glance
+                India at a Glance
               </h3>
               <div className="grid grid-cols-2 gap-8">
                 <StatCounter value={stats.totalDistricts} label="Districts" />
@@ -216,6 +213,81 @@ export function HomePageClient({ stats }: HomePageClientProps) {
                 <StatCounter value={stats.totalVoters} label="Voters" />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Browse by State */}
+      <section className="bg-[#0f0f1a] py-14 border-b border-white/5">
+        <div className="container">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Browse by State</h2>
+            <p className="text-white/50 text-sm">Choose a state to explore its election data</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {states.map((state) => {
+              const now = new Date().getFullYear()
+              const lastYear =
+                [...state.electionYears].reverse().find((y) => y <= now) ??
+                state.electionYears[state.electionYears.length - 1]
+              const nextYear = state.electionYears.find((y) => y > now)
+              const topParties = state.majorParties.slice(0, 4)
+              return (
+                <Link
+                  key={state.code}
+                  href={`/${state.slug}/dashboard`}
+                  className="group"
+                  onClick={() => {
+                    const pageContext = getPageContext()
+                    trackClicked({
+                      name: 'link',
+                      page_name: pageContext.page_name || 'Homepage',
+                      link_name: `state_card_${state.code.toLowerCase()}`,
+                      link_location: 'browse_by_state',
+                    })
+                  }}
+                >
+                  <div className="h-full p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-red-500/50 transition-all duration-300">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-white group-hover:text-red-400 transition-colors">
+                          {state.name}
+                        </h3>
+                        <p className="text-white/40 text-xs mt-1">Data from {state.historyStartYear}</p>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-white/30 group-hover:text-red-400 transition-colors mt-1" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="bg-white/5 rounded-lg p-3 text-center">
+                        <div className="text-2xl font-bold text-white">{state.assemblyCount}</div>
+                        <div className="text-white/40 text-xs uppercase tracking-wide mt-1">Seats</div>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3 text-center">
+                        <div className="text-2xl font-bold text-white">{state.districtCount}</div>
+                        <div className="text-white/40 text-xs uppercase tracking-wide mt-1">Districts</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-1.5">
+                        {topParties.map((party) => (
+                          <div
+                            key={party}
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+                            style={{ backgroundColor: state.partyColors[party] ?? '#666' }}
+                            title={party}
+                          >
+                            {party.slice(0, 2)}
+                          </div>
+                        ))}
+                      </div>
+                      {nextYear && (
+                        <span className="text-xs text-yellow-400/80 font-medium">Next: {nextYear}</span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -647,9 +719,9 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             </p>
 
             <p>
-              The platform currently covers all{' '}
-              <strong className="text-foreground">{stats.totalAssemblies} assembly constituencies in Tamil Nadu</strong>
-              , with detailed records spanning elections from 1967 to 2021. Each constituency page
+              The platform currently covers{' '}
+              <strong className="text-foreground">{stats.totalAssemblies} assembly constituencies across Tamil Nadu and Uttar Pradesh</strong>
+              , with detailed records spanning decades of election history. Each constituency page
               shows vote counts, winning margins, candidate lists, voter turnout, and demographic
               breakdowns — all sourced from official Election Commission of India data.
             </p>
@@ -658,7 +730,7 @@ export function HomePageClient({ stats }: HomePageClientProps) {
               <div className="border border-border rounded p-5">
                 <div className="text-2xl font-bold text-red-600 mb-1">15+ Elections</div>
                 <p className="text-sm text-muted-foreground">
-                  {`Historical data from 1967 to 2021 across all ${stats.totalAssemblies} Tamil Nadu constituencies`}
+                  Historical data across {stats.totalAssemblies} constituencies in Tamil Nadu and Uttar Pradesh
                 </p>
               </div>
               <div className="border border-border rounded p-5">
@@ -676,11 +748,11 @@ export function HomePageClient({ stats }: HomePageClientProps) {
             </div>
 
             <p>
-              Tamil Nadu's political landscape is one of the most studied in India. Since 1967, the
-              state has been governed exclusively by Dravidian parties — first the DMK under M.
-              Karunanidhi, then the AIADMK under M. G. Ramachandran and J. Jayalalithaa, and back to
-              the DMK under M. K. Stalin in 2021. IndiaStats.org lets you trace this 50-year story
-              ward by ward, district by district, election by election.
+              India's state assembly elections tell the story of its democracy — caste arithmetic,
+              alliance shifts, anti-incumbency waves, and emergence of new political forces.
+              IndiaStats.org lets you trace these stories ward by ward, district by district,
+              election by election — across Tamil Nadu's Dravidian politics and Uttar Pradesh's
+              BJP-SP-BSP triangle, with more states coming soon.
             </p>
 
             <p>
@@ -694,205 +766,6 @@ export function HomePageClient({ stats }: HomePageClientProps) {
         </div>
       </section>
 
-      {/* Tamil Nadu Highlight */}
-      <section className="bg-muted/50 py-16">
-        <div className="container">
-          <div className="max-w-4xl mx-auto">
-            <Card className="overflow-hidden border-0 shadow-xl">
-              <div className="md:flex">
-                {/* Left - Content */}
-                <CardContent className="p-8 flex-1">
-                  <div className="inline-flex items-center gap-2 bg-red-100 dark:bg-red-900/30 rounded-full px-3 py-1 mb-4">
-                    <TrendingUp className="h-4 w-4 text-red-600" />
-                    <span className="text-sm font-medium text-red-600">Now Available</span>
-                  </div>
-
-                  <h2 className="text-2xl md:text-3xl font-bold mb-4">Tamil Nadu Election Data</h2>
-
-                  <p className="text-muted-foreground mb-6">
-                    Complete election data covering 15+ election years, from 1967 to 2021.
-                  </p>
-
-                  <ul className="space-y-3 mb-6">
-                    <li className="flex items-center gap-3 text-sm">
-                      <Vote className="h-4 w-4 text-red-600" />
-                      <span>{stats.totalAssemblies} Assembly Constituencies</span>
-                    </li>
-                    <li className="flex items-center gap-3 text-sm">
-                      <MapPinned className="h-4 w-4 text-blue-600" />
-                      <span>{stats.totalDistricts} Districts Covered</span>
-                    </li>
-                    <li className="flex items-center gap-3 text-sm">
-                      <Locate className="h-4 w-4 text-green-600" />
-                      <span>{stats.totalBooths.toLocaleString('en-IN')}+ Polling Booths</span>
-                    </li>
-                  </ul>
-
-                  <Button asChild className="bg-red-600 hover:bg-red-700">
-                    <Link
-                      href="/tamil-nadu/dashboard"
-                      onClick={() => {
-                        const pageContext = getPageContext()
-                        trackClicked({
-                          name: 'button',
-                          page_name: pageContext.page_name || 'Homepage',
-                          button_name: 'start_exploring',
-                          button_label: 'Start Exploring',
-                        })
-                      }}
-                    >
-                      Start Exploring
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardContent>
-
-                {/* Right - Visual */}
-                <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e] p-12 min-w-[280px]">
-                  <div className="text-center">
-                    <div className="text-7xl font-black">
-                      <span className="text-[#FF9933]">T</span>
-                      <span className="text-white">N</span>
-                    </div>
-                    <div className="text-white/50 text-sm mt-2">தமிழ்நாடு</div>
-                    <div className="mt-4 text-white/30 text-xs">Since 1967</div>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* TVK 2026 Results Highlight Section */}
-      <section className="bg-[#1a1a2e] py-16">
-        <div className="container">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-yellow-500/10 rounded-full px-3 py-1 mb-3">
-                <Activity className="h-4 w-4 text-yellow-400" />
-                <span className="text-sm font-medium text-yellow-400">2026 Results</span>
-              </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Tamil Nadu Has a New Chapter
-              </h2>
-              <p className="text-white/50 mt-1 text-sm">
-                How the vote shifted — explore it constituency by constituency
-              </p>
-            </div>
-            <Link
-              href="/tamil-nadu/election-results"
-              className="hidden md:flex items-center gap-1 text-sm font-medium text-yellow-400 hover:text-yellow-300 transition-colors"
-              onClick={() => {
-                const pageContext = getPageContext()
-                trackClicked({
-                  name: 'link',
-                  page_name: pageContext.page_name || 'Homepage',
-                  link_name: 'view_all_results',
-                  link_location: 'tvk_section',
-                })
-              }}
-            >
-              Full results <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {/* Seat shift cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            {[
-              { party: 'TVK', seats: 108, prev: 0, color: '#F5C518', note: 'Debut election' },
-              { party: 'DMK', seats: 59, prev: 133, color: '#E7191E', note: 'Outgoing govt' },
-              { party: 'AIADMK', seats: 47, prev: 68, color: '#2fdf89', note: '' },
-              { party: 'INC', seats: 5, prev: 18, color: '#00bcd4', note: '' },
-            ].map((p) => (
-              <div
-                key={p.party}
-                className="rounded-xl bg-white/5 border border-white/10 p-5 text-center"
-              >
-                <div
-                  className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: p.color }}
-                >
-                  {p.party}
-                </div>
-                <div className="text-4xl font-black text-white mb-1">{p.seats}</div>
-                <div className="text-xs text-white/40">
-                  {p.prev === 0 ? (
-                    <span className="text-yellow-400 font-semibold">New entrant</span>
-                  ) : (
-                    <span
-                      className={
-                        p.seats > p.prev
-                          ? 'text-green-400 font-semibold'
-                          : 'text-red-400 font-semibold'
-                      }
-                    >
-                      {p.seats > p.prev ? '▲' : '▼'} {Math.abs(p.seats - p.prev)} from 2021
-                    </span>
-                  )}
-                </div>
-                {p.note && <div className="text-[10px] text-white/30 mt-1">{p.note}</div>}
-              </div>
-            ))}
-          </div>
-
-          {/* Vote Transfer CTA */}
-          <div className="rounded-xl bg-white/5 border border-yellow-500/20 p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <h3 className="text-lg font-bold text-white mb-1">
-                See how votes flowed in your constituency
-              </h3>
-              <p className="text-white/50 text-sm">
-                Every assembly page now has an alluvial flow chart comparing 2021 &amp; 2026 —
-                ribbons show which parties held on, and where the new surge came from.
-              </p>
-            </div>
-            <Button
-              asChild
-              className="shrink-0 bg-yellow-500 hover:bg-yellow-400 text-black font-bold"
-            >
-              <Link
-                href="/tamil-nadu/dashboard"
-                onClick={() => {
-                  const pageContext = getPageContext()
-                  trackClicked({
-                    name: 'button',
-                    page_name: pageContext.page_name || 'Homepage',
-                    button_name: 'explore_vote_transfer',
-                    button_label: 'Explore Vote Transfer',
-                  })
-                }}
-              >
-                Pick a constituency <ChevronRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Coming Soon */}
-      <section className="container py-16">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-3">Coming Soon</h2>
-          <p className="text-muted-foreground mb-8">More states in development</p>
-          <div className="flex flex-wrap justify-center gap-4">
-            {[
-              { name: 'Kerala', flag: '🌴' },
-              { name: 'Karnataka', flag: '🏛️' },
-              { name: 'Andhra Pradesh', flag: '🌾' },
-              { name: 'Telangana', flag: '🏛️' },
-            ].map((state) => (
-              <div
-                key={state.name}
-                className="px-6 py-3 rounded-xl bg-muted text-muted-foreground font-medium border-2 border-dashed flex items-center gap-2"
-              >
-                <span>{state.flag}</span>
-                <span>{state.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   )
 }

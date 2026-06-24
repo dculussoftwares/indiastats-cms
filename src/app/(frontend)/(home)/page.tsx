@@ -3,7 +3,7 @@ import config from '@payload-config'
 import { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import { HomePageClient } from './HomePageClient'
-import { tamilNaduConfig } from '@/config/states'
+import { getAllStates } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
 import { DataCatalogJsonLd } from '@/components/seo/JsonLd'
 
@@ -11,7 +11,7 @@ const baseUrl = getServerSideURL()
 
 export const metadata: Metadata = {
   title: 'IndiaStats.org - India Election Data & Statistics',
-  description: `Explore Tamil Nadu's ${tamilNaduConfig.assemblyCount} assembly constituencies — election history, voter data, booth statistics, and political analysis from ${tamilNaduConfig.historyStartYear} to 2026.`,
+  description: `Explore India's assembly constituencies — election history, voter data, booth statistics, and political analysis across Tamil Nadu, Uttar Pradesh, and more.`,
   keywords: [
     'India elections',
     'assembly constituency',
@@ -19,8 +19,7 @@ export const metadata: Metadata = {
     'MLA history',
     'election statistics',
     'Tamil Nadu elections',
-    'Tamil Nadu MLAs',
-    'booth data',
+    'Uttar Pradesh elections',
   ],
   alternates: {
     canonical: baseUrl,
@@ -36,7 +35,7 @@ export const metadata: Metadata = {
         url: `${baseUrl}/indiastats-logo-1024.png`,
         width: 1024,
         height: 1024,
-        alt: 'IndiaStats.org — India Election Data Platform',
+        alt: 'IndiaStats.org',
       },
     ],
   },
@@ -86,13 +85,14 @@ const getHomePageData = unstable_cache(_getHomePageData, ['home-page-data'], {
 
 export default async function HomePage() {
   const { stats } = await getHomePageData()
+  const states = getAllStates()
   return (
     <>
       <DataCatalogJsonLd
         totalAssemblies={stats.totalAssemblies}
         totalBooths={stats.totalBooths}
       />
-      <HomePageClient stats={stats} />
+      <HomePageClient stats={stats} states={states} />
     </>
   )
 }
