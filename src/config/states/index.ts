@@ -5,6 +5,7 @@
 
 import { StateConfig } from './types'
 import { tamilNaduConfig } from './tamil-nadu'
+import { uttarPradeshConfig } from './uttar-pradesh'
 
 // Registry of all state configurations
 const stateRegistry: Map<string, StateConfig> = new Map()
@@ -12,6 +13,10 @@ const stateRegistry: Map<string, StateConfig> = new Map()
 // Register Tamil Nadu
 stateRegistry.set('TN', tamilNaduConfig)
 stateRegistry.set('tamil-nadu', tamilNaduConfig)
+
+// Register Uttar Pradesh
+stateRegistry.set('UP', uttarPradeshConfig)
+stateRegistry.set('uttar-pradesh', uttarPradeshConfig)
 
 /**
  * Get state config by state code (e.g., "TN")
@@ -70,4 +75,4 @@ export function getBlocs(stateCode: string) {
 
 // Export types
 export * from './types'
-export { tamilNaduConfig }
+export { tamilNaduConfig, uttarPradeshConfig }

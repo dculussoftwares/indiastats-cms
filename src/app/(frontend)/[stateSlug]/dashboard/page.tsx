@@ -46,21 +46,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function _getDashboardData() {
+async function _getDashboardData(stateCode: string) {
   const payload = await getPayload({ config })
+
+  const stateFilter = { where: { stateCode: { equals: stateCode } } }
 
   const [assembliesCount, districtsCount, boothsCount, assembliesData, districtsData] =
     await Promise.all([
-      payload.count({ collection: 'assemblies' }),
-      payload.count({ collection: 'districts' }),
-      payload.count({ collection: 'booths' }),
+      payload.count({ collection: 'assemblies', ...stateFilter }),
+      payload.count({ collection: 'districts', ...stateFilter }),
+      payload.count({ collection: 'booths', ...stateFilter }),
       payload.find({
         collection: 'assemblies',
         limit: 1000,
+        ...stateFilter,
       }),
       payload.find({
         collection: 'districts',
         limit: 100,
+        ...stateFilter,
       }),
     ])
 
@@ -119,10 +123,11 @@ async function _getDashboardData() {
   }
 }
 
-const getDashboardData = unstable_cache(_getDashboardData, ['dashboard-data'], {
-  tags: ['dashboard', 'assemblies', 'districts'],
-  revalidate: 86400, // 24 hours
-})
+const getDashboardData = (stateCode: string) =>
+  unstable_cache(() => _getDashboardData(stateCode), [`dashboard-data-${stateCode}`], {
+    tags: ['dashboard', 'assemblies', 'districts'],
+    revalidate: 86400,
+  })()
 
 interface Props {
   params: Promise<{ stateSlug: string }>
@@ -130,8 +135,9 @@ interface Props {
 
 export default async function DashboardPage({ params }: Props) {
   const { stateSlug } = await params
-  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
-  const { stats, assemblies, districts } = await getDashboardData()
+  const stateConfig = getStateBySlug(stateSlug)
+  const stateName = stateConfig?.name ?? stateSlug
+  const { stats, assemblies, districts } = await getDashboardData(stateConfig?.code ?? stateSlug.toUpperCase())
 
   return (
     <div className="container py-8">
