@@ -981,9 +981,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const styleFeature = (feature: any) => {
     const pcName = feature?.properties?.pc_name
-    const assemblyId = feature?.properties?.ac
-      ? `ac${String(feature.properties.ac).padStart(3, '0')}`
-      : null
+    const assemblyId = feature?.properties?.ac ? getAssemblyId(feature.properties.ac) : null
     const isSelected = selectedAssembly === feature?.properties?.ac_name
     const isInSelectedDistrict = !selectedDistrict || pcName === selectedDistrict
     const dimmed = selectedDistrict && !isInSelectedDistrict
@@ -1499,7 +1497,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                     const acName = feature?.properties?.ac_name
                     const pcName = feature?.properties?.pc_name
                     const assemblyId = feature?.properties?.ac
-                      ? `ac${String(feature.properties.ac).padStart(3, '0')}`
+                      ? getAssemblyId(feature.properties.ac)
                       : null
                     const isSelected = selectedAssembly === acName
                     const isInSelectedDistrict = selectedDistrict && pcName === selectedDistrict
@@ -1545,7 +1543,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                         {selectedElectionYear &&
                           (() => {
                             const assemblyId = popupContent.ac
-                              ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                              ? getAssemblyId(popupContent.ac)
                               : null
                             const result = assemblyId ? electionResults[assemblyId] : null
                             if (result) {
@@ -1589,7 +1587,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                         {compareYear &&
                           (() => {
                             const assemblyId = popupContent.ac
-                              ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                              ? getAssemblyId(popupContent.ac)
                               : null
                             const result = assemblyId ? compareElectionResults[assemblyId] : null
                             if (result) {
@@ -1712,7 +1710,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                     const acName = feature?.properties?.ac_name
                     const pcName = feature?.properties?.pc_name
                     const assemblyId = feature?.properties?.ac
-                      ? `ac${String(feature.properties.ac).padStart(3, '0')}`
+                      ? getAssemblyId(feature.properties.ac)
                       : null
                     const isSelected = selectedAssembly === acName
                     const isInSelectedDistrict = selectedDistrict && pcName === selectedDistrict
@@ -1758,7 +1756,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                         {selectedElectionYear &&
                           (() => {
                             const assemblyId = popupContent.ac
-                              ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                              ? getAssemblyId(popupContent.ac)
                               : null
                             const result = assemblyId ? electionResults[assemblyId] : null
                             if (result) {
@@ -1802,7 +1800,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                         {compareYear &&
                           (() => {
                             const assemblyId = popupContent.ac
-                              ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                              ? getAssemblyId(popupContent.ac)
                               : null
                             const result = assemblyId ? compareElectionResults[assemblyId] : null
                             if (result) {
@@ -2050,7 +2048,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                     {selectedElectionYear &&
                       (() => {
                         const assemblyId = popupContent.ac
-                          ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                          ? getAssemblyId(popupContent.ac)
                           : null
                         const result = assemblyId ? electionResults[assemblyId] : null
                         if (result) {
@@ -2084,7 +2082,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                     {viewMode === 'caste' &&
                       (() => {
                         const assemblyId = popupContent.ac
-                          ? `ac${String(popupContent.ac).padStart(3, '0')}`
+                          ? getAssemblyId(popupContent.ac)
                           : null
                         const casteInfo = assemblyId ? casteDataMap[assemblyId] : null
                         if (casteInfo) {
