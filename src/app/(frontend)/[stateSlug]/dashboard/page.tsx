@@ -2,12 +2,13 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
-import { Map, MapPinned, Locate, UsersRound } from 'lucide-react'
+import { Map as MapIcon, MapPinned, Locate, UsersRound } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { DashboardClient } from './DashboardClient'
 import { getStateBySlug } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
 import { JsonLd } from '@/components/seo/JsonLd'
+import type { BlocConfig } from '@/config/states/types'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
@@ -44,6 +45,88 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [ogImageUrl],
     },
   }
+}
+
+interface SnapshotResult {
+  year: number
+  results: { name: string; seats: number; color: string }[]
+}
+
+async function computeElectionSnapshot(
+  stateCode: string,
+  blocs: BlocConfig[],
+  partyColors: Record<string, string>,
+): Promise<SnapshotResult | null> {
+  const payload = await getPayload({ config })
+
+  // Find most recent year with data
+  const latestRecord = await payload.find({
+    collection: 'election-history',
+    where: { stateCode: { equals: stateCode } },
+    sort: '-electionYear',
+    limit: 1,
+    pagination: false,
+  })
+  if (!latestRecord.docs.length) return null
+  const lastYear = latestRecord.docs[0].electionYear as number
+
+  // Get all results for that year
+  const allResults = await payload.find({
+    collection: 'election-history',
+    where: {
+      stateCode: { equals: stateCode },
+      electionYear: { equals: lastYear },
+    },
+    limit: 10000,
+    pagination: false,
+  })
+
+  // Find winner per assembly (highest votes)
+  const winnerByAssembly = new Map<string, { party: string; votes: number }>()
+  for (const record of allResults.docs) {
+    const assemblyId = record.assemblyId as string
+    const votes = Number(record.candidateVotes) || 0
+    const current = winnerByAssembly.get(assemblyId)
+    if (!current || votes > current.votes) {
+      winnerByAssembly.set(assemblyId, { party: record.candidateParty as string, votes })
+    }
+  }
+
+  // Count seats per party
+  const seatsByParty = new Map<string, number>()
+  for (const { party } of winnerByAssembly.values()) {
+    seatsByParty.set(party, (seatsByParty.get(party) ?? 0) + 1)
+  }
+
+  // Roll up into blocs
+  const seatsByBloc = new Map<string, { seats: number; color: string }>()
+  for (const [party, seats] of seatsByParty) {
+    let matched = false
+    for (const bloc of blocs) {
+      if (bloc.parties.includes(party)) {
+        const existing = seatsByBloc.get(bloc.name)
+        seatsByBloc.set(bloc.name, {
+          seats: (existing?.seats ?? 0) + seats,
+          color: bloc.color,
+        })
+        matched = true
+        break
+      }
+    }
+    if (!matched) {
+      const existing = seatsByBloc.get('Others')
+      seatsByBloc.set('Others', {
+        seats: (existing?.seats ?? 0) + seats,
+        color: partyColors['IND'] ?? '#888888',
+      })
+    }
+  }
+
+  const results = [...seatsByBloc.entries()]
+    .map(([name, { seats, color }]) => ({ name, seats, color }))
+    .sort((a, b) => b.seats - a.seats)
+
+  return { year: lastYear, results }
 }
 
 async function _getDashboardData(stateCode: string) {
@@ -137,7 +220,24 @@ export default async function DashboardPage({ params }: Props) {
   const { stateSlug } = await params
   const stateConfig = getStateBySlug(stateSlug)
   const stateName = stateConfig?.name ?? stateSlug
-  const { stats, assemblies, districts } = await getDashboardData(stateConfig?.code ?? stateSlug.toUpperCase())
+  const stateCode = stateConfig?.code ?? stateSlug.toUpperCase()
+
+  const { stats, assemblies, districts } = await getDashboardData(stateCode)
+
+  // Compute election snapshot (cached inline with getDashboardData reuse)
+  const snapshot = stateConfig
+    ? await unstable_cache(
+        () => computeElectionSnapshot(stateCode, stateConfig.blocs, stateConfig.partyColors),
+        [`election-snapshot-${stateCode}`],
+        { tags: ['election-history', stateCode], revalidate: 86400 },
+      )()
+    : null
+
+  // Last election year ≤ current year
+  const currentYear = new Date().getFullYear()
+  const lastElectionYear =
+    stateConfig?.electionYears.filter((y) => y <= currentYear).at(-1) ??
+    new Date().getFullYear()
 
   return (
     <div className="container py-8">
@@ -172,7 +272,7 @@ export default async function DashboardPage({ params }: Props) {
           <StatCard
             title="Districts"
             value={stats.totalDistricts}
-            icon={<Map className="h-4 w-4" />}
+            icon={<MapIcon className="h-4 w-4" />}
             description={`${stats.totalDistricts} districts`}
           />
           <StatCard
@@ -196,8 +296,16 @@ export default async function DashboardPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Search + Predictions - Client Component */}
-      <DashboardClient assemblies={assemblies} districts={districts} stateSlug={stateSlug} />
+      {/* Blocs + Snapshot + Explore + Search — Client Component */}
+      <DashboardClient
+        assemblies={assemblies}
+        districts={districts}
+        stateSlug={stateSlug}
+        blocs={stateConfig?.blocs ?? []}
+        partyColors={stateConfig?.partyColors ?? {}}
+        snapshot={snapshot}
+        lastElectionYear={lastElectionYear}
+      />
     </div>
   )
 }
