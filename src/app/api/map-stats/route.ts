@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
         const assembliesResult = await payload.find({
             collection: 'assemblies',
             where: { stateCode: { equals: stateCode } },
-            limit: 300,
+            limit: 500, // Increased to handle UP (403 assemblies)
         })
 
         const assemblies = assembliesResult.docs
