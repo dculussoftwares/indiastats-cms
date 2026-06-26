@@ -15,6 +15,7 @@ import {
 import { ArrowLeft, Search, MapPin, FileText, ExternalLink, Building2 } from 'lucide-react'
 import { trackViewed, trackClicked, getPageContext, setPageContext } from '@/analytics'
 import { getCurrentUTM } from '@/utilities/utm'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface Booth {
   id: string
@@ -43,6 +44,7 @@ export function BoothsPageClient({
   districtName,
   stateSlug,
 }: BoothsPageClientProps) {
+  const state = useStateConfig()
   const [booths, setBooths] = React.useState<Booth[]>([])
   const [loading, setLoading] = React.useState(true)
   const [searchTerm, setSearchTerm] = React.useState('')
@@ -67,7 +69,7 @@ export function BoothsPageClient({
     async function fetchBooths() {
       setLoading(true)
       try {
-        const response = await fetch(`/api/booths?assemblyId=${assemblyId}`)
+        const response = await fetch(`/api/booths?assemblyId=${assemblyId}&stateCode=${state.code}`)
         const data = await response.json()
         setBooths(data.booths || [])
       } catch (error) {
@@ -78,7 +80,7 @@ export function BoothsPageClient({
     }
 
     fetchBooths()
-  }, [assemblyId])
+  }, [assemblyId, state.code])
 
   // Filter booths based on search term
   const filteredBooths = React.useMemo(() => {

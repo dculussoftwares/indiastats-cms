@@ -127,7 +127,7 @@ export function CasteDemographicsClient({
     const fetchData = async () => {
       setIsLoading(true)
       try {
-        const response = await fetch('/api/caste-data?all=true')
+        const response = await fetch(`/api/caste-data?all=true&stateCode=${state.code}`)
         if (response.ok) {
           const result = await response.json()
           const assemblies = result.assemblies || []
@@ -143,7 +143,7 @@ export function CasteDemographicsClient({
     }
 
     fetchData()
-  }, [prefetchedData, calculateStats])
+  }, [prefetchedData, calculateStats, state.code])
 
   // Filter data when search or caste filter changes
   React.useEffect(() => {

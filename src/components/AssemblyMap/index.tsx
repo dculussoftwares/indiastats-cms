@@ -487,7 +487,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
 
     const fetchMapStats = async () => {
       try {
-        const response = await fetch('/api/map-stats')
+        const response = await fetch(`/api/map-stats?stateCode=${state.code}`)
         if (response.ok) {
           const data = await response.json()
           setMapStats(data)
@@ -499,7 +499,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
       }
     }
     fetchMapStats()
-  }, [prefetchedMapStats])
+  }, [prefetchedMapStats, state.code])
 
   // Fetch caste data on mount (or use prefetched data)
   useEffect(() => {
@@ -511,7 +511,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
 
     const fetchCasteData = async () => {
       try {
-        const response = await fetch('/api/caste-data?all=true')
+        const response = await fetch(`/api/caste-data?all=true&stateCode=${state.code}`)
         if (response.ok) {
           const data = await response.json()
           const casteMap: Record<
@@ -564,7 +564,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
       }
     }
     fetchCasteData()
-  }, [prefetchedCasteData])
+  }, [prefetchedCasteData, state.code])
 
   // Fetch election results when year changes
   useEffect(() => {
@@ -580,7 +580,9 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
     const fetchElectionResults = async () => {
       setIsLoadingElection(true)
       try {
-        const response = await fetch(`/api/election-results?year=${selectedElectionYear}`)
+        const response = await fetch(
+          `/api/election-results?year=${selectedElectionYear}&stateCode=${state.code}`,
+        )
         if (response.ok) {
           const data = await response.json()
           setElectionResults(data.results || {})
@@ -602,7 +604,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
     }
 
     fetchElectionResults()
-  }, [selectedElectionYear])
+  }, [selectedElectionYear, state.code])
 
   // Fetch compare year election results when in compare mode
   useEffect(() => {
@@ -615,7 +617,9 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
     const fetchCompareResults = async () => {
       setIsLoadingCompare(true)
       try {
-        const response = await fetch(`/api/election-results?year=${compareYear}`)
+        const response = await fetch(
+          `/api/election-results?year=${compareYear}&stateCode=${state.code}`,
+        )
         if (response.ok) {
           const data = await response.json()
           setCompareElectionResults(data.results || {})
@@ -629,7 +633,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
     }
 
     fetchCompareResults()
-  }, [compareMode, compareYear])
+  }, [compareMode, compareYear, state.code])
 
   // Ref-based callback to clear district selection (for use in event handlers with stale closures)
   const clearDistrictSelectionRef = useRef<() => void>(() => {})
@@ -1300,14 +1304,14 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                       className="h-9 px-3 text-xs border rounded bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:outline-none focus:border-red-600 cursor-pointer"
                     >
                       <option value="">Election Year</option>
-                      {[
-                        2026, 2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977,
-                        1971, 1967, 1962, 1957, 1952,
-                      ].map((year) => (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      ))}
+                      {state.electionYears
+                        .slice()
+                        .reverse()
+                        .map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
                     </select>
                     {isLoadingElection && (
                       <div className="absolute right-2 top-1/2 -translate-y-1/2">
@@ -1367,10 +1371,9 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                       className="h-9 px-3 pt-1 text-xs border-2 border-red-200 rounded bg-white dark:bg-gray-900 focus:outline-none focus:border-red-600 cursor-pointer"
                     >
                       <option value="">Select</option>
-                      {[
-                        2026, 2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977,
-                        1971, 1967, 1962, 1957, 1952,
-                      ]
+                      {state.electionYears
+                        .slice()
+                        .reverse()
                         .filter((year) => year !== compareYear)
                         .map((year) => (
                           <option key={year} value={year}>
@@ -1399,10 +1402,9 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                       className="h-9 px-3 pt-1 text-xs border-2 border-blue-200 rounded bg-white dark:bg-gray-900 focus:outline-none focus:border-blue-600 cursor-pointer"
                     >
                       <option value="">Select</option>
-                      {[
-                        2026, 2021, 2016, 2011, 2006, 2001, 1996, 1991, 1989, 1984, 1980, 1977,
-                        1971, 1967, 1962, 1957, 1952,
-                      ]
+                      {state.electionYears
+                        .slice()
+                        .reverse()
                         .filter((year) => year !== selectedElectionYear)
                         .map((year) => (
                           <option key={year} value={year}>

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ArrowRight, TrendingUp, TrendingDown, Minus, RefreshCcw } from 'lucide-react'
 import { getPartyColor } from '@/lib/partyColors'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 interface PartyChange {
   party: string
@@ -39,6 +40,7 @@ interface ElectionInsightsPanelProps {
 }
 
 export function ElectionInsightsPanel({ year1, year2, isVisible }: ElectionInsightsPanelProps) {
+  const state = useStateConfig()
   const [insights, setInsights] = React.useState<ElectionInsights | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
   const [showAllFlipped, setShowAllFlipped] = React.useState(false)
@@ -52,7 +54,9 @@ export function ElectionInsightsPanel({ year1, year2, isVisible }: ElectionInsig
     const fetchInsights = async () => {
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/election-insights?year1=${year1}&year2=${year2}`)
+        const response = await fetch(
+          `/api/election-insights?year1=${year1}&year2=${year2}&stateCode=${state.code}`,
+        )
         if (response.ok) {
           const data = await response.json()
           setInsights(data)
@@ -65,7 +69,7 @@ export function ElectionInsightsPanel({ year1, year2, isVisible }: ElectionInsig
     }
 
     fetchInsights()
-  }, [year1, year2, isVisible])
+  }, [year1, year2, isVisible, state.code])
 
   if (!isVisible || !year1 || !year2) return null
 
