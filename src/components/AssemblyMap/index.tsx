@@ -349,6 +349,14 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
   const searchParams = useSearchParams()
   const state = useStateConfig()
 
+  // Helper to construct state-specific assemblyId from GeoJSON properties
+  // TN format: ac001, ac002, ...
+  // UP format: up-ac001, up-ac002, ...
+  const getAssemblyId = (acNumber: number | string): string => {
+    const acNum = String(acNumber).padStart(3, '0')
+    return state.code === 'TN' ? `ac${acNum}` : `${state.code.toLowerCase()}-ac${acNum}`
+  }
+
   useEffect(() => {
     setPageContext({
       page_name: PAGE_NAMES.ASSEMBLY_MAP,
@@ -752,9 +760,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
       mouseout: (event: any) => {
         const acName = feature?.properties?.ac_name
         const pcName = feature?.properties?.pc_name
-        const assemblyId = feature?.properties?.ac
-          ? `ac${String(feature.properties.ac).padStart(3, '0')}`
-          : null
+        const assemblyId = feature?.properties?.ac ? getAssemblyId(feature.properties.ac) : null
 
         // Election overlay mode - restore party/alliance/caste color
         if (
@@ -832,9 +838,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
         const { lat, lng } = e.latlng
         const acName = feature?.properties?.ac_name
         const pcName = feature?.properties?.pc_name
-        const assemblyId = feature?.properties?.ac
-          ? `ac${String(feature.properties.ac).padStart(3, '0')}`
-          : null
+        const assemblyId = feature?.properties?.ac ? getAssemblyId(feature.properties.ac) : null
 
         // Track the assembly click
         const pageContext = getPageContext()

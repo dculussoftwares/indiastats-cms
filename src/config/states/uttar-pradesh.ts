@@ -55,9 +55,9 @@ export const uttarPradeshConfig: StateConfig = {
 
   mapGeoJson: '/geojson/uttar-pradesh-assemblies.json',
 
-  electionYears: [2022], // Only 2022 data available currently
+  electionYears: [2012, 2017, 2022], // Three elections with data
 
-  historyStartYear: 2022,
+  historyStartYear: 2012,
 
   partyNameMap: {
     'BHARATIYA JANATA PARTY': 'BJP',
