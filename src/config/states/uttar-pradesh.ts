@@ -54,6 +54,8 @@ export const uttarPradeshConfig: StateConfig = {
   },
 
   mapGeoJson: '/geojson/uttar-pradesh-assemblies.json',
+  mapCenter: [26.8467, 80.9462],
+  mapZoom: 6,
 
   electionYears: [2012, 2017, 2022], // Three elections with data
 

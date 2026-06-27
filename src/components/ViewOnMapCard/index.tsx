@@ -13,8 +13,8 @@ interface ViewOnMapCardProps {
 
 export function ViewOnMapCard({ assemblyId, assemblyName }: ViewOnMapCardProps) {
   const state = useStateConfig()
-  // Extract numeric ID from assemblyId (e.g., "ac092" -> "092")
-  const numericId = assemblyId.replace('ac', '')
+  // Extract numeric ID from assemblyId (e.g., "ac092" -> "092", "up-ac001" -> "001")
+  const numericId = assemblyId.replace(/^[a-z]+-ac/i, '').replace(/^ac/i, '')
 
   return (
     <Card>

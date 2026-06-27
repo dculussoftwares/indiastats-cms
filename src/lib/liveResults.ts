@@ -49,8 +49,8 @@ function toSeatResult(doc: LiveResultDoc): SeatResult {
   const margin = winnerVotes - runnerUpVotes
   const totalVotes = doc.votes ?? parties.reduce((s, p) => s + p.votes, 0)
 
-  // Derive numeric AC number from assemblyId (e.g. "ac022" → 22)
-  const assemblyNo = parseInt(doc.assemblyId.replace(/^ac0*/i, ''), 10) || 0
+  // Derive numeric AC number from assemblyId (e.g. "ac022" → 22, "up-ac001" → 1)
+  const assemblyNo = parseInt(doc.assemblyId.replace(/^[a-z]+-ac0*/i, '').replace(/^ac0*/i, ''), 10) || 0
 
   // Map collection status to SeatResult status
   const status: SeatResult['status'] =

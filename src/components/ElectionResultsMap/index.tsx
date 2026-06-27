@@ -18,6 +18,7 @@ import {
 import '@/components/AssemblyMap/leaflet-style-import'
 import { getPartyColor } from '@/lib/partyColors'
 import { trackClicked, setPageContext, PAGE_NAMES } from '@/analytics'
+import { useStateConfig } from '@/components/providers/StateProvider'
 import type { ElectionResultsDataset, SeatResult } from '@/lib/electionResults'
 
 // ── Leaflet dynamic imports ──────────────────────────────────────────────────
@@ -41,11 +42,13 @@ export type ElectionResultsMapProps = {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-const getFeatureAssemblyId = (f: any): string | null =>
-  f?.properties?.ac ? `ac${String(f.properties.ac).padStart(3, '0')}` : null
+const getFeatureAssemblyId = (f: any, stateCode: string): string | null => {
+  if (!f?.properties?.ac) return null
+  const acNum = String(f.properties.ac).padStart(3, '0')
+  return stateCode === 'TN' ? `ac${acNum}` : `${stateCode.toLowerCase()}-ac${acNum}`
+}
 
-const getPolygonCentroid = (coords: any): [number, number] => {
-  const fallback: [number, number] = [11.1271, 78.6569]
+const getPolygonCentroid = (coords: any, fallback: [number, number] = [11.1271, 78.6569]): [number, number] => {
   try {
     let points = coords[0]
     if (Array.isArray(coords[0]?.[0]?.[0])) points = coords[0][0]
@@ -679,6 +682,7 @@ function StatusBarRow({
 
 // ── Main component ───────────────────────────────────────────────────────────
 export function ElectionResultsMap({ data, geoJsonUrl }: ElectionResultsMapProps) {
+  const stateConfig = useStateConfig()
   const mapRef = useRef<any>(null)
   const [geoJson, setGeoJson] = useState<any>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -747,7 +751,7 @@ export function ElectionResultsMap({ data, geoJsonUrl }: ElectionResultsMapProps
 
   const styleFeature = useCallback(
     (feature: any) => {
-      const aid = getFeatureAssemblyId(feature)
+      const aid = getFeatureAssemblyId(feature, stateConfig.code)
       const result = aid ? data.results[aid] : undefined
       const isSelected = aid === selectedId
       const isFiltered = activeParty ? result?.winnerParty !== activeParty : false
@@ -763,7 +767,7 @@ export function ElectionResultsMap({ data, geoJsonUrl }: ElectionResultsMapProps
         opacity: 1,
       }
     },
-    [data.results, selectedId, activeParty],
+    [data.results, selectedId, activeParty, stateConfig.code],
   )
 
   const onEachFeature = useCallback(
@@ -771,10 +775,10 @@ export function ElectionResultsMap({ data, geoJsonUrl }: ElectionResultsMapProps
       layer.on({
         click: (e: any) => {
           e.originalEvent?.stopPropagation()
-          const aid = getFeatureAssemblyId(feature)
+          const aid = getFeatureAssemblyId(feature, stateConfig.code)
           if (!aid) return
           const centroid = feature.geometry
-            ? getPolygonCentroid(feature.geometry.coordinates)
+            ? getPolygonCentroid(feature.geometry.coordinates, stateConfig.mapCenter)
             : null
           setSelectedId(aid)
           setPopupPos(centroid)
@@ -794,7 +798,7 @@ export function ElectionResultsMap({ data, geoJsonUrl }: ElectionResultsMapProps
         },
       })
     },
-    [styleFeature],
+    [styleFeature, stateConfig.code, stateConfig.mapCenter],
   )
 
   const refreshKey = [selectedId ?? 'none', activeParty ?? 'all'].join('-')
@@ -814,10 +818,10 @@ export function ElectionResultsMap({ data, geoJsonUrl }: ElectionResultsMapProps
 
   const flyToSeat = (assemblyId: string) => {
     const feature = geoJson?.features?.find(
-      (f: any) => getFeatureAssemblyId(f) === assemblyId,
+      (f: any) => getFeatureAssemblyId(f, stateConfig.code) === assemblyId,
     )
     if (!feature) return
-    const centroid = getPolygonCentroid(feature.geometry.coordinates)
+    const centroid = getPolygonCentroid(feature.geometry.coordinates, stateConfig.mapCenter)
     setSelectedId(assemblyId)
     setPopupPos(centroid)
     if (mapRef.current) mapRef.current.flyTo(centroid, 9, { duration: 0.9, easeLinearity: 0.3 })
@@ -958,8 +962,8 @@ export function ElectionResultsMap({ data, geoJsonUrl }: ElectionResultsMapProps
         <main className="relative flex-1 overflow-hidden">
           <MapContainer
             style={{ height: '100%', width: '100%', background: '#0f172a' }}
-            center={[11.1271, 78.6569]}
-            zoom={7}
+            center={stateConfig.mapCenter}
+            zoom={stateConfig.mapZoom}
             scrollWheelZoom
             ref={mapRef}
             attributionControl={false}

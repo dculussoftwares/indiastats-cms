@@ -23,6 +23,7 @@ import { buildAssemblyUrl } from '@/lib/assemblyRouting'
 import { getStateByCode } from '@/config/states'
 import { getPartyColor } from '@/lib/partyColors'
 import { trackClicked, trackViewed, setPageContext, PAGE_NAMES } from '@/analytics'
+import { useStateConfig } from '@/components/providers/StateProvider'
 
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
   ssr: false,
@@ -144,11 +145,13 @@ const TYPE_COLORS = [
 ]
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-const getFeatureAssemblyId = (feature: any): string | null =>
-  feature?.properties?.ac ? `ac${String(feature.properties.ac).padStart(3, '0')}` : null
+const getFeatureAssemblyId = (feature: any, stateCode: string): string | null => {
+  if (!feature?.properties?.ac) return null
+  const acNum = String(feature.properties.ac).padStart(3, '0')
+  return stateCode === 'TN' ? `ac${acNum}` : `${stateCode.toLowerCase()}-ac${acNum}`
+}
 
-const getPolygonCentroid = (coords: any): [number, number] => {
-  const fallback: [number, number] = [11.1271, 78.6569]
+const getPolygonCentroid = (coords: any, fallback: [number, number] = [11.1271, 78.6569]): [number, number] => {
   try {
     let points = coords[0]
     if (Array.isArray(coords[0]?.[0]?.[0])) points = coords[0][0]
@@ -662,6 +665,7 @@ export function ElectionPredictionMap({
   stateCode,
   stateName,
 }: ElectionPredictionMapProps) {
+  const stateConfig = useStateConfig()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -797,12 +801,12 @@ export function ElectionPredictionMap({
     if (!Array.isArray(map?.features)) return []
     return map.features
       .map((f: any) => {
-        const assemblyId = getFeatureAssemblyId(f)
+        const assemblyId = getFeatureAssemblyId(f, stateConfig.code)
         const name = f?.properties?.ac_name
         return assemblyId && name ? { assemblyId, name } : null
       })
       .filter(Boolean) as { assemblyId: string; name: string }[]
-  }, [map])
+  }, [map, stateConfig.code])
 
   const filteredAssemblies = useMemo(() => {
     if (!searchQuery) return assemblyOptions.slice(0, 8)
@@ -880,9 +884,9 @@ export function ElectionPredictionMap({
 
   const focusAssemblyById = useCallback(
     (assemblyId: string) => {
-      const feature = map?.features?.find((f: any) => getFeatureAssemblyId(f) === assemblyId)
+      const feature = map?.features?.find((f: any) => getFeatureAssemblyId(f, stateConfig.code) === assemblyId)
       if (!feature) return
-      const centroid = feature.geometry ? getPolygonCentroid(feature.geometry.coordinates) : null
+      const centroid = feature.geometry ? getPolygonCentroid(feature.geometry.coordinates, stateConfig.mapCenter) : null
       if (!centroid) return
       setSelectedAssemblyId(assemblyId)
       setSearchQuery(feature.properties?.ac_name ?? '')
@@ -896,14 +900,14 @@ export function ElectionPredictionMap({
       updateUrl({ assembly: assemblyId })
       if (mapRef.current) mapRef.current.flyTo(centroid, 9, { duration: 0.9, easeLinearity: 0.3 })
     },
-    [map, updateUrl],
+    [map, updateUrl, stateConfig.code, stateConfig.mapCenter],
   )
 
   const handleDistrictSelect = (district: string | null) => {
     setSelectedDistrict(district)
     updateUrl({ district: district })
     if (!district) {
-      if (mapRef.current) mapRef.current.setView([11.1271, 78.6569], 7)
+      if (mapRef.current) mapRef.current.setView(stateConfig.mapCenter, stateConfig.mapZoom)
       return
     }
     const features = map?.features?.filter((f: any) => f?.properties?.pc_name === district)
@@ -937,7 +941,7 @@ export function ElectionPredictionMap({
 
   const styleFeature = useCallback(
     (feature: any) => {
-      const aid = getFeatureAssemblyId(feature)
+      const aid = getFeatureAssemblyId(feature, stateConfig.code)
       const entry = aid ? dataset.results[aid] : undefined
       const isSelected = aid === selectedAssemblyId
       const isWithinDistrict =
@@ -967,7 +971,7 @@ export function ElectionPredictionMap({
               : 0.8,
       }
     },
-    [dataset.results, selectedAssemblyId, selectedDistrict, highlightFilter, getPredictionFill],
+    [dataset.results, selectedAssemblyId, selectedDistrict, highlightFilter, getPredictionFill, stateConfig.code],
   )
 
   const onEachFeature = useCallback(
@@ -975,7 +979,7 @@ export function ElectionPredictionMap({
       layer.on({
         click: (e: any) => {
           e.originalEvent?.stopPropagation()
-          const aid = getFeatureAssemblyId(feature)
+          const aid = getFeatureAssemblyId(feature, stateConfig.code)
           if (!aid) return
           setSelectedAssemblyId(aid)
           setSearchQuery(feature?.properties?.ac_name ?? '')
@@ -1005,7 +1009,7 @@ export function ElectionPredictionMap({
         },
       })
     },
-    [styleFeature, updateUrl],
+    [styleFeature, updateUrl, stateConfig.code],
   )
 
   const refreshKey = [
@@ -1348,8 +1352,8 @@ export function ElectionPredictionMap({
           )}
           <MapContainer
             style={{ height: '100%', width: '100%', background: '#0f172a' }}
-            center={[11.1271, 78.6569]}
-            zoom={7}
+            center={stateConfig.mapCenter}
+            zoom={stateConfig.mapZoom}
             scrollWheelZoom
             zoomControl={false}
             ref={mapRef}

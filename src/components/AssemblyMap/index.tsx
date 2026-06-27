@@ -190,8 +190,7 @@ const getPcNameColorMap = (features: any[]) => {
 
 // Calculate polygon centroid
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getPolygonCentroid(coords: any): [number, number] {
-  const defaultCenter: [number, number] = [11.1271, 78.6569]
+function getPolygonCentroid(coords: any, defaultCenter: [number, number] = [11.1271, 78.6569]): [number, number] {
   try {
     if (!coords || !Array.isArray(coords) || coords.length === 0) return defaultCenter
 
@@ -907,7 +906,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
       const feature = map.features.find((f: any) => f.properties && f.properties.ac_name === value)
 
       if (feature && feature.geometry) {
-        const centroid = getPolygonCentroid(feature.geometry.coordinates)
+        const centroid = getPolygonCentroid(feature.geometry.coordinates, state.mapCenter)
         setPopupContent(feature.properties)
         setPopupPosition(centroid)
 
@@ -931,7 +930,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
         (f: any) => f.properties && String(Number(f.properties.ac)) === acNum,
       )
       if (feature && feature.geometry) {
-        const centroid = getPolygonCentroid(feature.geometry.coordinates)
+        const centroid = getPolygonCentroid(feature.geometry.coordinates, state.mapCenter)
         setPopupContent(feature.properties)
         setPopupPosition(centroid)
       }
@@ -1086,7 +1085,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
       }
     } else if (!district && mapRef.current) {
       // Reset to default view
-      mapRef.current.setView([11.1271, 78.6569], 7)
+      mapRef.current.setView(state.mapCenter, state.mapZoom)
     }
   }
 
@@ -1473,8 +1472,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
               )}
               <MapContainer
                 style={{ height: '100%', width: '100%', background: '#f8fafc' }}
-                center={[11.1271, 78.6569]}
-                zoom={7}
+                center={state.mapCenter}
+                zoom={state.mapZoom}
                 scrollWheelZoom={true}
                 ref={leftMapRef}
               >
@@ -1686,8 +1685,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
               )}
               <MapContainer
                 style={{ height: '100%', width: '100%', background: '#f8fafc' }}
-                center={[11.1271, 78.6569]}
-                zoom={7}
+                center={state.mapCenter}
+                zoom={state.mapZoom}
                 scrollWheelZoom={true}
                 ref={rightMapRef}
               >
@@ -1931,8 +1930,8 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
             )}
             <MapContainer
               style={{ height: '100%', width: '100%', background: '#f8fafc' }}
-              center={[11.1271, 78.6569]}
-              zoom={7}
+              center={state.mapCenter}
+              zoom={state.mapZoom}
               scrollWheelZoom={true}
               ref={mapRef}
             >
@@ -2007,7 +2006,7 @@ export function AssemblyMap({ map, prefetchedMapStats, prefetchedCasteData }: As
                   // Only show labels at zoom level 9+
                   if (zoomLevel >= 9) {
                     const center = feature.geometry
-                      ? getPolygonCentroid((feature.geometry as any).coordinates)
+                      ? getPolygonCentroid((feature.geometry as any).coordinates, state.mapCenter)
                       : null
                     if (center) {
                       return (

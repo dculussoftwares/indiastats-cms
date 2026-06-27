@@ -34,6 +34,8 @@ export interface StateConfig {
 
     // Map configuration
     mapGeoJson: string
+    mapCenter: [number, number]
+    mapZoom: number
 
     // Election configuration
     electionYears: number[]

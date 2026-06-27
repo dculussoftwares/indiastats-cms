@@ -58,6 +58,8 @@ export const tamilNaduConfig: StateConfig = {
   },
 
   mapGeoJson: '/geojson/tamil-nadu-assemblies.json',
+  mapCenter: [11.1271, 78.6569],
+  mapZoom: 7,
 
   electionYears: [1972, 1977, 1980, 1984, 1989, 1991, 1996, 2001, 2006, 2011, 2016, 2021, 2026],
 
