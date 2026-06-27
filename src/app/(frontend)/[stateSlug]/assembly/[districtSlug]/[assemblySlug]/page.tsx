@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import { AssemblyPageClient } from './AssemblyPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
-import { getStateBySlug } from '@/config/states'
+import { getStateBySlug, stateCodeToSlug } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
 import { AssemblyPageJsonLd, DatasetJsonLd } from '@/components/seo/JsonLd'
 
@@ -18,14 +18,14 @@ export async function generateStaticParams() {
 
   const assemblies = await payload.find({
     collection: 'assemblies',
-    limit: 300,
-    select: { slug: true, districtId: true },
+    limit: 1000,
+    select: { slug: true, districtId: true, stateCode: true },
   })
 
   // Get district slugs mapping
   const districts = await payload.find({
     collection: 'districts',
-    limit: 100,
+    limit: 200,
     select: { districtId: true, slug: true },
   })
 
@@ -38,9 +38,9 @@ export async function generateStaticParams() {
 
   // Generate params for all assemblies
   return assemblies.docs
-    .filter((assembly: any) => assembly.slug && assembly.districtId)
+    .filter((assembly: any) => assembly.slug && assembly.districtId && assembly.stateCode)
     .map((assembly: any) => ({
-      stateSlug: 'tamil-nadu',
+      stateSlug: stateCodeToSlug(assembly.stateCode),
       districtSlug: districtIdToSlug.get(assembly.districtId) || assembly.districtId,
       assemblySlug: assembly.slug,
     }))
@@ -52,12 +52,19 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { assemblySlug, districtSlug, stateSlug } = await params
-  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
+  const stateConfig = getStateBySlug(stateSlug)
+  const stateCode = stateConfig?.code ?? 'TN'
+  const stateName = stateConfig?.name ?? stateSlug
   const payload = await getPayload({ config })
 
   const assembly = await payload.find({
     collection: 'assemblies',
-    where: { slug: { equals: assemblySlug } },
+    where: {
+      and: [
+        { slug: { equals: assemblySlug } },
+        { stateCode: { equals: stateCode } }
+      ]
+    },
     limit: 1,
   })
 
@@ -117,13 +124,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-async function _getAssemblyData(districtSlug: string, assemblySlug: string) {
+async function _getAssemblyData(stateCode: string, districtSlug: string, assemblySlug: string) {
   const payload = await getPayload({ config })
 
-  // Get assembly info by slug
+  // Get assembly info by slug and stateCode
   const assemblyResult = await payload.find({
     collection: 'assemblies',
-    where: { slug: { equals: assemblySlug } },
+    where: {
+      and: [
+        { slug: { equals: assemblySlug } },
+        { stateCode: { equals: stateCode } }
+      ]
+    },
     limit: 1,
   })
 
@@ -297,19 +309,23 @@ async function _getAssemblyData(districtSlug: string, assemblySlug: string) {
   }
 }
 
-const getAssemblyData = (districtSlug: string, assemblySlug: string) =>
+const getAssemblyData = (stateCode: string, districtSlug: string, assemblySlug: string) =>
   unstable_cache(
-    () => _getAssemblyData(districtSlug, assemblySlug),
-    ['assembly-data', districtSlug, assemblySlug],
+    () => _getAssemblyData(stateCode, districtSlug, assemblySlug),
+    ['assembly-data', stateCode, districtSlug, assemblySlug],
     {
-      tags: [`assembly_${assemblySlug}`],
+      tags: [`assembly_${stateCode}_${assemblySlug}`],
       revalidate: 86400, // 24 hours
     },
   )()
 
 export default async function AssemblyPage({ params }: PageProps) {
   const { districtSlug, assemblySlug, stateSlug } = await params
-  const data = await getAssemblyData(districtSlug, assemblySlug)
+  const stateConfig = getStateBySlug(stateSlug)
+  if (!stateConfig) {
+    notFound()
+  }
+  const data = await getAssemblyData(stateConfig.code, districtSlug, assemblySlug)
 
   if (!data) {
     notFound()

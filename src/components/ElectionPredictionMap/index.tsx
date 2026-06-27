@@ -1377,8 +1377,7 @@ export function ElectionPredictionMap({
                     updateUrl({ assembly: null })
                   }}
                   onNavigate={() => {
-                    const stateSlug = getStateByCode(stateCode)?.slug ?? 'tamil-nadu'
-                    const url = buildAssemblyUrl(popupContent.ac, stateSlug)
+                    const url = buildAssemblyUrl(popupContent.assemblyId)
                     if (url) {
                       trackClicked({
                         name: 'link',
