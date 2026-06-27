@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import BoothPageClient from './BoothPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { getStateBySlug } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
 
 interface Props {
@@ -17,16 +18,27 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { boothId, assemblySlug, districtSlug, stateSlug } = await params
+  const stateConfig = getStateBySlug(stateSlug)
+  const stateCode = stateConfig?.code ?? 'TN'
+  const stateName = stateConfig?.name ?? stateSlug
   const payload = await getPayload({ config })
 
   const assemblies = await payload.find({
     collection: 'assemblies',
-    where: { slug: { equals: assemblySlug } },
+    where: {
+      and: [
+        { slug: { equals: assemblySlug } },
+        { stateCode: { equals: stateCode } }
+      ]
+    },
     limit: 1,
   })
 
   const assembly = assemblies.docs[0] as any
-  const assemblyName = assembly?.name || 'Assembly'
+  if (!assembly) {
+    return { title: 'Booth Not Found' }
+  }
+  const assemblyName = assembly.name || 'Assembly'
   const cleanName = assemblyName.split(' / ')[1] || assemblyName
 
   const baseUrl = getServerSideURL()
@@ -63,12 +75,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BoothPage({ params }: Props) {
   const { districtSlug, assemblySlug, boothId, stateSlug } = await params
+  const stateConfig = getStateBySlug(stateSlug)
+  if (!stateConfig) {
+    notFound()
+  }
   const payload = await getPayload({ config })
 
-  // Fetch assembly info by slug
+  // Fetch assembly info by slug and stateCode
   const assemblies = await payload.find({
     collection: 'assemblies',
-    where: { slug: { equals: assemblySlug } },
+    where: {
+      and: [
+        { slug: { equals: assemblySlug } },
+        { stateCode: { equals: stateConfig.code } }
+      ]
+    },
     limit: 1,
   })
 

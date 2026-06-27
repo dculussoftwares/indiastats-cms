@@ -4,7 +4,7 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import BoothsPageClient from './BoothsPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
-import { getStateBySlug } from '@/config/states'
+import { getStateBySlug, stateCodeToSlug } from '@/config/states'
 import { getServerSideURL } from '@/utilities/getURL'
 
 // Revalidate every 24 hours (ISR)
@@ -16,13 +16,13 @@ export async function generateStaticParams() {
 
   const assemblies = await payload.find({
     collection: 'assemblies',
-    limit: 300,
-    select: { slug: true, districtId: true },
+    limit: 1000,
+    select: { slug: true, districtId: true, stateCode: true },
   })
 
   const districts = await payload.find({
     collection: 'districts',
-    limit: 100,
+    limit: 200,
     select: { districtId: true, slug: true },
   })
 
@@ -34,9 +34,9 @@ export async function generateStaticParams() {
   })
 
   return assemblies.docs
-    .filter((assembly: any) => assembly.slug && assembly.districtId)
+    .filter((assembly: any) => assembly.slug && assembly.districtId && assembly.stateCode)
     .map((assembly: any) => ({
-      stateSlug: 'tamil-nadu',
+      stateSlug: stateCodeToSlug(assembly.stateCode),
       districtSlug: districtIdToSlug.get(assembly.districtId) || assembly.districtId,
       assemblySlug: assembly.slug,
     }))
@@ -52,17 +52,27 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { assemblySlug, districtSlug, stateSlug } = await params
-  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
+  const stateConfig = getStateBySlug(stateSlug)
+  const stateCode = stateConfig?.code ?? 'TN'
+  const stateName = stateConfig?.name ?? stateSlug
   const payload = await getPayload({ config })
 
   const assemblies = await payload.find({
     collection: 'assemblies',
-    where: { slug: { equals: assemblySlug } },
+    where: {
+      and: [
+        { slug: { equals: assemblySlug } },
+        { stateCode: { equals: stateCode } }
+      ]
+    },
     limit: 1,
   })
 
   const assembly = assemblies.docs[0] as any
-  const name = assembly?.name || 'Assembly'
+  if (!assembly) {
+    return { title: 'Booths Not Found' }
+  }
+  const name = assembly.name || 'Assembly'
   const cleanName = name.split(' / ')[1] || name
 
   const baseUrl = getServerSideURL()
@@ -99,12 +109,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BoothsPage({ params }: Props) {
   const { districtSlug, assemblySlug, stateSlug } = await params
+  const stateConfig = getStateBySlug(stateSlug)
+  if (!stateConfig) {
+    notFound()
+  }
   const payload = await getPayload({ config })
 
-  // Fetch assembly info by slug
+  // Fetch assembly info by slug and stateCode
   const assemblies = await payload.find({
     collection: 'assemblies',
-    where: { slug: { equals: assemblySlug } },
+    where: {
+      and: [
+        { slug: { equals: assemblySlug } },
+        { stateCode: { equals: stateConfig.code } }
+      ]
+    },
     limit: 1,
   })
 
@@ -114,10 +133,15 @@ export default async function BoothsPage({ params }: Props) {
 
   const assembly = assemblies.docs[0] as any
 
-  // Fetch district info by slug
+  // Fetch district info by slug and stateCode
   const districts = await payload.find({
     collection: 'districts',
-    where: { slug: { equals: districtSlug } },
+    where: {
+      and: [
+        { slug: { equals: districtSlug } },
+        { stateCode: { equals: stateConfig.code } }
+      ]
+    },
     limit: 1,
   })
 

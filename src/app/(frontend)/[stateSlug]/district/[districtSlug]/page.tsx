@@ -40,12 +40,19 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { districtSlug, stateSlug } = await params
+  const stateConfig = getStateBySlug(stateSlug)
+  const stateCode = stateConfig?.code ?? 'TN'
+  const stateName = stateConfig?.name ?? stateSlug
   const payload = await getPayload({ config })
-  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
 
   const district = await payload.find({
     collection: 'districts',
-    where: { slug: { equals: districtSlug } },
+    where: {
+      and: [
+        { slug: { equals: districtSlug } },
+        { stateCode: { equals: stateCode } }
+      ]
+    },
     limit: 1,
   })
 
@@ -102,13 +109,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-async function _getDistrictData(districtSlug: string) {
+async function _getDistrictData(stateCode: string, districtSlug: string) {
   const payload = await getPayload({ config })
 
-  // Get district info by slug
+  // Get district info by slug and stateCode
   const districtResult = await payload.find({
     collection: 'districts',
-    where: { slug: { equals: districtSlug } },
+    where: {
+      and: [
+        { slug: { equals: districtSlug } },
+        { stateCode: { equals: stateCode } }
+      ]
+    },
     limit: 1,
   })
 
@@ -281,16 +293,20 @@ async function _getDistrictData(districtSlug: string) {
   }
 }
 
-const getDistrictData = (districtSlug: string) =>
-  unstable_cache(() => _getDistrictData(districtSlug), ['district-data', districtSlug], {
-    tags: [`district_${districtSlug}`],
+const getDistrictData = (stateCode: string, districtSlug: string) =>
+  unstable_cache(() => _getDistrictData(stateCode, districtSlug), ['district-data', stateCode, districtSlug], {
+    tags: [`district_${stateCode}_${districtSlug}`],
     revalidate: 86400, // 24 hours
   })()
 
 export default async function DistrictPage({ params }: PageProps) {
   const { districtSlug, stateSlug } = await params
-  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
-  const data = await getDistrictData(districtSlug)
+  const stateConfig = getStateBySlug(stateSlug)
+  if (!stateConfig) {
+    notFound()
+  }
+  const stateName = stateConfig.name
+  const data = await getDistrictData(stateConfig.code, districtSlug)
 
   if (!data) {
     notFound()
