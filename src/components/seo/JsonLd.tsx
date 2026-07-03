@@ -359,9 +359,11 @@ export function DatasetJsonLd({
     },
     license: `${BASE_URL}/terms`,
     temporalCoverage,
+    // Google's Dataset spec expects spatialCoverage to be a Place (or Text),
+    // not an AdministrativeArea. Keep the region hierarchy via containedInPlace.
     spatialCoverage: {
-      '@type': 'AdministrativeArea',
-      name: assemblyName,
+      '@type': 'Place',
+      name: `${assemblyName}, ${districtName}, ${stateName}, India`,
       containedInPlace: {
         '@type': 'AdministrativeArea',
         name: districtName,
@@ -380,7 +382,9 @@ export function DatasetJsonLd({
       'Constituency MLA history',
     ],
     measurementTechnique: 'Election Commission of India official results',
-    isPartOf: {
+    // Catalog membership must use includedInDataCatalog (expects DataCatalog).
+    // Dataset.isPartOf would require another Dataset, which Google rejects here.
+    includedInDataCatalog: {
       '@type': 'DataCatalog',
       name: 'IndiaStats.org Election Data Catalog',
       url: BASE_URL,
@@ -412,9 +416,9 @@ export function DataCatalogJsonLd({
       url: BASE_URL,
     },
     spatialCoverage: {
-      '@type': 'AdministrativeArea',
-      name: 'Tamil Nadu',
-      containedInPlace: { '@type': 'Country', name: 'India' },
+      '@type': 'Place',
+      name: 'Tamil Nadu, India',
+      containedInPlace: { '@type': 'AdministrativeArea', name: 'India' },
     },
     temporalCoverage: '1967/2026',
     keywords: [
