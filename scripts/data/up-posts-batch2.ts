@@ -598,7 +598,7 @@ export const upPosts: BlogPostSeed[] = [
       heading('h2', "RLD and the Jat Vote"),
       paragraph(
         text(
-          "The Rashtriya Lok Dal (RLD) represents a different caste alignment altogether — built around Jat voters concentrated in Western UP's sugarcane belt, particularly around Muzaffarnagar, Meerut and Baghpat. RLD's seat count has fluctuated sharply across the three elections covered here — 9 in 2012, just 1 in 2017, and 8 in 2022 — reflecting how closely tied its fortunes are to whichever larger alliance it partners with in a given election.",
+          "The Rashtriya Lok Dal (RLD) represents a different caste alignment altogether — built around Jat voters concentrated in Western UP's sugarcane belt, particularly around Muzaffarnagar, Meerut and Baghpat. RLD's seat count has fluctuated sharply across the three elections covered here — 9 in 2012, a near wipeout in 2017, and 8 in 2022 — reflecting how closely tied its fortunes are to whichever larger alliance it partners with in a given election.",
         ),
       ),
       heading('h2', 'Why These Coalitions Matter for Reading the Data'),
@@ -870,7 +870,7 @@ export const upPosts: BlogPostSeed[] = [
       heading('h2', 'Regions to Watch'),
       paragraph(
         text(
-          "Based on the 2012-2022 data, three patterns stand out heading into 2027. First, Purvanchal (Eastern UP, 175 seats) has consistently been the most competitive of Uttar Pradesh's five regions between BJP and SP — a 94-62 split in 2022, the narrowest regional margin of that election. Second, Western UP's RLD-SP alliance recovered meaningful ground in 2022 (8 seats, up from 1 in 2017) after Western UP had swung most sharply to BJP in 2017. Third, Bundelkhand — a clean BJP sweep in 2017, but only 14 of 19 in 2022 — shows the region is not a permanently locked BJP stronghold.",
+          "Based on the 2012-2022 data, three patterns stand out heading into 2027. First, Purvanchal (Eastern UP, 175 seats) has consistently been the most competitive of Uttar Pradesh's five regions between BJP and SP — a 94-62 split in 2022, the narrowest regional margin of that election. Second, Western UP's RLD-SP alliance recovered meaningful ground in 2022 (8 seats, up from a near wipeout in 2017) after Western UP had swung most sharply to BJP in 2017. Third, Bundelkhand — a clean BJP sweep in 2017, but only 14 of 19 in 2022 — shows the region is not a permanently locked BJP stronghold.",
         ),
       ),
       heading('h2', "Smaller Parties' Role Will Likely Persist"),
