@@ -796,7 +796,7 @@ export const tnPosts: BlogPostSeed[] = [
     content: richText([
       paragraph(
         text(
-          "The Kongu belt — Coimbatore, Erode, Tiruppur, Salem and Namakkal, 45 seats in total — has long been Tamil Nadu's most competitive multi-party region, home to a strong PMK and BJP presence alongside the two Dravidian parties. In 2026, it produced a genuine three-way outcome: TVK won 25 of the 45 seats, AIADMK 14, and DMK 5, with PMK's traditional Kongu foothold not translating into a single seat in this specific belt.",
+          "The Kongu belt — Coimbatore, Erode, Tiruppur, Salem and Namakkal, 43 seats in total — has long been Tamil Nadu's most competitive multi-party region, home to a strong PMK and BJP presence alongside the two Dravidian parties. In 2026, it produced a genuine three-way outcome: TVK won 24 of the 43 seats, AIADMK 14, and DMK 5, with PMK's traditional Kongu foothold not translating into a single seat in this specific belt.",
         ),
       ),
       heading('h2', 'Kongu Belt Results by District — 2026'),
@@ -810,7 +810,7 @@ export const tnPosts: BlogPostSeed[] = [
       heading('h2', 'TVK Led, but Unevenly'),
       paragraph(
         text(
-          "TVK's 25 Kongu-belt seats make it the largest party in the region overall, and it swept Namakkal (5 of 6) and led comfortably in Coimbatore and Erode. But its performance was far less dominant in Salem, the belt's largest district by seat count, where it won only 4 of 11 seats.",
+          "TVK's 24 Kongu-belt seats make it the largest party in the region overall, and it swept Namakkal (5 of 6) and led comfortably in Coimbatore and Erode. But its performance was far less dominant in Salem, the belt's largest district by seat count, where it won only 4 of 11 seats.",
         ),
       ),
       heading('h2', 'Erode and Tiruppur: Split Verdicts'),
@@ -846,7 +846,7 @@ export const tnPosts: BlogPostSeed[] = [
       heading('h2', 'A Belt That Stayed Competitive'),
       paragraph(
         text(
-          "Even with TVK's overall lead, the Kongu belt remained Tamil Nadu's most genuinely contested region in 2026 — no party won more than 60% of its 45 seats, and AIADMK's Salem performance shows the party retains real organisational strength in specific pockets even as it declined statewide. IndiaStats.org's Kongu belt constituency guide covers all 45 seats across Coimbatore, Erode, Tiruppur, Salem and Namakkal in detail.",
+          "Even with TVK's overall lead, the Kongu belt remained Tamil Nadu's most genuinely contested region in 2026 — no party won more than 60% of its 43 seats, and AIADMK's Salem performance shows the party retains real organisational strength in specific pockets even as it declined statewide. IndiaStats.org's Kongu belt constituency guide covers all 43 seats across Coimbatore, Erode, Tiruppur, Salem and Namakkal in detail.",
         ),
       ),
     ]),
