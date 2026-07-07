@@ -82,7 +82,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalUrl = `${baseUrl}/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`
 
   return {
-    title: `${cleanName} Assembly Election Results 2026 | IndiaStats.org`,
+    title: `${cleanName} Assembly Election Result 2026 — Winner, MLA List & Vote Share`,
     description:
       assemblyDoc.metaDescription ||
       `${cleanName} assembly constituency, Tamil Nadu. 2026 election results, candidate vote shares, MLA history since 1977, booth data, and caste demographics.`,

@@ -28,16 +28,24 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: [
-              "default-src 'self'",
-              // AdSense also loads scripts from partner.googleadservices.com, tpc.googlesyndication.com, adservice.google.com
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://adservice.google.com https://www.googletagmanager.com https://www.googletagservices.com https://www.clarity.ms https://cdn.clarity.ms",
-              "style-src 'self' 'unsafe-inline'",
+              // Deliberately permissive policy (owner's choice: ad revenue must
+              // never be blocked by CSP again — see June 19 incident where a
+              // domain allowlist killed ~90% of ad impressions).
+              // AdSense/Ad Manager creatives, measurement pixels, and open-bidding
+              // partners load from hundreds of rotating domains, so any https
+              // origin is allowed for scripts/frames/connections/media.
+              // What this still protects against:
+              //   - plaintext http: resource injection (https:-only)
+              //   - <object>/<embed> (object-src 'none')
+              //   - <base> tag hijacking (base-uri 'self')
+              "default-src 'self' https:",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: blob:",
+              "style-src 'self' 'unsafe-inline' https:",
               "img-src 'self' data: https: blob:",
-              "font-src 'self' data:",
-              // AdSense connects to doubleclick and adservice domains for ad requests
-              "connect-src 'self' https://region1.analytics.google.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://adservice.google.com https://pagead2.googlesyndication.com https://t.indiastats.org https://api.mixpanel.com https://api-js.mixpanel.com wss://t.indiastats.org",
-              // AdSense renders ad creatives inside iframes hosted on these domains
-              "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com",
+              "font-src 'self' data: https:",
+              "connect-src 'self' https: wss: blob:",
+              "frame-src 'self' https:",
+              "media-src 'self' https: data: blob:",
               "object-src 'none'",
               "base-uri 'self'",
             ].join('; '),

@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalUrl = `${baseUrl}/${stateSlug}/district/${districtSlug}`
 
   return {
-    title: `${cleanName} District - Assembly Constituencies & Election Data`,
+    title: `${cleanName} District Election Results 2026 — Winners, MLAs & Constituency Data`,
     description:
       districtDoc.metaDescription ||
       `Complete election data for ${cleanName} district, ${stateName}. Explore all assembly constituencies, voter statistics, MLA history, and booth-level information.`,

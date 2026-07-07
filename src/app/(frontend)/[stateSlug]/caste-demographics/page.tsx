@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/${stateSlug}/caste-demographics`
 
   return {
-    title: `Caste Demographics - ${stateName} Assembly Constituencies | IndiaStats`,
-    description: `Explore caste composition data across assembly constituencies in ${stateName}. Search, filter, and analyze demographic patterns.`,
+    title: `${stateName} Caste Wise Population 2026 — Top Castes List & Constituency Data`,
+    description: `Which caste is highest in ${stateName}? Full caste wise population list with percentages, top 10 castes ranked, and caste composition for every assembly constituency.`,
     alternates: {
       canonical: canonicalUrl,
     },

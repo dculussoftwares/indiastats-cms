@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import RichText from '@/components/RichText'
+import { AdSlot } from '@/components/AdSlot'
 
 import type { Post } from '@/payload-types'
 
@@ -66,6 +67,9 @@ export default async function Post({ params: paramsPromise }: Args) {
       <div className="flex flex-col items-center gap-4 pt-8">
         <div className="container">
           <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
+          <div className="max-w-[48rem] mx-auto mt-8">
+            <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_IN_ARTICLE} layout="in-article" />
+          </div>
           {post.relatedPosts && post.relatedPosts.length > 0 && (
             <RelatedPosts
               className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
