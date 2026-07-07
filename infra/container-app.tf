@@ -63,7 +63,7 @@ resource "azurerm_container_app" "main" {
 
   template {
     min_replicas = 1 # Always 1 replica running
-      max_replicas = 15
+    max_replicas = 15
 
     http_scale_rule {
       name                = "http-scaling"
@@ -143,6 +143,11 @@ resource "azurerm_container_app" "main" {
       env {
         name  = "NEXT_PUBLIC_ADSENSE_CLIENT_ID"
         value = var.adsense_client_id
+      }
+
+      env {
+        name  = "NEXT_PUBLIC_ADSENSE_SLOT_IN_ARTICLE"
+        value = var.adsense_slot_in_article
       }
 
       env {

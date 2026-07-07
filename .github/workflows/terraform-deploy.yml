@@ -112,6 +112,7 @@ jobs:
             NEXT_PUBLIC_MIXPANEL_TOKEN=${{ secrets.NEXT_PUBLIC_MIXPANEL_TOKEN }}
             NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}
             NEXT_PUBLIC_ADSENSE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_ADSENSE_CLIENT_ID }}
+            NEXT_PUBLIC_ADSENSE_SLOT_IN_ARTICLE=${{ secrets.NEXT_PUBLIC_ADSENSE_SLOT_IN_ARTICLE }}
 
       - name: Get SHA Tag
         id: sha

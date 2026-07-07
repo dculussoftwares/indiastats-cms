@@ -81,6 +81,13 @@ variable "adsense_client_id" {
   default     = ""
 }
 
+variable "adsense_slot_in_article" {
+  description = "Google AdSense in-article ad unit slot ID (public identifier, not sensitive)"
+  type        = string
+  sensitive   = false
+  default     = ""
+}
+
 variable "cron_secret" {
   description = "Secret used to authenticate the ECI scraper Azure Function against Payload REST API"
   type        = string
