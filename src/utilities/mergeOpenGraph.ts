@@ -3,7 +3,8 @@ import { getServerSideURL } from './getURL'
 
 const defaultOpenGraph: Metadata['openGraph'] = {
   type: 'website',
-  description: 'IndiaStats.org - Comprehensive election data, voter statistics, and political insights for Tamil Nadu.',
+  description:
+    'IndiaStats.org - Comprehensive election data, voter statistics, and political insights for Indian assembly constituencies.',
   images: [
     {
       url: `${getServerSideURL()}/indiastats-logo-1024.png`,

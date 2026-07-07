@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import { Map as MapIcon, MapPinned, Locate, UsersRound } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
@@ -12,7 +13,9 @@ import type { BlocConfig } from '@/config/states/types'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
-  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
+  const state = getStateBySlug(stateSlug)
+  if (!state) return { title: 'Not Found', robots: { index: false } }
+  const stateName = state.name
   const baseUrl = getServerSideURL()
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/dashboard`
@@ -219,8 +222,15 @@ interface Props {
 export default async function DashboardPage({ params }: Props) {
   const { stateSlug } = await params
   const stateConfig = getStateBySlug(stateSlug)
-  const stateName = stateConfig?.name ?? stateSlug
-  const stateCode = stateConfig?.code ?? stateSlug.toUpperCase()
+
+  // Unknown state slugs must 404 — rendering an empty dashboard for any
+  // arbitrary slug creates infinite "Soft 404" URLs in Search Console.
+  if (!stateConfig) {
+    notFound()
+  }
+
+  const stateName = stateConfig.name
+  const stateCode = stateConfig.code
 
   const { stats, assemblies, districts } = await getDashboardData(stateCode)
 

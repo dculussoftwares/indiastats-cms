@@ -89,18 +89,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
   title: {
-    default: 'IndiaStats.org - Tamil Nadu Election Data & Statistics',
+    default: 'IndiaStats.org - India Election Data & Statistics',
     template: '%s | IndiaStats.org',
   },
   description:
-    'Comprehensive election data, voter statistics, and political insights for Tamil Nadu assembly constituencies. Explore MLA history, booth-level data, and demographic trends.',
+    'Comprehensive election data, voter statistics, and political insights for Indian assembly constituencies. Explore MLA history, booth-level data, and demographic trends across Tamil Nadu, Uttar Pradesh, and more.',
   keywords: [
-    'Tamil Nadu elections',
+    'India elections',
     'assembly constituency',
     'voter data',
     'MLA history',
     'election statistics',
-    'India elections',
+    'Tamil Nadu elections',
+    'Uttar Pradesh elections',
   ],
   authors: [{ name: 'IndiaStats.org' }],
   openGraph: mergeOpenGraph(),

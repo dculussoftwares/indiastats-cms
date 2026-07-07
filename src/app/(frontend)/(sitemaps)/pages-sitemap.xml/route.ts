@@ -45,16 +45,13 @@ const getPagesSitemap = unstable_cache(
       { loc: `${SITE_URL}/election-data`,  lastmod: stableDate, priority: 0.8, changefreq: 'weekly' as const },
       // State-specific pages (one set per registered state)
       ...getAllStates().flatMap((state) => [
-        {
-          loc: `${SITE_URL}/${state.slug}`,
-          lastmod: now,
-          priority: 1.0,
-          changefreq: 'daily' as const,
-        },
+        // NOTE: /${state.slug} intentionally omitted — it 308-redirects to
+        // /dashboard. Sitemaps must only contain final destination URLs,
+        // otherwise GSC reports "Page with redirect" for every state.
         {
           loc: `${SITE_URL}/${state.slug}/dashboard`,
           lastmod: now,
-          priority: 0.9,
+          priority: 1.0,
           changefreq: 'daily' as const,
         },
         {
