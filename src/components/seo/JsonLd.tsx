@@ -226,6 +226,31 @@ export function DistrictPageJsonLd({
 /**
  * AboutPage schema for the /about page
  */
+export function WebPageJsonLd({
+  name,
+  description,
+  url,
+}: {
+  name: string
+  description: string
+  url: string
+}) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name,
+    description,
+    url,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'IndiaStats.org',
+      url: BASE_URL,
+    },
+  }
+
+  return <JsonLd data={data} />
+}
+
 export function AboutPageJsonLd({
   description,
   url,
@@ -272,6 +297,7 @@ export function BlogPostingJsonLd({
   datePublished,
   dateModified,
   imageUrl,
+  author,
 }: {
   title: string
   description?: string | null
@@ -279,6 +305,7 @@ export function BlogPostingJsonLd({
   datePublished: string
   dateModified: string
   imageUrl?: string | null
+  author?: { name?: string | null; jobTitle?: string | null; bio?: string | null } | null
 }) {
   const data = {
     '@context': 'https://schema.org',
@@ -288,11 +315,23 @@ export function BlogPostingJsonLd({
     url,
     datePublished,
     dateModified,
-    author: {
-      '@type': 'Organization',
-      name: 'IndiaStats.org',
-      url: BASE_URL,
-    },
+    author: author?.name
+      ? {
+          '@type': 'Person',
+          name: author.name,
+          ...(author.jobTitle && { jobTitle: author.jobTitle }),
+          ...(author.bio && { description: author.bio }),
+          worksFor: {
+            '@type': 'Organization',
+            name: 'IndiaStats.org',
+            url: BASE_URL,
+          },
+        }
+      : {
+          '@type': 'Organization',
+          name: 'IndiaStats.org',
+          url: BASE_URL,
+        },
     publisher: {
       '@type': 'Organization',
       name: 'IndiaStats.org',

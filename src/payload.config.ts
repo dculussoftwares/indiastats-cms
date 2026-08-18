@@ -9,6 +9,7 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { Authors } from './collections/Authors'
 import { Assemblies } from './collections/Assemblies'
 import { Districts } from './collections/Districts'
 import { Booths } from './collections/Booths'
@@ -85,6 +86,7 @@ export default buildConfig({
     Media,
     Categories,
     Users,
+    Authors,
     States,
     Zones,
     Predictors,

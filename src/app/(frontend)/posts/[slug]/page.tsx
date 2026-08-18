@@ -54,6 +54,7 @@ export default async function Post({ params: paramsPromise }: Args) {
         datePublished={(post as any).publishedAt || post.createdAt}
         dateModified={post.updatedAt}
         imageUrl={imageUrl}
+        author={post.populatedAuthors?.[0]}
       />
       <PageClient />
 

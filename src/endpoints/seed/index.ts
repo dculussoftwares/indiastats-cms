@@ -71,14 +71,14 @@ export const seed = async ({
       .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
   )
 
-  payload.logger.info(`— Seeding demo author and user...`)
+  payload.logger.info(`— Seeding demo author...`)
 
   await payload.delete({
-    collection: 'users',
+    collection: 'authors',
     depth: 0,
     where: {
-      email: {
-        equals: 'demo-author@example.com',
+      name: {
+        equals: 'Demo Author',
       },
     },
   })
@@ -102,11 +102,9 @@ export const seed = async ({
 
   const [demoAuthor, image1Doc, image2Doc, image3Doc, imageHomeDoc] = await Promise.all([
     payload.create({
-      collection: 'users',
+      collection: 'authors',
       data: {
         name: 'Demo Author',
-        email: 'demo-author@example.com',
-        password: 'password',
       },
     }),
     payload.create({
