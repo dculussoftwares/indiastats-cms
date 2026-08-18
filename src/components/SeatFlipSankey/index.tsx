@@ -123,20 +123,27 @@ function FlipTable({
                   .slice()
                   .sort((a, b) => a.margin - b.margin)
                   .map((a) => {
-                    const href = `/${stateSlug}/assembly/${a.districtSlug}/${a.assemblySlug}`
+                    // Historical constituencies (pre-2012 delimitation) have no current assembly page.
+                    const linkable = a.assemblySlug !== a.assemblyId
                     return (
                       <div
                         key={a.assemblyId}
                         className="flex items-center gap-2 py-1.5 border-b border-gray-50 dark:border-gray-800/50 last:border-0"
                       >
                         <div className="flex-1 min-w-0">
-                          <Link
-                            href={href}
-                            className="text-xs font-semibold hover:text-primary hover:underline inline-flex items-center gap-0.5"
-                          >
-                            {getEnglishName(a.assemblyName)}
-                            <ExternalLink className="h-2.5 w-2.5 opacity-40 flex-shrink-0 ml-0.5" />
-                          </Link>
+                          {linkable ? (
+                            <Link
+                              href={`/${stateSlug}/assembly/${a.districtSlug}/${a.assemblySlug}`}
+                              className="text-xs font-semibold hover:text-primary hover:underline inline-flex items-center gap-0.5"
+                            >
+                              {getEnglishName(a.assemblyName)}
+                              <ExternalLink className="h-2.5 w-2.5 opacity-40 flex-shrink-0 ml-0.5" />
+                            </Link>
+                          ) : (
+                            <span className="text-xs font-semibold">
+                              {getEnglishName(a.assemblyName)}
+                            </span>
+                          )}
                           <span className="text-[10px] text-muted-foreground ml-1.5">
                             {getEnglishName(a.districtName)}
                           </span>

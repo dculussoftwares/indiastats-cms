@@ -42,6 +42,35 @@ interface ElectionAnalysisClientProps {
   availableYears: number[]
 }
 
+// Historical constituencies (pre-2012, before the last delimitation) have no current assembly
+// to link to — electionAnalysis.ts falls back to assemblySlug === assemblyId in that case. Render
+// plain text instead of a dead link for those.
+function AssemblyLink({
+  stateSlug,
+  districtSlug,
+  assemblySlug,
+  assemblyId,
+  className,
+  children,
+}: {
+  stateSlug: string
+  districtSlug: string
+  assemblySlug: string
+  assemblyId: string
+  className?: string
+  children: React.ReactNode
+}) {
+  if (assemblySlug === assemblyId) {
+    return <span className={className}>{children}</span>
+  }
+  return (
+    <Link href={`/${stateSlug}/assembly/${districtSlug}/${assemblySlug}`} className={className}>
+      {children}
+      <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5 flex-shrink-0" />
+    </Link>
+  )
+}
+
 function fmtM(v: number): string {
   if (v >= 1e7) return (v / 1e7).toFixed(2) + ' Cr'
   if (v >= 1e5) return (v / 1e5).toFixed(1) + 'L'
@@ -614,17 +643,18 @@ function RunnerUpCard({
                           : selectedData.nearMisses.slice(0, 12)
                         ).map((c) => {
                           const winColor = getPartyColor(c.winner.party)
-                          const href = `/${stateSlug}/assembly/${c.districtSlug}/${c.assemblySlug}`
                           return (
                             <div key={c.assemblyId} className="flex items-center gap-2 px-3 py-1.5">
                               <div className="flex-1 min-w-0">
-                                <Link
-                                  href={href}
+                                <AssemblyLink
+                                  stateSlug={stateSlug}
+                                  districtSlug={c.districtSlug}
+                                  assemblySlug={c.assemblySlug}
+                                  assemblyId={c.assemblyId}
                                   className="text-xs font-semibold hover:underline inline-flex items-center gap-0.5"
                                 >
                                   {getEnglishName(c.assemblyName)}
-                                  <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5" />
-                                </Link>
+                                </AssemblyLink>
                                 <span className="text-[10px] text-muted-foreground ml-1.5">
                                   {getEnglishName(c.districtName)}
                                 </span>
@@ -831,17 +861,18 @@ function ClosestMarginByPartyCard({
                           : selectedData.closestSeats.slice(0, 12)
                         ).map((c) => {
                           const runnerColor = getPartyColor(c.runnerUp.party)
-                          const href = `/${stateSlug}/assembly/${c.districtSlug}/${c.assemblySlug}`
                           return (
                             <div key={c.assemblyId} className="flex items-center gap-2 px-3 py-1.5">
                               <div className="flex-1 min-w-0">
-                                <Link
-                                  href={href}
+                                <AssemblyLink
+                                  stateSlug={stateSlug}
+                                  districtSlug={c.districtSlug}
+                                  assemblySlug={c.assemblySlug}
+                                  assemblyId={c.assemblyId}
                                   className="text-xs font-semibold hover:underline inline-flex items-center gap-0.5"
                                 >
                                   {getEnglishName(c.assemblyName)}
-                                  <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5" />
-                                </Link>
+                                </AssemblyLink>
                                 <span className="text-[10px] text-muted-foreground ml-1.5">
                                   {getEnglishName(c.districtName)}
                                 </span>
@@ -1019,13 +1050,21 @@ function DistrictDominanceCard({
                   <div className="flex flex-wrap gap-1 flex-1">
                     {seats.map((c) => {
                       const color = getPartyColor(c.winner.party)
-                      const href = `/${stateSlug}/assembly/${c.districtSlug}/${c.assemblySlug}`
-                      return (
+                      const linkable = c.assemblySlug !== c.assemblyId
+                      const title = `${getEnglishName(c.assemblyName)} — ${c.winner.party} (${c.marginPct}% margin)`
+                      return linkable ? (
                         <Link
                           key={c.assemblyId}
-                          href={href}
-                          title={`${getEnglishName(c.assemblyName)} — ${c.winner.party} (${c.marginPct}% margin)`}
+                          href={`/${stateSlug}/assembly/${c.districtSlug}/${c.assemblySlug}`}
+                          title={title}
                           className="w-4 h-4 rounded-full transition-transform hover:scale-125 flex-shrink-0"
+                          style={{ backgroundColor: color }}
+                        />
+                      ) : (
+                        <div
+                          key={c.assemblyId}
+                          title={title}
+                          className="w-4 h-4 rounded-full flex-shrink-0"
                           style={{ backgroundColor: color }}
                         />
                       )
@@ -1263,18 +1302,19 @@ function PluralityWinnersCard({
               </p>
               <div className="divide-y divide-gray-50 dark:divide-gray-800">
                 {(expanded ? extremePlurality : extremePlurality.slice(0, 5)).map((c) => {
-                  const href = `/${stateSlug}/assembly/${c.districtSlug}/${c.assemblySlug}`
                   const color = getPartyColor(c.winner.party)
                   return (
                     <div key={c.assemblyId} className="flex items-center gap-3 py-1.5">
                       <div className="flex-1 min-w-0">
-                        <Link
-                          href={href}
+                        <AssemblyLink
+                          stateSlug={stateSlug}
+                          districtSlug={c.districtSlug}
+                          assemblySlug={c.assemblySlug}
+                          assemblyId={c.assemblyId}
                           className="text-xs font-semibold hover:underline inline-flex items-center gap-0.5"
                         >
                           {getEnglishName(c.assemblyName)}
-                          <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5" />
-                        </Link>
+                        </AssemblyLink>
                         <span className="text-[10px] text-muted-foreground ml-1.5">
                           {getEnglishName(c.districtName)}
                         </span>
@@ -1639,17 +1679,18 @@ function SecondPlaceCard({
             </div>
             <div className="divide-y divide-gray-50 dark:divide-gray-800">
               {selectedData.assemblies.map((a) => {
-                const href = `/${stateSlug}/assembly/${a.districtSlug}/${a.assemblySlug}`
                 return (
                   <div key={a.assemblyId} className="flex items-center gap-3 px-3 py-2">
                     <div className="flex-1 min-w-0">
-                      <Link
-                        href={href}
+                      <AssemblyLink
+                        stateSlug={stateSlug}
+                        districtSlug={a.districtSlug}
+                        assemblySlug={a.assemblySlug}
+                        assemblyId={a.assemblyId}
                         className="text-xs font-semibold hover:text-primary hover:underline inline-flex items-center gap-0.5"
                       >
                         {getEnglishName(a.assemblyName)}
-                        <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5 flex-shrink-0" />
-                      </Link>
+                      </AssemblyLink>
                       <span className="text-[10px] text-muted-foreground ml-1.5">
                         {getEnglishName(a.districtName)}
                       </span>
@@ -1810,17 +1851,18 @@ function ThirdPlaceCard({
             </div>
             <div className="divide-y divide-gray-50 dark:divide-gray-800">
               {selectedData.assemblies.map((a) => {
-                const href = `/${stateSlug}/assembly/${a.districtSlug}/${a.assemblySlug}`
                 return (
                   <div key={a.assemblyId} className="flex items-center gap-3 px-3 py-2">
                     <div className="flex-1 min-w-0">
-                      <Link
-                        href={href}
+                      <AssemblyLink
+                        stateSlug={stateSlug}
+                        districtSlug={a.districtSlug}
+                        assemblySlug={a.assemblySlug}
+                        assemblyId={a.assemblyId}
                         className="text-xs font-semibold hover:text-primary hover:underline inline-flex items-center gap-0.5"
                       >
                         {getEnglishName(a.assemblyName)}
-                        <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5 flex-shrink-0" />
-                      </Link>
+                      </AssemblyLink>
                       <span className="text-[10px] text-muted-foreground ml-1.5">
                         {getEnglishName(a.districtName)}
                       </span>
@@ -2002,17 +2044,18 @@ function LostDepositsCard({
             </div>
             <div className="divide-y divide-gray-50 dark:divide-gray-800">
               {selectedData.assemblies.map((a) => {
-                const href = `/${stateSlug}/assembly/${a.districtSlug}/${a.assemblySlug}`
                 return (
                   <div key={a.assemblyId} className="flex items-center gap-3 px-3 py-2">
                     <div className="flex-1 min-w-0">
-                      <Link
-                        href={href}
+                      <AssemblyLink
+                        stateSlug={stateSlug}
+                        districtSlug={a.districtSlug}
+                        assemblySlug={a.assemblySlug}
+                        assemblyId={a.assemblyId}
                         className="text-xs font-semibold hover:text-primary hover:underline inline-flex items-center gap-0.5"
                       >
                         {getEnglishName(a.assemblyName)}
-                        <ExternalLink className="h-2.5 w-2.5 opacity-40 ml-0.5 flex-shrink-0" />
-                      </Link>
+                      </AssemblyLink>
                       <span className="text-[10px] text-muted-foreground ml-1.5">
                         {getEnglishName(a.districtName)}
                       </span>

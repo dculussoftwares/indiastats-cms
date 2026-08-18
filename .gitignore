@@ -42,3 +42,6 @@ infra/.terraform.lock.hcl
 # Prediction data files (local only)
 prdiction/
 prediction2/
+
+# UP election history extraction pipeline (local-only Python tooling, not committed)
+scripts/up-election-pipeline/

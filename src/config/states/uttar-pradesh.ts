@@ -57,9 +57,12 @@ export const uttarPradeshConfig: StateConfig = {
   mapCenter: [26.8467, 80.9462],
   mapZoom: 6,
 
-  electionYears: [2012, 2017, 2022], // Three elections with data
+  electionYears: [
+    1951, 1957, 1962, 1967, 1969, 1974, 1977, 1980, 1985, 1989, 1991, 1993, 1996, 2002, 2007,
+    2012, 2017, 2022,
+  ],
 
-  historyStartYear: 2012,
+  historyStartYear: 1951,
 
   partyNameMap: {
     'BHARATIYA JANATA PARTY': 'BJP',

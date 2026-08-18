@@ -147,6 +147,8 @@ function ConstituencyPopup({
   const runnerColor = getPartyColor(c.runnerUp.party)
   const name = getEnglishName(c.assemblyName)
   const district = getEnglishName(c.districtName)
+  // Historical constituencies (pre-2012 delimitation) have no current assembly page.
+  const linkable = c.assemblySlug !== c.assemblyId
   const href = `/${stateSlug}/assembly/${c.districtSlug}/${c.assemblySlug}`
 
   return (
@@ -221,13 +223,15 @@ function ConstituencyPopup({
         </div>
       </div>
 
-      <Link
-        href={href}
-        className="flex items-center justify-center gap-1 w-full rounded border border-gray-200 py-1 text-[11px] font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors"
-      >
-        Full constituency details
-        <ExternalLink className="h-3 w-3" />
-      </Link>
+      {linkable && (
+        <Link
+          href={href}
+          className="flex items-center justify-center gap-1 w-full rounded border border-gray-200 py-1 text-[11px] font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+        >
+          Full constituency details
+          <ExternalLink className="h-3 w-3" />
+        </Link>
+      )}
     </div>
   )
 }

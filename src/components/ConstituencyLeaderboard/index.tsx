@@ -90,6 +90,8 @@ export function ConstituencyLeaderboard({
             const runnerColor = c.runnerUp?.party ? getPartyColor(c.runnerUp.party) : '#9e9e9e'
             const name = getEnglishName(c.assemblyName)
             const districtName = getEnglishName(c.districtName)
+            // Historical constituencies (pre-2012 delimitation) have no current assembly page.
+            const linkable = c.assemblySlug !== c.assemblyId
             const href = `/${stateSlug}/assembly/${c.districtSlug}/${c.assemblySlug}`
 
             // Metric shown changes per tab
@@ -122,13 +124,17 @@ export function ConstituencyLeaderboard({
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <Link
-                      href={href}
-                      className="font-semibold text-xs hover:text-primary hover:underline inline-flex items-center gap-0.5 truncate"
-                    >
-                      {name}
-                      <ExternalLink className="h-2.5 w-2.5 opacity-40 flex-shrink-0" />
-                    </Link>
+                    {linkable ? (
+                      <Link
+                        href={href}
+                        className="font-semibold text-xs hover:text-primary hover:underline inline-flex items-center gap-0.5 truncate"
+                      >
+                        {name}
+                        <ExternalLink className="h-2.5 w-2.5 opacity-40 flex-shrink-0" />
+                      </Link>
+                    ) : (
+                      <span className="font-semibold text-xs truncate">{name}</span>
+                    )}
                   </div>
                   <div className="text-[10px] text-muted-foreground">{districtName}</div>
                   <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
