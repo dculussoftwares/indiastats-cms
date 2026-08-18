@@ -1,4 +1,16 @@
 /**
+ * SUPERSEDED — no longer called by CI or the Dockerfile (see `payload migrate` in
+ * both). This used Payload's `push` (pushDevSchema), which is dev-only tooling —
+ * it prompts interactively for ambiguous changes like a relationship's target
+ * collection changing, which CI can't answer, and it silently no-ops when
+ * NODE_ENV === 'production' regardless of the PAYLOAD_SCHEMA_PUSH flag below.
+ * That's exactly what caused the Authors-collection migration to hang in CI on
+ * 2026-08-18 (see scripts/fix-authors-schema.mts). Replaced with real migrations
+ * — see /migrations, `pnpm payload migrate`, `pnpm payload migrate:create`.
+ *
+ * Kept for its pre-check helpers (fixMissingSerialSequences, fixOrphanedLockRels),
+ * which may still be useful for diagnosing similar drift outside of a push.
+ *
  * Push Payload schema changes to the database.
  * This ensures new columns exist before `next build` prerenders pages.
  * Used in CI to sync schema with production DB via a direct PostgreSQL connection

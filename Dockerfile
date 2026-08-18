@@ -56,9 +56,11 @@ ENV NEXT_PUBLIC_ADSENSE_CLIENT_ID=$NEXT_PUBLIC_ADSENSE_CLIENT_ID
 ENV NEXT_PUBLIC_ADSENSE_SLOT_IN_ARTICLE=$NEXT_PUBLIC_ADSENSE_SLOT_IN_ARTICLE
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Push schema changes to DB before build (new columns must exist for prerender).
+# Run pending Payload migrations before build (new columns must exist for prerender).
 # Use DATABASE_URI_DIRECT (direct PostgreSQL) — not PgBouncer — so Drizzle advisory locks work.
-RUN corepack enable pnpm && DATABASE_URI=${DATABASE_URI_DIRECT:-$DATABASE_URI} pnpm exec tsx scripts/push-db-schema.ts || true
+# Deterministic and non-interactive, unlike the old dev-only `push` mechanism —
+# safe to let fail the build if it fails, rather than swallowing errors with `|| true`.
+RUN corepack enable pnpm && DATABASE_URI=${DATABASE_URI_DIRECT:-$DATABASE_URI} pnpm exec payload migrate
 
 # Regenerate Payload import map so all plugin components (e.g. AzureClientUploadHandler)
 # are included regardless of which env vars are set at build time.

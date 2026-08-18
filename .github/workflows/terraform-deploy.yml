@@ -155,21 +155,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Push schema to DB (direct connection, bypasses PgBouncer)
-        run: pnpm exec tsx scripts/push-db-schema.ts
-        timeout-minutes: 10
-        # continue-on-error: schema push handles new columns; if it detects
-        # tables outside Payload's schema it will prompt and block — allow
-        # the job to proceed since the Docker build step already runs the push.
-        continue-on-error: true
+      - name: Run pending Payload migrations (direct connection, bypasses PgBouncer)
+        run: pnpm exec payload migrate
+        timeout-minutes: 5
         env:
           # Uses direct PostgreSQL URL — not PgBouncer — so advisory locks work
           DATABASE_URI: ${{ secrets.DATABASE_URL_DIRECT }}
-          PAYLOAD_SCHEMA_PUSH: "true"
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_PUBLIC_SERVER_URL: https://indiastats.org
           # Placeholder Azure Storage creds so the storage plugin initialises without hanging.
-          # Real creds are only needed at runtime, not during schema push.
+          # Real creds are only needed at runtime, not during migrations.
           AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=placeholder;AccountKey=cGxhY2Vob2xkZXI=;EndpointSuffix=core.windows.net"
           AZURE_STORAGE_ACCOUNT_BASEURL: "https://placeholder.blob.core.windows.net/"
 
