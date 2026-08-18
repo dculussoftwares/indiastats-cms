@@ -26,9 +26,9 @@ interface AssemblyWinningHistoriesProps {
 
 // Function to get leader image
 const getLeaderImage = (partyName: string): string | null => {
-  if (partyName === 'ADMK' || partyName === 'AIADMK') return '/images/EPS.jpg'
+  if (partyName === 'ADMK' || partyName === 'AIADMK') return '/images/EPS.webp'
   if (partyName === 'DMK') return '/images/Stalin.png'
-  if (partyName === 'INC' || partyName === 'CONG') return '/images/karkae.jpg'
+  if (partyName === 'INC' || partyName === 'CONG') return '/images/karkae.webp'
   if (partyName === 'BJP') return '/images/modi.png'
   return null
 }

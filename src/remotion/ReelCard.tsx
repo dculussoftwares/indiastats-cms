@@ -120,11 +120,11 @@ export const ReelCard: React.FC<ReelCardProps> = ({
 
   // Get leader image path
   const getLeaderImagePath = (partyName: string): string | null => {
-    if (partyName === 'ADMK' || partyName === 'AIADMK') return staticFile('images/EPS.jpg')
+    if (partyName === 'ADMK' || partyName === 'AIADMK') return staticFile('images/EPS.webp')
     if (partyName === 'DMK') return staticFile('images/Stalin.png')
-    if (partyName === 'INC' || partyName === 'CONG') return staticFile('images/karkae.jpg')
+    if (partyName === 'INC' || partyName === 'CONG') return staticFile('images/karkae.webp')
     if (partyName === 'BJP') return staticFile('images/modi.png')
-    if (partyName === 'PMK') return staticFile('images/PMK.jpg')
+    if (partyName === 'PMK') return staticFile('images/PMK.webp')
     return null
   }
 

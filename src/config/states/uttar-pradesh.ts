@@ -49,8 +49,8 @@ export const uttarPradeshConfig: StateConfig = {
     SP: '/images/up/akhilesh.png',
     BSP: '/images/up/mayawati.png',
     RLD: '/images/up/jayant.png',
-    INC: '/images/karkae.jpg',
-    CONG: '/images/karkae.jpg',
+    INC: '/images/karkae.webp',
+    CONG: '/images/karkae.webp',
   },
 
   mapGeoJson: '/geojson/uttar-pradesh-assemblies.json',

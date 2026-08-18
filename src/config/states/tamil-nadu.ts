@@ -25,7 +25,7 @@ export const tamilNaduConfig: StateConfig = {
     {
       name: 'AIADMK Bloc',
       parties: ['AIADMK', 'BJP', 'PMK', 'DMDK', 'TMC(M)'],
-      leaderImage: '/images/EPS.jpg',
+      leaderImage: '/images/EPS.webp',
       color: '#2fdf89',
     },
   ],
@@ -50,11 +50,11 @@ export const tamilNaduConfig: StateConfig = {
   leaderImages: {
     TVK: '/images/VIJAY.png',
     DMK: '/images/Stalin.png',
-    AIADMK: '/images/EPS.jpg',
-    ADMK: '/images/EPS.jpg',
+    AIADMK: '/images/EPS.webp',
+    ADMK: '/images/EPS.webp',
     BJP: '/images/modi.png',
-    INC: '/images/karkae.jpg',
-    CONG: '/images/karkae.jpg',
+    INC: '/images/karkae.webp',
+    CONG: '/images/karkae.webp',
   },
 
   mapGeoJson: '/geojson/tamil-nadu-assemblies.json',

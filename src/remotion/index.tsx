@@ -6,7 +6,7 @@ const sampleData = {
   assemblyName: 'பொன்னேரி / Ponneri',
   districtName: 'TIRUVALLUR District',
   isReserved: true,
-  party1: { name: 'AIADMK', wins: 7, leaderImage: '/images/EPS.jpg' },
+  party1: { name: 'AIADMK', wins: 7, leaderImage: '/images/EPS.webp' },
   party2: { name: 'DMK', wins: 2, leaderImage: '/images/Stalin.png' },
   dmkBlocWins: 4,
   aiadmkBlocWins: 7,
