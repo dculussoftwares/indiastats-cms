@@ -1,0 +1,63 @@
+name: "Run Content Scripts (one-off)"
+
+# Manual-only. Runs scripts/assign-author.mts and scripts/expand-posts.mts
+# against production via Payload's Local API, from a runner with a fast,
+# reliable path to the DB (unlike a slow client, where the same operations
+# hit idle_in_transaction_session_timeout on Posts' version/lock writes).
+# Intended to be deleted after use — see docs/SEO_AUDIT_2026.md context.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  run-scripts:
+    name: Assign author + expand posts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Assign author to original posts
+        run: pnpm exec tsx scripts/assign-author.mts
+        env:
+          DATABASE_URI: ${{ secrets.DATABASE_URL_DIRECT }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          NEXT_PUBLIC_SERVER_URL: https://indiastats.org
+          AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=placeholder;AccountKey=cGxhY2Vob2xkZXI=;EndpointSuffix=core.windows.net"
+          AZURE_STORAGE_ACCOUNT_BASEURL: "https://placeholder.blob.core.windows.net/"
+
+      - name: Expand DMK-vs-AIADMK and 2026-results posts
+        run: pnpm exec tsx scripts/expand-posts.mts
+        env:
+          DATABASE_URI: ${{ secrets.DATABASE_URL_DIRECT }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          NEXT_PUBLIC_SERVER_URL: https://indiastats.org
+          AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=placeholder;AccountKey=cGxhY2Vob2xkZXI=;EndpointSuffix=core.windows.net"
+          AZURE_STORAGE_ACCOUNT_BASEURL: "https://placeholder.blob.core.windows.net/"
