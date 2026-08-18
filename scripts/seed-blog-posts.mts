@@ -858,7 +858,11 @@ async function main() {
   process.exit(0)
 }
 
-main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+// Guarded so importing `posts` from this file (e.g. scripts/expand-posts.mts)
+// doesn't also re-run this file's own seed pass as an unintended side effect.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}
