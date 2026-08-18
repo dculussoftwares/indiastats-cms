@@ -50,8 +50,11 @@ jobs:
           DATABASE_URI: ${{ secrets.DATABASE_URL_DIRECT }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_PUBLIC_SERVER_URL: https://indiastats.org
-          AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=placeholder;AccountKey=cGxhY2Vob2xkZXI=;EndpointSuffix=core.windows.net"
-          AZURE_STORAGE_ACCOUNT_BASEURL: "https://placeholder.blob.core.windows.net/"
+          # Deliberately NOT setting AZURE_STORAGE_CONNECTION_STRING/BASEURL — the storage
+          # plugin only activates when both are set (src/plugins/index.ts), and a placeholder
+          # value makes it try to actually authenticate against Azure Blob at init, which
+          # fails these scripts (they never touch media). migrate-schema's placeholder works
+          # there because `payload migrate` doesn't hit that plugin code path the same way.
 
       - name: Expand DMK-vs-AIADMK and 2026-results posts
         run: pnpm exec tsx scripts/expand-posts.mts
@@ -59,5 +62,8 @@ jobs:
           DATABASE_URI: ${{ secrets.DATABASE_URL_DIRECT }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_PUBLIC_SERVER_URL: https://indiastats.org
-          AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=placeholder;AccountKey=cGxhY2Vob2xkZXI=;EndpointSuffix=core.windows.net"
-          AZURE_STORAGE_ACCOUNT_BASEURL: "https://placeholder.blob.core.windows.net/"
+          # Deliberately NOT setting AZURE_STORAGE_CONNECTION_STRING/BASEURL — the storage
+          # plugin only activates when both are set (src/plugins/index.ts), and a placeholder
+          # value makes it try to actually authenticate against Azure Blob at init, which
+          # fails these scripts (they never touch media). migrate-schema's placeholder works
+          # there because `payload migrate` doesn't hit that plugin code path the same way.
