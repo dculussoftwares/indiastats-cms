@@ -33,7 +33,8 @@
 
 ## About
 
-- [About IndiaStats.org](/about): Mission, data sources, methodology, and team
+- [About IndiaStats.org](/about): Mission, data sources, and team
+- [Methodology](/methodology): How data is sourced, verified, and updated
 - [Contact](/contact): Reach the team for data corrections or collaboration
 
 ## API Access

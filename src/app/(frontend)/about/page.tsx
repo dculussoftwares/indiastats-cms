@@ -205,6 +205,29 @@ export default async function AboutPage() {
           </p>
         </section>
 
+        {/* Editorial & AI content policy */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">
+            Editorial &amp; AI Content Policy
+          </h2>
+          <p>
+            Election results, vote counts, and voter statistics on IndiaStats.org are never
+            AI-generated — they are extracted directly from official ECI records and displayed as
+            published. Some contextual writing, such as constituency and district summary
+            paragraphs and select blog articles, is drafted with AI assistance from that same
+            structured, verified data.
+          </p>
+          <p className="mt-4">
+            AI-assisted text is checked against the underlying dataset before publishing, and any
+            figure that cannot be traced to an official source is removed rather than published. If
+            you find AI-assisted content that misrepresents the underlying data, please{' '}
+            <a href="/contact" className="text-red-600 hover:underline">
+              contact us
+            </a>{' '}
+            and we will correct it.
+          </p>
+        </section>
+
         {/* Who we are */}
         <section>
           <h2 className="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Who We Are</h2>

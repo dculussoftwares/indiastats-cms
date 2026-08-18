@@ -38,6 +38,7 @@ const getPagesSitemap = unstable_cache(
       { loc: `${SITE_URL}/search`,         lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
       { loc: `${SITE_URL}/posts`,          lastmod: stableDate, priority: 0.5, changefreq: 'monthly' as const },
       { loc: `${SITE_URL}/about`,          lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
+      { loc: `${SITE_URL}/methodology`,    lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
       { loc: `${SITE_URL}/contact`,        lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
       { loc: `${SITE_URL}/terms`,          lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
       { loc: `${SITE_URL}/privacy-policy`, lastmod: stableDate, priority: 0.3, changefreq: 'monthly' as const },
