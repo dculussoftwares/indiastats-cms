@@ -25,6 +25,12 @@ console.log(`📅 Election year: ${ELECTION_YEAR}`)
 const CONN = process.env.DATABASE_URI
 if (!CONN) throw new Error('DATABASE_URI env var is required')
 
+// IndexNow lets Bing/Yandex/Seznam recrawl instantly instead of waiting on their normal
+// crawl schedule — valuable on counting day when 234 pages change within minutes.
+// Key must also be hosted at https://indiastats.org/{key}.txt containing just the key.
+const INDEXNOW_KEY = '6dee7159ae76b5e18287aed2666b80e2'
+const SITE_HOST = 'indiastats.org'
+
 const PARTY_NAME_MAP: Record<string, string> = {
   'Tamilaga Vettri Kazhagam': 'TVK',
   'Dravida Munnetra Kazhagam': 'DMK',
@@ -183,6 +189,7 @@ async function pushToDB(data: ConstResult[]) {
   for (const r of parentRows) idMap[r.assembly_id] = r.id
 
   let updated = 0, skipped = 0
+  const updatedAssemblyIds: string[] = []
 
   for (const row of data) {
     const assemblyId = `ac${String(row.constNo).padStart(3, '0')}`
@@ -212,6 +219,7 @@ async function pushToDB(data: ConstResult[]) {
       [row.currentRound, row.totalRounds, newStatus, row.totalVotes, row.nota || 0, parentId]
     )
     updated++
+    updatedAssemblyIds.push(assemblyId)
   }
 
   client.release()
@@ -236,9 +244,58 @@ async function pushToDB(data: ConstResult[]) {
 
   console.log('\nStatus:', rows.map((r: any) => `${r.status}:${r.count}`).join(', '))
   console.log('Leading party:', partyRows.map((r: any) => `${r.name}:${r.seats}`).join(', '))
+
+  return updatedAssemblyIds
+}
+
+// ── IndexNow ─────────────────────────────────────────────────────────────────
+
+async function submitToIndexNow(assemblyIds: string[]) {
+  if (!assemblyIds.length) return
+  try {
+    const pool = new Pool({ connectionString: CONN, ssl: { rejectUnauthorized: false } })
+    const { rows } = await pool.query(
+      `SELECT a.assembly_id, a.slug AS assembly_slug, d.slug AS district_slug
+       FROM assemblies a
+       JOIN districts d ON d.district_id = a.district_id
+       WHERE a.assembly_id = ANY($1) AND a.state_code = 'TN'`,
+      [assemblyIds]
+    )
+    await pool.end()
+
+    const urlList = rows
+      .filter((r: any) => r.assembly_slug && r.district_slug)
+      .map((r: any) => `https://${SITE_HOST}/tamil-nadu/assembly/${r.district_slug}/${r.assembly_slug}`)
+
+    if (!urlList.length) {
+      console.warn('⚠️  IndexNow: no resolvable URLs, skipping')
+      return
+    }
+
+    const res = await fetch('https://api.indexnow.org/indexnow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        host: SITE_HOST,
+        key: INDEXNOW_KEY,
+        keyLocation: `https://${SITE_HOST}/${INDEXNOW_KEY}.txt`,
+        urlList,
+      }),
+    })
+
+    if (res.ok) {
+      console.log(`✅ IndexNow: submitted ${urlList.length} URLs (${res.status})`)
+    } else {
+      console.warn(`⚠️  IndexNow: submission failed (${res.status} ${res.statusText})`)
+    }
+  } catch (e) {
+    // Best-effort — never let IndexNow failures block the live-results push
+    console.warn(`⚠️  IndexNow: submission error — ${(e as Error).message}`)
+  }
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 const data = await scrapeAll()
-await pushToDB(data)
+const updatedAssemblyIds = await pushToDB(data)
+await submitToIndexNow(updatedAssemblyIds)
