@@ -76,7 +76,7 @@ function richText(children: LexicalNode[]) {
 // ---------------------------------------------------------------------------
 // Post definitions
 // ---------------------------------------------------------------------------
-const posts = [
+export const posts = [
   // -------------------------------------------------------------------------
   // 1 — 2021 election overview
   // -------------------------------------------------------------------------
@@ -431,24 +431,41 @@ const posts = [
   // 7 — DMK-AIADMK rivalry history
   // -------------------------------------------------------------------------
   {
-    title: 'DMK vs AIADMK: The 50-Year Rivalry That Defines Tamil Nadu Politics',
+    title: 'DMK vs AIADMK: The 50-Year Rivalry That Defined Tamil Nadu Politics',
     slug: 'dmk-vs-aiadmk-50-year-rivalry-tamil-nadu',
     metaTitle: 'DMK vs AIADMK — Tamil Nadu\'s 50-Year Political Rivalry | IndiaStats.org',
     metaDescription:
-      'The story of DMK and AIADMK — the two Dravidian parties that have dominated Tamil Nadu politics since 1967. Election data from 1977 to 2021 with full seat tallies.',
+      'The story of DMK and AIADMK — the two Dravidian parties that dominated Tamil Nadu politics from 1967 to 2021 — and how the 2026 election disrupted the pattern. Full seat tallies from 1977.',
     content: richText([
       paragraph(
         text(
-          'For over five decades, Tamil Nadu politics has been defined by the rivalry between two Dravidian parties: the Dravida Munnetra Kazhagam (DMK), founded by C. N. Annadurai in 1949, and the All India Anna Dravida Munnetra Kazhagam (AIADMK), founded as a breakaway by M. G. Ramachandran (MGR) in 1972. Every Tamil Nadu chief minister since 1967 has come from one of these two parties.',
+          'For over five decades, Tamil Nadu politics was defined by the rivalry between two Dravidian parties: the Dravida Munnetra Kazhagam (DMK), founded by C. N. Annadurai in 1949, and the All India Anna Dravida Munnetra Kazhagam (AIADMK), founded as a breakaway by M. G. Ramachandran (MGR) in 1972. From 1967 through 2021, every Tamil Nadu chief minister came from one of these two parties — an unbroken run across eleven consecutive assembly elections. The 2026 election broke that pattern for the first time, when the Tamilaga Vettri Kazhagam (TVK) won more seats than either party\'s alliance bloc. This is the fifty-year rivalry that shaped modern Tamil Nadu politics, and what its 2026 disruption means for reading the state\'s electoral data going forward.',
         ),
       ),
-      heading('h2', 'Origins of the Split'),
+      heading('h2', 'Roots in the Dravidian Movement'),
       paragraph(
         text(
-          'MGR, a hugely popular film star and senior DMK leader, was expelled from the party in 1972 after public disagreements with DMK president M. Karunanidhi. He founded the AIADMK the same year. His film popularity translated directly into electoral power — AIADMK won its first election in 1977, defeating DMK in a landslide.',
+          'Both parties trace their lineage to the Dravidian movement, which began in the early twentieth century as a challenge to caste hierarchy and Brahmin dominance in Tamil society. E. V. Ramasamy, known as Periyar, led the Self-Respect Movement from the 1920s and later headed the Dravidar Kazhagam (DK) — a social reform organisation rather than an electoral party, built on decades of grassroots organising before either DMK or AIADMK existed. In 1949, Periyar\'s protégé C. N. Annadurai broke away to found the DMK as an explicitly political party, keeping the Dravidian ideology of rationalism, anti-caste politics, and Tamil linguistic identity, while contesting elections — something Periyar himself had refused to do.',
+        ),
+      ),
+      heading('h2', '1967: The Watershed Election'),
+      paragraph(
+        text(
+          'DMK\'s rise to power in 1967 ended more than four decades of unbroken Congress party rule in Madras State, renamed Tamil Nadu the following year. The victory followed the 1965 anti-Hindi imposition agitation, which cemented DMK\'s Tamil-identity politics as a majority sentiment. Annadurai became the state\'s first non-Congress chief minister, and no party outside the Dravidian movement won a Tamil Nadu assembly election for the next eleven consecutive contests — a run that held until 2026.',
+        ),
+      ),
+      heading('h2', 'MGR and the 1972 Split'),
+      paragraph(
+        text(
+          'MGR, a hugely popular film star and senior DMK leader, was expelled from the party in 1972 after public disagreements with DMK president M. Karunanidhi, who had succeeded Annadurai on his death in 1969. MGR founded the AIADMK the same year, combining his film stardom with a welfare-focused populist platform. His best-known policy, the Chief Minister\'s Nutritious Meal Programme launched in 1982, provided free midday meals to schoolchildren and became a model later adopted by other Indian states, and by other welfare schemes across India more broadly. AIADMK won its first election in 1977, defeating DMK in a landslide and beginning the two-party pattern that would define Tamil Nadu politics for the next half-century.',
         ),
       ),
       heading('h2', 'Election Results: 1977–2021'),
+      paragraph(
+        text(
+          'The seat tallies across these eleven elections show a rivalry with few prolonged periods of dominance by either side — most large winning margins were followed by a swing back within one or two election cycles:',
+        ),
+      ),
       bulletList([
         '1977: AIADMK wins 130 seats; DMK wins 48',
         '1980: AIADMK wins 130 seats; DMK wins 37',
@@ -462,22 +479,58 @@ const posts = [
         '2016: AIADMK wins 136 seats; DMK wins 89',
         '2021: DMK wins 133 seats; AIADMK wins 66',
       ]),
+      heading('h2', 'Sympathy Waves and Landslides'),
+      paragraph(
+        text(
+          'Two of the largest margins in this list followed the assassination of a national leader. AIADMK\'s 132-seat win in 1984 came weeks after Indira Gandhi\'s assassination, when a nationwide sympathy wave favoured Congress and its allies, including AIADMK. AIADMK\'s 164-seat landslide in 1991 followed Rajiv Gandhi\'s assassination during the campaign, with AIADMK again allied to Congress. Both results illustrate how national events, not just state issues, have periodically reshaped Tamil Nadu\'s assembly composition.',
+        ),
+      ),
       heading('h2', 'The Alliance Era'),
       paragraph(
         text(
-          'From the 1990s onward, neither party has contested entirely alone. Both routinely forge alliances with national parties (Congress, BJP) and regional parties (PMK, VCK, IUML) that bring vote shares from specific communities. The composition of these alliances often decides the margin of victory. In 2021, the DMK alliance included INC, VCK, CPI, and CPI(M); the AIADMK alliance included BJP and PMK.',
+          'From the 1990s onward, neither party contested entirely alone. Both routinely forged alliances with national parties (Congress, BJP) and regional parties (PMK, VCK, IUML, MDMK) that brought vote shares from specific communities and regions. Because Tamil Nadu uses first-past-the-post voting, these alliances could produce large seat majorities from more modest vote shares — DMK\'s 133-seat win in 2021 came from roughly 37% of the popular vote, a winner\'s bonus typical of plurality systems. The composition of each alliance, and how efficiently its vote was distributed across constituencies, often decided the margin of victory more than the headline vote share. In 2021, the DMK alliance included INC, VCK, CPI, and CPI(M); the AIADMK alliance included BJP and PMK.',
+        ),
+      ),
+      heading('h2', 'Vote Share vs Seat Share Across the Rivalry'),
+      paragraph(
+        text(
+          'Because both parties relied on alliance partners from the 1990s onward, comparing raw seat counts across elections can be misleading without accounting for vote share. DMK\'s 173-seat landslide in 1996, for instance, came from a comparatively modest vote share split across a wide alliance, while AIADMK\'s 164 seats in 1991 reflected both a genuine statewide sympathy wave and an efficient distribution of alliance votes across constituencies. A party\'s assembly seat total is a function of both its own vote share and how its allies\' seats are distributed, not a standalone measure of its popularity in a given year — the constituency-level data on IndiaStats.org makes that distinction visible seat by seat.',
+        ),
+      ),
+      heading('h2', 'Two Parties, One Electorate'),
+      paragraph(
+        text(
+          'For much of this fifty-year span, DMK and AIADMK drew from an overlapping electorate rather than distinct ideological bases. Both parties adopted Dravidian social-justice rhetoric, expanded welfare programmes once in office, and competed more on delivery and leadership personality than on policy platforms. That overlap is part of why margins swung as sharply as they did: a relatively small shift within a closely contested electorate could flip a large number of seats under first-past-the-post rules, as both the 1991 and 1996 results show.',
         ),
       ),
       heading('h2', 'Post-Jayalalithaa AIADMK'),
       paragraph(
         text(
-          'The death of J. Jayalalithaa in December 2016 left AIADMK without its central personality. The party split between factions led by O. Panneerselvam (who had twice served as caretaker CM) and Edappadi K. Palaniswami (the sitting CM). The EPS faction ultimately prevailed, but the internal divisions contributed to AIADMK\'s decline to 66 seats in 2021.',
+          'The death of J. Jayalalithaa in December 2016 left AIADMK without its central personality for the first time in over three decades. The party split between factions led by O. Panneerselvam (OPS), who had twice served as caretaker chief minister, and Edappadi K. Palaniswami (EPS), the sitting chief minister at the time of the split. The two factions formally merged in 2017, with EPS as chief minister and OPS as deputy, but the reconciliation did not fully resolve internal tensions. AIADMK\'s decline to 66 seats in 2021 reflected both the loss of Jayalalithaa\'s personal appeal and the lingering effects of the succession dispute.',
+        ),
+      ),
+      heading('h2', 'Karunanidhi to Stalin: The DMK Succession'),
+      paragraph(
+        text(
+          'DMK faced its own succession question after M. Karunanidhi\'s death in August 2018, following a tenure as party president spanning nearly five decades. M. K. Stalin, Karunanidhi\'s son, had already been positioned as heir apparent through the 2010s and took over party leadership without a contested split, in contrast to AIADMK\'s experience after Jayalalithaa. That organisational continuity is widely seen as a factor in DMK\'s 133-seat win in 2021, its strongest performance since 2006.',
+        ),
+      ),
+      heading('h2', 'Why the Rivalry Lasted as Long as It Did'),
+      paragraph(
+        text(
+          'A rivalry confined to two parties for eleven straight elections is unusual by the standards of Indian state politics, where regional third parties routinely break through — Andhra Pradesh, Karnataka, and West Bengal have each seen multiple parties alternate in power over the same period. Two structural factors help explain Tamil Nadu\'s exception: both DMK and AIADMK controlled deep, decades-old cadre networks reaching down to the booth level, and both had access to a state-level film industry that supplied charismatic leadership — Annadurai and Karunanidhi as screenwriters, MGR and Jayalalithaa as actors. That combination of organisational depth and mass-media reach made it difficult for a new entrant to compete on either front simultaneously, until 2026.',
+        ),
+      ),
+      heading('h2', '2026: The Duopoly\'s First Real Challenge'),
+      paragraph(
+        text(
+          'The pattern of DMK-AIADMK alternation held for eleven consecutive elections, from 1967 to 2021. It broke in 2026, when the Tamilaga Vettri Kazhagam (TVK) won 108 seats — more than either the DMK-led nine-party bloc (70 seats) or the AIADMK-led five-party bloc (53 seats). It was the first Tamil Nadu assembly election since 1967 in which neither Dravidian party\'s alliance won the largest share of seats, and the first time in this dataset that a party entered an election with no prior assembly seats and left it with the largest single bloc. Read our full breakdown of the 2026 result for the complete seat-by-seat picture.',
         ),
       ),
       heading('h2', 'Explore the Data'),
       paragraph(
         text(
-          'IndiaStats.org carries complete election history from 1977 to 2021 for all 234 Tamil Nadu assembly constituencies — including every candidate, party, votes received, and winning margin. Use the interactive map and search tools to explore how each constituency has voted over the decades.',
+          'IndiaStats.org carries complete election history from 1977 to 2026 for all 234 Tamil Nadu assembly constituencies — including every candidate, party, votes received, and winning margin, alongside booth-level detail and constituency demographics. Use the interactive map and search tools to explore how each constituency has voted across five decades, from the Dravidian movement\'s rise in 1967 to the 2026 election that ended its unbroken run.',
         ),
       ),
     ]),
@@ -595,52 +648,117 @@ const posts = [
   // 10 — 2026 election preview
   // -------------------------------------------------------------------------
   {
-    title: 'Tamil Nadu 2026 Assembly Election: Key Seats, Alliances, and What to Watch',
+    title: 'Tamil Nadu 2026 Assembly Election Results: How TVK Broke the DMK-AIADMK Duopoly',
     slug: 'tamil-nadu-2026-assembly-election-preview',
-    metaTitle: 'Tamil Nadu 2026 Election Preview — Key Seats & Alliances | IndiaStats.org',
+    metaTitle: 'Tamil Nadu 2026 Election Results — TVK, DMK Bloc, AIADMK Bloc | IndiaStats.org',
     metaDescription:
-      'Preview of the Tamil Nadu 2026 Legislative Assembly elections — alliance formations, key battleground constituencies, and what the 2021 data tells us about swing seats.',
+      'Full breakdown of the 2026 Tamil Nadu assembly election result — TVK\'s 108-seat plurality, the DMK-led bloc\'s 70 seats, and the AIADMK-led bloc\'s 53 seats, with historical context back to 1977.',
     content: richText([
       paragraph(
         text(
-          'The Tamil Nadu Legislative Assembly election is due in April–May 2026. With 234 constituencies, 6.36 crore voters, and two dominant Dravidian parties seeking to build alliances, the election is shaping up to be one of the most closely watched state polls in India. Here is what the data tells us going in.',
+          'The 2026 Tamil Nadu Legislative Assembly election has been decided. With 234 constituencies and roughly 6.36 crore registered voters, the result broke a pattern that had held since 1967: for the first time, a party outside the DMK-AIADMK duopoly won more seats than either Dravidian party\'s alliance. Here is what the data shows.',
         ),
       ),
-      heading('h2', 'The Incumbent DMK Government'),
+      heading('h2', 'The Headline Result: TVK\'s Plurality'),
       paragraph(
         text(
-          'DMK, under Chief Minister M. K. Stalin, goes into the election as the incumbent after winning 133 seats in 2021. The party has a full five-year term to its credit and will contest on its governance record — a track record that includes welfare schemes, industrial investment announcements, and social justice legislation. The key question is whether the wave that brought DMK to power in 2021 can be sustained.',
+          'The Tamilaga Vettri Kazhagam (TVK) won 108 of 234 seats — more than either the DMK-led alliance or the AIADMK-led alliance individually. It is the first time since the current two-party era began in 1967 that neither Dravidian party\'s bloc has finished first in seats won. TVK contested this election as Tamil Nadu\'s youngest major electoral force, and its 108 seats make it the largest single formation in an assembly that has been contested exclusively between DMK-led and AIADMK-led blocs since 1977.',
         ),
       ),
-      heading('h2', 'The AIADMK Opposition'),
+      heading('h2', 'Seat Tally at a Glance'),
       paragraph(
         text(
-          'AIADMK, which won 66 seats in 2021 under Edappadi K. Palaniswami (EPS), goes into 2026 as the principal opposition. The party split with BJP ahead of the 2024 Lok Sabha elections and is expected to contest the 2026 assembly election independently or with a new set of smaller allies. How the EPS-led party consolidates its vote base will be closely watched.',
-        ),
-      ),
-      heading('h2', 'Key Battleground Constituencies'),
-      paragraph(
-        text(
-          'Based on 2021 margins, the following types of seats are likely to be most competitive in 2026:',
+          'The three-way split for 2026, by bloc:',
         ),
       ),
       bulletList([
-        'Kongu belt seats where DMK made first-time gains in 2021 — defending vs AIADMK/BJP',
-        'Seats won by margins under 5,000 votes in 2021 (approximately 40 constituencies)',
-        'Chennai suburban seats like Shozhinganallur and Madavaram with rapidly growing voter rolls',
-        'Delta zone seats with significant VCK and Left influence',
-        'All 43 SC/ST reserved constituencies where VCK-DMK alliance dynamics matter',
+        'TVK: 108 seats',
+        'DMK-led bloc — DMK, INC, VCK, CPI, CPI(M), MDMK, IUML, KMDK, MMK (9 parties): 70 seats',
+        'AIADMK-led bloc — AIADMK, BJP, PMK, DMDK, TMC(M) (5 parties): 53 seats',
+        'Others: 3 seats',
       ]),
-      heading('h2', 'Alliance Arithmetic'),
+      heading('h2', 'What Is TVK?'),
       paragraph(
         text(
-          'Tamil Nadu elections are almost always decided by alliance arithmetic. DMK is expected to retain its alliance with INC, VCK, CPI, and CPI(M). AIADMK\'s alliance composition remains uncertain following the BJP break. PMK, which won 5 seats in the AIADMK alliance in 2021, may prove a swing factor depending on which side it aligns with.',
+          'Tamilaga Vettri Kazhagam (TVK) is led by Vijay, a Tamil film actor who launched the party in 2024 after years of public speculation about a screen-to-politics move — a path with precedent in Tamil Nadu, where MGR made the same transition in 1972 and went on to found AIADMK. Unlike MGR, who broke away from an existing party with an established organisational base, TVK contested 2026 as an entirely new formation with no prior assembly seats. That makes its 108-seat result unusual by Tamil Nadu\'s own history: no party in the dataset IndiaStats.org covers, which runs back to 1977, had previously gone from zero assembly seats to the largest single bloc within its first state election.',
         ),
       ),
-      heading('h2', 'Track the Data on IndiaStats.org'),
+      heading('h2', 'A Fast Rise, by Tamil Nadu Standards'),
       paragraph(
         text(
-          'IndiaStats.org will continue tracking election predictions and updated voter roll data as the 2026 election approaches. All 234 constituency pages carry complete historical data from 1977 to 2021, making it possible to identify long-term trends, swing patterns, and demographic shifts that will shape the next election.',
+          'TVK\'s rise echoes DMK\'s own path in one respect: DMK did not exist until 1949 and won power just eighteen years later, in 1967. TVK\'s trajectory from founding to a seat-count plurality compresses a comparable arc into a fraction of the time — though the two are not fully comparable, since DMK built its 1967 win on a mass ideological movement, the Dravidian movement and the anti-Hindi agitation, that had been organising for decades before the party itself was founded, while TVK entered directly as an electoral vehicle without that longer institutional run-up. For a fuller account of how DMK and AIADMK built their organisational bases over the following decades, see our retrospective on the fifty-year rivalry those two parties fought before 2026.',
+        ),
+      ),
+      heading('h2', 'Third Forces Before TVK'),
+      paragraph(
+        text(
+          'TVK is not the first attempt to challenge the DMK-AIADMK duopoly. Regional and personality-driven parties — including DMDK, MDMK, and PMK at various points — have entered Tamil Nadu elections since the 1990s, but each contested as a junior partner within a DMK-led or AIADMK-led alliance rather than leading the seat count outright. That pattern is visible in the bloc composition above: DMDK sits within the 2026 AIADMK-led bloc, MDMK within the DMK-led bloc, and PMK within the AIADMK-led bloc. TVK is the first formation in this dataset to lead a Tamil Nadu assembly result without folding into either established bloc.',
+        ),
+      ),
+      heading('h2', 'Short of a Majority'),
+      paragraph(
+        text(
+          'TVK\'s 108 seats fall short of the 118 required for a single-party majority in the 234-seat assembly. Government formation in a plurality-but-not-majority scenario typically depends on support from smaller parties, independents, or post-poll alliances — dynamics that fall outside the scope of the verified constituency-level result data IndiaStats.org publishes, which is sourced directly from the Election Commission of India. With TVK short of a majority, the seats held by "Others" and the internal composition of both blocs matter more than usual for understanding how the assembly actually functions.',
+        ),
+      ),
+      heading('h2', 'The DMK Bloc\'s 2026 Setback'),
+      paragraph(
+        text(
+          'DMK won 133 seats on its own in 2021, its strongest result since 2006. In 2026, the nine-party DMK-led bloc — DMK together with INC, VCK, CPI, CPI(M), MDMK, IUML, KMDK, and MMK — won a combined 70 seats. The two figures are not directly comparable seat-for-seat, since the earlier number counts DMK alone and the latter counts its full alliance, but the scale of the shift — from Tamil Nadu\'s largest single bloc to third place behind TVK — marks the most significant DMK reversal since its 1991 loss.',
+        ),
+      ),
+      heading('h2', 'The AIADMK Bloc\'s Continued Rebuilding'),
+      paragraph(
+        text(
+          'AIADMK won 66 seats on its own in 2021, contesting without BJP after a mid-decade alliance split. In 2026, the AIADMK-led five-party bloc — AIADMK, BJP, PMK, DMDK, and TMC(M) — won a combined 53 seats, finishing behind both TVK and the DMK-led bloc. The renewed alliance with BJP for this election did not restore AIADMK\'s bloc to the seat share it held before Jayalalithaa\'s death in 2016.',
+        ),
+      ),
+      heading('h2', 'A Note on the "Others" Category'),
+      paragraph(
+        text(
+          'The 3 seats grouped as "Others" in the tally above are constituencies won by parties or independents outside all three major blocs. IndiaStats.org\'s constituency pages list the winning candidate and party for every one of Tamil Nadu\'s 234 seats individually, including these three — use the interactive map or constituency search for the specific breakdown rather than the aggregate bucket used in this article.',
+        ),
+      ),
+      heading('h2', 'Turnout and the Registered Electorate'),
+      paragraph(
+        text(
+          'Tamil Nadu\'s roughly 6.36 crore registered voters make it one of the larger state electorates in India voting in a single assembly election, spread across 45,000-plus polling booths in 234 constituencies and 38 districts. IndiaStats.org\'s constituency pages break this figure down by male, female, and third-gender registered voters for each seat, alongside the current MLA and full election history back to 1977 — the same level of detail available for the 2026 result, whichever bloc a given constituency ultimately went to.',
+        ),
+      ),
+      heading('h2', 'How Alliances Shape a Result Like This'),
+      paragraph(
+        text(
+          'Tamil Nadu\'s alliance system means a bloc\'s seat total reflects seat-sharing negotiations as much as any single party\'s standalone strength. A party can contest fewer seats than its vote share might justify if it hands the rest to allies in exchange for their support elsewhere — which is why DMK\'s own 133-seat count in 2021 sat inside a wider alliance rather than standing alone, and why the DMK-led and AIADMK-led bloc totals reported here include every constituent party\'s seats, not just the lead party\'s. Reading a bloc total without that context risks over- or under-crediting the lead party for seats its allies actually won.',
+        ),
+      ),
+      heading('h2', 'The Closest Historical Precedent: 2006'),
+      paragraph(
+        text(
+          'The closest historical parallel to a party leading Tamil Nadu\'s assembly without a majority on its own is 2006, when DMK won 96 seats — fewer than the 118 needed for a majority — but formed the government through alliance partners that brought the combined total past the threshold, while AIADMK won 61 seats contesting largely alone. The comparison is imperfect: in 2006, DMK\'s own 96-seat count was still well ahead of any single rival party, and DMK led an already-established multi-party bloc into the result. TVK\'s 2026 plurality is unprecedented in a different way — it is the first time the leading seat count in a Tamil Nadu assembly election has belonged to a formation outside both established Dravidian blocs entirely, rather than to one of the two blocs falling short of a majority on its own.',
+        ),
+      ),
+      heading('h2', 'What This Means for Reading Tamil Nadu Data'),
+      paragraph(
+        text(
+          'Every dataset on IndiaStats.org that references "party dominance" or "DMK vs AIADMK" trends now spans a fifty-year run that the 2026 result interrupted — see our full retrospective on the DMK-AIADMK rivalry for that history. We track bloc-level and party-level results separately so readers can see both the headline seat count and which allied parties contributed to it, a distinction that matters more in 2026 than in any Tamil Nadu election since the alliance era began in the 1990s. Journalists, researchers, and voters revisiting past "DMK vs AIADMK" framing should treat 2026 as the year that framing needed a third column: IndiaStats.org\'s assembly, district, and dashboard pages now track TVK, the DMK-led bloc, and the AIADMK-led bloc as three separate entities, rather than assuming a two-party race, going into whatever election cycle comes next.',
+        ),
+      ),
+      heading('h2', 'What to Watch Next'),
+      paragraph(
+        text(
+          'IndiaStats.org will continue publishing constituency-level results, current MLA and party affiliation, and updated bloc composition as this data changes. Readers tracking government formation should treat the seat tallies on this page as the verified starting point — the composition of any governing coalition is a separate, fast-moving political process that we do not speculate on. What we do track, and will keep updating, is the official constituency-by-constituency record.',
+        ),
+      ),
+      heading('h2', 'How We Sourced This Result'),
+      paragraph(
+        text(
+          'As with every result on this platform, the 2026 seat tallies above are sourced directly from Election Commission of India constituency-wise counting data, the same source used for our historical archive back to 1977. See our methodology page for details on how we verify and update election data.',
+        ),
+      ),
+      heading('h2', 'Explore the Full Data'),
+      paragraph(
+        text(
+          'IndiaStats.org carries complete constituency-level results for the 2026 election alongside historical data back to 1977 for all 234 Tamil Nadu assembly constituencies, including current MLA, party, booth-level detail, and voter demographics for every seat. Use the interactive map and constituency search to see how each seat voted, and how its 2026 result compares with every previous election since 1977.',
         ),
       ),
     ]),
