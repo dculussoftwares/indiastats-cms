@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getServerSideURL } from '@/utilities/getURL'
+import { stateCodeToSlug } from '@/config/states'
 
 const getAssembliesSitemap = unstable_cache(
   async () => {
@@ -80,7 +81,7 @@ const getAssembliesSitemap = unstable_cache(
         .filter((assembly: any) => Boolean(assembly?.slug))
         .forEach((assembly: any) => {
           const districtSlug = districtIdToSlugMap[assembly.districtId]
-          const stateSlug = stateCodeToSlugMap[assembly.stateCode] || 'tamil-nadu'
+          const stateSlug = stateCodeToSlug(assembly.stateCode)
 
           // Skip if districtSlug couldn't be resolved — would produce a 404 URL
           if (!districtSlug) return

@@ -19,7 +19,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
   const stateConfig = getStateBySlug(stateSlug)
-  if (!stateConfig) return { title: 'Not Found' }
+  if (!stateConfig) return { title: 'Not Found | IndiaStats.org', robots: { index: false, follow: false, nocache: true } }
 
   const baseUrl = getServerSideURL()
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-results`

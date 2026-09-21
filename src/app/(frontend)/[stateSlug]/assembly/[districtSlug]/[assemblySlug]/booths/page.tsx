@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import BoothsPageClient from './BoothsPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { getStateBySlug, stateCodeToSlug } from '@/config/states'
@@ -61,7 +61,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     collection: 'assemblies',
     where: {
       and: [
-        { slug: { equals: assemblySlug } },
+        {
+          or: [
+            { slug: { equals: assemblySlug } },
+            { assemblyId: { equals: assemblySlug } },
+          ]
+        },
         { stateCode: { equals: stateCode } }
       ]
     },
@@ -70,7 +75,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const assembly = assemblies.docs[0] as any
   if (!assembly) {
-    return { title: 'Booths Not Found' }
+    return {
+      title: 'Booths Not Found | IndiaStats.org',
+      robots: {
+        index: false,
+        follow: false,
+        nocache: true,
+      },
+    }
   }
   const name = assembly.name || 'Assembly'
   const cleanName = name.split(' / ')[1] || name

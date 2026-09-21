@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const stateConfig = getStateBySlug(stateSlug)
 
   if (!stateConfig) {
-    return { title: 'Not Found' }
+    return { title: 'Not Found | IndiaStats.org', robots: { index: false, follow: false, nocache: true } }
   }
 
   const initialData = await getElectionPredictionsData({
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   })
 
   const predictor = initialData.selectedPredictor
-  if (!predictor) return { title: 'Not Found' }
+  if (!predictor) return { title: 'Not Found | IndiaStats.org', robots: { index: false, follow: false, nocache: true } }
 
   const predictorName = predictor.name
   const stateName = stateConfig.name

@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const assembly = assemblies.docs[0] as any
   if (!assembly) {
-    return { title: 'Booth Not Found' }
+    return { title: 'Booth Not Found | IndiaStats.org', robots: { index: false, follow: false, nocache: true } }
   }
   const assemblyName = assembly.name || 'Assembly'
   const cleanName = assemblyName.split(' / ')[1] || assemblyName

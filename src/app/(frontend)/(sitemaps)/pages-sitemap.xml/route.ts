@@ -45,47 +45,51 @@ const getPagesSitemap = unstable_cache(
       // Top-level election data page
       { loc: `${SITE_URL}/election-data`,  lastmod: stableDate, priority: 0.8, changefreq: 'weekly' as const },
       // State-specific pages (one set per registered state)
-      ...getAllStates().flatMap((state) => [
-        // NOTE: /${state.slug} intentionally omitted — it 308-redirects to
-        // /dashboard. Sitemaps must only contain final destination URLs,
-        // otherwise GSC reports "Page with redirect" for every state.
-        {
-          loc: `${SITE_URL}/${state.slug}/dashboard`,
-          lastmod: now,
-          priority: 1.0,
-          changefreq: 'daily' as const,
-        },
-        {
-          loc: `${SITE_URL}/${state.slug}/assembly-map`,
-          lastmod: stableDate,
-          priority: 0.7,
-          changefreq: 'monthly' as const,
-        },
-        {
-          loc: `${SITE_URL}/${state.slug}/caste-demographics`,
-          lastmod: stableDate,
-          priority: 0.6,
-          changefreq: 'monthly' as const,
-        },
-        {
-          loc: `${SITE_URL}/${state.slug}/election-results`,
-          lastmod: now,
-          priority: 0.9,
-          changefreq: 'hourly' as const,
-        },
-        {
-          loc: `${SITE_URL}/${state.slug}/election-analysis/2026`,
-          lastmod: now,
-          priority: 0.8,
-          changefreq: 'weekly' as const,
-        },
-        {
-          loc: `${SITE_URL}/${state.slug}/election-analysis/2021`,
-          lastmod: '2021-05-02T00:00:00.000Z',
-          priority: 0.7,
-          changefreq: 'monthly' as const,
-        },
-      ]),
+      ...getAllStates().flatMap((state) => {
+        const statePages = [
+          {
+            loc: `${SITE_URL}/${state.slug}/dashboard`,
+            lastmod: now,
+            priority: 1.0,
+            changefreq: 'daily' as const,
+          },
+          {
+            loc: `${SITE_URL}/${state.slug}/assembly-map`,
+            lastmod: stableDate,
+            priority: 0.7,
+            changefreq: 'monthly' as const,
+          },
+          {
+            loc: `${SITE_URL}/${state.slug}/election-results`,
+            lastmod: now,
+            priority: 0.9,
+            changefreq: 'hourly' as const,
+          },
+        ]
+
+        // Only include caste demographics if state has data (TN currently)
+        if (state.code === 'TN') {
+          statePages.push({
+            loc: `${SITE_URL}/${state.slug}/caste-demographics`,
+            lastmod: stableDate,
+            priority: 0.6,
+            changefreq: 'monthly' as const,
+          })
+        }
+
+        // Only include election analysis for valid election years of that state
+        const validAnalysisYears = (state.electionYears || []).filter((year: number) => year >= 2016)
+        for (const year of validAnalysisYears) {
+          statePages.push({
+            loc: `${SITE_URL}/${state.slug}/election-analysis/${year}`,
+            lastmod: year === 2026 ? now : `${year}-05-02T00:00:00.000Z`,
+            priority: year === 2026 ? 0.8 : 0.7,
+            changefreq: year === 2026 ? ('weekly' as const) : ('monthly' as const),
+          })
+        }
+
+        return statePages
+      }),
     ]
 
     const sitemap = results.docs

@@ -1,7 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import { AssemblyPageClient } from './AssemblyPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
@@ -61,7 +61,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     collection: 'assemblies',
     where: {
       and: [
-        { slug: { equals: assemblySlug } },
+        {
+          or: [
+            { slug: { equals: assemblySlug } },
+            { assemblyId: { equals: assemblySlug } },
+          ]
+        },
         { stateCode: { equals: stateCode } }
       ]
     },
@@ -69,7 +74,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   })
 
   if (!assembly.docs[0]) {
-    return { title: 'Assembly Not Found' }
+    return {
+      title: 'Assembly Not Found | IndiaStats.org',
+      robots: {
+        index: false,
+        follow: false,
+        nocache: true,
+      },
+    }
   }
 
   const assemblyDoc = assembly.docs[0] as any
@@ -132,7 +144,12 @@ async function _getAssemblyData(stateCode: string, districtSlug: string, assembl
     collection: 'assemblies',
     where: {
       and: [
-        { slug: { equals: assemblySlug } },
+        {
+          or: [
+            { slug: { equals: assemblySlug } },
+            { assemblyId: { equals: assemblySlug } },
+          ]
+        },
         { stateCode: { equals: stateCode } }
       ]
     },
@@ -274,10 +291,28 @@ async function _getAssemblyData(stateCode: string, districtSlug: string, assembl
     })
   })
 
+  // Resolve real district slug if districtSlug in URL was an ID
+  let resolvedDistrictSlug = districtSlug
+  if (assembly.districtId) {
+    const districtRes = await payload.find({
+      collection: 'districts',
+      where: {
+        or: [
+          { slug: { equals: districtSlug } },
+          { districtId: { equals: assembly.districtId } },
+        ],
+      },
+      limit: 1,
+    })
+    if (districtRes.docs[0]?.slug) {
+      resolvedDistrictSlug = districtRes.docs[0].slug
+    }
+  }
+
   return {
     assemblyId: assembly.assemblyId,
     assemblySlug: assembly.slug,
-    districtSlug: districtSlug,
+    districtSlug: resolvedDistrictSlug,
     districtId: assembly.districtId,
     name: assembly.name,
     districtName: assembly.districtName,
@@ -329,6 +364,11 @@ export default async function AssemblyPage({ params }: PageProps) {
 
   if (!data) {
     notFound()
+  }
+
+  // If accessed via old ID or outdated districtSlug, 301 redirect to canonical slug URL
+  if (data.assemblySlug !== assemblySlug || data.districtSlug !== districtSlug) {
+    redirect(`/${stateSlug}/assembly/${data.districtSlug}/${data.assemblySlug}`)
   }
 
   const stateName = getStateBySlug(stateSlug)?.name ?? 'Tamil Nadu'

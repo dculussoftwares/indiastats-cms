@@ -23,7 +23,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug, year } = await params
   const stateConfig = getStateBySlug(stateSlug)
-  if (!stateConfig) return { title: 'Not Found' }
+  const yearNum = parseInt(year, 10)
+  if (!stateConfig || isNaN(yearNum) || !stateConfig.electionYears.includes(yearNum)) {
+    return {
+      title: 'Not Found | IndiaStats.org',
+      robots: { index: false, follow: false, nocache: true },
+    }
+  }
   const baseUrl = getServerSideURL()
   const canonicalUrl = `${baseUrl}/${stateSlug}/election-analysis/${year}`
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`

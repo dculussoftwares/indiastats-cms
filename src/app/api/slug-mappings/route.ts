@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         if (type === 'districts') {
             const districts = await payload.find({
                 collection: 'districts',
-                limit: 100,
+                limit: 2000,
                 pagination: false,
                 select: { districtId: true, slug: true },
             })
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
         } else {
             const assemblies = await payload.find({
                 collection: 'assemblies',
-                limit: 300,
+                limit: 2000,
                 pagination: false,
                 select: { assemblyId: true, slug: true },
             })

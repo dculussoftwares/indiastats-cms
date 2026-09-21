@@ -11,7 +11,14 @@ export const revalidate = 86400
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stateSlug } = await params
-  const stateName = getStateBySlug(stateSlug)?.name ?? stateSlug
+  const stateConfig = getStateBySlug(stateSlug)
+  if (!stateConfig || stateConfig.code !== 'TN') {
+    return {
+      title: 'Not Found | IndiaStats.org',
+      robots: { index: false, follow: false, nocache: true },
+    }
+  }
+  const stateName = stateConfig.name ?? stateSlug
   const baseUrl = getServerSideURL()
   const ogImageUrl = `${baseUrl}/api/og/state/${stateSlug}`
   const canonicalUrl = `${baseUrl}/${stateSlug}/caste-demographics`
@@ -101,6 +108,10 @@ export default async function CasteDemographicsPage({ params }: Props) {
   }
 
   const casteData = await getCasteData(stateConfig.code)
+
+  if (!casteData || casteData.length === 0) {
+    notFound()
+  }
 
   return <CasteDemographicsClient stateSlug={stateSlug} prefetchedData={casteData} />
 }

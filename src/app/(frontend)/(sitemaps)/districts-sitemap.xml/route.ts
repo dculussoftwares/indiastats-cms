@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getServerSideURL } from '@/utilities/getURL'
+import { stateCodeToSlug } from '@/config/states'
 
 const getDistrictsSitemap = unstable_cache(
     async () => {
@@ -50,7 +51,7 @@ const getDistrictsSitemap = unstable_cache(
             ? results.docs
                 .filter((district: any) => Boolean(district?.slug))
                 .map((district: any) => {
-                    const stateSlug = stateCodeToSlugMap[district.stateCode] || 'tamil-nadu'
+                    const stateSlug = stateCodeToSlug(district.stateCode)
                     return {
                         loc: `${SITE_URL}/${stateSlug}/district/${district.slug}`,
                         lastmod: district.updatedAt || dateFallback,

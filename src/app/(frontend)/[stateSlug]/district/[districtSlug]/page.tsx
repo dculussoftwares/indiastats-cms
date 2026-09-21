@@ -1,7 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import { DistrictPageClient } from './DistrictPageClient'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
@@ -49,7 +49,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     collection: 'districts',
     where: {
       and: [
-        { slug: { equals: districtSlug } },
+        {
+          or: [
+            { slug: { equals: districtSlug } },
+            { districtId: { equals: districtSlug } },
+          ]
+        },
         { stateCode: { equals: stateCode } }
       ]
     },
@@ -57,7 +62,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   })
 
   if (!district.docs[0]) {
-    return { title: 'District Not Found' }
+    return {
+      title: 'District Not Found | IndiaStats.org',
+      robots: {
+        index: false,
+        follow: false,
+        nocache: true,
+      },
+    }
   }
 
   const districtDoc = district.docs[0] as any
@@ -117,7 +129,12 @@ async function _getDistrictData(stateCode: string, districtSlug: string) {
     collection: 'districts',
     where: {
       and: [
-        { slug: { equals: districtSlug } },
+        {
+          or: [
+            { slug: { equals: districtSlug } },
+            { districtId: { equals: districtSlug } },
+          ]
+        },
         { stateCode: { equals: stateCode } }
       ]
     },
@@ -310,6 +327,11 @@ export default async function DistrictPage({ params }: PageProps) {
 
   if (!data) {
     notFound()
+  }
+
+  // If accessed via old districtId, 301 redirect to canonical slug URL
+  if (data.districtSlug && data.districtSlug !== districtSlug) {
+    redirect(`/${stateSlug}/district/${data.districtSlug}`)
   }
 
   return (
