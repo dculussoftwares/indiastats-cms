@@ -62,9 +62,16 @@ export default async function Page({ params: paramsPromise }: Args) {
   )
 }
 
+import { getServerSideURL } from '@/utilities/getURL'
+
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { pageNumber } = await paramsPromise
+  const baseUrl = getServerSideURL()
+  const canonicalUrl = pageNumber === '1' ? `${baseUrl}/posts` : `${baseUrl}/posts/page/${pageNumber}`
   return {
     title: `IndiaStats.org Posts Page ${pageNumber || ''}`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
   }
 }

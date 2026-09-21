@@ -4,6 +4,7 @@ import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
 import { draftMode } from 'next/headers'
+import { permanentRedirect } from 'next/navigation'
 import React, { cache } from 'react'
 import { homeStatic } from '@/endpoints/seed/home-static'
 
@@ -27,6 +28,11 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { pageSlug = 'home' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(pageSlug)
+
+  // Redirect typo/broken root queries (e.g. /$, /&)
+  if (decodedSlug === '$' || decodedSlug === '&' || decodedSlug.startsWith('$') || decodedSlug.startsWith('&')) {
+    permanentRedirect('/')
+  }
   const url = '/' + decodedSlug
   let page: RequiredDataFromCollectionSlug<'pages'> | null
 
@@ -63,9 +69,24 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const { pageSlug = 'home' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(pageSlug)
+
+  if (decodedSlug === '$' || decodedSlug === '&' || decodedSlug.startsWith('$') || decodedSlug.startsWith('&')) {
+    return {
+      title: 'Redirecting | IndiaStats.org',
+      robots: { index: false, follow: false, nocache: true },
+    }
+  }
+
   const page = await queryPageBySlug({
     slug: decodedSlug,
   })
+
+  if (!page) {
+    return {
+      title: 'Page Not Found | IndiaStats.org',
+      robots: { index: false, follow: false, nocache: true },
+    }
+  }
 
   return generateMeta({ doc: page, path: decodedSlug === 'home' ? '/' : `/${decodedSlug}` })
 }

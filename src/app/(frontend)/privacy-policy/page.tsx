@@ -1,9 +1,16 @@
 import { Metadata } from 'next'
 
+import { getServerSideURL } from '@/utilities/getURL'
+
+const baseUrl = getServerSideURL()
+
 export const metadata: Metadata = {
   title: 'Privacy Policy | IndiaStats.org',
   description:
     'Privacy Policy for IndiaStats.org - Electoral data and political statistics platform for India',
+  alternates: {
+    canonical: `${baseUrl}/privacy-policy`,
+  },
 }
 
 export default function PrivacyPolicyPage() {

@@ -59,6 +59,19 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
+      // Block search engines from indexing API or Admin endpoints
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
+      {
+        source: '/admin/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
       // GeoJSON — changes at election delimitation only, 24h CDN + 7d stale-while-revalidate
       {
         source: '/geojson/:path*',

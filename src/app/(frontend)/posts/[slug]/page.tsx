@@ -88,6 +88,13 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const decodedSlug = decodeURIComponent(slug)
   const post = await queryPostBySlug({ slug: decodedSlug })
 
+  if (!post) {
+    return {
+      title: 'Post Not Found | IndiaStats.org',
+      robots: { index: false, follow: false, nocache: true },
+    }
+  }
+
   const base = await generateMeta({ doc: post, path: `/posts/${decodedSlug}` })
 
   return {
