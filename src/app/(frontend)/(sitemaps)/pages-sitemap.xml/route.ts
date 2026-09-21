@@ -84,7 +84,7 @@ const getPagesSitemap = unstable_cache(
             loc: `${SITE_URL}/${state.slug}/election-analysis/${year}`,
             lastmod: year === 2026 ? now : `${year}-05-02T00:00:00.000Z`,
             priority: year === 2026 ? 0.8 : 0.7,
-            changefreq: year === 2026 ? ('weekly' as const) : ('monthly' as const),
+            changefreq: 'monthly' as const,
           })
         }
 
