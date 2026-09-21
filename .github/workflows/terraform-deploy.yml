@@ -118,6 +118,16 @@ jobs:
         id: sha
         run: echo "tag=${{ github.sha }}" | cut -c1-7 >> $GITHUB_OUTPUT
 
+      - name: Prune Old Images (Keep Last 5)
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: 'indiastats-cms'
+          package-type: 'container'
+          min-versions-to-keep: 5
+          ignore-versions: '^(latest)$'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
   migrate-schema:
     name: Migrate DB Schema
     runs-on: ubuntu-latest
