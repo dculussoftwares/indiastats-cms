@@ -29,7 +29,7 @@ pnpm remotion:thumbnail # Render thumbnail → out/thumbnail.png
 
 ## Architecture Overview
 
-**PayloadCMS 3.x + Next.js 15** app serving Tamil Nadu election data (assemblies, districts, booths, election history). Deployed to Azure Container Apps via Terraform.
+**PayloadCMS 3.x + Next.js 15** app serving Tamil Nadu election data (assemblies, districts, booths, election history). Image built here and pushed to GHCR; deployed to Azure Container Apps from the private dculus-infra repo.
 
 ### Key Architectural Patterns
 
@@ -70,11 +70,9 @@ pnpm remotion:thumbnail # Render thumbnail → out/thumbnail.png
 
 ### Infrastructure
 
-- **Deployment**: Docker (standalone Next.js) → Azure Container App (0.25 CPU, 0.5Gi)
-- **IaC**: Terraform in `infra/` with remote state in Azure Blob Storage
-- **CI/CD**: GitHub Actions (`terraform-deploy.yml`), plus `x-daily-post.yml` for automated X/Twitter posts
-- **Media storage**: Azure Blob Storage (`@payloadcms/storage-azure`)
-- **Database**: PostgreSQL (external, via `DATABASE_URI`)
+- **Deployment**: this repo only builds/pushes the Docker image (`.github/workflows/terraform-deploy.yml`). Hosting, DNS, database and secrets are Terraform in the private `dculus-infra` repo; the deployed image tag is set in its `deploy/indiastats.yaml`.
+- **Media storage**: Cloudflare R2 via `@payloadcms/storage-s3` (`R2_*` env vars); Azure Blob adapter kept only as a legacy fallback
+- **Database**: PostgreSQL on the shared Azure server (`DATABASE_URI`)
 
 ## Database Schema
 
