@@ -50,7 +50,7 @@ jobs:
               - 'tailwind.config.mjs'
               - 'postcss.config.js'
               - 'public/**'
-                          - '.github/workflows/terraform-deploy.yml'
+              - '.github/workflows/terraform-deploy.yml'
 
   build-and-push:
     name: Build & Push Docker Image
