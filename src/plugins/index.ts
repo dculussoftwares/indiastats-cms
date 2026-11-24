@@ -4,6 +4,7 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { azureStorage } from '@payloadcms/storage-azure'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
@@ -115,8 +116,35 @@ export const plugins: Plugin[] = [
       },
     },
   }),
-  // Azure Blob Storage for media files (only in production when env vars are set)
-  ...(process.env.AZURE_STORAGE_CONNECTION_STRING && process.env.AZURE_STORAGE_ACCOUNT_BASEURL
+  // Cloudflare R2 (S3 API) for media files. Active only when R2_BUCKET is set.
+  // Files are served directly from the public R2 domain (R2_PUBLIC_URL), not proxied by the app.
+  ...(process.env.R2_BUCKET
+    ? [
+        s3Storage({
+          collections: {
+            media: {
+              disablePayloadAccessControl: true,
+              generateFileURL: ({ filename, prefix }) =>
+                `${process.env.R2_PUBLIC_URL}/${prefix ? `${prefix}/` : ''}${filename}`,
+            },
+          },
+          bucket: process.env.R2_BUCKET,
+          config: {
+            credentials: {
+              accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+              secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+            },
+            region: 'auto', // required by R2
+            endpoint: process.env.R2_ENDPOINT,
+            forcePathStyle: true,
+          },
+        }),
+      ]
+    : []),
+  // Azure Blob Storage for media files (legacy; only when its env vars are set and R2 is not)
+  ...(!process.env.R2_BUCKET &&
+  process.env.AZURE_STORAGE_CONNECTION_STRING &&
+  process.env.AZURE_STORAGE_ACCOUNT_BASEURL
     ? [
         azureStorage({
           collections: {
