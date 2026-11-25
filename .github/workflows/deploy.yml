@@ -1,0 +1,33 @@
+name: Deploy
+
+# Manual deploy button (production only). Starts the deploy workflow in the private infra repo, which holds the
+# cloud credentials. Requires approval (production-approval environment). Rollback: deploy an older commit SHA.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "7-char commit sha of a built image, or 'latest' (newest build on main)"
+        required: true
+        type: string
+        default: latest
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Start infra deploy (prod)
+    runs-on: ubuntu-latest
+    environment: production-approval
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.INFRA_DEPLOY_TOKEN }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^(latest|[0-9a-f]{7})$ ]] || { echo "bad version"; exit 1; }
+          for i in 1 2 3 4 5; do
+            gh workflow run deploy.yml -R dculussoftwares/dculus-infra -f app=indiastats -f env=prod -f version="$VERSION" && exit 0
+            sleep 15
+          done
+          echo "could not start the infra deploy"; exit 1

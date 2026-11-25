@@ -166,3 +166,26 @@ jobs:
           DATABASE_URI: ${{ secrets.DATABASE_URL_DIRECT }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_PUBLIC_SERVER_URL: https://indiastats.org
+
+  # Production deploy through the private infra repo. Waits for approval (production-approval environment);
+  # approving starts the deploy of exactly the image built above.
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-and-push, migrate-schema]
+    if: github.ref == 'refs/heads/main' && needs.build-and-push.result == 'success' && needs.migrate-schema.result == 'success'
+    environment: production-approval
+    permissions:
+      contents: read
+    steps:
+      - name: Start the infra deploy
+        env:
+          GH_TOKEN: ${{ secrets.INFRA_DEPLOY_TOKEN }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5; do
+            gh workflow run deploy.yml -R dculussoftwares/dculus-infra -f app=indiastats -f env=prod -f version="${SHA:0:7}" && exit 0
+            sleep 15
+          done
+          echo "could not start the infra deploy"; exit 1
