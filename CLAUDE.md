@@ -43,7 +43,7 @@ pnpm remotion:thumbnail # Render thumbnail → out/thumbnail.png
 
 5. **Plugins** (`src/plugins/index.ts`): SEO, redirects, nested docs, form builder, search (Posts only), and Azure Blob Storage (conditional — only active when `AZURE_STORAGE_CONNECTION_STRING` is set).
 
-6. **Analytics** (`src/analytics/`): Standardized event system supporting PostHog, Mixpanel, Clarity, and GA4. Import from `@/analytics`. Uses `events.{namespace}.{action}()` pattern with `setPageContext()` per page. All event/property names are snake_case.
+6. **Analytics** (`src/analytics/`): Standardized event system supporting PostHog, Mixpanel, Clarity, GA4, and self-hosted OpenPanel (`src/analytics/providers/openpanel.ts`, first-party `/_e` path, enabled by `NEXT_PUBLIC_OPENPANEL_CLIENT_ID`). Import from `@/analytics`. Uses `events.{namespace}.{action}()` pattern with `setPageContext()` per page. All event/property names are snake_case.
 
 7. **Path alias**: `@/*` maps to `src/*` (tsconfig paths). Payload config accessed via `@payload-config`.
 
