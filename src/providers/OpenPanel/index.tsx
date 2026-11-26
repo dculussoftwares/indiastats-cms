@@ -10,8 +10,8 @@ import {
 
 /**
  * Loads the self-hosted OpenPanel SDK from the first-party `/_e` path
- * (Cloudflare Worker → OpenPanel API). Automatic page views, outgoing links
- * and `data-track` attributes; custom events arrive via the analytics layer.
+ * (Cloudflare Worker → OpenPanel API). Automatic page views and outgoing links;
+ * custom events arrive via the analytics layer.
  * Renders nothing unless NEXT_PUBLIC_OPENPANEL_CLIENT_ID is set in production.
  */
 export function OpenPanelProvider() {

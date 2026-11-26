@@ -37,7 +37,12 @@ describe('OpenPanel analytics provider', () => {
     m.openPanelProvider.track('assembly_viewed', { assembly_id: 'ac001', page_name: 'Assembly Detail' })
     const q = win().op!.q!
     expect(q[0]?.[0]).toBe('init')
-    expect(q[0]?.[1]).toMatchObject({ clientId: 'abc', apiUrl: '/_e', trackScreenViews: true })
+    expect(q[0]?.[1]).toMatchObject({
+      clientId: 'abc',
+      apiUrl: '/_e',
+      trackScreenViews: true,
+      trackAttributes: false,
+    })
     expect(q[1]).toEqual(['track', 'assembly_viewed', { assembly_id: 'ac001', page_name: 'Assembly Detail' }])
   })
 

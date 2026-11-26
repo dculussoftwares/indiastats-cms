@@ -42,7 +42,9 @@ export const OPENPANEL_OPTIONS = {
   apiUrl: OPENPANEL_API_URL,
   trackScreenViews: true,
   trackOutgoingLinks: true,
-  trackAttributes: true,
+  // Off: the SDK camelCases `data-*` keys, which would break the snake_case
+  // naming rule. Use `events.{namespace}.{action}()` instead.
+  trackAttributes: false,
 } as const
 
 /** JS source passed to the SDK's `filter` option (evaluated in the browser). */
