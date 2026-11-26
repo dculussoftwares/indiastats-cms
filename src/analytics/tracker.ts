@@ -8,6 +8,7 @@
 import { posthog, mixpanel, mixpanelReady } from '@/instrumentation-client'
 import { trackEvent, setDimension } from '@/utilities/clarityTracking'
 import type { UniversalEventProperties, EventProperties, AnalyticsProvider } from './types'
+import { openPanelProvider, isOpenPanelEnabled } from './providers/openpanel'
 
 // GA4 Measurement ID from environment
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID
@@ -109,6 +110,11 @@ export const registerProvider = (provider: AnalyticsProvider) => {
 
 export const getProviders = (): AnalyticsProvider[] => {
   return providers
+}
+
+// Built-in providers (no-op unless configured)
+if (isOpenPanelEnabled()) {
+  registerProvider(openPanelProvider)
 }
 
 // ============================================
